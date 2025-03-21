@@ -1,0 +1,11 @@
+Mar 21 15:17:58  [info] -- (::1) op.Login.php 
+Mar 21 15:17:58  [info] Authentication service 'db'
+Mar 21 15:17:58  [error] Authentication service 'db': Authentication of user 'admin' disregarded.
+Mar 21 15:17:58  [error] -- (::1) op.Login.php login failed
+Mar 21 15:18:09  [info] -- (::1) op.Login.php 
+Mar 21 15:18:09  [info] Authentication service 'db'
+Mar 21 15:18:09  [error] Authentication service 'db': Authentication of user 'dagzz2305' disregarded.
+Mar 21 15:18:09  [error] -- (::1) op.Login.php login failed
+Mar 21 15:19:22  [info] -- (::1) op.Login.php 
+Mar 21 15:19:22  [info] Authentication service 'db'
+Mar 21 15:19:22  [info] Authentication service 'db': Authentication of user 'admin' successful.
