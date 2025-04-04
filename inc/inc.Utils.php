@@ -1100,9 +1100,7 @@ function getMandatoryReviewers($folder, $document, $user) { /* {{{ */
 		foreach($groups as $group) {
 			$managers = $group->getManagers();
 			foreach($managers as $manager) {
-				/* Do not add myself, if I'm the manager of the group */
-				if($manager->getId() != $user->getId())
-					$revi[] = $manager->getId();
+				$revi[] = $manager->getId();
 			}
 		}
 	}
@@ -1197,9 +1195,7 @@ function getMandatoryApprovers($folder, $document, $user) { /* {{{ */
 		foreach($groups as $group) {
 			$managers = $group->getManagers();
 			foreach($managers as $manager) {
-				/* Do not add myself, if I'm the manager of the group */
-				if($manager->getId() != $user->getId())
-					$appi[] = $manager->getId();
+				$appi[] = $manager->getId();
 			}
 		}
 	}

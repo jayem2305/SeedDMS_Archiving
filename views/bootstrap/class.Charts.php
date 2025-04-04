@@ -249,7 +249,6 @@ $(document).ready( function() {
 		$user = $this->params['user'];
 		$data = $this->params['data'];
 		$type = $this->params['type'];
-		$quota = $this->params['quota'];
 
 		$this->htmlAddHeader(
 			'<script type="text/javascript" src="../styles/bootstrap/flot/jquery.flot.min.js"></script>'."\n".
@@ -273,7 +272,7 @@ $(document).ready( function() {
 		$this->contentContainerEnd();
 		$this->columnEnd();
 
-		if(in_array($type, array('sizepermonth', 'docspermonth', 'docsaccumulated'))) {
+		if(in_array($type, array('docspermonth', 'docsaccumulated'))) {
 			$this->columnStart(9);
 		} else {
 			$this->columnStart(6);
@@ -286,12 +285,8 @@ $(document).ready( function() {
 		$this->contentContainerEnd();
 		echo "<table class=\"table table-condensed table-sm table-hover\">";
 		echo "<tr>";
-		echo "<th>".getMLText('chart_'.$type.'_title')."</th>";
-		echo "<th>".getMLText('total')."</th>";
-		$types = array('docspermonth', 'docsaccumulated');
-		if($quota)
-			$types[] = 'sizeperuser';
-		if(in_array($type, $types))
+		echo "<th>".getMLText('chart_'.$type.'_title')."</th><th>".getMLText('total')."</th>";
+		if(in_array($type, array('docspermonth', 'docsaccumulated')))
 			echo "<th></th>";
 		echo "</tr>";
 		$total = 0;
@@ -328,21 +323,6 @@ $(document).ready( function() {
 			}
 			break;
 		case 'sizeperuser':
-			foreach($data as $item) {
-				$currUser = $dms->getUser($item['res']);
-				echo "<tr><td>".htmlspecialchars($item['key'])."</td>";
-				echo "<td>".SeedDMS_Core_File::format_filesize((int) $item['total'])."</td>";
-				if($quota) {
-					echo "<td width=\"100\">";
-					$qt = $currUser->getQuota() ? $currUser->getQuota() : $quota;
-					echo $this->getProgressBar($currUser->getUsedDiskSpace(), $qt);
-					echo "</td>";
-				}
-				echo "</tr>";
-				$total += $item['total'];
-			}
-			echo "<tr><th></th><th>".SeedDMS_Core_File::format_filesize($total)."<th></tr>";
-			break;
 		case 'sizepermonth':
 			foreach($data as $item) {
 				echo "<tr><td>".htmlspecialchars($item['key'])."</td><td>".SeedDMS_Core_File::format_filesize((int) $item['total'])."</td></tr>";
@@ -354,7 +334,7 @@ $(document).ready( function() {
 		echo "</table>";
 		$this->columnEnd();
 
-		if(!in_array($type, array('sizepermonth', 'docspermonth', 'docsaccumulated'))) {
+		if(!in_array($type, array('docspermonth', 'docsaccumulated'))) {
 			$this->columnStart(3);
 			$this->contentHeading(getMLText('legend'));
 			$this->contentContainerStart('', 'legend');

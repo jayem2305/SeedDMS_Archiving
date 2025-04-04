@@ -407,8 +407,6 @@ $(document).ready( function() {
 				if(data.success) {
 					$("#main-clipboard").html('Loading').load(seeddms_webroot+'out/out.Clipboard.php?action=mainclipboard')
 					$("#menu-clipboard div").html('Loading').load(seeddms_webroot+'out/out.Clipboard.php?action=menuclipboard')
-					$("div.ajax[data-action='navigation']").trigger('update', {});
-					$("div.ajax[data-action='folderList']").trigger('update', {});
 					noty({
 						text: attr_msg,
 						type: 'success',
@@ -444,8 +442,6 @@ $(document).ready( function() {
 				if(data.success) {
 					$("#main-clipboard").html('Loading').load(seeddms_webroot+'out/out.Clipboard.php?action=mainclipboard')
 					$("#menu-clipboard div").html('Loading').load(seeddms_webroot+'out/out.Clipboard.php?action=menuclipboard')
-					$("div.ajax[data-action='navigation']").trigger('update', {});
-					$("div.ajax[data-action='folderList']").trigger('update', {});
 					noty({
 						text: attr_msg,
 						type: 'success',
@@ -757,8 +753,6 @@ function onAddClipboard(ev) { /* {{{ */
 				if(data.success) {
 					$("#main-clipboard").html('Loading').load(seeddms_webroot+'out/out.Clipboard.php?action=mainclipboard')
 					$("#menu-clipboard div").html('Loading').load(seeddms_webroot+'out/out.Clipboard.php?action=menuclipboard')
-					$("div.ajax[data-action='navigation']").trigger('update', {});
-					$("div.ajax[data-action='folderList']").trigger('update', {});
 					noty({
 						text: data.message,
 						type: 'success',

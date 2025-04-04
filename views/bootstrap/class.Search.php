@@ -57,7 +57,7 @@ $(document).ready( function() {
 	$('#export').on('click', function(ev) {
 		ev.preventDefault();
 		ev.stopPropagation();
-		var url = $(this).attr('href')+'&includecontent='+($('#includecontent').prop('checked') ? '1' : '0')+'&skipdefaultcols='+($('#skipdefaultcols').prop('checked') ? '1' : '0');
+		var url = $(this).attr('href')+'&includecontent='+($('#includecontent').prop('checked') ? '1' : '0');
 		var values = {};
 		$('input[name^=\"marks\"]').each(function() {
 			if(this.checked)
@@ -225,12 +225,10 @@ $(document).ready(function() {
 		$user = $this->params['user'];
 		$entries = $this->params['searchhits'];
 		$includecontent = $this->params['includecontent'];
-		$skipdefaultcols = $this->params['skipdefaultcols'];
 		$marks = $this->params['marks'];
 
 		include("../inc/inc.ClassDownloadMgr.php");
 		$downmgr = new SeedDMS_Download_Mgr();
-		$downmgr->skipDefaultCols($skipdefaultcols);
 		if($extraheader = $this->callHook('extraDownloadHeader'))
 			$downmgr->addHeader($extraheader);
 		foreach($entries as $entry) {
@@ -813,9 +811,9 @@ $(document).ready(function() {
 					} elseif(in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_int, SeedDMS_Core_AttributeDefinition::type_float]) && !$attrdef->getValueSet()) {
 						$this->formField(htmlspecialchars($attrdef->getName().' ('.getMLText('from').')'), $this->getAttributeEditField($attrdef, !empty($attributes[$attrdef->getID()]['from']) ? $attributes[$attrdef->getID()]['from'] : '', 'attributes', true, 'from'));
 						$this->formField(htmlspecialchars($attrdef->getName().' ('.getMLText('to').')'), $this->getAttributeEditField($attrdef, !empty($attributes[$attrdef->getID()]['to']) ? $attributes[$attrdef->getID()]['to'] : '', 'attributes', true, 'to'));
-					} else {
-						$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, isset($attributes[$attrdef->getID()]) ? $attributes[$attrdef->getID()] : '', 'attributes', true, '', false));
-					}
+
+					} else
+						$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, isset($attributes[$attrdef->getID()]) ? $attributes[$attrdef->getID()] : '', 'attributes', true, '', true));
 				}
 			}
 		}
@@ -1505,16 +1503,6 @@ $(document).ready(function() {
 					'type'=>'checkbox',
 					'name'=>'includecontent',
 					'id'=>'includecontent',
-					'value'=>1,
-				)
-			);
-			$this->formField(
-				getMLText("skip_default_export_cols"),
-				array(
-					'element'=>'input',
-					'type'=>'checkbox',
-					'name'=>'skipdefaultcols',
-					'id'=>'skipdefaultcols',
 					'value'=>1,
 				)
 			);

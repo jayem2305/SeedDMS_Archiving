@@ -52,7 +52,7 @@ class Calculation
     //    Defined Names: Named Range of cells, or Named Formulae
     const CALCULATION_REGEXP_DEFINEDNAME = '((([^\s,!&%^\/\*\+<>=-]*)|(\'(?:[^\']|\'[^!])+?\')|(\"(?:[^\"]|\"[^!])+?\"))!)?([_\p{L}][_\p{L}\p{N}\.]*)';
     // Structured Reference (Fully Qualified and Unqualified)
-    const CALCULATION_REGEXP_STRUCTURED_REFERENCE = '([\p{L}_\\\][\p{L}\p{N}\._]+)?(\[(?:[^\d\]+-])?)';
+    const CALCULATION_REGEXP_STRUCTURED_REFERENCE = '([\p{L}_\\\\][\p{L}\p{N}\._]+)?(\[(?:[^\d\]+-])?)';
     //    Error
     const CALCULATION_REGEXP_ERROR = '\#[A-Z][A-Z0_\/]*[!\?]?';
 
@@ -4408,9 +4408,7 @@ class Calculation
                             if ($rangeWS1 !== '') {
                                 $rangeWS1 .= '!';
                             }
-                            if (str_starts_with($rangeSheetRef, "'")) {
-                                $rangeSheetRef = Worksheet::unApostrophizeTitle($rangeSheetRef);
-                            }
+                            $rangeSheetRef = trim($rangeSheetRef, "'");
                             [$rangeWS2, $val] = Worksheet::extractSheetTitle($val, true);
                             if ($rangeWS2 !== '') {
                                 $rangeWS2 .= '!';
@@ -4426,10 +4424,11 @@ class Calculation
                             if (ctype_digit($val) && $val <= 1048576) {
                                 //    Row range
                                 $stackItemType = 'Row Reference';
+                                /** @var int $valx */
                                 $valx = $val;
                                 $endRowColRef = ($refSheet !== null) ? $refSheet->getHighestDataColumn($valx) : AddressRange::MAX_COLUMN; //    Max 16,384 columns for Excel2007
                                 $val = "{$rangeWS2}{$endRowColRef}{$val}";
-                            } elseif (ctype_alpha($val) && strlen($val) <= 3) {
+                            } elseif (ctype_alpha($val) && is_string($val) && strlen($val) <= 3) {
                                 //    Column range
                                 $stackItemType = 'Column Reference';
                                 $endRowColRef = ($refSheet !== null) ? $refSheet->getHighestDataRow($val) : AddressRange::MAX_ROW; //    Max 1,048,576 rows for Excel2007
@@ -4563,7 +4562,7 @@ class Calculation
 
         while (($op = $stack->pop()) !== null) {
             // pop everything off the stack and push onto output
-            if ($op['value'] == '(') {
+            if ((is_array($op) && $op['value'] == '(')) {
                 return $this->raiseFormulaError("Formula Error: Expecting ')'"); // if there are any opening braces on the stack, then braces were unbalanced
             }
             $output[] = $op;
@@ -4767,18 +4766,18 @@ class Calculation
                             }
                         }
                         if (str_contains($operand1Data['reference'] ?? '', '!')) {
-                            [$sheet1, $operand1Data['reference']] = Worksheet::extractSheetTitle($operand1Data['reference'], true, true);
+                            [$sheet1, $operand1Data['reference']] = Worksheet::extractSheetTitle($operand1Data['reference'], true);
                         } else {
                             $sheet1 = ($pCellWorksheet !== null) ? $pCellWorksheet->getTitle() : '';
                         }
                         $sheet1 ??= '';
 
-                        [$sheet2, $operand2Data['reference']] = Worksheet::extractSheetTitle($operand2Data['reference'], true, true);
+                        [$sheet2, $operand2Data['reference']] = Worksheet::extractSheetTitle($operand2Data['reference'], true);
                         if (empty($sheet2)) {
                             $sheet2 = $sheet1;
                         }
 
-                        if ($sheet1 === $sheet2) {
+                        if (trim($sheet1, "'") === trim($sheet2, "'")) {
                             if ($operand1Data['reference'] === null && $cell !== null) {
                                 if (is_array($operand1Data['value'])) {
                                     $operand1Data['reference'] = $cell->getCoordinate();
@@ -4820,7 +4819,7 @@ class Calculation
                             if ($breakNeeded) {
                                 break;
                             }
-                            $cellRef = Coordinate::stringFromColumnIndex(min($oCol) + 1) . min($oRow) . ':' . Coordinate::stringFromColumnIndex(max($oCol) + 1) . max($oRow); // @phpstan-ignore-line
+                            $cellRef = Coordinate::stringFromColumnIndex(min($oCol) + 1) . min($oRow) . ':' . Coordinate::stringFromColumnIndex(max($oCol) + 1) . max($oRow);
                             if ($pCellParent !== null && $this->spreadsheet !== null) {
                                 $cellValue = $this->extractCellRange($cellRef, $this->spreadsheet->getSheetByName($sheet1), false);
                             } else {
@@ -4918,8 +4917,8 @@ class Calculation
                             $this->debugLog->writeDebugLog('Evaluation Result is %s', $this->showTypeDetails($cellIntersect));
                             $stack->push('Error', ExcelError::null(), null);
                         } else {
-                            $cellRef = Coordinate::stringFromColumnIndex(min($oCol) + 1) . min($oRow) . ':' // @phpstan-ignore-line
-                                . Coordinate::stringFromColumnIndex(max($oCol) + 1) . max($oRow); // @phpstan-ignore-line
+                            $cellRef = Coordinate::stringFromColumnIndex(min($oCol) + 1) . min($oRow) . ':'
+                                . Coordinate::stringFromColumnIndex(max($oCol) + 1) . max($oRow);
                             $this->debugLog->writeDebugLog('Evaluation Result is %s', $this->showTypeDetails($cellIntersect));
                             $stack->push('Value', $cellIntersect, $cellRef);
                         }
@@ -5059,7 +5058,6 @@ class Calculation
                 }
 
                 $functionName = $matches[1];
-                /** @var array $argCount */
                 $argCount = $stack->pop();
                 $argCount = $argCount['value'];
                 if ($functionName !== 'MKMATRIX') {
@@ -5090,10 +5088,9 @@ class Calculation
                             && (isset(self::$phpSpreadsheetFunctions[$functionName]['passByReference'][$a]))
                             && (self::$phpSpreadsheetFunctions[$functionName]['passByReference'][$a])
                         ) {
-                            /** @var array $arg */
                             if ($arg['reference'] === null) {
                                 $nextArg = $cellID;
-                                if ($functionName === 'ISREF' && ($arg['type'] ?? '') === 'Value') {
+                                if ($functionName === 'ISREF' && is_array($arg) && ($arg['type'] ?? '') === 'Value') {
                                     if (array_key_exists('value', $arg)) {
                                         $argValue = $arg['value'];
                                         if (is_scalar($argValue)) {
@@ -5114,7 +5111,6 @@ class Calculation
                                 }
                             }
                         } else {
-                            /** @var array $arg */
                             if ($arg['type'] === 'Empty Argument' && in_array($functionName, ['MIN', 'MINA', 'MAX', 'MAXA', 'IF'], true)) {
                                 $emptyArguments[] = false;
                                 $args[] = $arg['value'] = 0;
@@ -5237,7 +5233,6 @@ class Calculation
         if ($stack->count() != 1) {
             return $this->raiseFormulaError('internal error');
         }
-        /** @var array $output */
         $output = $stack->pop();
         $output = $output['value'];
 
@@ -5290,7 +5285,6 @@ class Calculation
             foreach ($operand1 as $x => $operandData) {
                 $this->debugLog->writeDebugLog('Evaluating Comparison %s %s %s', $this->showValue($operandData), $operation, $this->showValue($operand2));
                 $this->executeBinaryComparisonOperation($operandData, $operand2, $operation, $stack);
-                /** @var array $r */
                 $r = $stack->pop();
                 $result[$x] = $r['value'];
             }
@@ -5299,7 +5293,6 @@ class Calculation
             foreach ($operand2 as $x => $operandData) {
                 $this->debugLog->writeDebugLog('Evaluating Comparison %s %s %s', $this->showValue($operand1), $operation, $this->showValue($operandData));
                 $this->executeBinaryComparisonOperation($operand1, $operandData, $operation, $stack);
-                /** @var array $r */
                 $r = $stack->pop();
                 $result[$x] = $r['value'];
             }
@@ -5311,7 +5304,6 @@ class Calculation
             foreach ($operand1 as $x => $operandData) {
                 $this->debugLog->writeDebugLog('Evaluating Comparison %s %s %s', $this->showValue($operandData), $operation, $this->showValue($operand2[$x]));
                 $this->executeBinaryComparisonOperation($operandData, $operand2[$x], $operation, $stack, true);
-                /** @var array $r */
                 $r = $stack->pop();
                 $result[$x] = $r['value'];
             }
@@ -5503,7 +5495,7 @@ class Calculation
             $worksheetName = $worksheet->getTitle();
 
             if (str_contains($range, '!')) {
-                [$worksheetName, $range] = Worksheet::extractSheetTitle($range, true, true);
+                [$worksheetName, $range] = Worksheet::extractSheetTitle($range, true);
                 $worksheet = ($this->spreadsheet === null) ? null : $this->spreadsheet->getSheetByName($worksheetName);
             }
 
@@ -5565,7 +5557,7 @@ class Calculation
 
         if ($worksheet !== null) {
             if (str_contains($range, '!')) {
-                [$worksheetName, $range] = Worksheet::extractSheetTitle($range, true, true);
+                [$worksheetName, $range] = Worksheet::extractSheetTitle($range, true);
                 $worksheet = ($this->spreadsheet === null) ? null : $this->spreadsheet->getSheetByName($worksheetName);
             }
 

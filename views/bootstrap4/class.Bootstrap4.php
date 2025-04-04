@@ -472,7 +472,7 @@ background-image: linear-gradient(to bottom, #882222, #111111);;
 						echo "      <a class=\"dropdown-item active\"";
 					else
 						echo "      <a class=\"dropdown-item\"";
-					echo " href=\"".$this->params['settings']->_httpRoot."op/op.SetLanguage.php?lang=".$currLang."&referer=".urlencode(encryptData($this->params['settings']->_encryptionKey, $_SERVER["REQUEST_URI"]))."\">";
+					echo " href=\"".$this->params['settings']->_httpRoot."op/op.SetLanguage.php?lang=".$currLang."&referer=".$_SERVER["REQUEST_URI"]."\">";
 					echo getMLText($currLang)."</a>\n";
 				}
 				echo "     </div>\n";
@@ -701,7 +701,6 @@ background-image: linear-gradient(to bottom, #882222, #111111);;
 
 	private function folderNavigationBar($folder) { /* {{{ */
 		$dms = $this->params['dms'];
-		$session = $this->params['session'];
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessobject = $this->params['accessobject'];
 		if (!is_object($folder) || !$folder->isType('folder')) {
@@ -744,10 +743,7 @@ background-image: linear-gradient(to bottom, #882222, #111111);;
 				$menuitems['edit_folder_notify'] = array('link'=>$this->params['settings']->_httpRoot."out/out.FolderNotify.php?folderid=". $folderID ."&showtree=". showtree(), 'label'=>getMLText('edit_folder_notify'));
 		}
 		if($enableClipboard) {
-			if($session->isOnClipboard($folder))
-				$menuitems['remove_from_clipboard'] = array('class'=>'removefromclipboard', 'attributes'=>array(['rel', 'F'.$folder->getId()], ['msg', getMLText('splash_removed_from_clipboard')], ['title', getMLText("remove_from_clipboard")]), 'label'=>getMLText("remove_from_clipboard"));
-			else
-				$menuitems['add_to_clipboard'] = array('class'=>'addtoclipboard', 'attributes'=>array(['rel', 'F'.$folder->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label'=>getMLText("add_to_clipboard"));
+			$menuitems['add_to_clipboard'] = array('class'=>'addtoclipboard', 'attributes'=>array(['rel', 'F'.$folder->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label'=>getMLText("add_to_clipboard"));
 		}
 		if ($this->params['user']->isAdmin() && $this->params['enablefullsearch']) {
 			$menuitems['index_folder'] = array('link'=>$this->params['settings']->_httpRoot."out/out.Indexer.php?folderid=". $folderID."&showtree=".showtree(), 'label'=>getMLText('index_folder'));
@@ -768,7 +764,6 @@ background-image: linear-gradient(to bottom, #882222, #111111);;
 	} /* }}} */
 
 	private function documentNavigationBar($document)	{ /* {{{ */
-		$session = $this->params['session'];
 		$accessobject = $this->params['accessobject'];
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessMode = $document->getAccessMode($this->params['user']);
@@ -828,10 +823,7 @@ background-image: linear-gradient(to bottom, #882222, #111111);;
 				$menuitems['edit_document_notify'] = array('link'=>$this->params['settings']->_httpRoot."out/out.DocumentNotify". $docid, 'label'=>getMLText('edit_document_notify'));
 		}
 		if($enableClipboard) {
-			if($session->isOnClipboard($document))
-				$menuitems['remove_from_clipboard'] = array('class'=>'removefromclipboard', 'attributes'=>array(['rel', 'D'.$document->getId()], ['msg', getMLText('splash_removed_from_clipboard')], ['title', getMLText("remove_from_clipboard")]), 'label'=>getMLText("remove_from_clipboard"));
-			else
-				$menuitems['add_to_clipboard'] = array('class'=>'addtoclipboard', 'attributes'=>array(['rel', 'D'.$document->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label'=>getMLText("add_to_clipboard"));
+			$menuitems['add_to_clipboard'] = array('class'=>'addtoclipboard', 'attributes'=>array(['rel', 'D'.$document->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label'=>getMLText("add_to_clipboard"));
 		}
 		if ($accessobject->check_view_access('TransferDocument')) {
 			$menuitems['transfer_document'] = array('link'=>$this->params['settings']->_httpRoot."out/out.TransferDocument". $docid, 'label'=>getMLText('transfer_document'));
@@ -2052,15 +2044,6 @@ $(document).ready(function() {
 		echo self::getAttributeEditField($attrdef, $attribute, $fieldname, $norequire, $namepostfix, $alwaysmultiple);
 	} /* }}} */
 
-	/**
-	 * Return html code for an input/select field of an attribute
-	 *
-	 * The passed attribute ($attribute) can either be an object of type
-	 * SeedDMS_Core_Attribute, scalar or an array. A scalar or array is
-	 * passed when the method is called to create the search form. In that
-	 * case $attribute has the value from the post data after submitting the
-	 * search form.
-	 */
 	function getAttributeEditField($attrdef, $attribute, $fieldname='attributes', $norequire=false, $namepostfix='', $alwaysmultiple=false) { /* {{{ */
 		$dms = $this->params['dms'];
 		$attr_id = $fieldname.'_'.$attrdef->getId().($namepostfix ? '_'.$namepostfix : '');
@@ -2094,27 +2077,18 @@ $(document).ready(function() {
 			$content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
 			break; */
 		case SeedDMS_Core_AttributeDefinition::type_folder:
-			$target = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : null;
+			$target = $attribute ? $attribute->getValue() : null;
 			$content .= $this->getFolderChooserHtml("attr".$attrdef->getId(), M_READWRITE, -1, $target, $attr_name, false);
 			break;
 		case SeedDMS_Core_AttributeDefinition::type_document:
-			$target = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : null;
+			$target = $attribute ? $attribute->getValue() : null;
 			$content .= $this->getDocumentChooserHtml("attr".$attrdef->getId(), M_READ, -1, $target, $attr_name);
 			break;
 		case SeedDMS_Core_AttributeDefinition::type_user:
+			$target = $attribute ? $attribute->getValueAsArray() : [];
 			$objvalue = [];
-			if($attribute) {
-				if(is_object($attribute)) {
-					$target = $attribute->getValueAsArray();
-					foreach($target as $t)
-						$objvalue[] = $t->getId();
-				} elseif(is_array($attribute)) {
-					foreach($attribute as $t)
-						$objvalue[] = $t;
-				} else {
-					$objvalue[] = $attribute;
-				}
-			}
+			foreach($target as $t)
+				$objvalue[] = $t->getId();
 			$users = $dms->getAllUsers();
 			if($users) {
 				$allowempty = $attrdef->getMinValues() == 0;
@@ -2134,19 +2108,10 @@ $(document).ready(function() {
 			}
 			break;
 		case SeedDMS_Core_AttributeDefinition::type_group:
+			$target = $attribute ? $attribute->getValueAsArray() : [];
 			$objvalue = [];
-			if($attribute) {
-				if(is_object($attribute)) {
-					$target = $attribute->getValueAsArray();
-					foreach($target as $t)
-						$objvalue[] = $t->getId();
-				} elseif(is_array($attribute)) {
-					foreach($attribute as $t)
-						$objvalue[] = $t;
-				} else {
-					$objvalue[] = $attribute;
-				}
-			}
+			foreach($target as $t)
+				$objvalue[] = $t->getId();
 			$groups = $dms->getAllGroups();
 			if($groups) {
 				$allowempty = $attrdef->getMinValues() == 0;
@@ -3286,7 +3251,6 @@ $('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev)
 
 	function documentListRowAction($document, $previewer, $skipcont=false, $version=0, $extracontent=array()) { /* {{{ */
 		$user = $this->params['user'];
-		$session = $this->params['session'];
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessop = $this->params['accessobject'];
 		$onepage = $this->params['onepage'];
@@ -3316,10 +3280,7 @@ $('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev)
 			$actions['document_access'] = $this->printAccessButton($document, true);
 		}
 		if($enableClipboard) {
-			if($session->isOnClipboard($document))
-				$actions['remove_from_clipboard'] = '<a class="removefromclipboard" rel="D'.$docID.'" msg="'.getMLText('splash_removed_from_clipboard').'" title="'.getMLText("remove_from_clipboard").'"><i class="fa fa-copy"></i></a>';
-			else
-				$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="D'.$docID.'" msg="'.getMLText('splash_added_to_clipboard').'" title="'.getMLText("add_to_clipboard").'"><i class="fa fa-copy"></i></a>';
+			$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="D'.$docID.'" msg="'.getMLText('splash_added_to_clipboard').'" title="'.getMLText("add_to_clipboard").'"><i class="fa fa-copy"></i></a>';
 		}
 		if($onepage)
 			$actions['view_document'] = '<a href="'.$this->params['settings']->_httpRoot.'out/out.ViewDocument.php?documentid='.$docID.'" title="'.getMLText("view_document").'"><i class="fa fa-eye"></i></a>';
@@ -3460,7 +3421,7 @@ $('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev)
 				if($totalreceipts) {
 					$content .= "
 <div class=\"progress\">
-<div class=\"progress-bar bar bar-success bg-success\" role=\"progress-bar\" style=\"width: ".round($rstat['1']/$totalreceipts*100)."%;\">".($rstat['1'] ? $rstat['1']."/".$totalreceipts : '').($allcomments['1'] ? " ".$this->printPopupBox('<i class="fa fa-comment"></i>', implode('<br />', formatComment($allcomments['1'])), true) : "")."</div>
+<div class=\"progress-bar bar bar-success bg-success d-block\" role=\"progress-bar\" style=\"width: ".round($rstat['1']/$totalreceipts*100)."%;\">".($rstat['1'] ? $rstat['1']."/".$totalreceipts : '').($allcomments['1'] ? " ".$this->printPopupBox('<i class="fa fa-comment"></i>', implode('<br />', formatComment($allcomments['1'])), true) : "")."</div>
 	<div class=\"progress-bar bar bar-danger bg-danger\" style=\"width: ".round($rstat['-1']/$totalreceipts*100)."%;\">".($rstat['-1'] ? $rstat['-1']."/".$totalreceipts : '').($allcomments['-1'] ? " ".$this->printPopupBox('<i class="fa fa-comment"></i>', implode('<br />', formatComment($allcomments['-1'])), true) : "")."</div>
 </div>";
 				}
@@ -3577,7 +3538,6 @@ $('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev)
 	function folderListRowAction($subFolder, $skipcont=false, $extracontent=array()) { /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
-		$session = $this->params['session'];
 //		$folder = $this->params['folder'];
 		$showtree = $this->params['showtree'];
 		$enableRecursiveCount = $this->params['enableRecursiveCount'];
@@ -3610,10 +3570,7 @@ $('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev)
 			$actions['folder_access'] = $this->printAccessButton($subFolder, true);
 		}
 		if($enableClipboard) {
-			if($session->isOnClipboard($subFolder))
-				$actions['add_to_clipboard'] = '<a class="removefromclipboard" rel="F'.$subFolder->getID().'" msg="'.getMLText('splash_removed_from_clipboard').'" title="'.getMLText("remove_from_clipboard").'"><i class="fa fa-copy"></i></a>';
-			else
-				$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="F'.$subFolder->getID().'" msg="'.getMLText('splash_added_to_clipboard').'" title="'.getMLText("add_to_clipboard").'"><i class="fa fa-copy"></i></a>';
+			$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="F'.$subFolder->getID().'" msg="'.getMLText('splash_added_to_clipboard').'" title="'.getMLText("add_to_clipboard").'"><i class="fa fa-copy"></i></a>';
 		}
 		if($onepage)
 			$actions['view_folder'] = '<a href="'.$this->params['settings']->_httpRoot.'out/out.ViewFolder.php?folderid='.$subFolder->getID().'" title="'.getMLText("view_folder").'"><i class="fa fa-eye"></i></a>';

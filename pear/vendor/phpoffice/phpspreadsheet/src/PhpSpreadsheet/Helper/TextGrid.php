@@ -35,15 +35,13 @@ class TextGrid
     {
         $this->gridDisplay = $this->isCli ? '' : '<pre>';
 
-        if (!empty($this->rows)) {
-            $maxRow = max($this->rows);
-            $maxRowLength = mb_strlen((string) $maxRow) + 1;
-            $columnWidths = $this->getColumnWidths();
+        $maxRow = max($this->rows);
+        $maxRowLength = mb_strlen((string) $maxRow) + 1;
+        $columnWidths = $this->getColumnWidths();
 
-            $this->renderColumnHeader($maxRowLength, $columnWidths);
-            $this->renderRows($maxRowLength, $columnWidths);
-            $this->renderFooter($maxRowLength, $columnWidths);
-        }
+        $this->renderColumnHeader($maxRowLength, $columnWidths);
+        $this->renderRows($maxRowLength, $columnWidths);
+        $this->renderFooter($maxRowLength, $columnWidths);
 
         $this->gridDisplay .= $this->isCli ? '' : '</pre>';
 

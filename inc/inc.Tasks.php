@@ -53,7 +53,6 @@ class SeedDMS_ExpiredDocumentsTask extends SeedDMS_SchedulerTaskBase { /* {{{ */
 							$params['count'] = count($docs);
 							$params['__body__'] = $body;
 							$params['__body_html__'] = $bodyhtml;
-							$params['__skip_footer__'] = true;
 							$params['sitename'] = $settings->_siteName;
 							$email->toIndividual('', $u, 'expired_docs_mail_subject', '', $params);
 							$logger->log('Task \'expired_docs\': Sending reminder \'expired_docs_mail_subject\' to user \''.$u->getLogin().'\'', PEAR_LOG_INFO);
@@ -80,7 +79,6 @@ class SeedDMS_ExpiredDocumentsTask extends SeedDMS_SchedulerTaskBase { /* {{{ */
 					$params['count'] = count($docs);
 					$params['__body__'] = $body;
 					$params['__body_html__'] = $bodyhtml;
-					$params['__skip_footer__'] = true;
 					$params['sitename'] = $settings->_siteName;
 					$email->toIndividual('', $taskparams['email'], 'expired_docs_mail_subject', '', $params);
 
@@ -615,7 +613,6 @@ class SeedDMS_CalendarTask extends SeedDMS_SchedulerTaskBase { /* {{{ */
 					$params['count'] = count($events);
 					$params['__body__'] = $body;
 					$params['__body_html__'] = $bodyhtml;
-					$params['__skip_footer__'] = true;
 					$params['sitename'] = $settings->_siteName;
 					$email->toIndividual('', $auser, 'calendar_events_mail_subject', '', $params);
 
@@ -717,7 +714,6 @@ class SeedDMS_StatisticTask extends SeedDMS_SchedulerTaskBase { /* {{{ */
 				$params = array();
 				$params['__body__'] = $body;
 				$params['__body_html__'] = $bodyhtml;
-				$params['__skip_footer__'] = true;
 				$params['sitename'] = $settings->_siteName;
 				$email->toIndividual('', $auser, 'statistics_mail_subject', '', $params);
 

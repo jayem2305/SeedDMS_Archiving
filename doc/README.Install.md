@@ -8,13 +8,13 @@ SeedDMS is a web-based application written in PHP. It uses MySQL,
 SQLite3 or PostgreSQL to manage the documents that were uploaded into
 the application. Be aware that PostgreSQL is not very well tested.
 
-Make sure you have PHP >= 8.2 and MySQL 5 or higher installed. SeedDMS
+Make sure you have PHP >= 7.4 and MySQL 5 or higher installed. SeedDMS
 will work with PHP running in CGI-mode as well as running as a module under
 apache.
 
 Here is a detailed list of requirements:
 
-1. A web server with at least php 8.2
+1. A web server with at least php 7.4
 2. A mysql database, unless you use SQLite
 3. The php installation must have support for `pdo_mysql`, `pdo_pgsql` or `pdo_sqlite`,
    `php_gd2`, `php_mbstring`, `php_xml`

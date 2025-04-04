@@ -93,25 +93,11 @@ class SeedDMS_Download_Mgr {
 	 */
 	protected $filenames;
 
-	/**
-	 * @var boolean $skipdefaultcols skip default columns, will only export extracols
-	 * @access protected
-	 */
-	protected $skipdefaultcols;
-
 	function __construct($tmpdir = '') {
 		$this->tmpdir = $tmpdir;
 		$this->items = array();
 		$this->folder_items = array();
-		$this->header = array(getMLText('download_header_document_no'), getMLText('download_header_document_name'), getMLText('download_header_filename'), getMLText('download_header_state'), getMLText('download_header_internal_version'));
-		$this->header[] = getMLText('download_header_reviewer');
-	 	$this->header[] =	getMLText('download_header_review_date');
-	 	$this->header[] =	getMLText('download_header_review_comment');
-	 	$this->header[] =	getMLText('download_header_review_state');
-	 	$this->header[] =	getMLText('download_header_approver');
-	 	$this->header[] =	getMLText('download_header_approval_date');
-	 	$this->header[] =	getMLText('download_header_approval_comment');
-	 	$this->header[] =	getMLText('download_header_approval_state');
+		$this->header = array(getMLText('download_header_document_no'), getMLText('download_header_document_name'), getMLText('download_header_filename'), getMLText('download_header_state'), getMLText('download_header_internal_version'), getMLText('download_header_reviewer'), getMLText('download_header_review_date'), getMLText('download_header_review_comment'), getMLText('download_header_review_state'), getMLText('download_header_approver'), getMLText('download_header_approval_date'), getMLText('download_header_approval_comment'), getMLText('download_header_approval_state'));
 		$this->folder_header = array(getMLText('download_header_folder_no'), getMLText('download_header_folder_name'));
 		$this->extracols = array();
 		$this->folder_extracols = array();
@@ -119,13 +105,7 @@ class SeedDMS_Download_Mgr {
 		$this->extraheader = array();
 		$this->folder_extraheader = array();
 		$this->filenames = array();
-		$this->includereviewers = false;
-		$this->includeapprovers = false;
 	}
-
-	public function skipDefaultCols($v) { /* {{{ */
-		$this->skipdefaultcols = (bool) $v;
-	} /* }}} */
 
 	public function addHeader($extraheader) { /* {{{ */
 		$this->extraheader = $extraheader;
@@ -157,9 +137,8 @@ class SeedDMS_Download_Mgr {
 
 		$i = 1;
 		$col = 1;
-		if(!$this->skipdefaultcols)
-			foreach($this->header as $h)
-				$sheet->setCellValue([$col++, $i], $h);
+		foreach($this->header as $h)
+			$sheet->setCellValue([$col++, $i], $h);
 		foreach($this->extraheader as $h)
 			$sheet->setCellValue([$col++, $i], $h);
 		$i++;
@@ -172,14 +151,13 @@ class SeedDMS_Download_Mgr {
 			$approvalStatus = $item->getApprovalStatus();
 
 			$col = 1;
-			$l = $i; // Number of reviewers
-			$k = $i; // Number of approvers
-			if(!$this->skipdefaultcols) {
 			$sheet->setCellValue([$col++, $i], $document->getID());
 			$sheet->setCellValue([$col++, $i], $document->getName());
 			$sheet->setCellValue([$col++, $i], $document->getID()."-".$item->getOriginalFileName());
 			$sheet->setCellValue([$col++, $i], getOverallStatusText($status['status']));
 			$sheet->setCellValue([$col++, $i], $item->getVersion());
+			$l = $i;
+			$k = $i;
 			if($reviewStatus) {
 				foreach ($reviewStatus as $r) {
 					switch ($r["type"]) {
@@ -203,7 +181,7 @@ class SeedDMS_Download_Mgr {
 					$tcol = $col;
 					$sheet->setCellValue([$tcol++, $l], $reqName);
 					$sheet->setCellValue([$tcol, $l], ($r['status']==1 || $r['status']==-1) ? \PhpOffice\PhpSpreadsheet\Shared\Date::PHPToExcel(new DateTime($r['date'])) : null);
-					$sheet->getStyle([$tcol++, $l])->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DATETIME);
+					$sheet->getStyleByColumnAndRow($tcol++, $l)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DATETIME);
 					$sheet->setCellValue([$tcol++, $l], $r['comment']);
 					$sheet->setCellValue([$tcol++, $l], getReviewStatusText($r["status"]));
 					$l++;
@@ -234,7 +212,7 @@ class SeedDMS_Download_Mgr {
 					$tcol = $col;
 					$sheet->setCellValue([$tcol++, $k], $reqName);
 					$sheet->setCellValue([$tcol, $k], ($r['status']==1 || $r['status']==-1) ? \PhpOffice\PhpSpreadsheet\Shared\Date::PHPToExcel(new DateTime($r['date'])) : null);
-					$sheet->getStyle([$tcol++, $k])->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DATETIME);
+					$sheet->getStyleByColumnAndRow($tcol++, $k)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DATETIME);
 					$sheet->setCellValue([$tcol++, $k], $r['comment']);
 					$sheet->setCellValue([$tcol++, $k], getApprovalStatusText($r["status"]));
 					$k++;
@@ -242,7 +220,6 @@ class SeedDMS_Download_Mgr {
 				$k--;
 			}
 			$col += 4;
-			}
 			if(isset($this->extracols[$item->getID()]) && $this->extracols[$item->getID()]) {
 				foreach($this->extracols[$item->getID()] as $column)
 					$sheet->setCellValue([$col++, $i], is_array($column) ? implode("\n", $column) : $column );
@@ -262,9 +239,8 @@ class SeedDMS_Download_Mgr {
 
 			$i = 1;
 			$col = 1;
-			if(!$this->skipdefaultcols)
-				foreach($this->folder_header as $h)
-					$sheet->setCellValue([$col++, $i], $h);
+			foreach($this->folder_header as $h)
+				$sheet->setCellValue([$col++, $i], $h);
 			foreach($this->folder_extraheader as $h)
 				$sheet->setCellValue([$col++, $i], $h);
 			$i++;
@@ -275,10 +251,8 @@ class SeedDMS_Download_Mgr {
 					$dms = $folder->_dms;
 
 					$col = 1;
-					if(!$this->skipdefaultcols) {
-						$sheet->setCellValue([$col++, $i], $folder->getID());
-						$sheet->setCellValue([$col++, $i], $folder->getName());
-					}
+					$sheet->setCellValue([$col++, $i], $folder->getID());
+					$sheet->setCellValue([$col++, $i], $folder->getName());
 					if(isset($this->folder_extracols[$item->getID()]) && $this->folder_extracols[$item->getID()]) {
 						foreach($this->folder_extracols[$item->getID()] as $column)
 							$sheet->setCellValue([$col++, $i], is_array($column) ? implode("\n", $column) : $column );

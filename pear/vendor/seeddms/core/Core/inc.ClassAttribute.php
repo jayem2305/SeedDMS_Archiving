@@ -128,11 +128,9 @@ class SeedDMS_Core_Attribute { /* {{{ */
 	 * This function will return the value of multi value attributes
 	 * including the separator char.
 	 *
-	 * DEPRECATED
-	 *
 	 * @return string the attribute value as it is stored in the database.
 	 */
-	public function __getParsedValue() { /* {{{ */
+	public function getParsedValue() { /* {{{ */
 		switch ($this->_attrdef->getType()) {
 			case SeedDMS_Core_AttributeDefinition::type_float:
 				return (float) $this->_value;
@@ -162,13 +160,55 @@ class SeedDMS_Core_Attribute { /* {{{ */
 			return $this->_value;
 		else
 			return [$this->_value];
+
+		if ($this->_attrdef->getMultipleValues()) {
+			/* If the value doesn't start with the separator used in the value set,
+			 * then assume that the value was not saved with a leading separator.
+			 * This can happen, if the value was previously a single value from
+			 * the value set and later turned into a multi value attribute.
+			 */
+			if (is_string($this->_value))
+				$sep = substr($this->_value, 0, 1);
+			else
+				$sep = '';
+			if (!($vsep = $this->_attrdef->getValueSetSeparator()))
+				$vsep = $sep;
+			if ($sep == $vsep)
+				return(explode($sep, substr($this->_value, 1)));
+			else
+				return(array($this->_value));
+		} else {
+			return array($this->_value);
+		}
 	} /* }}} */
 
 	public function getValueAsString() { /* {{{ */
 		if (is_array($this->_value))
-			return implode(', ', $this->_value);
+			$values =  $this->_value;
 		else
-			return (string) $this->_value;
+			$values = [$this->_value];
+		$vv = [];
+		foreach ($values as $v) {
+			if (is_object($v)) {
+				switch ($v) {
+				case $v->isType('user'):
+					$vv[] = $v->getFullName();
+					break;
+				case $v->isType('group'):
+					$vv[] = $v->getName();
+					break;
+				case $v->isType('document'):
+					$vv[] = $v->getName();
+					break;
+				case $v->isType('folder'):
+					$vv[] = $v->getName();
+					break;
+				}
+			} else {
+				$vv[] = (string) $v;
+			}
+		}
+		return implode(', ', $vv);
 	} /* }}} */
 
 	/**
@@ -186,14 +226,82 @@ class SeedDMS_Core_Attribute { /* {{{ */
 	public function setValue($values) { /* {{{*/
 		$db = $this->_dms->getDB();
 
-		/* if $values is an array but the attribute definition does not allow
-		 * multi values, then the first element of the array is taken.
-		 */
 		if ($values && is_array($values) && !$this->_attrdef->getMultipleValues())
 			$values = $values[0];
 
-		/* Create a value to be stored in the database */
-		$value = $this->_attrdef->createValue($values);
+		if (0) {
+		if ($this->_attrdef->getMultipleValues()) {
+			$valuesetstr = $this->_attrdef->getValueSet();
+			/* Multiple values without a value set is not allowed */
+			/* No need to have valueset anymore. If none is given, the values are
+			 * expected to be separated by ','
+			if (!$valuesetstr)
+				return false;
+			 */
+			$valueset = $this->_attrdef->getValueSetAsArray();
+
+			if (is_array($values)) {
+				if ($values) {
+					$vsep = $this->_attrdef->getValueSetSeparator();
+					if ($valueset) {
+						/* Validation should have been done before
+						$error = false;
+						foreach ($values as $v) {
+							if (!in_array($v, $valueset)) { $error = true; break; }
+						}
+						if ($error)
+							return false;
+						 */
+						$valuesetstr = $this->_attrdef->getValueSet();
+						$value = $vsep.implode($vsep, $values);
+					} else {
+						$value = $vsep.implode($vsep, $values);
+					}
+				} else {
+					$value = '';
+				}
+			} else {
+				if ($values) {
+					if ($valuesetstr) {
+						if ($valuesetstr[0] != $values[0])
+							$values = explode($valuesetstr[0], $values);
+						else
+							$values = explode($valuesetstr[0], substr($values, 1));
+					} else {
+						$values = explode(',', substr($values, 1));
+					}
+
+					if ($valueset) {
+						/* Validation should have been done before
+						$error = false;
+						foreach ($values as $v) {
+							if (!in_array($v, $valueset)) { $error = true; break; }
+						}
+						if ($error)
+							return false;
+						 */
+						$value = $valuesetstr[0].implode($valuesetstr[0], $values);
+					} else {
+						$value = ','.implode(',', $values);
+					}
+				} else {
+					$value = (string) $values;
+				}
+			}
+		} else {
+			if (is_array($values)) {
+				if ($values) {
+					$value = (string) $values[0];
+					$values = $values[0];
+				} else
+					$value = '';
+			} else {
+				$value = (string) $values;
+			}
+		}
+		} else {
+			$value = $this->_attrdef->createValue($values);
+		}
 
 		switch (get_class($this->_obj)) {
 			case $this->_dms->getClassname('document'):
@@ -824,9 +932,8 @@ class SeedDMS_Core_AttributeDefinition { /* {{{ */
 	/**
 	 * Parse a given value stored in the database according to attribute definition
 	 *
-	 * The return value is an array, if the attribute allows multiple values.
-	 * Otherwise it is a single value.
-	 * If the type of attribute is any of document, folder, user,
+	 * The return value is always an array, even if the attribute is a single
+	 * value attribute. If the type of attribute is any of document, folder, user,
 	 * or group then this method will fetch each object from the database and
 	 * return an array of SeedDMS_Core_Document, SeedDMS_Core_Folder, etc.
 	 *
@@ -880,25 +987,8 @@ class SeedDMS_Core_AttributeDefinition { /* {{{ */
 			}
 			$values = $tmp;
 			break;
-		case self::type_boolean:
-			foreach ($values as $value) {
-				$tmp[] = (bool) $value;
-			}
-			$values = $tmp;
-			break;
-		case self::type_int:
-			foreach ($values as $value) {
-				$tmp[] = (int) $value;
-			}
-			$values = $tmp;
-			break;
-		case self::type_float:
-			foreach ($values as $value) {
-				$tmp[] = (float) $value;
-			}
-			$values = $tmp;
-			break;
 		}
+//		return $values;
 
 		if ($this->getMultipleValues())
 			return $values;
@@ -916,7 +1006,7 @@ class SeedDMS_Core_AttributeDefinition { /* {{{ */
 			case SeedDMS_Core_AttributeDefinition::type_folder:
 			case SeedDMS_Core_AttributeDefinition::type_user:
 			case SeedDMS_Core_AttributeDefinition::type_group:
-				$tmp = array_map(fn($value): int => is_object($value) ? (int) $value->getId() : (int) $value, $values);
+				$tmp = array_map(fn($value): int => is_object($value) ? $value->getId() : (int) $value, $values);
 				break;
 			case SeedDMS_Core_AttributeDefinition::type_boolean:
 				$tmp = array_map(fn($value): int => $value ? '1' : '0', $values);

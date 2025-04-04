@@ -36,7 +36,7 @@ class ConditionalHelper
         } else {
             try {
                 /** @var float|int|string */
-                $conditionx = $condition; // @phpstan-ignore-line
+                $conditionx = $condition;
                 $formula = Wizard\WizardAbstract::reverseAdjustCellRef((string) $conditionx, $cellRange);
                 $this->parser->parse($formula);
                 $this->tokens = $this->parser->toReversePolish();

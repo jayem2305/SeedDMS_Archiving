@@ -31,4 +31,5 @@ include("../inc/inc.Authentication.php");
 
 $session->setLanguage($_GET['lang']);
 
-header("Location: http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].decryptData($settings->_encryptionKey, $_GET['referer']));
+header("Location: http".((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'],'off')!=0)) ? "s" : "")."://".$_SERVER['HTTP_HOST'].$_GET['referer']);
+?>

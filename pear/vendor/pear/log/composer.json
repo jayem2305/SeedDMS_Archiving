@@ -11,9 +11,6 @@
         "php": ">=7.4",
         "pear/pear_exception": "1.0.1 || 1.0.2"
     },
-    "archive": {
-        "exclude": ["/README.rst"]
-    },
     "autoload": {
         "psr-0": {
             "Log": "./"
@@ -27,11 +24,11 @@
         {
             "name": "Jon Parise",
             "email": "jon@php.net",
-            "homepage": "https://www.indelible.org/",
+            "homepage": "http://www.indelible.org",
             "role": "Developer"
         }
     ],
-    "homepage": "https://pear.github.io/Log/",
+    "homepage": "http://pear.github.io/Log/",
     "support": {
         "issues": "https://github.com/pear/Log/issues",
         "source": "https://github.com/pear/Log"

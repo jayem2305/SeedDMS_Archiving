@@ -74,14 +74,11 @@ class Arabic
         // Convert the roman numeral to an arabic number
         $negativeNumber = $roman[0] === '-';
         if ($negativeNumber) {
-            $roman = trim(substr($roman, 1));
-            if ($roman === '') {
-                return ExcelError::NAN();
-            }
+            $roman = substr($roman, 1);
         }
 
         try {
-            $arabic = self::calculateArabic(mb_str_split($roman, 1, 'UTF-8'));
+            $arabic = self::calculateArabic(str_split($roman));
         } catch (Exception) {
             return ExcelError::VALUE(); // Invalid character detected
         }

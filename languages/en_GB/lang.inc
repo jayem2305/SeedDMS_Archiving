@@ -19,7 +19,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//    Translators: Admin (2538), archonwang (3), dgrutsch (9), netixw (14)
+//    Translators: Admin (2531), archonwang (3), dgrutsch (9), netixw (14)
 
 $text = array(
 '2_factor_auth' => '2-factor authentication',
@@ -1198,9 +1198,9 @@ URL: [url]</p>',
 'language' => 'Language',
 'lastaccess' => 'Last access',
 'last_update' => 'Last Update',
-'latest_newdocuments' => 'Recently added documents',
-'latest_statuschange' => 'Documents with recent status change',
-'latest_updateddocuments' => 'Recently updated documents',
+'latest_newdocuments' => 'Latest added documents',
+'latest_statuschange' => 'Latest status change',
+'latest_updateddocuments' => 'Latest updated documents',
 'legend' => 'Legend',
 'librarydoc' => 'Document from library',
 'linked_document' => 'Linked document',
@@ -1624,7 +1624,6 @@ URL: [url]</p>',
 'removeFolderFromDropFolder' => 'Remove folder after import',
 'removeFolderFromDropFolder_desc' => 'Enable this if you want the folder which was imported to be removed from the drop folder.',
 'remove_approval_log' => 'Remove approval',
-'remove_from_clipboard' => 'Remove from clipboard',
 'remove_marked_files' => 'Remove marked files',
 'remove_review_log' => 'Remove review',
 'remove_task' => 'Remove task',
@@ -2149,8 +2148,6 @@ If you did not receive a password, please use the password forgotten function on
 'settings_enableLargeFileUpload_desc' => 'If set, file upload is also available through a java applet called jumploader without a file size limit set by the browser. It also allows to upload several files in one step. Turning this on will turn off http only cookies.',
 'settings_enableLoginByEmail' => 'Enable login by email',
 'settings_enableLoginByEmail_desc' => 'If enabled, the user maya also use the email address for login. This will not disable login with the username. This setting may not be regarded by all authentication methods. Because the email is not unique, authentication may fail, even if the user enters a right password.',
-'settings_enableMemcached' => 'Use memcached (experimental)',
-'settings_enableMemcached_desc' => 'Use memcached for accelerating some database operations. This should not be be turned on in production.',
 'settings_enableMenuTasks' => 'Enable task list in menu',
 'settings_enableMenuTasks_desc' => 'Enable/Disable the menu item which contains all tasks for the user. This contains documents, that need to be reviewed, approved, etc.',
 'settings_enableMenuTransmittals' => 'Enable transmittals in menu',
@@ -2469,7 +2466,6 @@ If you did not receive a password, please use the password forgotten function on
 'sign_out' => 'Sign out',
 'sign_out_user' => 'Sign out user',
 'site_brand' => '',
-'skip_default_export_cols' => 'Skip default columns',
 'sk_SK' => 'Slovak',
 'sort_by_date' => 'Sort by date',
 'sort_by_expiration_date' => 'Sort by date of expiration',

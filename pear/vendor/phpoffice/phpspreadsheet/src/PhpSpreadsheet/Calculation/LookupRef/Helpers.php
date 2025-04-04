@@ -61,7 +61,8 @@ class Helpers
     {
         $sheetName = '';
         if (str_contains($cellAddress, '!')) {
-            [$sheetName, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true, true);
+            [$sheetName, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true);
+            $sheetName = trim($sheetName, "'");
         }
 
         $worksheet = ($sheetName !== '')

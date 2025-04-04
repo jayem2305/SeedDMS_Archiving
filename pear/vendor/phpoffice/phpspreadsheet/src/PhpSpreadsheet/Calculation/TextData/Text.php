@@ -2,7 +2,6 @@
 
 namespace PhpOffice\PhpSpreadsheet\Calculation\TextData;
 
-use Composer\Pcre\Preg;
 use PhpOffice\PhpSpreadsheet\Calculation\ArrayEnabled;
 use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
 use PhpOffice\PhpSpreadsheet\Calculation\Exception as CalcExp;
@@ -122,11 +121,12 @@ class Text
             $delimiter = self::buildDelimiter($rowDelimiter);
             $rows = ($delimiter === '()')
                 ? [$text]
-                : Preg::split("/{$delimiter}/{$flags}", $text);
+                : preg_split("/{$delimiter}/{$flags}", $text);
         } else {
             $rows = [$text];
         }
 
+        /** @var array $rows */
         if ($ignoreEmpty === true) {
             $rows = array_values(array_filter(
                 $rows,
@@ -141,7 +141,8 @@ class Text
                 function (&$row) use ($delimiter, $flags, $ignoreEmpty): void {
                     $row = ($delimiter === '()')
                         ? [$row]
-                        : Preg::split("/{$delimiter}/{$flags}", $row);
+                        : preg_split("/{$delimiter}/{$flags}", $row);
+                    /** @var array $row */
                     if ($ignoreEmpty === true) {
                         $row = array_values(array_filter(
                             $row,

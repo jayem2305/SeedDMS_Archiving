@@ -765,7 +765,7 @@ EOF;
             }
         }
 
-        if (Preg::isMatch('{\.phar([\\\\/]|$)}', $path)) {
+        if (strpos($path, '.phar') !== false) {
             $baseDir = "'phar://' . " . $baseDir;
         }
 
@@ -975,7 +975,10 @@ if (PHP_VERSION_ID < 50600) {
             echo \$err;
         }
     }
-    throw new RuntimeException(\$err);
+    trigger_error(
+        \$err,
+        E_USER_ERROR
+    );
 }
 
 require_once $vendorPathToTargetDirCode;

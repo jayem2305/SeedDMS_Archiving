@@ -56,7 +56,7 @@ if(isset($GLOBALS['SEEDDMS_HOOKS']['initStorage'])) {
 
 $dms = new SeedDMS_Core_DMS($db, $storage ? $storage : $settings->_contentDir.$settings->_contentOffsetDir);
 
-if($settings->_enableMemcached && extension_loaded('memcached')) {
+if(extension_loaded('memcached')) {
 	$memcache = new Memcached('seeddms');
 	$memcache->addServers(array(
 		array('localhost',11211),

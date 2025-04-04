@@ -34,7 +34,7 @@ class StringHelper
     /**
      * Is iconv extension avalable?
      */
-    private static ?bool $isIconvEnabled = null;
+    private static ?bool $isIconvEnabled;
 
     /**
      * iconv options.

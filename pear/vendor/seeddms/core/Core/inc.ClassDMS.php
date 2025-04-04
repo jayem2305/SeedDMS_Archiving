@@ -1945,108 +1945,6 @@ class SeedDMS_Core_DMS {
 		return mktime($hour, $min, $sec, $month, $day, $year);
 	} /* }}} */
 
-	protected function getSqlForAttribute($attrdef, $attribute, $table, $field) { /* {{{ */
-
-		$attrdefid = $attrdef->getId();
-		$sql = '';
-		/* The only differenc between Document, Folder and DocumentContent is
-		 * the name of the tables. The tables for documents and folders have a
-		 * trailing 's' (tblDocuments, tblFolders), but the table for document
-		 * content doesn't have it (tblDocumentContent).
-		 * The sql statements are equal.
-		 */
-		if($table == 'DocumentContent') {
-			if ($valueset = $attrdef->getValueSet()) {
-				if (is_string($attribute))
-					$attribute = array($attribute);
-				foreach ($attribute as &$v)
-					$v = trim($this->db->qstr($v), "'");
-				if ($attrdef->getMultipleValues()) {
-					$sql = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentContentAttributes`.`value` like '%".$valueset[0].implode("%' OR `tblDocumentContentAttributes`.`value` like '%".$valueset[0], $attribute)."%') AND `tblDocumentContentAttributes`.`content` = `tblDocumentContent`.`id`)";
-				} else {
-					$sql = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentContentAttributes`.`value`='".(is_array($attribute) ? implode("' OR `tblDocumentContentAttributes`.`value` = '", $attribute) : $attribute)."') AND `tblDocumentContentAttributes`.content = `tblDocumentContent`.`id`)";
-				}
-			} else {
-				if (in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_date, SeedDMS_Core_AttributeDefinition::type_int, SeedDMS_Core_AttributeDefinition::type_float]) && is_array($attribute)) {
-					$kkll = [];
-					if (!empty($attribute['from'])) {
-						if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
-							$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS INTEGER)>=".(int) $attribute['from'];
-						elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
-							$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS DECIMAL)>=".(float) $attribute['from'];
-						else
-							$kkll[] = "`tblDocumentContentAttributes`.`value`>=".$this->db->qstr($attribute['from']);
-					}
-					if (!empty($attribute['to'])) {
-						if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
-							$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS INTEGER)<=".(int) $attribute['to'];
-						elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
-							$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS DECIMAL)<=".(float) $attribute['to'];
-						else
-							$kkll[] = "`tblDocumentContentAttributes`.`value`<=".$this->db->qstr($attribute['to']);
-					}
-					if ($kkll)
-						$sql = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND ".implode(' AND ', $kkll)." AND `tblDocumentContentAttributes`.`content`=`tblDocumentContent`.`id`)";
-				} elseif($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_string) {
-					$sql = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND `tblDocumentContentAttributes`.`value` like ".$this->db->qstr("%".$attribute."%")." AND `tblDocumentContentAttributes`.`content` = `tblDocumentContent`.`id`)";
-				} elseif (in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_user, SeedDMS_Core_AttributeDefinition::type_group, SeedDMS_Core_AttributeDefinition::type_document, SeedDMS_Core_AttributeDefinition::type_folder])) {
-					if ($attrdef->getMultipleValues()) {
-						$sql = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND ((`tblDocumentContentAttributes`.`value` like '%,".implode(",%' OR `tblDocumentContentAttributes`.`value` like '%,", $attribute).",%') OR (`tblDocumentContentAttributes`.`value` like '%,".implode("' OR `tblDocumentContentAttributes`.`value` like '%,", $attribute)."') ) AND `tblDocumentContentAttributes`.`content` = `tblDocumentContent`.`id`)";
-					} else {
-            $sql = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentContentAttributes`.`value`='".(is_array($attribute) ? implode("' OR `tblDocumentContentAttributes`.`value`='", $attribute) : $attribute)."') AND `tblDocumentContentAttributes`.`content`=`tblDocumentContent`.`id`)";
-					}
-				} else {
-					$sql = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND `tblDocumentContentAttributes`.`value`=".$this->db->qstr($attribute)." AND `tblDocumentContentAttributes`.`content` = `tblDocumentContent`.`id`)";
-				}
-			}
-		} else {
-			if ($valueset = $attrdef->getValueSet()) {
-				if (is_string($attribute))
-					$attribute = array($attribute);
-				foreach ($attribute as &$v)
-					$v = trim($this->db->qstr($v), "'");
-				if ($attrdef->getMultipleValues()) {
-					$sql = "EXISTS (SELECT NULL FROM `tbl".$table."Attributes` WHERE `tbl".$table."Attributes`.`attrdef`=".$attrdefid." AND (`tbl".$table."Attributes`.`value` like '%".$valueset[0].implode("%' OR `tbl".$table."Attributes`.`value` like '%".$valueset[0], $attribute)."%') AND `tbl".$table."Attributes`.`".$field."`=`tbl".$table."s`.`id`)";
-				} else {
-					$sql = "EXISTS (SELECT NULL FROM `tbl".$table."Attributes` WHERE `tbl".$table."Attributes`.`attrdef`=".$attrdefid." AND (`tbl".$table."Attributes`.`value`='".(is_array($attribute) ? implode("' OR `tbl".$table."Attributes`.`value` = '", $attribute) : $attribute)."') AND `tbl".$table."Attributes`.`".$field."`=`tbl".$table."s`.`id`)";
-				}
-			} else {
-				if (in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_date, SeedDMS_Core_AttributeDefinition::type_int, SeedDMS_Core_AttributeDefinition::type_float]) && is_array($attribute)) {
-					$kkll = [];
-					if (!empty($attribute['from'])) {
-						if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
-							$kkll[] = "CAST(`tbl".$table."Attributes`.`value` AS INTEGER)>=".(int) $attribute['from'];
-						elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
-							$kkll[] = "CAST(`tbl".$table."Attributes`.`value` AS DECIMAL)>=".(float) $attribute['from'];
-						else
-							$kkll[] = "`tbl".$table."Attributes`.`value`>=".$this->db->qstr($attribute['from']);
-					}
-					if (!empty($attribute['to'])) {
-						if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
-							$kkll[] = "CAST(`tbl".$table."Attributes`.`value` AS INTEGER)<=".(int) $attribute['to'];
-						elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
-							$kkll[] = "CAST(`tbl".$table."Attributes`.`value` AS DECIMAL)<=".(float) $attribute['to'];
-						else
-							$kkll[] = "`tbl".$table."Attributes`.`value`<=".$this->db->qstr($attribute['to']);
-					}
-					if ($kkll)
-						$sql = "EXISTS (SELECT NULL FROM `tbl".$table."Attributes` WHERE `tbl".$table."Attributes`.`attrdef`=".$attrdefid." AND ".implode(' AND ', $kkll)." AND `tbl".$table."Attributes`.`".$field."`=`tbl".$table."s`.`id`)";
-				} elseif($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_string) {
-					$sql = "EXISTS (SELECT NULL FROM `tbl".$table."Attributes` WHERE `tbl".$table."Attributes`.`attrdef`=".$attrdefid." AND `tbl".$table."Attributes`.`value` like ".$this->db->qstr("%".$attribute."%")." AND `tbl".$table."Attributes`.`".$field."`=`tbl".$table."s`.`id`)";
-				} elseif (in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_user, SeedDMS_Core_AttributeDefinition::type_group, SeedDMS_Core_AttributeDefinition::type_document, SeedDMS_Core_AttributeDefinition::type_folder])) {
-					if ($attrdef->getMultipleValues()) {
-						$sql = "EXISTS (SELECT NULL FROM `tbl".$table."Attributes` WHERE `tbl".$table."Attributes`.`attrdef`=".$attrdefid." AND ((`tbl".$table."Attributes`.`value` like '%,".implode(",%' OR `tbl".$table."Attributes`.`value` like '%,", $attribute).",%') OR (`tbl".$table."Attributes`.`value` like '%,".implode("' OR `tbl".$table."Attributes`.`value` like '%,", $attribute)."') ) AND `tbl".$table."Attributes`.`".$field."` = `tbl".$table."s`.`id`)";
-					} else {
-            $sql = "EXISTS (SELECT NULL FROM `tbl".$table."Attributes` WHERE `tbl".$table."Attributes`.`attrdef`=".$attrdefid." AND (`tbl".$table."Attributes`.`value`='".(is_array($attribute) ? implode("' OR `tbl".$table."Attributes`.`value`='", $attribute) : $attribute)."') AND `tbl".$table."Attributes`.`".$field."`=`tbl".$table."s`.`id`)";
-					}
-				} else {
-					$sql = "EXISTS (SELECT NULL FROM `tbl".$table."Attributes` WHERE `tbl".$table."Attributes`.`attrdef`=".$attrdefid." AND `tbl".$table."Attributes`.`value`=".$this->db->qstr($attribute)." AND `tbl".$table."Attributes`.`".$field."`=`tbl".$table."s`.`id`)";
-				}
-			}
-		}
-		return $sql;
-	} /* }}} /
-
 	/**
 	 * Search the database for documents
 	 *
@@ -2166,8 +2064,41 @@ class SeedDMS_Core_DMS {
 					if ($attribute) {
 						$attrdef = $this->getAttributeDefinition($attrdefid);
 						if ($attrdef->getObjType() == SeedDMS_Core_AttributeDefinition::objtype_folder || $attrdef->getObjType() == SeedDMS_Core_AttributeDefinition::objtype_all) {
-							if($sql = $this->getSqlForAttribute($attrdef, $attribute, 'Folder', 'folder'))
-								$searchAttributes[] = $sql;
+							if ($valueset = $attrdef->getValueSet()) {
+								if (is_string($attribute))
+									$attribute = array($attribute);
+								foreach ($attribute as &$v)
+									$v = trim($this->db->qstr($v), "'");
+								if ($attrdef->getMultipleValues()) {
+									$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=".$attrdefid." AND (`tblFolderAttributes`.`value` like '%".$valueset[0].implode("%' OR `tblFolderAttributes`.`value` like '%".$valueset[0], $attribute)."%') AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
+								} else {
+									$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=".$attrdefid." AND (`tblFolderAttributes`.`value`='".(is_array($attribute) ? implode("' OR `tblFolderAttributes`.`value` = '", $attribute) : $attribute)."') AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
+								}
+							} else {
+								if (in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_date, SeedDMS_Core_AttributeDefinition::type_int, SeedDMS_Core_AttributeDefinition::type_float]) && is_array($attribute)) {
+									$kkll = [];
+									if (!empty($attribute['from'])) {
+										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
+											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS INTEGER)>=".(int) $attribute['from'];
+										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
+											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS DECIMAL)>=".(float) $attribute['from'];
+										else
+											$kkll[] = "`tblFolderAttributes`.`value`>=".$this->db->qstr($attribute['from']);
+									}
+									if (!empty($attribute['to'])) {
+										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
+											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS INTEGER)<=".(int) $attribute['to'];
+										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
+											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS DECIMAL)<=".(float) $attribute['to'];
+										else
+											$kkll[] = "`tblFolderAttributes`.`value`<=".$this->db->qstr($attribute['to']);
+									}
+									if ($kkll)
+										$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=".$attrdefid." AND ".implode(' AND ', $kkll)." AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
+								} elseif (is_string($attribute)) {
+									$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=".$attrdefid." AND `tblFolderAttributes`.`value` like ".$this->db->qstr("%".$attribute."%")." AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
+								}
+							}
 						}
 					}
 				}
@@ -2351,12 +2282,78 @@ class SeedDMS_Core_DMS {
 						$lsearchAttributes = [];
 						$attrdef = $this->getAttributeDefinition($attrdefid);
 						if ($attrdef->getObjType() == SeedDMS_Core_AttributeDefinition::objtype_document || $attrdef->getObjType() == SeedDMS_Core_AttributeDefinition::objtype_all) {
-							if($sql = $this->getSqlForAttribute($attrdef, $attribute, 'Document', 'document'))
-								$lsearchAttributes[] = $sql;
+							if ($valueset = $attrdef->getValueSet()) {
+								if (is_string($attribute))
+									$attribute = array($attribute);
+								foreach ($attribute as &$v)
+									$v = trim($this->db->qstr($v), "'");
+								if ($attrdef->getMultipleValues()) {
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentAttributes`.`value` like '%".$valueset[0].implode("%' OR `tblDocumentAttributes`.`value` like '%".$valueset[0], $attribute)."%') AND `tblDocumentAttributes`.`document` = `tblDocuments`.`id`)";
+								} else {
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentAttributes`.`value`='".(is_array($attribute) ? implode("' OR `tblDocumentAttributes`.`value` = '", $attribute) : $attribute)."') AND `tblDocumentAttributes`.`document` = `tblDocuments`.`id`)";
+								}
+							} else {
+								if (in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_date, SeedDMS_Core_AttributeDefinition::type_int, SeedDMS_Core_AttributeDefinition::type_float]) && is_array($attribute)) {
+									$kkll = [];
+									if (!empty($attribute['from'])) {
+										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
+											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS INTEGER)>=".(int) $attribute['from'];
+										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
+											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS DECIMAL)>=".(float) $attribute['from'];
+										else
+											$kkll[] = "`tblDocumentAttributes`.`value`>=".$this->db->qstr($attribute['from']);
+									}
+									if (!empty($attribute['to'])) {
+										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
+											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS INTEGER)<=".(int) $attribute['to'];
+										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
+											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS DECIMAL)<=".(float) $attribute['to'];
+										else
+											$kkll[] = "`tblDocumentAttributes`.`value`<=".$this->db->qstr($attribute['to']);
+									}
+									if ($kkll)
+										$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=".$attrdefid." AND ".implode(' AND ', $kkll)." AND `tblDocumentAttributes`.`document`=`tblDocuments`.`id`)";
+								} else {
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=".$attrdefid." AND `tblDocumentAttributes`.`value` like ".$this->db->qstr("%".$attribute."%")." AND `tblDocumentAttributes`.`document` = `tblDocuments`.`id`)";
+								}
+							}
 						}
 						if ($attrdef->getObjType() == SeedDMS_Core_AttributeDefinition::objtype_documentcontent || $attrdef->getObjType() == SeedDMS_Core_AttributeDefinition::objtype_all) {
-							if($sql = $this->getSqlForAttribute($attrdef, $attribute, 'DocumentContent', 'content'))
-								$lsearchAttributes[] = $sql;
+							if ($valueset = $attrdef->getValueSet()) {
+								if (is_string($attribute))
+									$attribute = array($attribute);
+								foreach ($attribute as &$v)
+									$v = trim($this->db->qstr($v), "'");
+								if ($attrdef->getMultipleValues()) {
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentContentAttributes`.`value` like '%".$valueset[0].implode("%' OR `tblDocumentContentAttributes`.`value` like '%".$valueset[0], $attribute)."%') AND `tblDocumentContentAttributes`.`content` = `tblDocumentContent`.`id`)";
+								} else {
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentContentAttributes`.`value`='".(is_array($attribute) ? implode("' OR `tblDocumentContentAttributes`.`value` = '", $attribute) : $attribute)."') AND `tblDocumentContentAttributes`.content = `tblDocumentContent`.id)";
+								}
+							} else {
+								if (in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_date, SeedDMS_Core_AttributeDefinition::type_int, SeedDMS_Core_AttributeDefinition::type_float]) && is_array($attribute)) {
+									$kkll = [];
+									if (!empty($attribute['from'])) {
+										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
+											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS INTEGER)>=".(int) $attribute['from'];
+										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
+											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS DECIMAL)>=".(float) $attribute['from'];
+										else
+											$kkll[] = "`tblDocumentContentAttributes`.`value`>=".$this->db->qstr($attribute['from']);
+									}
+									if (!empty($attribute['to'])) {
+										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
+											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS INTEGER)<=".(int) $attribute['to'];
+										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
+											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS DECIMAL)<=".(float) $attribute['to'];
+										else
+											$kkll[] = "`tblDocumentContentAttributes`.`value`<=".$this->db->qstr($attribute['to']);
+									}
+									if ($kkll)
+										$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND ".implode(' AND ', $kkll)." AND `tblDocumentContentAttributes`.`content`=`tblDocumentContent`.`id`)";
+								} else {
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND `tblDocumentContentAttributes`.`value` like ".$this->db->qstr("%".$attribute."%")." AND `tblDocumentContentAttributes`.content = `tblDocumentContent`.id)";
+								}
+							}
 						}
 						if ($lsearchAttributes)
 							$searchAttributes[] = "(".implode(" OR ", $lsearchAttributes).")";
@@ -4218,14 +4215,14 @@ class SeedDMS_Core_DMS {
 	public function getStatisticalData($type = '') { /* {{{ */
 		switch ($type) {
 			case 'docsperuser':
-				$queryStr = "SELECT ".$this->db->concat(array('b.`fullName`', "' ('", 'b.`login`', "')'"))." AS `key`, count(`owner`) AS total, `b`.`id` AS res FROM `tblDocuments` a LEFT JOIN `tblUsers` b ON a.`owner`=b.`id` GROUP BY `owner`, `key`";
+				$queryStr = "SELECT ".$this->db->concat(array('b.`fullName`', "' ('", 'b.`login`', "')'"))." AS `key`, count(`owner`) AS total FROM `tblDocuments` a LEFT JOIN `tblUsers` b ON a.`owner`=b.`id` GROUP BY `owner`, `key`";
 				$resArr = $this->db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;
 
 				return $resArr;
 			case 'foldersperuser':
-				$queryStr = "SELECT ".$this->db->concat(array('b.`fullName`', "' ('", 'b.`login`', "')'"))." AS `key`, count(`owner`) AS total, `b`.`id` AS res FROM `tblFolders` a LEFT JOIN `tblUsers` b ON a.`owner`=b.`id` GROUP BY `owner`, `key`";
+				$queryStr = "SELECT ".$this->db->concat(array('b.`fullName`', "' ('", 'b.`login`', "')'"))." AS `key`, count(`owner`) AS total FROM `tblFolders` a LEFT JOIN `tblUsers` b ON a.`owner`=b.`id` GROUP BY `owner`, `key`";
 				$resArr = $this->db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;
@@ -4239,7 +4236,7 @@ class SeedDMS_Core_DMS {
 
 				return $resArr;
 			case 'docspercategory':
-				$queryStr = "SELECT b.`name` AS `key`, count(a.`categoryID`) AS total, `b`.`id` AS res FROM `tblDocumentCategory` a LEFT JOIN `tblCategory` b ON a.`categoryID`=b.id GROUP BY a.`categoryID`, b.`name`";
+				$queryStr = "SELECT b.`name` AS `key`, count(a.`categoryID`) AS total FROM `tblDocumentCategory` a LEFT JOIN `tblCategory` b ON a.`categoryID`=b.id GROUP BY a.`categoryID`, b.`name`";
 				$resArr = $this->db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;
@@ -4296,7 +4293,7 @@ class SeedDMS_Core_DMS {
 					return false;
 				return (int) $resArr[0]['total'];
 			case 'sizeperuser':
-				$queryStr = "SELECT ".$this->db->concat(array('c.`fullName`', "' ('", 'c.`login`', "')'"))." AS `key`, sum(`fileSize`) AS total, `c`.`id` AS res FROM `tblDocuments` a LEFT JOIN `tblDocumentContent` b ON a.id=b.`document` LEFT JOIN `tblUsers` c ON a.`owner`=c.`id` GROUP BY a.`owner`, `key`";
+				$queryStr = "SELECT ".$this->db->concat(array('c.`fullName`', "' ('", 'c.`login`', "')'"))." AS `key`, sum(`fileSize`) AS total FROM `tblDocuments` a LEFT JOIN `tblDocumentContent` b ON a.id=b.`document` LEFT JOIN `tblUsers` c ON a.`owner`=c.`id` GROUP BY a.`owner`, `key`";
 				$resArr = $this->db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;

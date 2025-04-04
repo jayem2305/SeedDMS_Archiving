@@ -57,8 +57,6 @@ if($view) {
 	$view->setParam('enableRecursiveCount', $settings->_enableRecursiveCount);
 	$view->setParam('maxRecursiveCount', $settings->_maxRecursiveCount);
 	$view->setParam('previewWidthList', $settings->_previewWidthList);
-	$view->setParam('previewConverters', isset($settings->_converters['preview']) ? $settings->_converters['preview'] : array());
-	$view->setParam('convertToPdf', $settings->_convertToPdf);
 	$view->setParam('timeout', $settings->_cmdTimeout);
 	$view->setParam('accessobject', $accessop);
 	$view->setParam('xsendfile', $settings->_enableXsendfile);

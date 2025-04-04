@@ -288,9 +288,15 @@ class JsonManipulator
 
                 return $matches['start'] . $this->format($value, 1) . $matches['end'];
             }, $children);
-        } elseif (Preg::isMatch('#^\{(?P<leadingspace>\s*?)(?P<content>\S+.*?)?(?P<trailingspace>\s*)\}$#s', $children, $match)) {
-            $whitespace = $match['trailingspace'];
-            if (null !== $match['content']) {
+        } else {
+            Preg::match('#^{ (?P<leadingspace>\s*?) (?P<content>\S+.*?)? (?P<trailingspace>\s*) }$#sx', $children, $match);
+
+            $whitespace = '';
+            if (!empty($match['trailingspace'])) {
+                $whitespace = $match['trailingspace'];
+            }
+
+            if (!empty($match['content'])) {
                 if ($subName !== null) {
                     $value = [$subName => $value];
                 }
@@ -303,7 +309,11 @@ class JsonManipulator
                         $children
                     );
                 } else {
-                    $whitespace = $match['leadingspace'];
+                    $whitespace = '';
+                    if (!empty($match['leadingspace'])) {
+                        $whitespace = $match['leadingspace'];
+                    }
+
                     $children = Preg::replace(
                         '#^{'.$whitespace.'#',
                         addcslashes('{' . $whitespace . JsonFile::encode($name).': '.$this->format($value, 1) . ',' . $this->newline . $this->indent . $this->indent, '\\$'),
@@ -318,8 +328,6 @@ class JsonManipulator
                 // children present but empty
                 $children = '{' . $this->newline . $this->indent . $this->indent . JsonFile::encode($name).': '.$this->format($value, 1) . $whitespace . '}';
             }
-        } else {
-            throw new \LogicException('Nothing matched above for: '.$children);
         }
 
         $this->contents = Preg::replaceCallback($nodeRegex, static function ($m) use ($children): string {
@@ -403,27 +411,26 @@ class JsonManipulator
 
         // no child data left, $name was the only key in
         unset($match);
-        if (Preg::isMatch('#^\{\s*?(?P<content>\S+.*?)?(?P<trailingspace>\s*)\}$#s', $childrenClean, $match)) {
-            if (null === $match['content']) {
-                $newline = $this->newline;
-                $indent = $this->indent;
+        Preg::match('#^{ \s*? (?P<content>\S+.*?)? (?P<trailingspace>\s*) }$#sx', $childrenClean, $match);
+        if (empty($match['content'])) {
+            $newline = $this->newline;
+            $indent = $this->indent;
 
-                $this->contents = Preg::replaceCallback($nodeRegex, static function ($matches) use ($indent, $newline): string {
-                    return $matches['start'] . '{' . $newline . $indent . '}' . $matches['end'];
-                }, $this->contents);
+            $this->contents = Preg::replaceCallback($nodeRegex, static function ($matches) use ($indent, $newline): string {
+                return $matches['start'] . '{' . $newline . $indent . '}' . $matches['end'];
+            }, $this->contents);
 
-                // we have a subname, so we restore the rest of $name
-                if ($subName !== null) {
-                    $curVal = json_decode($children, true);
-                    unset($curVal[$name][$subName]);
-                    if ($curVal[$name] === []) {
-                        $curVal[$name] = new \ArrayObject();
-                    }
-                    $this->addSubNode($mainNode, $name, $curVal[$name]);
+            // we have a subname, so we restore the rest of $name
+            if ($subName !== null) {
+                $curVal = json_decode($children, true);
+                unset($curVal[$name][$subName]);
+                if ($curVal[$name] === []) {
+                    $curVal[$name] = new \ArrayObject();
                 }
-
-                return true;
+                $this->addSubNode($mainNode, $name, $curVal[$name]);
             }
+
+            return true;
         }
 
         $this->contents = Preg::replaceCallback($nodeRegex, function ($matches) use ($name, $subName, $childrenClean): string {

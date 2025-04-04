@@ -153,8 +153,6 @@ class Settings
 	var $_batchOperations = array(); // or 'all', 'change_owner', etc.
 	// jump straight to the document if it is the only hit of a search
 	var $_showSingleSearchHit = true;
-	// enable/disable use of memcached
-	var $_enableMemcached = false;
 	// contentOffsetDirTo
 	var $_contentOffsetDir = "1048576";
 	// Maximum number of sub-directories per parent directory
@@ -719,7 +717,6 @@ class Settings
 			$this->_partitionSize = strval($tab["partitionSize"]);
 			$this->_maxUploadSize = strval($tab["maxUploadSize"]);
 			$this->_enableXsendfile = Settings::boolVal($tab["enableXsendfile"]);
-			$this->_enableMemcached = Settings::boolVal($tab["enableMemcached"]);
 
 			// XML Path: /configuration/system/authentication
 			$node = $xml->xpath('/configuration/system/authentication');
@@ -1135,7 +1132,6 @@ class Settings
 		$this->setXMLAttributValue($node, "partitionSize", $this->_partitionSize);
 		$this->setXMLAttributValue($node, "maxUploadSize", $this->_maxUploadSize);
 		$this->setXMLAttributValue($node, "enableXsendfile", $this->_enableXsendfile);
-		$this->setXMLAttributValue($node, "enableMemcached", $this->_enableMemcached);
 
 		// XML Path: /configuration/system/authentication
 		$node = $this->getXMLNode($xml, '/configuration/system', 'authentication');

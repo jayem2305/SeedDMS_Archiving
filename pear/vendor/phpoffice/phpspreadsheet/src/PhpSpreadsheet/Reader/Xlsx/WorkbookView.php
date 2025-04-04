@@ -25,7 +25,7 @@ class WorkbookView
             // active sheet index
             $activeTab = (int) $workbookViewAttributes->activeTab; // refers to old sheet index
             // keep active sheet index if sheet is still loaded, else first sheet is set as the active worksheet
-            if (isset($mapSheetId[$activeTab])) {
+            if (isset($mapSheetId[$activeTab]) && $mapSheetId[$activeTab] !== null) {
                 $this->spreadsheet->setActiveSheetIndex($mapSheetId[$activeTab]);
             }
 

@@ -199,7 +199,6 @@ if ($action == "saveSettings")
 	setStrValue("partitionSize"); // TODO: check if valid value, e.g. 1M or 5K
 	setStrValue("maxUploadSize"); // TODO: check if valid value, e.g. 1M or 5K
   setBoolValue("enableXsendfile");
-  setBoolValue("enableMemcached");
 
   // SETTINGS - SYSTEM - AUTHENTICATION
   setBoolValue("enableGuestLogin");

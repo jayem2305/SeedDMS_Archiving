@@ -250,38 +250,10 @@ default:
 		$attributes = $_POST["attributes_version"];
 		foreach($attributes as $attrdefid=>$attribute) {
 			$attrdef = $dms->getAttributeDefinition($attrdefid);
-			if(null === ($ret = $controller->callHook('validateAttribute', $attrdef, $attribute))) {
 			if($attribute) {
 				switch($attrdef->getType()) {
 				case SeedDMS_Core_AttributeDefinition::type_date:
-					if(is_array($attribute))
-						$attribute = array_map(fn($value): string => date('Y-m-d', makeTsFromDate($value)), $attribute);
-					else
-						$attribute = date('Y-m-d', makeTsFromDate($attribute));
-					break;
-				case SeedDMS_Core_AttributeDefinition::type_folder:
-					if(is_array($attribute))
-						$attribute = array_map(fn($value): object => $dms->getFolder((int) $value), $attribute);
-					else
-						$attribute = $dms->getFolder((int) $attribute);
-					break;
-				case SeedDMS_Core_AttributeDefinition::type_document:
-					if(is_array($attribute))
-						$attribute = array_map(fn($value): object => $dms->getDocument((int) $value), $attribute);
-					else
-						$attribute = $dms->getDocument((int) $attribute);
-					break;
-				case SeedDMS_Core_AttributeDefinition::type_user:
-					if(is_array($attribute))
-						$attribute = array_map(fn($value): object => $dms->getUser((int) $value), $attribute);
-					else
-						$attribute = $dms->getUser((int) $attribute);
-					break;
-				case SeedDMS_Core_AttributeDefinition::type_group:
-					if(is_array($attribute))
-						$attribute = array_map(fn($value): object => $dms->getGroup((int) $value), $attribute);
-					else
-						$attribute = $dms->getGroup((int) $attribute);
+					$attribute = date('Y-m-d', makeTsFromDate($attribute));
 					break;
 				}
 				if(!$attrdef->validate($attribute, null, true)) {
@@ -290,10 +262,6 @@ default:
 				}
 			} elseif($attrdef->getMinValues() > 0) {
 				UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("attr_min_values", array("attrname"=>$attrdef->getName())));
-			}
-			} else {
-				if($ret === false)
-					return false;
 			}
 		}
 	} else {
