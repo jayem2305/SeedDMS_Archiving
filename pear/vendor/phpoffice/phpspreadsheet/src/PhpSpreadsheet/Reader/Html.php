@@ -35,7 +35,7 @@ class Html extends BaseReader
 
     private const STARTS_WITH_BOM = '/^(?:\xfe\xff|\xff\xfe|\xEF\xBB\xBF)/';
 
-    private const DECLARES_CHARSET = '/\bcharset=/i';
+    private const DECLARES_CHARSET = '/\\bcharset=/i';
 
     /**
      * Input encoding.
@@ -373,7 +373,7 @@ class Html extends BaseReader
                 }
                 if (isset($attributeArray['style'])) {
                     $alignStyle = $attributeArray['style'];
-                    if (preg_match('/\btext-align:\s*(left|right|center|justify)\b/', $alignStyle, $matches) === 1) {
+                    if (preg_match('/\\btext-align:\\s*(left|right|center|justify)\\b/', $alignStyle, $matches) === 1) {
                         $sheet->getComment($column . $row)->setAlignment($matches[1]);
                     }
                 }
@@ -525,7 +525,7 @@ class Html extends BaseReader
             $this->processDomElement($child, $sheet, $row, $column, $cellContent);
             $column = $this->releaseTableStartColumn();
             if ($this->tableLevel > 1) {
-                ++$column; //* @phpstan-ignore-line
+                ++$column;
             } else {
                 ++$row;
             }
@@ -615,10 +615,9 @@ class Html extends BaseReader
     private function processDomElementThTd(Worksheet $sheet, int &$row, string &$column, string &$cellContent, DOMElement $child, array &$attributeArray): void
     {
         while (isset($this->rowspan[$column . $row])) {
-            ++$column; //* @phpstan-ignore-line
+            ++$column;
         }
-        //* @phpstan-ignore-next-line
-        $this->processDomElement($child, $sheet, $row, $column, $cellContent); // ++$column above confuses Phpstan
+        $this->processDomElement($child, $sheet, $row, $column, $cellContent);
 
         // apply inline style
         $this->applyInlineStyle($sheet, $row, $column, $attributeArray);
@@ -643,8 +642,7 @@ class Html extends BaseReader
                 $this->rowspan[$value] = true;
             }
             $sheet->mergeCells($range);
-            //* @phpstan-ignore-next-line
-            $column = $columnTo; // ++$columnTo above confuses phpstan
+            $column = $columnTo;
         } elseif (isset($attributeArray['rowspan'])) {
             //create merging rowspan
             $range = $column . $row . ':' . $column . ($row + (int) $attributeArray['rowspan'] - 1);
@@ -659,8 +657,7 @@ class Html extends BaseReader
                 ++$columnTo;
             }
             $sheet->mergeCells($column . $row . ':' . $columnTo . $row);
-            //* @phpstan-ignore-next-line
-            $column = $columnTo; // ++$columnTo above confuses phpstan
+            $column = $columnTo;
         }
 
         ++$column;
@@ -674,8 +671,10 @@ class Html extends BaseReader
                 if ($domText === "\u{a0}") {
                     $domText = '';
                 }
-                //    simply append the text if the cell content is a plain text string
-                $cellContent .= $domText;
+                if (is_string($cellContent)) {
+                    //    simply append the text if the cell content is a plain text string
+                    $cellContent .= $domText;
+                }
                 //    but if we have a rich text run instead, we need to append it correctly
                 //    TODO
             } elseif ($child instanceof DOMElement) {
@@ -921,7 +920,7 @@ class Html extends BaseReader
         $styles = explode(';', $attributeArray['style']);
         foreach ($styles as $st) {
             $value = explode(':', $st);
-            $styleName = trim($value[0]);
+            $styleName = isset($value[0]) ? trim($value[0]) : null;
             $styleValue = isset($value[1]) ? trim($value[1]) : null;
             $styleValueString = (string) $styleValue;
 
@@ -1233,7 +1232,6 @@ class Html extends BaseReader
             $newEntry['lastColumnIndex'] = Coordinate::columnIndexFromString($sheet->getHighestDataColumn()) - 1;
             $newEntry['totalRows'] = $sheet->getHighestDataRow();
             $newEntry['totalColumns'] = $newEntry['lastColumnIndex'] + 1;
-            $newEntry['sheetState'] = Worksheet::SHEETSTATE_VISIBLE;
             $info[] = $newEntry;
         }
         $spreadsheet->disconnectWorksheets();

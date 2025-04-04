@@ -229,7 +229,6 @@ class Xml extends BaseReader
 
             $tmpInfo['lastColumnLetter'] = Coordinate::stringFromColumnIndex($tmpInfo['lastColumnIndex'] + 1);
             $tmpInfo['totalColumns'] = $tmpInfo['lastColumnIndex'] + 1;
-            $tmpInfo['sheetState'] = Worksheet::SHEETSTATE_VISIBLE;
 
             $worksheetInfo[] = $tmpInfo;
             ++$worksheetID;
@@ -405,10 +404,12 @@ class Xml extends BaseReader
                             $arrayRef = AddressHelper::convertFormulaToA1($arrayRange, $rowID, Coordinate::columnIndexFromString($columnID));
                         }
 
-                        if (!$this->getReadFilter()->readCell($columnID, $rowID, $worksheetName)) {
-                            ++$columnID;
+                        if ($this->getReadFilter() !== null) {
+                            if (!$this->getReadFilter()->readCell($columnID, $rowID, $worksheetName)) {
+                                ++$columnID;
 
-                            continue;
+                                continue;
+                            }
                         }
 
                         if (isset($cell_ss['HRef'])) {

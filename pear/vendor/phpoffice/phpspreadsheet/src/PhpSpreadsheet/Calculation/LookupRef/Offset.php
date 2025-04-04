@@ -7,7 +7,6 @@ use PhpOffice\PhpSpreadsheet\Calculation\Functions;
 use PhpOffice\PhpSpreadsheet\Calculation\Information\ExcelError;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-use PhpOffice\PhpSpreadsheet\Worksheet\Validations;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class Offset
@@ -56,10 +55,6 @@ class Offset
         if (!is_object($cell)) {
             return ExcelError::REF();
         }
-        $sheet = $cell->getParent()?->getParent(); // worksheet
-        if ($sheet !== null) {
-            $cellAddress = Validations::definedNameToCoordinate($cellAddress, $sheet);
-        }
 
         [$cellAddress, $worksheet] = self::extractWorksheet($cellAddress, $cell);
 
@@ -67,11 +62,12 @@ class Offset
         if (strpos($cellAddress, ':')) {
             [$startCell, $endCell] = explode(':', $cellAddress);
         }
-        [$startCellColumn, $startCellRow] = Coordinate::indexesFromString($startCell);
-        [, $endCellRow, $endCellColumn] = Coordinate::indexesFromString($endCell);
+        [$startCellColumn, $startCellRow] = Coordinate::coordinateFromString($startCell);
+        [$endCellColumn, $endCellRow] = Coordinate::coordinateFromString($endCell);
 
         $startCellRow += $rows;
-        $startCellColumn += $columns - 1;
+        $startCellColumn = Coordinate::columnIndexFromString($startCellColumn) - 1;
+        $startCellColumn += $columns;
 
         if (($startCellRow <= 0) || ($startCellColumn < 0)) {
             return ExcelError::REF();
@@ -107,7 +103,8 @@ class Offset
 
         $sheetName = '';
         if (str_contains($cellAddress, '!')) {
-            [$sheetName, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true, true);
+            [$sheetName, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true);
+            $sheetName = trim($sheetName, "'");
         }
 
         $worksheet = ($sheetName !== '')

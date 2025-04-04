@@ -287,24 +287,6 @@ class SeedDMS_Session {
 	} /* }}} */
 
 	/**
-	 * Check if object is on clipboard
-	 *
-	 * @param object $object Document or folder
-	 */
-	function isOnClipboard($object) { /* {{{ */
-		/* id is only set if load() was called before */
-		if($this->id) {
-			$dms = $object->getDMS();
-			if($object->isType('document')) {
-				return in_array($object->getID(), $this->data['clipboard']['docs']);
-			} elseif($object->isType('folder')) {
-				return in_array($object->getID(), $this->data['clipboard']['folders']);
-			}
-		}
-		return false;
-	} /* }}} */
-
-	/**
 	 * Add to clipboard of session
 	 *
 	 * @param object $object Document or folder

@@ -2,7 +2,6 @@
 
 namespace PhpOffice\PhpSpreadsheet\Worksheet;
 
-use Composer\Pcre\Preg;
 use PhpOffice\PhpSpreadsheet\Cell\AddressRange;
 use PhpOffice\PhpSpreadsheet\Cell\CellAddress;
 use PhpOffice\PhpSpreadsheet\Cell\CellRange;
@@ -46,7 +45,7 @@ class Validations
         if (is_string($cellRange) || is_numeric($cellRange)) {
             // Convert a single column reference like 'A' to 'A:A',
             //    a single row reference like '1' to '1:1'
-            $cellRange = Preg::replace('/^([A-Z]+|\d+)$/', '${1}:${1}', (string) $cellRange);
+            $cellRange = (string) preg_replace('/^([A-Z]+|\d+)$/', '${1}:${1}', (string) $cellRange);
         } elseif (is_object($cellRange) && $cellRange instanceof CellAddress) {
             $cellRange = new CellRange($cellRange, $cellRange);
         }
@@ -63,8 +62,8 @@ class Validations
      */
     public static function convertWholeRowColumn(?string $addressRange): string
     {
-        return Preg::replace(
-            ['/^([A-Z]+):([A-Z]+)$/i', '/^(\d+):(\d+)$/'],
+        return (string) preg_replace(
+            ['/^([A-Z]+):([A-Z]+)$/i', '/^(\\d+):(\\d+)$/'],
             [self::SETMAXROW, self::SETMAXCOL],
             $addressRange ?? ''
         );
@@ -115,11 +114,11 @@ class Validations
         // Uppercase coordinate
         $coordinate = strtoupper($coordinate);
         // Eliminate leading equal sign
-        $testCoordinate = Preg::replace('/^=/', '', $coordinate);
+        $testCoordinate = (string) preg_replace('/^=/', '', $coordinate);
         $defined = $worksheet->getParentOrThrow()->getDefinedName($testCoordinate, $worksheet);
         if ($defined !== null) {
             if ($defined->getWorksheet() === $worksheet && !$defined->isFormula()) {
-                $coordinate = Preg::replace('/^=/', '', $defined->getValue());
+                $coordinate = (string) preg_replace('/^=/', '', $defined->getValue());
             }
         }
 

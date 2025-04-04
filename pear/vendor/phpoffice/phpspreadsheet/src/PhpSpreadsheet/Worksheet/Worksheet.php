@@ -23,7 +23,6 @@ use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\ReferenceHelper;
 use PhpOffice\PhpSpreadsheet\RichText\RichText;
 use PhpOffice\PhpSpreadsheet\Shared;
-use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Color;
@@ -50,7 +49,7 @@ class Worksheet
     public const MERGE_CELL_CONTENT_HIDE = 'hide';
     public const MERGE_CELL_CONTENT_MERGE = 'merge';
 
-    public const FUNCTION_LIKE_GROUPBY = '/\b(groupby|_xleta)\b/i'; // weird new syntax
+    public const FUNCTION_LIKE_GROUPBY = '/\\b(groupby|_xleta)\\b/i'; // weird new syntax
 
     protected const SHEET_NAME_REQUIRES_NO_QUOTES = '/^[_\p{L}][_\p{L}\p{N}]*$/mui';
 
@@ -75,6 +74,8 @@ class Worksheet
      * Collection of cells.
      */
     private Cells $cellCollection;
+
+    private bool $cellCollectionInitialized = true;
 
     /**
      * Collection of row dimensions.
@@ -353,9 +354,10 @@ class Worksheet
      */
     public function disconnectCells(): void
     {
-        if (isset($this->cellCollection)) {
+        if ($this->cellCollectionInitialized) {
             $this->cellCollection->unsetWorksheetCells();
             unset($this->cellCollection);
+            $this->cellCollectionInitialized = false;
         }
         //    detach ourself from the workbook, so that it can then delete this worksheet successfully
         $this->parent = null;
@@ -402,15 +404,15 @@ class Worksheet
      */
     private static function checkSheetCodeName(string $sheetCodeName): string
     {
-        $charCount = StringHelper::countCharacters($sheetCodeName);
+        $charCount = Shared\StringHelper::countCharacters($sheetCodeName);
         if ($charCount == 0) {
             throw new Exception('Sheet code name cannot be empty.');
         }
         // Some of the printable ASCII characters are invalid:  * : / \ ? [ ] and  first and last characters cannot be a "'"
         if (
             (str_replace(self::INVALID_CHARACTERS, '', $sheetCodeName) !== $sheetCodeName)
-            || (StringHelper::substring($sheetCodeName, -1, 1) == '\'')
-            || (StringHelper::substring($sheetCodeName, 0, 1) == '\'')
+            || (Shared\StringHelper::substring($sheetCodeName, -1, 1) == '\'')
+            || (Shared\StringHelper::substring($sheetCodeName, 0, 1) == '\'')
         ) {
             throw new Exception('Invalid character found in sheet code name');
         }
@@ -438,7 +440,7 @@ class Worksheet
         }
 
         // Enforce maximum characters allowed for sheet title
-        if (StringHelper::countCharacters($sheetTitle) > self::SHEET_TITLE_MAXIMUM_LENGTH) {
+        if (Shared\StringHelper::countCharacters($sheetTitle) > self::SHEET_TITLE_MAXIMUM_LENGTH) {
             throw new Exception('Maximum ' . self::SHEET_TITLE_MAXIMUM_LENGTH . ' characters allowed in sheet title.');
         }
 
@@ -454,7 +456,7 @@ class Worksheet
      */
     public function getCoordinates(bool $sorted = true): array
     {
-        if (!isset($this->cellCollection)) {
+        if ($this->cellCollectionInitialized === false) {
             return [];
         }
 
@@ -746,7 +748,7 @@ class Worksheet
                                 ->getNumberFormat()->getFormatCode(true)
                         );
 
-                        if ($cellValue !== '') {
+                        if ($cellValue !== null && $cellValue !== '') {
                             $autoSizes[$this->cellCollection->getCurrentColumn()] = max(
                                 $autoSizes[$this->cellCollection->getCurrentColumn()],
                                 round(
@@ -826,13 +828,6 @@ class Worksheet
         return $this;
     }
 
-    public function setParent(Spreadsheet $parent): self
-    {
-        $this->parent = $parent;
-
-        return $this;
-    }
-
     /**
      * Get title.
      */
@@ -874,19 +869,19 @@ class Worksheet
                 if ($this->parent->sheetNameExists($title)) {
                     // Use name, but append with lowest possible integer
 
-                    if (StringHelper::countCharacters($title) > 29) {
-                        $title = StringHelper::substring($title, 0, 29);
+                    if (Shared\StringHelper::countCharacters($title) > 29) {
+                        $title = Shared\StringHelper::substring($title, 0, 29);
                     }
                     $i = 1;
                     while ($this->parent->sheetNameExists($title . ' ' . $i)) {
                         ++$i;
                         if ($i == 10) {
-                            if (StringHelper::countCharacters($title) > 28) {
-                                $title = StringHelper::substring($title, 0, 28);
+                            if (Shared\StringHelper::countCharacters($title) > 28) {
+                                $title = Shared\StringHelper::substring($title, 0, 28);
                             }
                         } elseif ($i == 100) {
-                            if (StringHelper::countCharacters($title) > 27) {
-                                $title = StringHelper::substring($title, 0, 27);
+                            if (Shared\StringHelper::countCharacters($title) > 27) {
+                                $title = Shared\StringHelper::substring($title, 0, 27);
                             }
                         }
                     }
@@ -1194,7 +1189,7 @@ class Worksheet
 
         // Worksheet reference?
         if (str_contains($coordinate, '!')) {
-            $worksheetReference = self::extractSheetTitle($coordinate, true, true);
+            $worksheetReference = self::extractSheetTitle($coordinate, true);
 
             $sheet = $this->getParentOrThrow()->getSheetByName($worksheetReference[0]);
             $finalCoordinate = strtoupper($worksheetReference[1]);
@@ -1227,8 +1222,9 @@ class Worksheet
 
         if (Coordinate::coordinateIsRange($finalCoordinate)) {
             throw new Exception('Cell coordinate string can not be a range of cells.');
+        } elseif (str_contains($finalCoordinate, '$')) {
+            throw new Exception('Cell coordinate must not be absolute.');
         }
-        $finalCoordinate = str_replace('$', '', $finalCoordinate);
 
         return [$sheet, $finalCoordinate];
     }
@@ -1399,11 +1395,7 @@ class Worksheet
      */
     public function getStyle(AddressRange|CellAddress|int|string|array $cellCoordinate): Style
     {
-        if (is_string($cellCoordinate)) {
-            $cellCoordinate = Validations::definedNameToCoordinate($cellCoordinate, $this);
-        }
         $cellCoordinate = Validations::validateCellOrCellRange($cellCoordinate);
-        $cellCoordinate = str_replace('$', '', $cellCoordinate);
 
         // set this sheet as active
         $this->getParentOrThrow()->setActiveSheetIndex($this->getParentOrThrow()->getIndex($this));
@@ -1609,7 +1601,7 @@ class Worksheet
     public function duplicateConditionalStyle(array $styles, string $range = ''): static
     {
         foreach ($styles as $cellStyle) {
-            if (!($cellStyle instanceof Conditional)) { // @phpstan-ignore-line
+            if (!($cellStyle instanceof Conditional)) {
                 throw new Exception('Style is not a conditional style');
             }
         }
@@ -1748,7 +1740,7 @@ class Worksheet
             $range .= ":{$range}";
         }
 
-        if (preg_match('/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/', $range, $matches) !== 1) {
+        if (preg_match('/^([A-Z]+)(\\d+):([A-Z]+)(\\d+)$/', $range, $matches) !== 1) {
             throw new Exception('Merge must be on a valid range of cells.');
         }
 
@@ -1794,11 +1786,13 @@ class Worksheet
             $iterator = $column->getCellIterator($firstRow);
             $iterator->setIterateOnlyExistingCells(true);
             foreach ($iterator as $cell) {
-                $row = $cell->getRow();
-                if ($row > $lastRow) {
-                    break;
+                if ($cell !== null) {
+                    $row = $cell->getRow();
+                    if ($row > $lastRow) {
+                        break;
+                    }
+                    $leftCellValue = $this->mergeCellBehaviour($cell, $upperLeft, $behaviour, $leftCellValue);
                 }
-                $leftCellValue = $this->mergeCellBehaviour($cell, $upperLeft, $behaviour, $leftCellValue);
             }
         }
 
@@ -1817,12 +1811,14 @@ class Worksheet
             $iterator = $row->getCellIterator($firstColumn);
             $iterator->setIterateOnlyExistingCells(true);
             foreach ($iterator as $cell) {
-                $column = $cell->getColumn();
-                $columnIndex = Coordinate::columnIndexFromString($column);
-                if ($columnIndex > $lastColumnIndex) {
-                    break;
+                if ($cell !== null) {
+                    $column = $cell->getColumn();
+                    $columnIndex = Coordinate::columnIndexFromString($column);
+                    if ($columnIndex > $lastColumnIndex) {
+                        break;
+                    }
+                    $leftCellValue = $this->mergeCellBehaviour($cell, $upperLeft, $behaviour, $leftCellValue);
                 }
-                $leftCellValue = $this->mergeCellBehaviour($cell, $upperLeft, $behaviour, $leftCellValue);
             }
         }
 
@@ -2051,10 +2047,10 @@ class Worksheet
      */
     protected function getTableIndexByName(string $name): ?int
     {
-        $name = StringHelper::strToUpper($name);
+        $name = Shared\StringHelper::strToUpper($name);
         foreach ($this->tableCollection as $index => $table) {
             /** @var Table $table */
-            if (StringHelper::strToUpper($table->getName()) === $name) {
+            if (Shared\StringHelper::strToUpper($table->getName()) === $name) {
                 return $index;
             }
         }
@@ -2996,7 +2992,7 @@ class Worksheet
         $c = -1;
         for ($col = $minCol; $col !== $maxCol; ++$col) {
             if ($ignoreHidden === true && $this->columnDimensionExists($col) && $this->getColumnDimension($col)->getVisible() === false) {
-                $hiddenColumns[$col] = true; // @phpstan-ignore-line
+                $hiddenColumns[$col] = true;
             } else {
                 $columnRef = $returnCellRef ? $col : ++$c;
                 $nullRow[$columnRef] = $nullValue;
@@ -3186,7 +3182,7 @@ class Worksheet
      *
      * @return ($range is non-empty-string ? ($returnRange is true ? array{0: string, 1: string} : string) : ($returnRange is true ? array{0: null, 1: null} : null))
      */
-    public static function extractSheetTitle(?string $range, bool $returnRange = false, bool $unapostrophize = false): array|null|string
+    public static function extractSheetTitle(?string $range, bool $returnRange = false): array|null|string
     {
         if (empty($range)) {
             return $returnRange ? [null, null] : null;
@@ -3198,25 +3194,10 @@ class Worksheet
         }
 
         if ($returnRange) {
-            $title = substr($range, 0, $sep);
-            if ($unapostrophize) {
-                $title = self::unApostrophizeTitle($title);
-            }
-
-            return [$title, substr($range, $sep + 1)];
+            return [substr($range, 0, $sep), substr($range, $sep + 1)];
         }
 
         return substr($range, $sep + 1);
-    }
-
-    public static function unApostrophizeTitle(?string $title): string
-    {
-        $title ??= '';
-        if ($title[0] === "'" && substr($title, -1) === "'") {
-            $title = str_replace("''", "'", substr($title, 1, -1));
-        }
-
-        return $title;
     }
 
     /**
@@ -3515,23 +3496,24 @@ class Worksheet
      */
     public function __clone()
     {
-        foreach (get_object_vars($this) as $key => $val) {
+        // @phpstan-ignore-next-line
+        foreach ($this as $key => $val) {
             if ($key == 'parent') {
                 continue;
             }
 
             if (is_object($val) || (is_array($val))) {
-                if ($key === 'cellCollection') {
+                if ($key == 'cellCollection') {
                     $newCollection = $this->cellCollection->cloneCellCollection($this);
                     $this->cellCollection = $newCollection;
-                } elseif ($key === 'drawingCollection') {
+                } elseif ($key == 'drawingCollection') {
                     $currentCollection = $this->drawingCollection;
                     $this->drawingCollection = new ArrayObject();
                     foreach ($currentCollection as $item) {
                         $newDrawing = clone $item;
                         $newDrawing->setWorksheet($this);
                     }
-                } elseif ($key === 'tableCollection') {
+                } elseif ($key == 'tableCollection') {
                     $currentCollection = $this->tableCollection;
                     $this->tableCollection = new ArrayObject();
                     foreach ($currentCollection as $item) {
@@ -3539,14 +3521,14 @@ class Worksheet
                         $newTable->setName($item->getName() . 'clone');
                         $this->addTable($newTable);
                     }
-                } elseif ($key === 'chartCollection') {
+                } elseif ($key == 'chartCollection') {
                     $currentCollection = $this->chartCollection;
                     $this->chartCollection = new ArrayObject();
                     foreach ($currentCollection as $item) {
                         $newChart = clone $item;
                         $this->addChart($newChart);
                     }
-                } elseif ($key === 'autoFilter') {
+                } elseif (($key == 'autoFilter') && ($this->autoFilter instanceof AutoFilter)) {
                     $newAutoFilter = clone $this->autoFilter;
                     $this->autoFilter = $newAutoFilter;
                     $this->autoFilter->setParent($this);
@@ -3589,19 +3571,19 @@ class Worksheet
                 if ($this->parent->sheetCodeNameExists($codeName)) {
                     // Use name, but append with lowest possible integer
 
-                    if (StringHelper::countCharacters($codeName) > 29) {
-                        $codeName = StringHelper::substring($codeName, 0, 29);
+                    if (Shared\StringHelper::countCharacters($codeName) > 29) {
+                        $codeName = Shared\StringHelper::substring($codeName, 0, 29);
                     }
                     $i = 1;
                     while ($this->getParentOrThrow()->sheetCodeNameExists($codeName . '_' . $i)) {
                         ++$i;
                         if ($i == 10) {
-                            if (StringHelper::countCharacters($codeName) > 28) {
-                                $codeName = StringHelper::substring($codeName, 0, 28);
+                            if (Shared\StringHelper::countCharacters($codeName) > 28) {
+                                $codeName = Shared\StringHelper::substring($codeName, 0, 28);
                             }
                         } elseif ($i == 100) {
-                            if (StringHelper::countCharacters($codeName) > 27) {
-                                $codeName = StringHelper::substring($codeName, 0, 27);
+                            if (Shared\StringHelper::countCharacters($codeName) > 27) {
+                                $codeName = Shared\StringHelper::substring($codeName, 0, 27);
                             }
                         }
                     }

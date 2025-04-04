@@ -667,7 +667,7 @@ abstract class Coordinate
                 }
             }
 
-            if ($rowStart !== null) { // @phpstan-ignore-line
+            if ($rowStart !== null) {
                 if ($rowStart == $rowEnd) {
                     $ranges[] = $hashedValue->col . $rowStart;
                 } else {

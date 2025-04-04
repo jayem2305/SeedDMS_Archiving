@@ -12,9 +12,8 @@
 
 namespace Composer\Package\Archiver;
 
-use Composer\Util\Filesystem;
-use Composer\Util\Platform;
 use ZipArchive;
+use Composer\Util\Filesystem;
 
 /**
  * @author Jan Prieser <jan@prieser.net>
@@ -45,17 +44,15 @@ class ZipArchiver implements ArchiverInterface
             $files = new ArchivableFilesFinder($sources, $excludes, $ignoreFilters);
             foreach ($files as $file) {
                 /** @var \Symfony\Component\Finder\SplFileInfo $file */
-                $filepath = $file->getPathname();
-                $relativePath = $file->getRelativePathname();
-
-                if (Platform::isWindows()) {
-                    $relativePath = strtr($relativePath, '\\', '/');
+                $filepath = strtr($file->getPath()."/".$file->getFilename(), '\\', '/');
+                $localname = $filepath;
+                if (strpos($localname, $sources . '/') === 0) {
+                    $localname = substr($localname, strlen($sources . '/'));
                 }
-
                 if ($file->isDir()) {
-                    $zip->addEmptyDir($relativePath);
+                    $zip->addEmptyDir($localname);
                 } else {
-                    $zip->addFile($filepath, $relativePath);
+                    $zip->addFile($filepath, $localname);
                 }
 
                 /**
@@ -67,7 +64,7 @@ class ZipArchiver implements ArchiverInterface
                     /**
                      * Ensure to preserve the permission umasks for the filepath in the archive.
                      */
-                    $zip->setExternalAttributesName($relativePath, ZipArchive::OPSYS_UNIX, $perms << 16);
+                    $zip->setExternalAttributesName($localname, ZipArchive::OPSYS_UNIX, $perms << 16);
                 }
             }
             if ($zip->close()) {

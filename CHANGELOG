@@ -1,12 +1,4 @@
 --------------------------------------------------------------------------------
-                     Changes in version 6.0.32
---------------------------------------------------------------------------------
-- merge changes up to 5.1.39
-- fix setting attributes (user, group, document, folder) when checking in
-  a new document version
-- validate setting revision date
-
---------------------------------------------------------------------------------
                      Changes in version 6.0.31
 --------------------------------------------------------------------------------
 - merge changes up to 5.1.38
@@ -315,22 +307,6 @@
 - add access controll list for many functions
 - add document list which can be exported as an archive
 - search results can be exported
-
---------------------------------------------------------------------------------
-                     Changes in version 5.1.39
---------------------------------------------------------------------------------
-- show quota on chart page when listing total document size per user
-- turn off legend for chart sizepermonth
-- do not add group manager as mandatory approver/reviewer if logged in
-  user is the manager itself
-- fixed setting group approvers from previous document version
-- very experimental support of memcached for accelerating some database
-  operations (do not use in production)
-- prevent malicious manipulation of referer when setting language
-- fix setting attributes of type user, group, document, folder when updating
-  a document
-- objects can be removed from clipboard
-- call hooks for document/folder list in attribute manager
 
 --------------------------------------------------------------------------------
                      Changes in version 5.1.38

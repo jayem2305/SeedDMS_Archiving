@@ -39,6 +39,9 @@ abstract class GammaBase
         while ((abs($dx) > Functions::PRECISION) && (++$i <= self::MAX_ITERATIONS)) {
             // Apply Newton-Raphson step
             $result = self::calculateDistribution($x, $alpha, $beta, true);
+            if (!is_float($result)) {
+                return ExcelError::NA();
+            }
             $error = $result - $probability;
 
             if ($error == 0.0) {
@@ -51,6 +54,9 @@ abstract class GammaBase
 
             $pdf = self::calculateDistribution($x, $alpha, $beta, false);
             // Avoid division by zero
+            if (!is_float($pdf)) {
+                return ExcelError::NA();
+            }
             if ($pdf !== 0.0) {
                 $dx = $error / $pdf;
                 $xNew = $x - $dx;

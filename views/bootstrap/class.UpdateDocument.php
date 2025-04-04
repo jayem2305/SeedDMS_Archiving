@@ -604,12 +604,10 @@ console.log(element);
 				$tmp = array();
 				foreach($approvalStatus as $r) {
 					if($r['type'] == 1) {
-						if($mapprovers) {
-							if(!in_array($r['required'], $mapprovers['g']))
-								$tmp[] = $r['required'];
-						} else {
+						if(!in_array($r['required'], $mapprovers['g']))
 							$tmp[] = $r['required'];
-						}
+					} else {
+						$tmp[] = $r['required'];
 					}
 				}
 				$fieldwrap = array('', '');

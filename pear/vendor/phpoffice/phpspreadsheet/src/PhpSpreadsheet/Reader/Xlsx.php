@@ -238,8 +238,6 @@ class Xlsx extends BaseReader
                             'totalRows' => 0,
                             'totalColumns' => 0,
                         ];
-                        $sheetState = (string) (self::getAttributes($eleSheet)['state'] ?? Worksheet::SHEETSTATE_VISIBLE);
-                        $tmpInfo['sheetState'] = $sheetState;
 
                         $fileWorksheet = (string) $worksheets[self::getArrayItemString(self::getAttributes($eleSheet, $namespace), 'id')];
                         $fileWorksheetPath = str_starts_with($fileWorksheet, '/') ? substr($fileWorksheet, 1) : "$dir/$fileWorksheet";
@@ -259,7 +257,7 @@ class Xlsx extends BaseReader
                         $currCells = 0;
                         while ($xml->read()) {
                             if ($xml->localName == 'row' && $xml->nodeType == XMLReader::ELEMENT && $xml->namespaceURI === $mainNS) {
-                                $row = (int) $xml->getAttribute('r');
+                                $row = $xml->getAttribute('r');
                                 $tmpInfo['totalRows'] = $row;
                                 $tmpInfo['totalColumns'] = max($tmpInfo['totalColumns'], $currCells);
                                 $currCells = 0;
@@ -563,12 +561,14 @@ class Xlsx extends BaseReader
 
                     if ($macros !== null) {
                         $macrosCode = $this->getFromZipArchive($zip, 'xl/vbaProject.bin'); //vbaProject.bin always in 'xl' dir and always named vbaProject.bin
-                        if (!empty($macrosCode)) {
+                        if ($macrosCode !== false) {
                             $excel->setMacrosCode($macrosCode);
                             $excel->setHasMacros(true);
                             //short-circuit : not reading vbaProject.bin.rel to get Signature =>allways vbaProjectSignature.bin in 'xl' dir
                             $Certificate = $this->getFromZipArchive($zip, 'xl/vbaProjectSignature.bin');
-                            $excel->setMacrosCertificate($Certificate);
+                            if ($Certificate !== false) {
+                                $excel->setMacrosCertificate($Certificate);
+                            }
                         }
                     }
 
@@ -600,7 +600,7 @@ class Xlsx extends BaseReader
                     if (/*$xmlStyles && */ $xmlStyles->numFmts[0]) {
                         $numFmts = $xmlStyles->numFmts[0];
                     }
-                    if (isset($numFmts)) {
+                    if (isset($numFmts) && ($numFmts !== null)) {
                         $numFmts->registerXPathNamespace('sml', $mainNS);
                     }
                     $this->styleReader->setNamespace($mainNS);
@@ -836,19 +836,21 @@ class Xlsx extends BaseReader
                                         $calculatedValue = null;
 
                                         // Read cell?
-                                        $coordinates = Coordinate::coordinateFromString($r);
+                                        if ($this->getReadFilter() !== null) {
+                                            $coordinates = Coordinate::coordinateFromString($r);
 
-                                        if (!$this->getReadFilter()->readCell($coordinates[0], (int) $coordinates[1], $docSheet->getTitle())) {
-                                            // Normally, just testing for the f attribute should identify this cell as containing a formula
-                                            // that we need to read, even though it is outside of the filter range, in case it is a shared formula.
-                                            // But in some cases, this attribute isn't set; so we need to delve a level deeper and look at
-                                            // whether or not the cell has a child formula element that is shared.
-                                            if (isset($cAttr->f) || (isset($c->f, $c->f->attributes()['t']) && strtolower((string) $c->f->attributes()['t']) === 'shared')) {
-                                                $this->castToFormula($c, $r, $cellDataType, $value, $calculatedValue, 'castToError', false);
+                                            if (!$this->getReadFilter()->readCell($coordinates[0], (int) $coordinates[1], $docSheet->getTitle())) {
+                                                // Normally, just testing for the f attribute should identify this cell as containing a formula
+                                                // that we need to read, even though it is outside of the filter range, in case it is a shared formula.
+                                                // But in some cases, this attribute isn't set; so we need to delve a level deeper and look at
+                                                // whether or not the cell has a child formula element that is shared.
+                                                if (isset($cAttr->f) || (isset($c->f, $c->f->attributes()['t']) && strtolower((string) $c->f->attributes()['t']) === 'shared')) {
+                                                    $this->castToFormula($c, $r, $cellDataType, $value, $calculatedValue, 'castToError', false);
+                                                }
+                                                ++$rowIndex;
+
+                                                continue;
                                             }
-                                            ++$rowIndex;
-
-                                            continue;
                                         }
 
                                         // Read cell!
@@ -978,8 +980,9 @@ class Xlsx extends BaseReader
                                 }
                             }
                             $docSheet->setSelectedCells($holdSelectedCells);
-                            if (!$this->readDataOnly && $xmlSheetNS && $xmlSheetNS->ignoredErrors) {
-                                foreach ($xmlSheetNS->ignoredErrors->ignoredError as $ignoredError) {
+                            if ($xmlSheetNS && $xmlSheetNS->ignoredErrors) {
+                                foreach ($xmlSheetNS->ignoredErrors->ignoredError as $ignoredErrorx) {
+                                    $ignoredError = self::testSimpleXml($ignoredErrorx);
                                     $this->processIgnoredErrors($ignoredError, $docSheet);
                                 }
                             }
@@ -1017,7 +1020,7 @@ class Xlsx extends BaseReader
                                 $unparsedLoadedData = (new PageSetup($docSheet, $xmlSheet))->load($unparsedLoadedData);
                             }
 
-                            if (isset($xmlSheet->extLst->ext)) {
+                            if ($xmlSheet !== false && isset($xmlSheet->extLst->ext)) {
                                 foreach ($xmlSheet->extLst->ext as $extlst) {
                                     $extAttrs = $extlst->attributes() ?? [];
                                     $extUri = (string) ($extAttrs['uri'] ?? '');
@@ -1816,10 +1819,11 @@ class Xlsx extends BaseReader
                                         $definedNameValueParts = preg_split("/[ ,](?=([^']*'[^']*')*[^']*$)/miuU", $extractedRange);
                                         if (is_array($definedNameValueParts)) {
                                             // Extract sheet name
-                                            [$extractedSheetName] = Worksheet::extractSheetTitle((string) $definedNameValueParts[0], true, true);
+                                            [$extractedSheetName] = Worksheet::extractSheetTitle((string) $definedNameValueParts[0], true);
+                                            $extractedSheetName = trim((string) $extractedSheetName, "'");
 
                                             // Locate sheet
-                                            $locatedSheet = $excel->getSheetByName("$extractedSheetName");
+                                            $locatedSheet = $excel->getSheetByName($extractedSheetName);
                                         }
                                     }
 
@@ -2357,9 +2361,11 @@ class Xlsx extends BaseReader
         $array = [];
         if ($sxml && $sxml->colors->indexedColors) {
             foreach ($sxml->colors->indexedColors->rgbColor as $node) {
-                $attr = $node->attributes();
-                if (isset($attr['rgb'])) {
-                    $array[] = (string) $attr['rgb'];
+                if ($node !== null) {
+                    $attr = $node->attributes();
+                    if (isset($attr['rgb'])) {
+                        $array[] = (string) $attr['rgb'];
+                    }
                 }
             }
         }
@@ -2369,7 +2375,6 @@ class Xlsx extends BaseReader
 
     private function processIgnoredErrors(SimpleXMLElement $xml, Worksheet $sheet): void
     {
-        $cellCollection = $sheet->getCellCollection();
         $attributes = self::getAttributes($xml);
         $sqref = (string) ($attributes['sqref'] ?? '');
         $numberStoredAsText = (string) ($attributes['numberStoredAsText'] ?? '');
@@ -2394,9 +2399,6 @@ class Xlsx extends BaseReader
                     ++$lastCol;
                     for ($row = $firstRow; $row <= $lastRow; ++$row) {
                         for ($col = $firstCol; $col !== $lastCol; ++$col) {
-                            if (!$cellCollection->has2("$col$row")) {
-                                continue;
-                            }
                             if ($numberStoredAsText === '1') {
                                 $sheet->getCell("$col$row")->getIgnoredErrors()->setNumberStoredAsText(true);
                             }

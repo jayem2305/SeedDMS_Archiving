@@ -1,7 +1,3 @@
-6.0.32 (2025-03-18)
----------------------
-- all changes from 5.1.39 merged
-
 6.0.31 (2025-02-07)
 ---------------------
 - all changes from 5.1.38 merged
@@ -186,14 +182,6 @@ log entry first
 - add virtual access mode for document links and attachments plus callbacks to
   check access mode in a hook
 - add new method SeedDMS_Core_DMS::getDocumentsExpired()
-
-5.1.39 (2025-03-18)
----------------------
-- removed old code used for attribute value parsing
-- add `__toString()` to document, folder, user, group classes
-- `SeedDMS_Core_DMS::getStatisticalData()` also returns the id of the
-  object involved (user or category)
-- fixed searching for attributes
 
 5.1.38 (2025-02-12)
 ---------------------

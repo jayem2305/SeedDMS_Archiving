@@ -512,15 +512,6 @@ class SeedDMS_Core_User { /* {{{ */
 	} /* }}} */
 
 	/**
-	 * Cast to string
-	 *
-	 * @return string
-	 */
-	public function __toString() { /* {{{ */
-		return $this->_fullName." (".$this->_login.")";
-	} /* }}} */
-
-	/**
 	 * Check if this object is of type 'user'.
 	 *
 	 * @param string $type type of object

@@ -118,17 +118,17 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.5.6",
-            "version_normalized": "1.5.6.0",
+            "version": "1.5.5",
+            "version_normalized": "1.5.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "f65c239c970e7f072f067ab78646e9f0b2935175"
+                "reference": "08c50d5ec4c6ced7d0271d2862dec8c1033283e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/f65c239c970e7f072f067ab78646e9f0b2935175",
-                "reference": "f65c239c970e7f072f067ab78646e9f0b2935175",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/08c50d5ec4c6ced7d0271d2862dec8c1033283e6",
+                "reference": "08c50d5ec4c6ced7d0271d2862dec8c1033283e6",
                 "shasum": ""
             },
             "require": {
@@ -142,7 +142,7 @@
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "symfony/process": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
-            "time": "2025-03-06T14:30:56+00:00",
+            "time": "2025-01-08T16:17:16+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -177,7 +177,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/ca-bundle/issues",
-                "source": "https://github.com/composer/ca-bundle/tree/1.5.6"
+                "source": "https://github.com/composer/ca-bundle/tree/1.5.5"
             },
             "funding": [
                 {
@@ -278,12 +278,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "71e8395ebdb68d9179fae53e7fa3a303d6e438f3"
+                "reference": "e58aad45b51c6b29b9f47800a182d7e86e654201"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/71e8395ebdb68d9179fae53e7fa3a303d6e438f3",
-                "reference": "71e8395ebdb68d9179fae53e7fa3a303d6e438f3",
+                "url": "https://api.github.com/repos/composer/composer/zipball/e58aad45b51c6b29b9f47800a182d7e86e654201",
+                "reference": "e58aad45b51c6b29b9f47800a182d7e86e654201",
                 "shasum": ""
             },
             "require": {
@@ -322,7 +322,7 @@
                 "ext-zip": "Enabling the zip extension allows you to unzip archives",
                 "ext-zlib": "Allow gzip compression of HTTP requests"
             },
-            "time": "2025-03-06T15:48:02+00:00",
+            "time": "2025-02-06T13:00:23+00:00",
             "default-branch": true,
             "bin": [
                 "bin/composer"
@@ -1796,17 +1796,17 @@
         },
         {
             "name": "pear/log",
-            "version": "1.14.5",
-            "version_normalized": "1.14.5.0",
+            "version": "1.14.4",
+            "version_normalized": "1.14.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pear/Log.git",
-                "reference": "38e6668ead984d446161acc1ba257cf77ec67bcd"
+                "reference": "f1ce70cfc8ee30af93c313f4e6444a7abe6aea03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pear/Log/zipball/38e6668ead984d446161acc1ba257cf77ec67bcd",
-                "reference": "38e6668ead984d446161acc1ba257cf77ec67bcd",
+                "url": "https://api.github.com/repos/pear/Log/zipball/f1ce70cfc8ee30af93c313f4e6444a7abe6aea03",
+                "reference": "f1ce70cfc8ee30af93c313f4e6444a7abe6aea03",
                 "shasum": ""
             },
             "require": {
@@ -1820,7 +1820,7 @@
             "suggest": {
                 "pear/db": "Install optionally via your project's composer.json"
             },
-            "time": "2025-03-09T21:15:38+00:00",
+            "time": "2024-02-20T21:00:10+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -1842,12 +1842,12 @@
                 {
                     "name": "Jon Parise",
                     "email": "jon@php.net",
-                    "homepage": "https://www.indelible.org/",
+                    "homepage": "http://www.indelible.org",
                     "role": "Developer"
                 }
             ],
             "description": "PEAR Logging Framework",
-            "homepage": "https://pear.github.io/Log/",
+            "homepage": "http://pear.github.io/Log/",
             "keywords": [
                 "log",
                 "logging"
@@ -2412,17 +2412,17 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "4.1.0",
-            "version_normalized": "4.1.0.0",
+            "version": "4.0.0",
+            "version_normalized": "4.0.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "6ff18c3a8df3a945492f75ce455d77f7ad55dd5c"
+                "reference": "2d4b9f3582102aafb6b1378fff8a20eeeacfb31c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/6ff18c3a8df3a945492f75ce455d77f7ad55dd5c",
-                "reference": "6ff18c3a8df3a945492f75ce455d77f7ad55dd5c",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/2d4b9f3582102aafb6b1378fff8a20eeeacfb31c",
+                "reference": "2d4b9f3582102aafb6b1378fff8a20eeeacfb31c",
                 "shasum": ""
             },
             "require": {
@@ -2468,7 +2468,7 @@
                 "mpdf/mpdf": "Option for rendering PDF with PDF Writer",
                 "tecnickcom/tcpdf": "Option for rendering PDF with PDF Writer"
             },
-            "time": "2025-03-02T06:52:24+00:00",
+            "time": "2025-02-08T02:28:25+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -2514,7 +2514,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/4.1.0"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/4.0.0"
             },
             "install-path": "../phpoffice/phpspreadsheet"
         },
@@ -3630,7 +3630,7 @@
             "dist": {
                 "type": "path",
                 "url": "/home/cvs/seeddms-ext/core",
-                "reference": "c0e5881eb82fa7eed4c319e1cc01ddc7c7911967"
+                "reference": "15cdd98bd59779fcbe8b768ba3bfd6190d2794a9"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "dev-main",
@@ -5158,23 +5158,23 @@
         },
         {
             "name": "symfony/process",
-            "version": "v7.2.4",
-            "version_normalized": "7.2.4.0",
+            "version": "v7.2.0",
+            "version_normalized": "7.2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "d8f411ff3c7ddc4ae9166fb388d1190a2df5b5cf"
+                "reference": "d34b22ba9390ec19d2dd966c40aa9e8462f27a7e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/d8f411ff3c7ddc4ae9166fb388d1190a2df5b5cf",
-                "reference": "d8f411ff3c7ddc4ae9166fb388d1190a2df5b5cf",
+                "url": "https://api.github.com/repos/symfony/process/zipball/d34b22ba9390ec19d2dd966c40aa9e8462f27a7e",
+                "reference": "d34b22ba9390ec19d2dd966c40aa9e8462f27a7e",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.2"
             },
-            "time": "2025-02-05T08:33:46+00:00",
+            "time": "2024-11-06T14:24:19+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -5202,7 +5202,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v7.2.4"
+                "source": "https://github.com/symfony/process/tree/v7.2.0"
             },
             "funding": [
                 {

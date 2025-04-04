@@ -55,12 +55,10 @@ if (!is_object($content)) {
 	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_version"));
 }
 
-$ts = null;
-if (!empty($_POST["startdate"])) {
+if (isset($_POST["startdate"])) {
 	$ts = makeTsFromDate($_POST["startdate"]);
-}
-if(!$ts) {
-	UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_revision_date"));
+} else {
+	$ts = time();
 }
 $startdate = date('Y-m-d', $ts);
 

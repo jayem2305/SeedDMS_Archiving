@@ -52,10 +52,6 @@ $includecontent = false;
 if (isset($_GET["includecontent"]) && $_GET["includecontent"])
 	$includecontent = true;
 
-$skipdefaultcols = false;
-if (isset($_GET["skipdefaultcols"]) && $_GET["skipdefaultcols"])
-	$skipdefaultcols = true;
-
 $newowner = null;
 if (isset($_GET["newowner"]) && is_numeric($_GET["newowner"]) && $_GET['newowner'] > 0) {
 	$newowner = $dms->getUser((int) $_GET['newowner']);
@@ -776,7 +772,6 @@ if($settings->_showSingleSearchHit && count($entries) == 1) {
 		$view->setParam('accessobject', $accessop);
 		$view->setParam('query', $query);
 		$view->setParam('includecontent', $includecontent);
-		$view->setParam('skipdefaultcols', $skipdefaultcols);
 		$view->setParam('marks', isset($_GET['marks']) ? $_GET['marks'] : array());
 		$view->setParam('newowner', $newowner);
 		$view->setParam('newreviewer', $newreviewer);

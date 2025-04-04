@@ -44,9 +44,32 @@ if(true) {
 
 	$containerBuilder = new \DI\ContainerBuilder();
 	$c = $containerBuilder->build();
+	/*
+	$c['notFoundHandler'] = function ($c) use ($settings, $dms) {
+		return function ($request, $response) use ($c, $settings, $dms) {
+			$uri = $request->getUri();
+			if($uri->getBasePath())
+				$file = $uri->getPath();
+			else
+				$file = substr($uri->getPath(), 1);
+			if(file_exists($file) && is_file($file)) {
+				$_SERVER['SCRIPT_FILENAME'] = basename($file);
+//				include($file);
+				exit;
+			}
+			if($request->isXhr()) {
+				exit;
+			}
+//			print_r($request->getUri());
+//			exit;
+			return $c['response']
+				->withStatus(302)
+				->withHeader('Location', isset($settings->_siteDefaultPage) && strlen($settings->_siteDefaultPage)>0 ? $settings->_httpRoot.$settings->_siteDefaultPage : $settings->_httpRoot."out/out.ViewFolder.php");
+		};
+	};
+	 */
 	AppFactory::setContainer($c);
 	$app = AppFactory::create();
-
 	/* put lots of data into the container, because if slim instanciates
 	 * a class by itself (with the help from the DI container), it will
 	 * pass the container to the constructor of the instanciated class.
@@ -68,8 +91,12 @@ if(true) {
 			}
 	}
 
-	$app->addErrorMiddleware(false, true, true);
+	$app->get('/', function($request, $response) {
+		return $response
+			->withHeader('Location', '/out/out.ViewFolder.php')
+			->withStatus(302);
 
+	});
 	if(isset($GLOBALS['SEEDDMS_HOOKS']['initDMS'])) {
 		foreach($GLOBALS['SEEDDMS_HOOKS']['initDMS'] as $hookObj) {
 			if (method_exists($hookObj, 'addRoute')) {
@@ -80,13 +107,20 @@ if(true) {
 		}
 	}
 
-	/* Catch all route */
-	$app->get('/{path:.*}', function($request, $response) {
-		return $response
-			->withHeader('Location', '/out/out.ViewFolder.php')
-			->withStatus(302);
-
+	/*
+	$app->get('/out/[{path:.*}]', function($request, $response, $path = null) use ($app) {
+		$uri = $request->getUri();
+		if($uri->getBasePath())
+			$file = $uri->getPath();
+		else
+			$file = substr($uri->getPath(), 1);
+		if(file_exists($file) && is_file($file)) {
+			$_SERVER['SCRIPT_FILENAME'] = basename($file);
+			include($file);
+			exit;
+		}
 	});
+	 */
 
 	$app->run();
 } else {

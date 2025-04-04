@@ -353,7 +353,7 @@ class SeedDMS_View_DocumentVersionDetail extends SeedDMS_Theme_Style {
 					print "<li>".$arr[0].": ".$arr[1]."</li>\n";
 				} else {
 					$attrdef = $attribute->getAttributeDefinition();
-					print "<li>".htmlspecialchars($attrdef->getName()).": ".htmlspecialchars($attribute->getValueAsString())."</li>\n";
+					print "<li>".htmlspecialchars($attrdef->getName()).": ".htmlspecialchars(implode(', ', $attribute->getValueAsArray()))."</li>\n";
 				}
 			}
 		}

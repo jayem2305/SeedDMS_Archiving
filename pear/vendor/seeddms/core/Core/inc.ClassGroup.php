@@ -133,15 +133,6 @@ class SeedDMS_Core_Group { /* {{{ */
 	} /* }}} */
 
 	/**
-	 * Cast to string
-	 *
-	 * @return string
-	 */
-	public function __toString() { /* {{{ */
-		return $this->_name;
-	} /* }}} */
-
-	/**
 	 * Check if this object is of type 'group'.
 	 *
 	 * @param string $type type of object

@@ -147,11 +147,10 @@ class SeedDMS_Core_Object { /* {{{ */
 
 	/**
 	 * Returns an attribute value of the object for the given attribute definition
-	 * This is a short cut for $object->getAttribute($attrdef)->getValue()
 	 *
 	 * @param SeedDMS_Core_AttributeDefinition $attrdef
-	 * @return mixed value of attritbute or null if the attribute is not set.
-	 *   The value is an array if the attribute is defined as multi value
+	 * @return array|string value of attritbute or false. The value is an array
+	 * if the attribute is defined as multi value
 	 */
 	public function getAttributeValue($attrdef) { /* {{{ */
 		if (!$this->_attributes) {
@@ -159,9 +158,26 @@ class SeedDMS_Core_Object { /* {{{ */
 		}
 
 		if (isset($this->_attributes[$attrdef->getId()])) {
-			return $this->_attributes[$attrdef->getId()]->getValue();
+			$value = $this->_attributes[$attrdef->getId()]->getValue();
+			return $value;
+			if ($attrdef->getMultipleValues()) {
+				$sep = substr($value, 0, 1);
+				$vsep = $attrdef->getValueSetSeparator();
+				/* If the value doesn't start with the separator used in the value set,
+				 * then assume that the value was not saved with a leading separator.
+				 * This can happen, if the value was previously a single value from
+				 * the value set and later turned into a multi value attribute.
+				 */
+				if ($sep == $vsep) {
+					return(explode($sep, substr($value, 1)));
+				} else {
+					return(array($value));
+				}
+			} else {
+				return $this->_attributes[$attrdef->getId()]->getParsedValue();
+			}
 		} else {
-			return null;
+			return false;
 		}
 	} /* }}} */
 

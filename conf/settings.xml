@@ -35,7 +35,7 @@
        - defaultDocPosition: Default position for a new document. 'start', 'end', or ''
        - defaultFolderPosition: Default position for a new folder. 'start', 'end', or ''
     -->
-    <edition strictFormCheck="false" viewOnlineFileTypes=".txt;.text;.html;.htm;.xml;.pdf;.gif;.png;.jpg;.jpeg;.mp4" enableConverting="true" enableEmail="true" enableUsersView="true" enableFullSearch="false" enableClipboard="false" enableFolderTree="true" expandFolderTree="1" enableLanguageSelector="true" stopWordsFile="" sortUsersInList="" enableDropUpload="true" enableRecursiveCount="false" maxRecursiveCount="0" enableThemeSelector="true" fullSearchEngine="sqlitefts" sortFoldersDefault="u" defaultDocPosition="end" defaultFolderPosition="end" inlineEditing="false" noDocumentFormFields="" noFolderFormFields="" editOnlineFileTypes="" enableSessionList="false" alwaysShowClipboard="false" enableMenuTransmittals="false" enableMenuTasks="false" alwaysShowMenuTasks="false" tasksInMenu="" enableDropFolderList="false" enableMultiUpload="false" daysPastDashboard="0" excludeFoldersDashboard="" enableHelp="false" maxSizeForFullText="0" defaultSearchMethod="" suggestTerms="" batchOperations="" showSingleSearchHit="false" libraryFolder="0"/>
+    <edition strictFormCheck="false" viewOnlineFileTypes=".txt;.text;.html;.htm;.xml;.pdf;.gif;.png;.jpg;.jpeg;.mp4" enableConverting="true" enableEmail="true" enableUsersView="true" enableFullSearch="false" enableClipboard="false" enableFolderTree="true" expandFolderTree="1" enableLanguageSelector="true" stopWordsFile="" sortUsersInList="" enableDropUpload="true" enableRecursiveCount="false" maxRecursiveCount="0" enableThemeSelector="true" fullSearchEngine="sqlitefts" sortFoldersDefault="u" defaultDocPosition="end" defaultFolderPosition="end" inlineEditing="false" noDocumentFormFields="" noFolderFormFields="" editOnlineFileTypes="" enableSessionList="false" alwaysShowClipboard="false" enableMenuTransmittals="false" enableMenuTasks="false" alwaysShowMenuTasks="false" tasksInMenu="" enableDropFolderList="false" enableMultiUpload="false" daysPastDashboard="0" excludeFoldersDashboard="" enableHelp="false" maxSizeForFullText="0" defaultSearchMethod="database" suggestTerms="" batchOperations="" showSingleSearchHit="false" libraryFolder="0"/>
     <!--
        - enableCalendar: enable/disable calendar
        - calendarDefaultView: calendar default view ("w" for week,"m" for month,"y" for year)
@@ -63,7 +63,7 @@
        - cacheDir: where the preview images are saved
        - backupDir: where the backups are saved
     -->
-    <server rootDir="C:/xampp/htdocs/seeddms/" httpRoot="/seeddms/" contentDir="C:/xampp/htdocs/seeddms/data\" stagingDir="C:/xampp/htdocs/seeddms/data/staging" luceneDir="C:/xampp/htdocs/seeddms/data/lucene" logFileEnable="true" logFileRotation="d" enableLargeFileUpload="false" partitionSize="2000000" dropFolderDir="" cacheDir="C:/xampp/htdocs/seeddms/data/cache" backupDir="C:/xampp/htdocs/seeddms/data/backup/" logFileMaxLevel="6" baseUrl="" checkOutDir="" createCheckOutDir="false" repositoryUrl="" proxyUrl="" proxyUser="" proxyPassword="" logFileRestApiMaxLevel="" maxUploadSize="" enableXsendfile="false" enableMemcached="false"/>
+    <server rootDir="C:/xampp/htdocs/seeddms/" httpRoot="/seeddms/" contentDir="C:/xampp/htdocs/seeddms/data/" stagingDir="C:/xampp/htdocs/seeddms/data/staging\" luceneDir="C:/xampp/htdocs/seeddms/data/lucene\" logFileEnable="true" logFileRotation="d" enableLargeFileUpload="false" partitionSize="2000000" dropFolderDir="" cacheDir="C:/xampp/htdocs/seeddms/data/cache\" backupDir="C:/xampp/htdocs/seeddms/data/backup\" logFileMaxLevel="6" baseUrl="" checkOutDir="" createCheckOutDir="false" repositoryUrl="" proxyUrl="" proxyUser="" proxyPassword="KBpEKfrvF6YbFCJ\" logFileRestApiMaxLevel="" maxUploadSize="" enableXsendfile="false"/>
     <!--
        - enableGuestLogin: If you want anybody to login as guest, set the following line to true
        -                   note: guest login should be used only in a trusted environment
@@ -119,7 +119,7 @@
        - dbPass: password for database-access
        - doNotCheckVersion: Whether or not to check the database schema for its correct version.
     -->
-    <database dbDriver="mysql" dbHostname="localhost" dbDatabase="seeddms_dbdoc" dbUser="root" dbPass="" doNotCheckVersion="false" doNotCheckDBVersion="false"/>
+     <database dbDriver="mysql" dbHostname="localhost" dbDatabase="seeddms_dbdoc" dbUser="root" dbPass="" doNotCheckVersion="false" doNotCheckDBVersion="false"/>
     <!--
        - smtpServer: SMTP Server hostname
        - smtpPort: SMTP Server port
@@ -154,7 +154,7 @@
        - presetExpirationDate: set to time period if each document shall expire
        - overrideMimeType: set to true if the mimetype of a document version is determined by the server
     -->
-    <edition enableAdminRevApp="false" versioningFileName="versioning_info.txt" workflowMode="traditional" enableVersionDeletion="true" enableVersionModification="true" enableDuplicateDocNames="true" enableDuplicateSubFolderNames="true" enableOwnerRevApp="false" enableSelfRevApp="false" presetExpirationDate="" overrideMimeType="false" enableHiddenRevApp="false" enableUpdateRevApp="false" enableRemoveRevApp="false" enableSelfReceipt="false" enableAdminReceipt="false" enableOwnerReceipt="false" enableUpdateReceipt="false" enableFilterReceipt="false" initialDocumentStatus="0" addManagerAsReviewer="false" addManagerAsApprover="false" globalReviewer="" globalApprover="" globalGroupReviewer="" globalGroupApprover="" apiOrigin="" enableReceiptWorkflow="false" enableReceiptReject="false" disableReceiptComment="false" enableRevisionWorkflow="false" enableRevisionOneVoteReject="false" allowReviewerOnly="false" allowChangeRevAppInProcess="false" enableCancelCheckout="false" advancedAcl="false" removeFromDropFolder="false" uploadedAttachmentIsPublic="false"/>
+    <edition enableAdminRevApp="false" versioningFileName="versioning_info.txt" workflowMode="traditional" enableVersionDeletion="true" enableVersionModification="true" enableDuplicateDocNames="true" enableDuplicateSubFolderNames="true" enableOwnerRevApp="false" enableSelfRevApp="false" presetExpirationDate="" overrideMimeType="false" enableHiddenRevApp="false" enableUpdateRevApp="false" enableRemoveRevApp="false" enableSelfReceipt="false" enableAdminReceipt="false" enableOwnerReceipt="false" enableUpdateReceipt="false" enableFilterReceipt="false" initialDocumentStatus="2" addManagerAsReviewer="false" addManagerAsApprover="false" globalReviewer="" globalApprover="" globalGroupReviewer="" globalGroupApprover="" apiOrigin="" enableReceiptWorkflow="false" enableReceiptReject="false" disableReceiptComment="false" enableRevisionWorkflow="false" enableRevisionOneVoteReject="false" allowReviewerOnly="false" allowChangeRevAppInProcess="false" enableCancelCheckout="false" advancedAcl="false" removeFromDropFolder="false" uploadedAttachmentIsPublic="false"/>
     <!--
        - coreDir: Path to SeedDMS_Core (optional)
        - luceneClassDir: Path to SeedDMS_Lucene (optional)
@@ -169,7 +169,7 @@
        - maxExecutionTime: maximum script execution time, this cannot be larger than the value set in php.ini
        - cmdTimeout: timeout in sec. for external commands
     -->
-    <server coreDir="" luceneClassDir="" contentOffsetDir="1048576" maxDirID="0" updateNotifyTime="86400" extraPath="C:/xampp/htdocs/seeddms/pear/" maxExecutionTime="30" cmdTimeout="10" enableDebugMode="false"/>
+    <server coreDir="" luceneClassDir="" contentOffsetDir="1048576" maxDirID="0" updateNotifyTime="86400" extraPath="" maxExecutionTime="30" cmdTimeout="10" enableDebugMode="false"/>
     <!--
        - enableNotificationAppRev: set to true if reviewers and approvers shall be informed about a pending review/approval
        - enableOwnerNotification: XXX

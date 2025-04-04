@@ -108,7 +108,7 @@ abstract class DatabaseAbstract
         }
 
         $rowQuery = array_map(
-            fn ($rowValue): string => (count($rowValue) > 1) ? 'AND(' . implode(',', $rowValue) . ')' : ($rowValue[0] ?? ''), // @phpstan-ignore-line
+            fn ($rowValue): string => (count($rowValue) > 1) ? 'AND(' . implode(',', $rowValue) . ')' : ($rowValue[0] ?? ''),
             $baseQuery
         );
 

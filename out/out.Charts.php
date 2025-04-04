@@ -53,7 +53,6 @@ if ($view) {
 	$view->setParam('type', $type);
 	$view->setParam('data', $data);
 	$view->setParam('accessobject', $accessop);
-	$view->setParam('quota', $settings->_quota);
 	$view($_GET);
 	exit;
 }

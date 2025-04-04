@@ -19,7 +19,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//    Translators: Admin (3437), dgrutsch (22)
+//    Translators: Admin (3433), dgrutsch (22)
 
 $text = array(
 '2_factor_auth' => '2-Faktor Authentifizierung',
@@ -1622,7 +1622,6 @@ URL: [url]</p>',
 'removeFolderFromDropFolder' => 'Ordner nach Import entfernen',
 'removeFolderFromDropFolder_desc' => 'Schalten Sie dies ein, um den importierten Ordner im Ablageordner auf der Festplatte zu löschen.',
 'remove_approval_log' => 'Einzelne Freigabe entfernen',
-'remove_from_clipboard' => 'Aus Zwischenablage entfernen',
 'remove_marked_files' => 'Markierte Dateien löschen',
 'remove_review_log' => 'Einzelne Prüfung entfernen',
 'remove_task' => 'Task entfernen',
@@ -2147,8 +2146,6 @@ Sollten Sie kein Passwort bekommen haben, dann nutzen Sie bitte die Passwort-Ver
 'settings_enableLargeFileUpload_desc' => 'Wenn dies gesetzt ist, dann ist ebenfalls der Upload von Dokumenten durch ein java applet mit Namen \'jumploader\' ohne Begrenzung der maximalen Dateigröße möglich. Auch das Hochladen mehrerer Dokumente in einem Schritt wird dadurch ermöglicht. Das Einschalten bewirkt, dass keine http only Cookies mehr gesetzt werden.',
 'settings_enableLoginByEmail' => 'Anmeldung mit E-Mail erlauben',
 'settings_enableLoginByEmail_desc' => 'Wenn eingeschaltet, dann ist auch die Anmeldung mit der E-Mail-Adresse möglich. Die Anmeldung mit dem Benutzername bleibt weiterhin möglich. Diese Einstellung wird möglicherweise nicht von allen Authentifizierungsmethoden berücksichtigt. Da die E-Mail nicht eindeutig ist, kann die Identifikation fehlschagen, auch wenn das Password aus Sicht des anmeldenen Benutzers korrekt ist.',
-'settings_enableMemcached' => 'Memcached verwenden',
-'settings_enableMemcached_desc' => 'Verwendet intern memcached, um einige Datenbankoperationen zu beschleunigen und sollte nicht im Produktionsbetrieb eingeschaltet werden.',
 'settings_enableMenuTasks' => 'Aufgabenliste im Menü',
 'settings_enableMenuTasks_desc' => 'Ein-/Ausschalten des Menüeintrags, der anstehenden Aufgaben des Benutzers enthält. Diese Liste beinhaltet Dokumente die geprüft, freigegeben, usw. werden müssen.',
 'settings_enableMenuTransmittals' => 'Dokumentenlisten im Menü',
@@ -2467,7 +2464,6 @@ Sollten Sie kein Passwort bekommen haben, dann nutzen Sie bitte die Passwort-Ver
 'sign_out' => 'Abmelden',
 'sign_out_user' => 'Benutzer abmelden',
 'site_brand' => '',
-'skip_default_export_cols' => 'Keine voreingestellten Spalten',
 'sk_SK' => 'Slovakisch',
 'sort_by_date' => 'Nach Datum sortieren',
 'sort_by_expiration_date' => 'Nach Ablaufdatum sortieren',

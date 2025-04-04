@@ -20,7 +20,7 @@
 
 class SeedDMS_Version { /* {{{ */
 
-	const _number = "6.0.32";
+	const _number = "6.0.31";
 	const _string = "SeedDMS";
 
 	function __construct() {

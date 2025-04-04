@@ -55,10 +55,7 @@ if($user) {
 		$params['url'] = getBaseUrl().$settings->_httpRoot."out/out.ChangePassword.php?hash=".$hash;
 	 	$params['url_prefix'] = getBaseUrl().$settings->_httpRoot;
 		$emailobj->toIndividual($settings->_smtpSendFrom, $user, $subject, $message, $params);
-		add_log_line("Request for '".$login."' send to '".$email."'", PEAR_LOG_INFO);
 	}
-} else {
-		add_log_line("No such user '".$login."' with email '".$email."'", PEAR_LOG_WARNING);
 }
 
 header('Location: ../out/out.PasswordSend.php');

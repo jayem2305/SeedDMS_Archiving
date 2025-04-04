@@ -19,7 +19,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//    Translators: Admin (1175), jeromerobert (50), lonnnew (9), Oudiceval (1171)
+//    Translators: Admin (1173), jeromerobert (50), lonnnew (9), Oudiceval (1171)
 
 $text = array(
 '2_factor_auth' => 'Authentification forte',
@@ -1577,7 +1577,6 @@ URL : [url]</p>',
 'removeFolderFromDropFolder' => 'Suppression du dossier après importation',
 'removeFolderFromDropFolder_desc' => '',
 'remove_approval_log' => 'Approbation retirée',
-'remove_from_clipboard' => '',
 'remove_marked_files' => 'Supprimer les fichiers sélectionnés',
 'remove_review_log' => 'Vérification retirée',
 'remove_task' => '',
@@ -2094,8 +2093,6 @@ Nom : [username]
 'settings_enableLargeFileUpload_desc' => 'Si défini, le téléchargement de fichier est également disponible via un applet java appelé jumploader sans limite de taille définie par le navigateur. Il permet également de télécharger plusieurs fichiers en une seule fois.',
 'settings_enableLoginByEmail' => '',
 'settings_enableLoginByEmail_desc' => '',
-'settings_enableMemcached' => '',
-'settings_enableMemcached_desc' => '',
 'settings_enableMenuTasks' => 'Activer le menu des tâches',
 'settings_enableMenuTasks_desc' => 'Affiche un menu avec la liste des tâches. Cette liste contient les documents en attente d’une action par l’utilisateur.',
 'settings_enableMenuTransmittals' => '',
@@ -2414,7 +2411,6 @@ Nom : [username]
 'sign_out' => 'Déconnexion',
 'sign_out_user' => 'Déconnecter l\'utilisateur',
 'site_brand' => '',
-'skip_default_export_cols' => '',
 'sk_SK' => 'Slovaque',
 'sort_by_date' => 'Trier par date',
 'sort_by_expiration_date' => 'Trier par date d’expiration',
@@ -2688,7 +2684,7 @@ URL : [url]</p>',
 'type_to_filter' => 'Filtrer dans la liste',
 'type_to_search' => 'Effectuer une recherche',
 'uk_UA' => 'Ukrénien',
-'undefined' => 'indéfini',
+'undefined' => '',
 'under_folder' => 'Dans le dossier',
 'unknown_attrdef' => 'Définition d’attribut inconnue',
 'unknown_command' => 'Commande non reconnue.',
@@ -2707,7 +2703,7 @@ URL : [url]</p>',
 'unlock_cause_locking_user' => 'Vous pouvez encore le mettre à jour, car vous êtes le seul à l\'avoir verrouillé. Le verrouillage sera automatiquement annulé.',
 'unlock_document' => 'Déverrouiller',
 'update' => 'Mettre à jour',
-'updated' => 'mis à jour',
+'updated' => '',
 'updated_documents' => '',
 'update_approvers' => 'Mettre à jour la liste des approbateurs',
 'update_document' => 'Mettre à jour',

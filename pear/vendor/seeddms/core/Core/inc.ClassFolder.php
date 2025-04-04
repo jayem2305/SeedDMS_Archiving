@@ -152,15 +152,6 @@ class SeedDMS_Core_Folder extends SeedDMS_Core_Object {
 	} /* }}} */
 
 	/**
-	 * Cast to string
-	 *
-	 * @return string
-	 */
-	public function __toString() { /* {{{ */
-		return $this->_name;
-	} /* }}} */
-
-	/**
 	 * Check if this object is of type 'folder'.
 	 *
 	 * @param string $type type of object

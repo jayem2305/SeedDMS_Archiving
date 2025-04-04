@@ -24,7 +24,12 @@ class StringTable extends WriterPart
     public function createStringTable(ActualWorksheet $worksheet, ?array $existingTable = null): array
     {
         // Create string lookup table
-        $aStringTable = $existingTable ?? [];
+        $aStringTable = [];
+
+        // Is an existing table given?
+        if (($existingTable !== null) && is_array($existingTable)) {
+            $aStringTable = $existingTable;
+        }
 
         // Fill index array
         $aFlippedStringTable = $this->flipStringTable($aStringTable);
@@ -45,6 +50,7 @@ class StringTable extends WriterPart
                 $aFlippedStringTable[$cellValue] = true;
             } elseif (
                 $cellValue instanceof RichText
+                && ($cellValue !== null)
                 && !isset($aFlippedStringTable[$cellValue->getHashCode()])
             ) {
                 $aStringTable[] = $cellValue;
