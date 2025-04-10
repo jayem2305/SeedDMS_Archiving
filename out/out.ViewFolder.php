@@ -19,7 +19,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-if(!isset($settings))
+if (!isset($settings))
 	require_once("../inc/inc.Settings.php");
 require_once("inc/inc.Utils.php");
 require_once("inc/inc.LogInit.php");
@@ -31,13 +31,12 @@ require_once("inc/inc.Authentication.php");
 require_once("inc/inc.ClassUI.php");
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user));
+$view = UI::factory($theme, $tmp[1], array('dms' => $dms, 'user' => $user));
 $accessop = new SeedDMS_AccessOperation($dms, $user, $settings);
 
-if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"])<1) {
+if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"]) < 1) {
 	$folder = $dms->getRootFolder();
-}
-else {
+} else {
 	$folder = $dms->getFolder(intval($_GET["folderid"]));
 }
 
@@ -45,8 +44,8 @@ if (!is_object($folder)) {
 	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))), getMLText("invalid_folder_id"));
 }
 
-if(isset($_GET['action']) && $_GET['action'] == 'subtree') {
-	if (!isset($_GET["node"]) || !is_numeric($_GET["node"]) || intval($_GET["node"])<1) {
+if (isset($_GET['action']) && $_GET['action'] == 'subtree') {
+	if (!isset($_GET["node"]) || !is_numeric($_GET["node"]) || intval($_GET["node"]) < 1) {
 		$node = $dms->getRootFolder();
 	} else {
 		$node = $dms->getFolder(intval($_GET["node"]));
@@ -57,24 +56,27 @@ if(isset($_GET['action']) && $_GET['action'] == 'subtree') {
 	}
 }
 
-if (isset($_GET["orderby"]) && strlen($_GET["orderby"])>0 ) {
-	$orderby=$_GET["orderby"];
-} else $orderby=$settings->_sortFoldersDefault;
+if (isset($_GET["orderby"]) && strlen($_GET["orderby"]) > 0) {
+	$orderby = $_GET["orderby"];
+} else
+	$orderby = $settings->_sortFoldersDefault;
 
 if (!empty($_GET["offset"])) {
-	$offset=(int) $_GET["offset"];
-} else $offset = 0;
+	$offset = (int) $_GET["offset"];
+} else
+	$offset = 0;
 
 if (!empty($_GET["limit"])) {
-	$limit=(int) $_GET["limit"];
-} else $limit = 10;
+	$limit = (int) $_GET["limit"];
+} else
+	$limit = 10;
 
 if ($folder->getAccessMode($user) < M_READ) {
-	UI::exitError(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))),getMLText("access_denied"));
+	UI::exitError(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))), getMLText("access_denied"));
 }
 
-if($view) {
-	if(isset($_GET['action']) && $_GET['action'] == 'subtree')
+if ($view) {
+	if (isset($_GET['action']) && $_GET['action'] == 'subtree')
 		$view->setParam('node', $node);
 	$view->setParam('fulltextservice', $fulltextservice);
 	$view->setParam('conversionmgr', $conversionmgr);

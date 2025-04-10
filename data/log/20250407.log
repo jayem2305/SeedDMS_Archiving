@@ -1,0 +1,3 @@
+Apr 07 05:19:28  [info] admin (::1) op.Ajax.php add document 5 in folder 1
+Apr 07 07:09:11  [error] -- (::1) out.ViewFolder.php  UI::exitError error=Access denied. pagetitle=Folder 'DMS'
+Apr 07 07:30:24  [info] admin (::1) op.Ajax.php add document 6 in folder 1
