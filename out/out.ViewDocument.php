@@ -19,7 +19,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-if(!isset($settings))
+if (!isset($settings))
 	require_once("../inc/inc.Settings.php");
 require_once("inc/inc.Utils.php");
 require_once("inc/inc.LogInit.php");
@@ -31,46 +31,46 @@ require_once("inc/inc.ClassUI.php");
 require_once("inc/inc.Authentication.php");
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user));
+$view = UI::factory($theme, $tmp[1], array('dms' => $dms, 'user' => $user));
 $accessop = new SeedDMS_AccessOperation($dms, $user, $settings);
 
-if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"]) < 1) {
+	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))), getMLText("invalid_doc_id"));
 }
 
 $document = $dms->getDocument($_GET["documentid"]);
 if (!is_object($document)) {
-	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))),getMLText("invalid_doc_id"));
+	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))), getMLText("invalid_doc_id"));
 }
 
 $folder = $document->getFolder();
 
 if ($document->getAccessMode($user) < M_READ || !$document->getLatestContent()) {
-	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
+	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))), getMLText("access_denied"));
 }
 
 /* Could be that the advanced access rights prohibit access on the content */
 if (!$document->getLatestContent()) {
-	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))),getMLText("access_denied"));
+	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))), getMLText("access_denied"));
 }
 
 /* Recalculate the status of a document and reload the page if the status
  * has changed. A status change may occur if the document has expired in
  * the mean time
  */
-if ($document->verifyLastestContentExpriry()){
-	header("Location:../out/out.ViewDocument.php?documentid=".$document->getID());
+if ($document->verifyLastestContentExpriry()) {
+	header("Location:../out/out.ViewDocument.php?documentid=" . $document->getID());
 	exit;
 }
 
 /* Recalculate the status of a document and reload the page if the status
  * has changed. A status change may occur if a revision workflow is due
  */
-if ($document->checkForDueRevisionWorkflow($user)){
-	header("Location:../out/out.ViewDocument.php?documentid=".$document->getID());
+if ($document->checkForDueRevisionWorkflow($user)) {
+	header("Location:../out/out.ViewDocument.php?documentid=" . $document->getID());
 }
 
-if($view) {
+if ($view) {
 	$view->setParam('fulltextservice', $fulltextservice);
 	$view->setParam('conversionmgr', $conversionmgr);
 	$view->setParam('folder', $folder);
