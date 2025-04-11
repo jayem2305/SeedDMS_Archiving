@@ -1,0 +1,4 @@
+Apr 11 03:20:54  [info] admin (::1) op.Ajax.php add document 2 in folder 1
+Apr 11 03:26:19  [info] admin (::1) op.UsrMgr.php .php&action=adduser&login=testuser
+Apr 11 03:30:28  [info] admin (::1) op.UsrMgr.php .php&action=adduser&login=usertest
+Apr 11 06:28:37  [info] admin (::1) op.ViewOnline.php?documentid=1&version=1 

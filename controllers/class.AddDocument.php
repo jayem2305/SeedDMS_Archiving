@@ -170,32 +170,46 @@ class SeedDMS_Controller_AddDocument extends SeedDMS_Controller_Common
 																																						
 																																						 */
 		// Define encryption parameters
-		$encryption_method = 'AES-256-CBC';  // Choose your encryption method
-		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';  // Use a secure, secret key
-		$encryption_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));  // Generate a random IV
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 
 		// Encrypt the name
-		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv);
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
 
-		// Combine the IV and encrypted name
-		$combined = $encryption_iv . $encrypted_name;
+		// Encrypt the comment
+		$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
+		$combined_comment = $encryption_iv_comment . $encrypted_comment;
+		$iv_base64_comment = base64_encode($combined_comment);
 
-		// Base64 encode the combined data
-		$iv_base64 = base64_encode($combined);
+		// Encrypt the keywords
+		$encryption_iv_keywords = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_keywords = openssl_encrypt($keywords, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_keywords);
+		$combined_keywords = $encryption_iv_keywords . $encrypted_keywords;
+		$iv_base64_keywords = base64_encode($combined_keywords);
 
-		// Now you can use $iv_base64 to store in the database or process further
+		// Encrypt the userfilename
+		$encryption_iv_userfilename = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_userfilename = openssl_encrypt($userfilename, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_userfilename);
+		$combined_userfilename = $encryption_iv_userfilename . $encrypted_userfilename;
+		$iv_base64_userfilename = base64_encode($combined_userfilename);
+
+		// Now use the encrypted values in the database operation
 		$document = $this->callHook('addDocument');
 		if ($document === null) {
 			$filesize = SeedDMS_Core_File::fileSize($userfiletmp);
 			$res = $folder->addDocument(
-				$iv_base64,  // Use the base64-encoded string of IV + encrypted name
-				$comment,
+				$iv_base64_name,  // Encrypted name
+				$iv_base64_comment,  // Encrypted comment
 				$expires,
 				$owner,
-				$keywords,
+				$iv_base64_keywords,  // Encrypted keywords
 				$cats,
 				$userfiletmp,
-				utf8_basename($userfilename),
+				$iv_base64_userfilename,  // Encrypted userfilename
 				$filetype,
 				$userfiletype,
 				$sequence,
@@ -208,10 +222,6 @@ class SeedDMS_Controller_AddDocument extends SeedDMS_Controller_Common
 				$workflow,
 				$initialdocumentstatus
 			);
-
-
-			$iv_base64 = base64_encode($encryption_iv . $encrypted_name);  // Prepend IV
-
 
 			if (is_bool($res) && !$res) {
 				$this->errormsg = "error_occured";

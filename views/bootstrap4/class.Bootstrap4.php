@@ -345,7 +345,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function globalBanner()
 	{ /* {{{ */
 		echo "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark fixed-top\">\n";
-		echo " <a class=\"navbar-brand\" href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\">" . (!empty($this->extraheader['logo']) ? '<img id="navbar-logo" src="' . $this->extraheader['logo'] . '"/>' : '<img id="navbar-logo" src="' . $this->params['settings']->_httpRoot . 'views/bootstrap4/images/seeddms-logo.svg"/>') . " <span class=\"d-none d-md-inline-block ml-4\">" . (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "") . "</span></a>\n";
+		echo " <a class=\"navbar-brand\" href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\">" . (!empty($this->extraheader['logo']) ? '<img id="navbar-logo" src="' . $this->extraheader['logo'] . '"/>' : '<img id="navbar-logo" src="' . $this->params['settings']->_httpRoot . 'views/bootstrap4/images/favicon.svg"/>') . " <span class=\"d-none d-md-inline-block ml-4\">" . (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "") . "</span></a>\n";
 		echo "</nav>\n";
 	} /* }}} */
 
@@ -355,7 +355,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$accessobject = $this->params['accessobject'];
 
 		echo "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark border-bottom fixed-top\">\n";
-		echo " <a class=\"navbar-brand\" href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\">" . (!empty($this->extraheader['logo']) ? '<img id="navbar-logo" src="' . $this->extraheader['logo'] . '">' : '<img id="navbar-logo" src="' . $this->params['settings']->_httpRoot . 'views/bootstrap4/images/seeddms-logo.svg">') . " <span class=\"d-none d-md-inline-block ml-4\">" . (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "") . "</span></a>\n";
+		echo " <a class=\"navbar-brand\" href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\">" . (!empty($this->extraheader['logo']) ? '<img id="navbar-logo" src="' . $this->extraheader['logo'] . '">' : '<img id="navbar-logo" src="' . $this->params['settings']->_httpRoot . 'views/bootstrap4/images/favicon.svg">') . " <span class=\"d-none d-md-inline-block ml-4\">" . (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "") . "</span></a>\n";
 
 		if (isset($this->params['user']) && $this->params['user']) {
 			/* search form {{{ */
