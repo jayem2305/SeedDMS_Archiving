@@ -32,6 +32,18 @@
 class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 {
 
+	private function decryptName($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
+
 	protected function getAccessModeText($defMode)
 	{ /* {{{ */
 		switch ($defMode) {
@@ -442,6 +454,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 			?>
 			<table class="table table-condensed table-sm">
 				<?php
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+				// Try to decrypt — if it fails, fallback to original heading
+				$decrypted = $this->decryptName($document->getName(), $encryption_key);
 				if ($user->isAdmin()) {
 					echo "<tr>";
 					echo "<td>" . getMLText("id") . ":</td>\n";
@@ -451,7 +466,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 				?>
 				<tr>
 					<td><?php printMLText("name"); ?>:</td>
-					<td><?php $this->printInlineEdit(htmlspecialchars($document->getName()), $document); ?></td>
+
+					<td><?php $this->printInlineEdit(htmlspecialchars($decrypted), $document); ?></td>
 				</tr>
 				<tr>
 					<td><?php printMLText("owner"); ?>:</td>
