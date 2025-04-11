@@ -636,7 +636,7 @@ $(document).ready( function() {
 		$options[] = array("-1", getMLText("choose_user"));
 		$options[] = array("0", getMLText("add_user"));
 		foreach ($users as $currUser) {
-			$options[] = array($currUser->getID(), htmlspecialchars($currUser->getLogin().' - '.$currUser->getFullName()), $seluser && $currUser->getID()==$seluser->getID(), array(array('data-subtitle', htmlspecialchars($currUser->getEmail()))));
+			$options[] = array($currUser->getID(), htmlspecialchars(($currUser->getLogin() ?? '').' - '.($currUser->getFullName() ?? '')), $seluser && $currUser->getID()==$seluser->getID(), array(array('data-subtitle', htmlspecialchars($currUser->getEmail() ?? ''))));
 		}
 		$this->formField(
 			null, //getMLText("selection"),
