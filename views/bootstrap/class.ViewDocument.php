@@ -480,11 +480,17 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 				</tr>
 				<?php
 				if ($document->getComment()) {
+					// Get raw encrypted comment
+					$encrypted_comment = $document->getComment();
+
+					// Decrypt before doing anything else
+					$decrypted = $this->decryptName($encrypted_comment, $encryption_key);
+
 					if ($settings->_markdownComments) {
 						$Parsedown = new Parsedown();
-						$comment = $Parsedown->text(htmlspecialchars($document->getComment()));
+						$comment = $Parsedown->text(htmlspecialchars($decrypted));
 					} else {
-						$comment = htmlspecialchars($document->getComment());
+						$comment = htmlspecialchars($decrypted);
 					}
 					?>
 					<tr>
@@ -547,7 +553,15 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						?>
 						<tr>
 							<td><?php printMLText("keywords"); ?>:</td>
-							<td><?php print htmlspecialchars($document->getKeywords()); ?></td>
+							<?php
+							// Get raw encrypted comment
+							$encrypted_comment = $document->getKeywords();
+
+							// Decrypt before doing anything else
+							$decrypted = $this->decryptName($encrypted_comment, $encryption_key);
+
+							?>
+							<td><?php print htmlspecialchars($decrypted); ?></td>
 						</tr>
 						<?php
 					}
@@ -774,7 +788,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$enablerevisionworkflow = $this->params['enablerevisionworkflow'];
 		$workflowmode = $this->params['workflowmode'];
 		$previewwidthdetail = $this->params['previewWidthDetail'];
-
 		// verify if file exists
 		$file_exists = file_exists($dms->contentDir . $latestContent->getPath());
 
@@ -812,9 +825,25 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		//		print "<td>";
 		$this->columnEnd();
 		$this->columnStart(5);
+		;
+
 		print "<ul class=\"actions unstyled\">\n";
-		print "<li>" . htmlspecialchars($latestContent->getOriginalFileName()) . "</li>\n";
-		print "<li>" . getMLText('version') . ": " . $latestContent->getVersion() . "</li>\n";
+		$encrypted_comment = $latestContent->getOriginalFileName();
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Only attempt decryption if it looks like base64 (i.e., possibly encrypted)
+		if (base64_decode($encrypted_comment, true) !== false) {
+			$decrypted = $this->decryptName($encrypted_comment, $encryption_key);
+
+			// Only show if decryption succeeded
+			if ($decrypted !== '[DECRYPTION FAILED]') {
+				echo "<li>" . htmlspecialchars($decrypted) . "</li>\n";
+			}
+		} else {
+			// Not encrypted, just print as-is
+			echo "<li>" . htmlspecialchars($encrypted_comment) . "</li>\n";
+		}
+
 
 		if ($file_exists) {
 			print "<li>" . SeedDMS_Core_File::format_filesize($latestContent->getFileSize()) . ", ";
@@ -1926,7 +1955,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 							print getRevisionStatusText($r["status"]) . "</td>\n";
 							print "<td><ul class=\"actions unstyled\">";
 							if ($accesserr)
-								echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
+								echo "<li><span class=\"text-error text-danger\">" . $ . "</span></li>";
 							if ($accessobject->mayRevise($document)) {
 								if ($is_recipient && $r["status"] == 0) {
 									print $this->html_link('ReviseDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'revisionid' => $r['revisionID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_revision"), false, true, array('<li>', '</li>'));

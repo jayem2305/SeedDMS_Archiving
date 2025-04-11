@@ -36,7 +36,17 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 	 * set a different name which is used to specify the hooks.
 	 */
 	//public $viewAliasName = '';
-
+	private function decryptName($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	function data()
 	{ /* {{{ */
 		$dms = $this->params['dms'];
@@ -281,9 +291,11 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 				} else {
 					$comment = htmlspecialchars($folder->getComment());
 				}
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+				$decrypted_name = htmlspecialchars($this->decryptName(htmlspecialchars($comment), $encryption_key));
 				echo "<tr>";
 				echo "<td>" . getMLText("comment") . ":</td>\n";
-				echo "<td><div class=\"folder-comment\">" . $comment . "</div></td>\n";
+				echo "<td><div class=\"folder-comment\">" . $decrypted_name . "</div></td>\n";
 				echo "</tr>";
 			}
 

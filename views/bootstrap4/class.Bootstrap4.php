@@ -319,15 +319,15 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function contentStart()
 	{ /* {{{ */
 		/*
-																																		echo "<div class=\"container-fluid\">\n";
-																																		echo "<div class=\"row\">\n";
-																																		echo "<nav class=\"_col-md-2 d-none d-md-block bg-light sidebar\">\n";
-																																		echo "<div class=\"sidebar-sticky\">\n";
-																																		echo "lsajdlf";
-																																		echo "</div>\n";
-																																		echo "</nav>\n";
-																																		echo "<main role=\"main\" class=\"_col-md-10 _ml-sm-auto pb-3 px-4\">\n";
-																																*/
+																																																																echo "<div class=\"container-fluid\">\n";
+																																																																echo "<div class=\"row\">\n";
+																																																																echo "<nav class=\"_col-md-2 d-none d-md-block bg-light sidebar\">\n";
+																																																																echo "<div class=\"sidebar-sticky\">\n";
+																																																																echo "lsajdlf";
+																																																																echo "</div>\n";
+																																																																echo "</nav>\n";
+																																																																echo "<main role=\"main\" class=\"_col-md-10 _ml-sm-auto pb-3 px-4\">\n";
+																																																														*/
 		echo "<main role=\"main\" class=\"container-fluid mt-3 pb-3\">\n";
 		echo " <div class=\"row-fluid\">\n";
 	} /* }}} */
@@ -337,9 +337,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo " </div>\n";
 		echo "</main>\n";
 		/*
-																																		echo "</div>\n";
-																																		echo "</div>\n";
-																																*/
+																																																																echo "</div>\n";
+																																																																echo "</div>\n";
+																																																														*/
 	} /* }}} */
 
 	function globalBanner()
@@ -539,14 +539,16 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$decrypted_name = htmlspecialchars($this->decryptName(htmlspecialchars($path[$i]->getName()), $encryption_key));
 			if ($i + 1 < count($path)) {
 				$txtpath .= "<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $path[$i]->getID() . "&showtree=" . showtree() . "\" data-droptarget=\"folder_" . $path[$i]->getID() . "\" rel=\"folder_" . $path[$i]->getID() . "\" data-name=\"" . $decrypted_name . "\" class=\"table-row-folder droptarget\" data-uploadformtoken=\"" . createFormKey('') . "\" formtoken=\"" . createFormKey('') . "\">" .
-					$decrypted_name . "</a>";
+					htmlspecialchars($path[$i]->getName()) . "</a>";
 			} else {
-				$txtpath .= ($tagAll ? "<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $path[$i]->getID() . "&showtree=" . showtree() . "\" data-droptarget=\"folder_" . $path[$i]->getID() . "\" rel=\"folder_" . $path[$i]->getID() . "\" data-name=\"" . htmlspecialchars($path[$i]->getName()) . "\" class=\"table-row-folder droptarget\" data-uploadformtoken=\"" . createFormKey('') . "\" formtoken=\"" . createFormKey('') . "\">" . htmlspecialchars($path[$i]->getName()) . "</a>" : htmlspecialchars($path[$i]->getName()));
+				$txtpath .= ($tagAll ? "<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $path[$i]->getID() . "&showtree=" . showtree() . "\" data-droptarget=\"folder_" . $path[$i]->getID() . "\" rel=\"folder_" . $path[$i]->getID() . "\" data-name=\"" . $decrypted_name . "\" class=\"table-row-folder droptarget\" data-uploadformtoken=\"" . createFormKey('') . "\" formtoken=\"" . createFormKey('') . "\">" . htmlspecialchars($decrypted_name) . "</a>" : htmlspecialchars($decrypted_name));
 			}
 		}
 
 
 		if ($document) {
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
 			$decrypted_name_set = htmlspecialchars($this->decryptName($document->getName(), $encryption_key));
 			$txtpath .= "<li class=\"breadcrumb-item active table-row-document\" aria-current=\"page\">
 				<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewDocument.php?documentid=" . $document->getId() . "\" 
@@ -1686,14 +1688,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = preg_replace('/[^A-Za-z]/', '', $varname);
 		/* do not use bootstrap4 custom form element because it is difficult to localize
-																																		$html = '
-																																<div class="custom-file">
-																																  <input type="file" class="custom-file-input" id="'.$id.'" name="'.$varname.'">
-																																  <label class="custom-file-label" for="'.$id.'">'.getMLText("browse").'&hellip;'.'</label>
-																																</div>
-																																';
-																																		return $html;
-																																 */
+																																																																$html = '
+																																																														<div class="custom-file">
+																																																														  <input type="file" class="custom-file-input" id="'.$id.'" name="'.$varname.'">
+																																																														  <label class="custom-file-label" for="'.$id.'">'.getMLText("browse").'&hellip;'.'</label>
+																																																														</div>
+																																																														';
+																																																																return $html;
+																																																														 */
 		$html = '
 	<div id="' . $id . '-upload-files">
 		<div id="' . $id . '-upload-file" class="upload-file">
@@ -2164,9 +2166,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$content .= "<input type=\"text\" class=\"form-control\" id=\"" . $attr_id . "\" name=\"" . $attr_name . "\" value=\"" . htmlspecialchars($objvalue) . "\"" . ((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '') . ' data-rule-email="true"' . " />";
 				break;
 			/* case SeedDMS_Core_AttributeDefinition::type_float:
-																																																		  $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
-																																																		  $content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
-																																																		  break; */
+																																																																																															  $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
+																																																																																															  $content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
+																																																																																															  break; */
 			case SeedDMS_Core_AttributeDefinition::type_folder:
 				$target = $attribute ? $attribute->getValue() : null;
 				$content .= $this->getFolderChooserHtml("attr" . $attrdef->getId(), M_READWRITE, -1, $target, $attr_name, false);
@@ -3547,7 +3549,8 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			else
 				$content .= "<span style=\"font-size: 85%; font-style: italic; color: #666; \">" . getMLText('owner') . ": <b>" . htmlspecialchars($owner->getFullName()) . "</b>, " . getMLText('creation_date') . ": <b>" . getReadableDate($document->getDate()) . "</b>, " . getMLText('version') . " <b>" . $version . "</b> - <b>" . getReadableDate($latestContent->getDate()) . "</b>" . ($document->expires() ? ", " . getMLText('expires') . ": <b>" . getReadableDate($document->getExpires()) . "</b>" : "") . "</span>";
 			if ($comment) {
-				$content .= "<br /><span style=\"font-size: 85%;\">" . htmlspecialchars($comment) . "</span>";
+				$decrypted_comment = htmlspecialchars($this->decryptName($comment, $encryption_key));
+				$content .= "<br /><span style=\"font-size: 85%;\">" . htmlspecialchars($decrypted_comment) . "</span>";
 			}
 			if ($categories = $document->getCategories()) {
 				$content .= "<br />";
@@ -3776,7 +3779,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessop = $this->params['accessobject'];
 		$onepage = $this->params['onepage'];
-
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		if (!$subFolder)
 			return '';
 
@@ -3792,15 +3795,20 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		if (!$skipcont)
 			$content .= $this->folderListRowStart($subFolder);
 		$content .= "<td><a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $subFolder->getID() . "&showtree=" . $showtree . "\"><img draggable=\"false\" src=\"" . $this->getMimeIcon(".folder") . "\" width=\"24\" height=\"24\" border=0></a></td>\n";
+		$encrypted_comment = $subFolder->getName();
+		$decrypted = $this->decryptName($encrypted_comment, $encryption_key);
+
 		if ($onepage)
-			$content .= "<td class=\"wordbreak\" style=\"cursor: pointer;\">" . "<b title=\"Id:" . $subFolder->getId() . "\">" . htmlspecialchars($subFolder->getName()) . "</b>";
+			$content .= "<td class=\"wordbreak\" style=\"cursor: pointer;\">" . "<b title=\"Id:" . $subFolder->getId() . "\">" . htmlspecialchars($decrypted) . "</b>";
 		else
 			$content .= "<td class=\"wordbreak\"><a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $subFolder->getID() . "&showtree=" . $showtree . "\">" . htmlspecialchars($subFolder->getName()) . "</a>";
 		if (isset($extracontent['below_title']))
 			$content .= $extracontent['below_title'];
 		$content .= "<br /><span style=\"font-size: 85%; font-style: italic; color: #666;\">" . getMLText('owner') . ": <b>" . htmlspecialchars($owner->getFullName()) . "</b>, " . getMLText('creation_date') . ": <b>" . getReadableDate($subFolder->getDate()) . "</b></span>";
 		if ($comment) {
-			$content .= "<br /><span style=\"font-size: 85%;\">" . htmlspecialchars($comment) . "</span>";
+			$encrypted_comment = $comment;
+			$decrypted_comment = $this->decryptName($encrypted_comment, $encryption_key);
+			$content .= "<br /><span style=\"font-size: 85%;\">" . htmlspecialchars($decrypted_comment) . "</span>";
 		}
 		if (isset($extracontent['bottom_title']))
 			$content .= $extracontent['bottom_title'];
@@ -4241,13 +4249,13 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = md5(uniqid());
 		/*
-																																	  $this->addFooterJS('
-																															  $("body").on("click", "span.openpopupbox", function(e) {
-																																  $(""+$(e.target).data("href")).toggle();
-																															  //	$("div.popupbox").toggle();
-																															  });
-																															  ');
-																																	   */
+																																																															  $this->addFooterJS('
+																																																													  $("body").on("click", "span.openpopupbox", function(e) {
+																																																														  $(""+$(e.target).data("href")).toggle();
+																																																													  //	$("div.popupbox").toggle();
+																																																													  });
+																																																													  ');
+																																																															   */
 		$html = '
 		<span class="openpopupbox" data-href="#' . $id . '">' . $title . '</span>
 		<div id="' . $id . '" class="popupbox" style="display: none;">' . $content . '<span class="closepopupbox"><i class="fa fa-remove"></i></span>
