@@ -2900,7 +2900,40 @@ class SeedDMS_Core_DMS {
 		} else {
 			$pwdexpiration = $db->qstr($pwdexpiration);
 		}
-		$queryStr = "INSERT INTO `tblUsers` (`login`, `pwd`, `fullName`, `email`, `language`, `theme`, `comment`, `role`, `hidden`, `disabled`, `pwdExpiration`, `quota`, `homefolder`) VALUES (".$db->qstr($login).", ".$db->qstr($pwd).", ".$db->qstr($fullName).", ".$db->qstr($email).", '".$language."', '".$theme."', ".$db->qstr($comment).", '".intval($role->getId())."', '".intval($isHidden)."', '".intval($isDisabled)."', ".$pwdexpiration.", '".intval($quota)."', ".($homefolder ? intval($homefolder) : "NULL").")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the login
+		$encryption_iv_login = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_login = openssl_encrypt($login, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_login);
+		$combined_login = $encryption_iv_login . $encrypted_login;
+		$iv_base64_login = base64_encode($combined_login);
+
+		// Encrypt the password
+		$encryption_iv_pwd = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_pwd = openssl_encrypt($pwd, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_pwd);
+		$combined_pwd = $encryption_iv_pwd . $encrypted_pwd;
+		$iv_base64_pwd = base64_encode($combined_pwd);
+
+		// Encrypt the full name
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($fullName, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
+
+		// Encrypt the email
+		$encryption_iv_email = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_email = openssl_encrypt($email, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_email);
+		$combined_email = $encryption_iv_email . $encrypted_email;
+		$iv_base64_email = base64_encode($combined_email);
+
+		// Encrypt the comment
+		$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
+		$combined_comment = $encryption_iv_comment . $encrypted_comment;
+		$iv_base64_comment = base64_encode($combined_comment);
+
+		$queryStr = "INSERT INTO `tblUsers` (`login`, `pwd`, `fullName`, `email`, `language`, `theme`, `comment`, `role`, `hidden`, `disabled`, `pwdExpiration`, `quota`, `homefolder`) VALUES (".$db->qstr($iv_base64_login).", ".$db->qstr($iv_base64_pwd).", ".$db->qstr($iv_base64_name).", ".$db->qstr($iv_base64_email).", '".$language."', '".$theme."', ".$db->qstr($iv_base64_comment).", '".intval($role->getId())."', '".intval($isHidden)."', '".intval($isDisabled)."', ".$pwdexpiration.", '".intval($quota)."', ".($homefolder ? intval($homefolder) : "NULL").")";
 		$res = $this->db->getResult($queryStr);
 		if (!$res)
 			return false;
@@ -2972,7 +3005,22 @@ class SeedDMS_Core_DMS {
 			return false;
 		}
 
-		$queryStr = "INSERT INTO `tblGroups` (`name`, `comment`) VALUES (".$this->db->qstr($name).", ".$this->db->qstr($comment).")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the name
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
+
+		// Encrypt the comment
+		$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
+		$combined_comment = $encryption_iv_comment . $encrypted_comment;
+		$iv_base64_comment = base64_encode($combined_comment);
+
+		$queryStr = "INSERT INTO `tblGroups` (`name`, `comment`) VALUES (".$this->db->qstr($iv_base64_name).", ".$this->db->qstr($iv_base64_comment).")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -3034,7 +3082,22 @@ class SeedDMS_Core_DMS {
 			return false;
 		}
 
-		$queryStr = "INSERT INTO `tblRoles` (`name`, `role`) VALUES (".$this->db->qstr($name).", ".$role.")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the name
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
+
+		// Encrypt the role
+		$encryption_iv_role = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_role = openssl_encrypt($role, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_role);
+		$combined_role = $encryption_iv_role . $encrypted_role;
+		$iv_base64_role = base64_encode($combined_role);
+
+		$queryStr = "INSERT INTO `tblRoles` (`name`, `role`) VALUES (".$this->db->qstr($iv_base64_name).", ".$this->db->qstr($iv_base64_role).")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -3087,7 +3150,22 @@ class SeedDMS_Core_DMS {
 			return false;
 		}
 
-		$queryStr = "INSERT INTO `tblTransmittals` (`name`, `comment`, `userID`) VALUES (".$this->db->qstr($name).", ".$this->db->qstr($comment).", ".$user->getID().")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the name
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
+
+		// Encrypt the comment
+		$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
+		$combined_comment = $encryption_iv_comment . $encrypted_comment;
+		$iv_base64_comment = base64_encode($combined_comment);
+
+		$queryStr = "INSERT INTO `tblTransmittals` (`name`, `comment`, `userID`) VALUES (".$this->db->qstr($iv_base64_name).", ".$this->db->qstr($iv_base64_comment).", ".$user->getID().")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -3171,7 +3249,16 @@ class SeedDMS_Core_DMS {
 		if (is_object($this->getKeywordCategoryByName($name, $userID))) {
 			return false;
 		}
-		$queryStr = "INSERT INTO `tblKeywordCategories` (`owner`, `name`) VALUES (".(int) $userID.", ".$this->db->qstr($name).")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the name
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
+
+		$queryStr = "INSERT INTO `tblKeywordCategories` (`owner`, `name`) VALUES (".(int) $userID.", ".$this->db->qstr($iv_base64_name).")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -3263,7 +3350,16 @@ class SeedDMS_Core_DMS {
 		if (is_object($this->getDocumentCategoryByName($name))) {
 			return false;
 		}
-		$queryStr = "INSERT INTO `tblCategory` (`name`) VALUES (".$this->db->qstr($name).")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the name
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
+
+		$queryStr = "INSERT INTO `tblCategory` (`name`) VALUES (".$this->db->qstr($iv_base64_name).")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -3326,7 +3422,16 @@ class SeedDMS_Core_DMS {
 			return false;
 		}
 		$hash = bin2hex($bytes);
-		$queryStr = "INSERT INTO `tblUserPasswordRequest` (`userID`, `hash`, `date`) VALUES (" . $user->getId() . ", " . $this->db->qstr($hash) .", ".$this->db->getCurrentDatetime().")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the hash
+		$encryption_iv_hash = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_hash = openssl_encrypt($hash, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_hash);
+		$combined_hash = $encryption_iv_hash . $encrypted_hash;
+		$iv_base64_hash = base64_encode($combined_hash);
+
+		$queryStr = "INSERT INTO `tblUserPasswordRequest` (`userID`, `hash`, `date`) VALUES (" . $user->getId() . ", " . $this->db->qstr($iv_base64_hash) .", ".$this->db->getCurrentDatetime().")";
 		$resArr = $this->db->getResult($queryStr);
 		if (is_bool($resArr) && !$resArr) return false;
 		return $hash;
@@ -3501,7 +3606,28 @@ class SeedDMS_Core_DMS {
 		} else {
 			$valueset = '';
 		}
-		$queryStr = "INSERT INTO `tblAttributeDefinitions` (`name`, `objtype`, `type`, `multiple`, `minvalues`, `maxvalues`, `valueset`, `regex`) VALUES (".$this->db->qstr($name).", ".intval($objtype).", ".intval($type).", ".intval($multiple).", ".intval($minvalues).", ".intval($maxvalues).", ".$this->db->qstr($valueset).", ".$this->db->qstr($regex).")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the name
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
+
+		// Encrypt the valueset
+		$encryption_iv_valueset = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_valueset = openssl_encrypt($valueset, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_valueset);
+		$combined_valueset = $encryption_iv_valueset . $encrypted_valueset;
+		$iv_base64_valueset = base64_encode($combined_valueset);
+
+		// Encrypt the regex
+		$encryption_iv_regex = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_regex = openssl_encrypt($regex, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_regex);
+		$combined_regex = $encryption_iv_regex . $encrypted_regex;
+		$iv_base64_regex = base64_encode($combined_regex);
+
+		$queryStr = "INSERT INTO `tblAttributeDefinitions` (`name`, `objtype`, `type`, `multiple`, `minvalues`, `maxvalues`, `valueset`, `regex`) VALUES (".$this->db->qstr($iv_base64_name).", ".intval($objtype).", ".intval($type).", ".intval($multiple).", ".intval($minvalues).", ".intval($maxvalues).", ".$this->db->qstr($iv_base64_valueset).", ".$this->db->qstr($iv_base64_regex).")";
 		$res = $this->db->getResult($queryStr);
 		if (!$res)
 			return false;
@@ -3612,7 +3738,16 @@ class SeedDMS_Core_DMS {
 		if (is_object($this->getWorkflowByName($name))) {
 			return false;
 		}
-		$queryStr = "INSERT INTO `tblWorkflows` (`name`, `initstate`) VALUES (".$db->qstr($name).", ".$initstate->getID().")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the name
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
+
+		$queryStr = "INSERT INTO `tblWorkflows` (`name`, `initstate`) VALUES (".$db->qstr($iv_base64_name).", ".$initstate->getID().")";
 		$res = $db->getResult($queryStr);
 		if (!$res)
 			return false;
@@ -3712,7 +3847,16 @@ class SeedDMS_Core_DMS {
 		if (is_object($this->getWorkflowStateByName($name))) {
 			return false;
 		}
-		$queryStr = "INSERT INTO `tblWorkflowStates` (`name`, `documentstatus`) VALUES (".$db->qstr($name).", ".(int) $docstatus.")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the name
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
+
+		$queryStr = "INSERT INTO `tblWorkflowStates` (`name`, `documentstatus`) VALUES (".$db->qstr($iv_base64_name).", ".(int) $docstatus.")";
 		$res = $db->getResult($queryStr);
 		if (!$res)
 			return false;
@@ -3813,7 +3957,16 @@ class SeedDMS_Core_DMS {
 		if (is_object($this->getWorkflowActionByName($name))) {
 			return false;
 		}
-		$queryStr = "INSERT INTO `tblWorkflowActions` (`name`) VALUES (".$db->qstr($name).")";
+		$encryption_method = 'AES-256-CBC';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+		// Encrypt the name
+		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+		$combined_name = $encryption_iv_name . $encrypted_name;
+		$iv_base64_name = base64_encode($combined_name);
+
+		$queryStr = "INSERT INTO `tblWorkflowActions` (`name`) VALUES (".$db->qstr($iv_base64_name).")";
 		$res = $db->getResult($queryStr);
 		if (!$res)
 			return false;
