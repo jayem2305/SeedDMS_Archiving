@@ -60,6 +60,13 @@ class SeedDMS_Core_Role { /* {{{ */
 	 */
 	protected $_dms;
 
+	/**
+	 * @var array list of users
+	 *
+	 * @access protected
+	 */
+	protected $_users = [];
+
 	const role_user = '0';
 	const role_admin = '1';
 	const role_guest = '2';

@@ -2,4 +2,68 @@ Apr 23 02:11:29  [error] admin (::1) out.ViewDocument.php?documentid=5  UI::exit
 Apr 23 02:12:57  [info] admin (::1) op.Ajax.php add document 3 in folder 1
 Apr 23 02:12:57  [info] Conversion from image/png to image/png with gd image service took 0.091240882873535 sec.
 Apr 23 02:13:00  [info] Conversion from image/png to image/png with gd image service took 0.10114216804504 sec.
+Apr 23 02:21:58  [info] admin (::1) op.Ajax.php add document 4 in folder 1
+Apr 23 02:22:32  [info] admin (::1) op.Download.php?documentid=3&version=1 
+Apr 23 02:22:37  [info] admin (::1) op.ViewOnline.php?documentid=3&version=1 
+Apr 23 02:30:39  [error] Notification service 'email': Sending notification 'new_document_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 02:30:39  [info] admin (::1) op.AddDocument.php add document 5 in folder 1
+Apr 23 02:30:39  [info] Conversion from image/png to image/png with gd image service took 0.014666080474854 sec.
+Apr 23 02:31:02  [info] Conversion from image/png to image/png with gd image service took 0.020094871520996 sec.
+Apr 23 02:31:32  [info] admin (::1) op.AddSubFolder.php ?name=sub folder test&folderid=1
+Apr 23 02:34:34  [info] admin (::1) op.EditFolder.php ?folderid=5
+Apr 23 02:36:15  [info] admin (::1) op.EditFolder.php ?folderid=5
+Apr 23 02:36:25  [error] admin (::1) op.MoveFolder.php?formtoken=29af989fb2c00bc86496270f7c8905fb&folderid=5&showtree=1&targetid=&targetname3f0d3ca8e81787497acc8c0e731ab0c8=help  UI::exitError error=Invalid Folder ID pagetitle=Folder 'Invalid Folder ID'
+Apr 23 02:36:32  [info] admin (::1) op.MoveFolder.php?formtoken=29af989fb2c00bc86496270f7c8905fb&folderid=5&showtree=1&targetid=4&targetname3f0d3ca8e81787497acc8c0e731ab0c8=RzfO2uXmrFaQskKC2toogZPKbsaDWA2GGefSWWNGEq0%3D 
+Apr 23 02:38:22  [error] admin (::1) op.UpdateDocument.php  UI::exitError error=New version is identical to current version. pagetitle=Document 'dVI6FZgSg7YgseFsBVeLzcmDP1EIqaAAGPupelNuutM='
+Apr 23 02:38:35  [error] Notification service 'email': Sending notification 'document_updated_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 02:38:35  [info] admin (::1) op.UpdateDocument.php update document 5 with version 2
+Apr 23 02:38:35  [info] Conversion from image/png to image/png with gd image service took 0.0048959255218506 sec.
+Apr 23 02:40:39  [error] Notification service 'email': Sending notification 'document_updated_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 02:40:39  [info] admin (::1) op.UpdateDocument.php update document 5 with version 3
+Apr 23 02:40:39  [info] Conversion from image/png to image/png with gd image service took 0.10302400588989 sec.
+Apr 23 02:41:18  [info] admin (::1) op.LockDocument.php?documentid=5&formtoken=a7a79e79f3663e1edf9e01d54b37643b 
+Apr 23 02:41:20  [info] admin (::1) op.UnlockDocument.php?documentid=5&formtoken=62a76c4eb1a423771f5f4b05b3d32710 
+Apr 23 02:43:12  [error] Notification service 'email': Sending notification 'document_renamed_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 02:43:17  [error] Notification service 'email': Sending notification 'document_comment_changed_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 02:43:17  [info] admin (::1) op.EditDocument.php ?documentid=5
+Apr 23 02:43:29  [info] Conversion from image/png to image/png with gd image service took 0.092655897140503 sec.
+Apr 23 02:43:58  [info] admin (::1) op.EditDocument.php ?documentid=5
+Apr 23 02:44:39  [error] Notification service 'email': Sending notification 'document_comment_changed_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 02:44:39  [info] admin (::1) op.EditDocument.php ?documentid=5
+Apr 23 02:47:07  [error] Notification service 'email': Sending notification 'document_renamed_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 02:47:11  [error] Notification service 'email': Sending notification 'document_comment_changed_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 02:47:11  [info] admin (::1) op.EditDocument.php ?documentid=5
+Apr 23 02:50:40  [info] admin (::1) op.ViewOnline.php?documentid=1&version=1 
+Apr 23 02:50:49  [info] admin (::1) op.Ajax.php add document 6 in folder 1
+Apr 23 05:35:49  [info] admin (::1) op.LockDocument.php?documentid=1&formtoken=a7a79e79f3663e1edf9e01d54b37643b 
+Apr 23 05:35:50  [info] admin (::1) op.UnlockDocument.php?documentid=1&formtoken=62a76c4eb1a423771f5f4b05b3d32710 
+Apr 23 05:35:59  [info] admin (::1) op.EditDocument.php ?documentid=1
+Apr 23 05:36:37  [info] admin (::1) op.UpdateDocument.php update document 1 with version 2
+Apr 23 07:06:54  [info] admin (::1) op.Download.php?documentid=1&version=2 
+Apr 23 07:19:50  [error] Notification service 'email': Sending notification 'version_comment_changed_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 07:19:50  [info] admin (::1) op.EditComment.php ?documentid=5
+Apr 23 07:21:20  [error] Notification service 'email': Sending notification 'document_status_changed_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 07:21:20  [info] admin (::1) op.OverrideContentStatus.php ?documentid=5
+Apr 23 07:42:42  [info] admin (::1) op.EditComment.php ?documentid=5
+Apr 23 07:45:46  [error] Notification service 'email': Sending notification 'version_comment_changed_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 07:45:46  [info] admin (::1) op.EditComment.php ?documentid=5
+Apr 23 07:47:28  [error] Notification service 'email': Sending notification 'document_status_changed_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 07:47:28  [info] admin (::1) op.OverrideContentStatus.php ?documentid=5
+Apr 23 07:49:15  [error] Notification service 'email': Sending notification 'document_status_changed_email_subject' to user 'info@seeddms.org' (1) failed.
+Apr 23 07:49:15  [info] admin (::1) op.OverrideContentStatus.php ?documentid=5
+Apr 23 07:52:43  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=FykvkRJVm7OrVzJshBrh/dCRqAN2chNstGzKSftmBfI=
+Apr 23 08:05:25  [info] admin (::1) op.RoleMgr.php .php&action=addrole&name=Test
+Apr 23 08:05:49  [info] admin (::1) op.RoleMgr.php .php&action=removerole&roleid=4
+Apr 23 08:05:54  [info] admin (::1) op.RoleMgr.php .php&action=addrole&name=Test
+Apr 23 08:08:50  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=duVdsH/2YibkfvNwXpYoE3GNlO7Kbz6IEIv5tobQWxE=
+Apr 23 08:08:54  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=ePUxGYGOg1vZtdokCDiuwyoFIa/HXOnHDnuSwLBDnnM=
+Apr 23 08:10:23  [info] admin (::1) op.DefaultKeywords.php .php&action=addcategory&categoryid=1
+Apr 23 08:10:35  [info] admin (::1) op.DefaultKeywords.php .php&action=newkeywords&categoryid=1
+Apr 23 08:10:37  [info] admin (::1) op.DefaultKeywords.php .php&action=removekeywords&categoryid=1
+Apr 23 08:12:26  [info] admin (::1) op.DefaultKeywords.php .php&action=newkeywords&categoryid=1
+Apr 23 08:12:30  [info] admin (::1) op.DefaultKeywords.php .php&action=newkeywords&categoryid=1
+Apr 23 08:12:44  [info] admin (::1) op.Categories.php .php&action=addcategory&categoryid=1
+Apr 23 08:12:59  [info] admin (::1) op.AttributeMgr.php &action=addattrdef&name=test
+Apr 23 08:13:49  [info] admin (::1) op.ExtensionMgr.php 
+Apr 23 08:13:55  [info] admin (::1) op.ClearCache.php 
 

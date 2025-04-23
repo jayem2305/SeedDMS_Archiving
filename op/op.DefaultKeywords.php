@@ -137,6 +137,20 @@ else if ($action == "newkeywords") {
 	}
 
 	$keywords = $_POST["keywords"];
+
+	// Define the encryption method and key
+	$encryption_method = 'AES-256-CBC';
+	$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+	// Encrypt the keywords
+	$encryption_iv_keywords = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+	$encrypted_keywords = openssl_encrypt($keywords, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_keywords);
+	$combined_keywords = $encryption_iv_keywords . $encrypted_keywords;
+	$iv_base64_keywords = base64_encode($combined_keywords);
+
+	// Use the encrypted keywords
+	$keywords = $iv_base64_keywords;
+
 	if(trim($keywords)) {
 		if (!$category->addKeywordList($keywords)) {
 			UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
@@ -176,6 +190,20 @@ else if ($action == "editkeywords")
 	$keywordsid = $_POST["keywordsid"];
 
 	$keywords = $_POST["keywords"];
+
+	// Define the encryption method and key
+	$encryption_method = 'AES-256-CBC';
+	$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+	// Encrypt the keywords
+	$encryption_iv_keywords = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+	$encrypted_keywords = openssl_encrypt($keywords, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_keywords);
+	$combined_keywords = $encryption_iv_keywords . $encrypted_keywords;
+	$iv_base64_keywords = base64_encode($combined_keywords);
+
+	// Use the encrypted keywords
+	$keywords = $iv_base64_keywords;
+
 	if (!$category->editKeywordList($keywordsid, $keywords)) {
 		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}

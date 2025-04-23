@@ -74,9 +74,14 @@ class SeedDMS_View_UserList extends SeedDMS_Theme_Style {
 				print "<img width=\"100\" src=\"".$this->html_url('UserImage', array('userid'=>$currUser->getId()))."\" >";
 			echo "</td>";
 			echo "<td>";
-			echo htmlspecialchars($currUser->getFullName())." (".htmlspecialchars($currUser->getLogin()).")<br />";
-			echo "<a href=\"mailto:".htmlspecialchars($currUser->getEmail())."\">".htmlspecialchars($currUser->getEmail())."</a><br />";
-			echo "<small>".htmlspecialchars($currUser->getComment())."</small>";
+			$fullName = $currUser->getFullName() ?? '';
+			$login = $currUser->getLogin() ?? '';
+			$email = $currUser->getEmail() ?? '';
+			$comment = $currUser->getComment() ?? '';
+
+			echo htmlspecialchars($fullName)." (".htmlspecialchars($login).")<br />";
+			echo "<a href=\"mailto:".htmlspecialchars($email)."\">".htmlspecialchars($email)."</a><br />";
+			echo "<small>".htmlspecialchars($comment)."</small>";
 			echo "</td>";
 			echo "<td>";
 			$groups = $currUser->getGroups();
