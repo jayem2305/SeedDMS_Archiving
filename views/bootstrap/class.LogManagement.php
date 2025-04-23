@@ -31,6 +31,9 @@
  */
 class SeedDMS_View_LogManagement extends SeedDMS_Theme_Style {
 
+	// Define the property explicitly to avoid dynamic property creation
+	public $logdir;
+
 	function filelist($entries, $mode) { /* {{{ */
 		$accessop = $this->params['accessobject'];
 		$print_header = true;

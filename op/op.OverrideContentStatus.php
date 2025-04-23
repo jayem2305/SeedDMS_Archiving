@@ -80,6 +80,19 @@ if ($overallStatus["status"] == S_REJECTED || $overallStatus["status"] == S_EXPI
 $overrideStatus = $_POST["overrideStatus"];
 $comment = $_POST["comment"];
 
+// Define the encryption method and key
+$encryption_method = 'AES-256-CBC';
+$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+// Encrypt the comment
+$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
+$combined_comment = $encryption_iv_comment . $encrypted_comment;
+$iv_base64_comment = base64_encode($combined_comment);
+
+// Use the encrypted comment instead of the plain comment
+$comment = $iv_base64_comment;
+
 if ($overrideStatus != $overallStatus["status"]) {
 
 	if (!$content->setStatus($overrideStatus, $comment, $user)) {

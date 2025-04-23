@@ -57,12 +57,39 @@ if ($action == "addgroup") {
 		UI::exitError(getMLText("admin_tools"),getMLText("group_exists"));
 	}
 
+	// Define the encryption method and key
+	$encryption_method = 'AES-256-CBC';
+	$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+	// Encrypt the name
+	$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+	$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+	$combined_name = $encryption_iv_name . $encrypted_name;
+	$iv_base64_name = base64_encode($combined_name);
+
+	// Encrypt the comment
+	$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+	$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
+	$combined_comment = $encryption_iv_comment . $encrypted_comment;
+	$iv_base64_comment = base64_encode($combined_comment);
+
+	// Use the encrypted name and comment
+	$name = $iv_base64_name;
+	$comment = $iv_base64_comment;
+
 	$newGroup = $dms->addGroup($name, $comment);
 	if (!$newGroup) {
 		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
 	}
 	
-	$groupid=$newGroup->getID();
+	// Encrypt the newGroup ID
+	$groupid = $newGroup->getID();
+	$encryption_iv_groupid = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+	$encrypted_groupid = openssl_encrypt($groupid, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_groupid);
+	$combined_groupid = $encryption_iv_groupid . $encrypted_groupid;
+	$iv_base64_groupid = base64_encode($combined_groupid);
+
+	$groupid = $iv_base64_groupid;
 	
 	$session->setSplashMsg(array('type'=>'success', 'msg'=>getMLText('splash_add_group')));
 
