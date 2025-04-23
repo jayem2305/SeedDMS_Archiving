@@ -1,220 +1,255 @@
 <?php
 /**
- * Implementation of EditDocument controller
+ * Implementation of EditDocument view
  *
  * @category   DMS
  * @package    SeedDMS
  * @license    GPL 2
  * @version    @version@
  * @author     Uwe Steinmann <uwe@steinmann.cx>
- * @copyright  Copyright (C) 2010-2013 Uwe Steinmann
+ * @copyright  Copyright (C) 2002-2005 Markus Westphal,
+ *             2006-2008 Malcolm Cowe, 2010 Matteo Lucarelli,
+ *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
 
+
+
 /**
- * Class which does the busines logic for editing a document
+ * Include parent class
+ */
+//require_once("class.Bootstrap.php");
+
+/**
+ * Class which outputs the html page for EditDocument view
  *
  * @category   DMS
  * @package    SeedDMS
- * @author     Uwe Steinmann <uwe@steinmann.cx>
- * @copyright  Copyright (C) 2010-2013 Uwe Steinmann
+ * @author     Markus Westphal, Malcolm Cowe, Uwe Steinmann <uwe@steinmann.cx>
+ * @copyright  Copyright (C) 2002-2005 Markus Westphal,
+ *             2006-2008 Malcolm Cowe, 2010 Matteo Lucarelli,
+ *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_Controller_EditDocument extends SeedDMS_Controller_Common {
+class SeedDMS_View_EditDocument extends SeedDMS_Theme_Style
+{
 
-	public function run() {
+	function js()
+	{ /* {{{ */
+		$strictformcheck = $this->params['strictformcheck'];
+		header('Content-Type: application/javascript; charset=UTF-8');
+		parent::jsTranslations(array('js_form_error', 'js_form_errors'));
+		$this->printKeywordChooserJs('form1');
+		?>
+		$(document).ready( function() {
+		$("#form1").validate({
+		messages: {
+		name: "<?php printMLText("js_no_name"); ?>",
+		comment: "<?php printMLText("js_no_comment"); ?>",
+		keywords: "<?php printMLText("js_no_keywords"); ?>"
+		}
+		});
+		$('#presetexpdate').on('change', function(ev){
+		if($(this).val() == 'date')
+		$('#control_expdate').show();
+		else
+		$('#control_expdate').hide();
+		});
+		});
+		<?php
+	} /* }}} */
+
+	function show()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
-		$settings = $this->params['settings'];
-		$fulltextservice = $this->params['fulltextservice'];
+		$folder = $this->params['folder'];
 		$document = $this->params['document'];
-		$name = $this->params['name'];
+		$attrdefs = $this->params['attrdefs'];
+		$strictformcheck = $this->params['strictformcheck'];
+		$nodocumentformfields = $this->params['nodocumentformfields'];
+		$orderby = $this->params['orderby'];
 
-		if(false === $this->callHook('preEditDocument')) {
-			if(empty($this->errormsg))
-				$this->errormsg = 'hook_preEditDocument_failed';
-			return null;
-		}
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/vendors/jquery-validation/jquery.validate.js"></script>' . "\n", 'js');
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/styles/validation-default.js"></script>' . "\n", 'js');
 
-		$result = $this->callHook('editDocument', $document);
-		if($result === null) {
-			$name = $this->params['name'];
-			$oldname = $document->getName();
-			if($oldname != $name)
-				if(!$document->setName($name))
-					return false;
+		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
+		$this->globalNavigation($folder);
+		$this->contentStart();
+		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
 
-			$comment = $this->params['comment'];
-			if(($oldcomment = $document->getComment()) != $comment)
-				if(!$document->setComment($comment))
-					return false;
 
-			$expires = $this->params['expires'];
-			$oldexpires = $document->getExpires();
-			if ($expires != $oldexpires) {
-				if(false === $this->callHook('preSetExpires', $document, $expires)) {
-				}
+		echo '<div class="addDocument-container">';
+		echo '<h1 class="content-header">';
+		echo '</h1>';
 
-				if(!$document->setExpires($expires)) {
-					return false;
-				}
 
-				$document->verifyLastestContentExpriry();
+		$this->contentHeading(getMLText("edit_document_props"));
 
-				if(false === $this->callHook('postSetExpires', $document, $expires)) {
-				}
+
+
+		if ($document->expires())
+			$expdate = getReadableDate($document->getExpires());
+		else
+			$expdate = '';
+		?>
+		<form class="form-horizontal" action="../op/op.EditDocument.php" name="form1" id="form1" method="post">
+			<?php echo createHiddenFieldWithKey('editdocument'); ?>
+			<input type="hidden" name="documentid" value="<?php echo $document->getID() ?>">
+			<?php
+			$this->contentContainerStart();
+			$this->formField(
+				getMLText("name"),
+				array(
+					'element' => 'input',
+					'type' => 'text',
+					'name' => 'name',
+					'value' => htmlspecialchars($document->getName()),
+					'required' => true
+				)
+			);
+			if (!$nodocumentformfields || !in_array('comment', $nodocumentformfields)) {
+				$this->formField(
+					getMLText("comment"),
+					array(
+						'element' => 'textarea',
+						'name' => 'comment',
+						'rows' => 4,
+						'cols' => 80,
+						'value' => htmlspecialchars($document->getComment()),
+						'required' => $strictformcheck
+					)
+				);
+			} else {
+				$this->formField(
+					null,
+					array(
+						'element' => 'input',
+						'type' => 'hidden',
+						'name' => 'comment',
+						'value' => htmlspecialchars($document->getComment()),
+					)
+				);
 			}
-
-			$keywords = $this->params['keywords'];
-			$oldkeywords = $document->getKeywords();
-			if ($oldkeywords != $keywords) {
-				if(false === $this->callHook('preSetKeywords', $document, $keywords, $oldkeywords)) {
-				}
-
-				if(!$document->setKeywords($keywords)) {
-					return false;
-				}
-
-				if(false === $this->callHook('postSetKeywords', $document, $keywords, $oldkeywords)) {
-				}
+			if (!$nodocumentformfields || !in_array('keywords', $nodocumentformfields)) {
+				$this->formField(
+					getMLText("keywords"),
+					$this->getKeywordChooserHtml('form1', $document->getKeywords())
+				);
+			} else {
+				$this->formField(
+					null,
+					array(
+						'element' => 'input',
+						'type' => 'hidden',
+						'name' => 'keywords',
+						'value' => htmlspecialchars($document->getKeywords()),
+					)
+				);
 			}
-
-			$categories = $this->params['categories'];
-			$oldcategories = $document->getCategories();
-			if($categories) {
-				$categoriesarr = array();
-				foreach($categories as $catid) {
-					if($cat = $dms->getDocumentCategory($catid)) {
-						$categoriesarr[] = $cat;
+			$categories = $dms->getDocumentCategories();
+			if ($categories) {
+				if (!$nodocumentformfields || !in_array('categories', $nodocumentformfields)) {
+					$options = array();
+					foreach ($categories as $category) {
+						$options[] = array($category->getID(), htmlspecialchars($category->getName()), in_array($category, $document->getCategories()));
 					}
-					
-				}
-				$oldcatsids = array();
-				foreach($oldcategories as $oldcategory)
-					$oldcatsids[] = $oldcategory->getID();
-
-				if (count($categoriesarr) != count($oldcategories) ||
-						array_diff($categories, $oldcatsids)) {
-					if(false === $this->callHook('preSetCategories', $document, $categoriesarr, $oldcategories)) {
-					}
-					if(!$document->setCategories($categoriesarr)) {
-						return false;
-					}
-					if(false === $this->callHook('postSetCategories', $document, $categoriesarr, $oldcategories)) {
-					}
-				}
-			} elseif($oldcategories) {
-				if(false === $this->callHook('preSetCategories', $document, array(), $oldcategories)) {
-				}
-				if(!$document->setCategories(array())) {
-					return false;
-				}
-				if(false === $this->callHook('postSetCategories', $document, array(), $oldcategories)) {
-				}
-			}
-
-			$attributes = $this->params['attributes'];
-			$oldattributes = $document->getAttributes();
-			if($attributes) {
-				foreach($attributes as $attrdefid=>$attribute) {
-					if($attrdef = $dms->getAttributeDefinition($attrdefid)) {
-						if(null === ($ret = $this->callHook('validateAttribute', $attrdef, $attribute))) {
-						if($attribute) {
-							switch($attrdef->getType()) {
-							case SeedDMS_Core_AttributeDefinition::type_date:
-								if(is_array($attribute))
-									$attribute = array_map(fn($value): string => date('Y-m-d', makeTsFromDate($value)), $attribute);
-								else
-									$attribute = date('Y-m-d', makeTsFromDate($attribute));
-								break;
-							case SeedDMS_Core_AttributeDefinition::type_folder:
-								if(is_array($attribute))
-									$attribute = array_map(fn($value): object => $dms->getFolder((int) $value), $attribute);
-								else
-									$attribute = $dms->getFolder((int) $attribute);
-								break;
-							case SeedDMS_Core_AttributeDefinition::type_document:
-								if(is_array($attribute))
-									$attribute = array_map(fn($value): object => $dms->getDocument((int) $value), $attribute);
-								else
-									$attribute = $dms->getDocument((int) $attribute);
-								break;
-							case SeedDMS_Core_AttributeDefinition::type_user:
-								if(is_array($attribute))
-									$attribute = array_map(fn($value): object => $dms->getUser((int) $value), $attribute);
-								else
-									$attribute = $dms->getUser((int) $attribute);
-								break;
-							case SeedDMS_Core_AttributeDefinition::type_group:
-								if(is_array($attribute))
-									$attribute = array_map(fn($value): object => $dms->getGroup((int) $value), $attribute);
-								else
-									$attribute = $dms->getGroup((int) $attribute);
-								break;
-							}
-							if(!$attrdef->validate($attribute, $document, false)) {
-								$this->errormsg	= getAttributeValidationError($attrdef->getValidationError(), $attrdef->getName(), $attribute);
-								return false;
-							}
-
-							if(!isset($oldattributes[$attrdefid]) || $attribute != $oldattributes[$attrdefid]->getValue()) {
-								if(!$document->setAttributeValue($dms->getAttributeDefinition($attrdefid), $attribute))
-									return false;
-							}
-						} elseif($attrdef->getMinValues() > 0) {
-							$this->errormsg = array("attr_min_values", array("attrname"=>$attrdef->getName()));
-						} elseif(isset($oldattributes[$attrdefid])) {
-							if(!$document->removeAttribute($dms->getAttributeDefinition($attrdefid)))
-								return false;
-						}
-						} else {
-							if($ret === false)
-								return false;
-						}
-					}
-				}
-			}
-			foreach($oldattributes as $attrdefid=>$oldattribute) {
-				if(!isset($attributes[$attrdefid])) {
-					if(!$document->removeAttribute($dms->getAttributeDefinition($attrdefid)))
-						return false;
-				}
-			}
-
-			$sequence = $this->params['sequence'];
-			if(strcasecmp($sequence, "keep")) {
-				if($document->setSequence($sequence)) {
+					$this->formField(
+						getMLText("categories"),
+						array(
+							'element' => 'select',
+							'class' => 'chzn-select',
+							'name' => 'categories[]',
+							'multiple' => true,
+							'attributes' => array(array('data-placeholder', getMLText('select_category'), array('data-no_results_text', getMLText('unknown_document_category')))),
+							'options' => $options
+						)
+					);
 				} else {
-					return false;
-				}
-			}
-
-			/* There are various hooks in inc/inc.FulltextInit.php which will take
-			 * care of reindexing it. They just delete the indexing date which is
-			 * faster then indexing the folder completely
-			 *
-			if($fulltextservice && ($index = $fulltextservice->Indexer()) && $document) {
-				$idoc = $fulltextservice->IndexedDocument($document);
-				if(false !== $this->callHook('preIndexDocument', $document, $idoc)) {
-					$lucenesearch = $fulltextservice->Search();
-					if($hit = $lucenesearch->getDocument((int) $document->getId())) {
-						$index->delete($hit->id);
+					$categories = $document->getCategories();
+					foreach ($categories as $category) {
+						$this->formField(
+							null,
+							array(
+								'element' => 'input',
+								'type' => 'hidden',
+								'name' => 'categories[]',
+								'value' => htmlspecialchars($category->getId()),
+							)
+						);
 					}
-					$index->addDocument($idoc);
-					$index->commit();
 				}
 			}
-			 */
- 
-		} elseif($result === false) {
-			if(empty($this->errormsg))
-				$this->errormsg = 'hook_editDocument_failed';
-			return false;
-		}
+			if (!$nodocumentformfields || !in_array('expires', $nodocumentformfields)) {
+				$options = array();
+				$options[] = array('never', getMLText('does_not_expire'));
+				$options[] = array('date', getMLText('expire_by_date'), $expdate != '');
+				$options[] = array('1w', getMLText('expire_in_1w'));
+				$options[] = array('1m', getMLText('expire_in_1m'));
+				$options[] = array('1y', getMLText('expire_in_1y'));
+				$options[] = array('2y', getMLText('expire_in_2y'));
+				$this->formField(
+					getMLText("preset_expires"),
+					array(
+						'element' => 'select',
+						'id' => 'presetexpdate',
+						'name' => 'presetexpdate',
+						'options' => $options
+					)
+				);
+				$this->formField(
+					getMLText("expires"),
+					$this->getDateChooser($expdate, "expdate", $this->params['session']->getLanguage())
+				);
+			} else {
+				$this->formField(
+					null,
+					array(
+						'element' => 'input',
+						'type' => 'hidden',
+						'name' => 'expdate',
+						'value' => $expdate,
+					)
+				);
+			}
+			if (!$nodocumentformfields || !in_array('sequence', $nodocumentformfields)) {
+				if ($folder->getAccessMode($user) > M_READ) {
+					$this->formField(getMLText("sequence"), $this->getSequenceChooser($folder, 'd', $document->getID()) . ($orderby != 's' ? "<br /><br>" . getMLText('order_by_sequence_off') : ''));
+				}
+			}
+			if ($attrdefs) {
+				foreach ($attrdefs as $attrdef) {
+					$arr = $this->callHook('editDocumentAttribute', $document, $attrdef);
+					if (is_array($arr)) {
+						if ($arr) {
+							$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+						}
+					} elseif (is_string($arr)) {
+						echo $arr;
+					} else {
+						$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, $document->getAttribute($attrdef)));
+					}
+				}
+			}
+			$arrs = $this->callHook('addDocumentAttributes', $document);
+			if (is_array($arrs)) {
+				foreach ($arrs as $arr) {
+					$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+				}
+			} elseif (is_string($arrs)) {
+				echo $arrs;
+			}
+			$this->contentContainerEnd();
+			echo '<div class="controls-edit">';
+			$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('save'));
+			echo '</div>';
+			?>
+		</form>
+		</div>
 
-		if(false === $this->callHook('postEditDocument')) {
-		}
-
-		return true;
-	}
+		<?php
+		$this->contentEnd();
+		$this->htmlEndPage();
+	} /* }}} */
 }
+?>
