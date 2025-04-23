@@ -3753,7 +3753,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$hookObjs = $this->getHookObjects();
 		foreach ($hookObjs as $hookObj) {
 			if (method_exists($hookObj, 'folderRowAction')) {
-				$actions = $hookObj->folderRowAction($this, $folder, $actions);
+				if (isset($subFolder)) {
+					$folder = $subFolder; // Assign $subFolder to $folder
+					$actions = $hookObj->folderRowAction($this, $folder, $actions);
+				}
 			}
 		}
 

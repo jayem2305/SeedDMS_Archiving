@@ -38,7 +38,7 @@ class SeedDMS_View_OpensearchDesc extends SeedDMS_Theme_Style {
 		header("Content-Disposition: attachment; filename=\"opensearch_desc.xml\"");
 		header('Content-Type: application/opensearchdescription+xml');
 ?>
-<?xml version="1.0" encoding="UTF-8"?>
+<?php echo '<?xml version="1.0" encoding="UTF-8"?>'; ?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:moz="http://www.mozilla.org/2006/browser/search/">
 	<ShortName><?= $sitename ?></ShortName>
 	<Description><?= $sitename ?></Description>
