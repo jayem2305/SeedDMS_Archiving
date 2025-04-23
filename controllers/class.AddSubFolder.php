@@ -104,16 +104,15 @@ class SeedDMS_Controller_AddSubFolder extends SeedDMS_Controller_Common
 			// Encrypt the name
 			$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
 			$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
-			$combined_name_name = $encryption_iv_name . $encrypted_name;
-			$iv_base64_name = base64_encode($combined_name_name);
+			$combined_name = $encryption_iv_name . $encrypted_name;
+			$iv_base64_name = base64_encode($combined_name);
 
 			// Encrypt the comment
 			$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
 			$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
-			$combined_name_comment = $encryption_iv_comment . $encrypted_comment;
-			$iv_base64_comment = base64_encode($combined_name_comment);
-
-
+			$combined_comment = $encryption_iv_comment . $encrypted_comment;
+			$iv_base64_comment = base64_encode($combined_comment);
+      
 			$subFolder = $folder->addSubFolder($iv_base64_name, $iv_base64_comment, $user, $sequence, $attributes);
 			if (!is_object($subFolder)) {
 				$this->errormsg = "error_occured";

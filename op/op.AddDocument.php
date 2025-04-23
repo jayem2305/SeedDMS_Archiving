@@ -1,3 +1,4 @@
+
 <?php
 //    MyDMS. Document Management System
 //    Copyright (C) 2002-2005  Markus Westphal

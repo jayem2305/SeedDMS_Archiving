@@ -15,3 +15,4 @@ Apr 11 10:10:46  [info] admin (::1) op.Ajax.php add document 11 in folder 1
 Apr 11 10:11:26  [info] admin (::1) op.Ajax.php?command=deletedocument&id=11&formtoken=934e3342d682ed19a0cb3ec5f3193372 delete document 11
 Apr 11 10:11:38  [info] admin (::1) op.Ajax.php?command=tooglelockdocument&formtoken=c692497aa463d42f5926dd2918258a25&id=4 lock document 4
 Apr 11 10:11:48  [info] admin (::1) op.Ajax.php?command=tooglelockdocument&formtoken=c692497aa463d42f5926dd2918258a25&id=5 lock document 5
+
