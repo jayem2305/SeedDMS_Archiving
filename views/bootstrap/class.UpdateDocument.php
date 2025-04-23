@@ -29,9 +29,11 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_View_UpdateDocument extends SeedDMS_Theme_Style {
+class SeedDMS_View_UpdateDocument extends SeedDMS_Theme_Style
+{
 
-	function js() { /* {{{ */
+	function js()
+	{ /* {{{ */
 		$strictformcheck = $this->params['strictformcheck'];
 		$dropfolderdir = $this->params['dropfolderdir'];
 		$enablelargefileupload = $this->params['enablelargefileupload'];
@@ -43,95 +45,96 @@ class SeedDMS_View_UpdateDocument extends SeedDMS_Theme_Style {
 		$this->printSelectPresetButtonJs();
 		$this->printInputPresetButtonJs();
 		$this->printCheckboxPresetButtonJs();
-		if($enablelargefileupload)
+		if ($enablelargefileupload)
 			$this->printFineUploaderJs('../op/op.UploadChunks.php', $partitionsize, $maxuploadsize, false);
 		$this->printFileChooserJs();
-?>
-$(document).ready( function() {
-	jQuery.validator.addMethod("alternatives", function(value, element, params) {
+		?>
+		$(document).ready( function() {
+		jQuery.validator.addMethod("alternatives", function(value, element, params) {
 		if(value == '' && params.val() == '')
-			return false;
+		return false;
 		return true;
-	}, "<?php printMLText("js_no_file");?>");
-	/* The fineuploader validation is actually checking all fields that can contain
-	 * a file to be uploaded. First checks if an alternative input field is set,
-	 * second loops through the list of scheduled uploads, checking if at least one
-	 * file will be submitted.
-	 */
-	jQuery.validator.addMethod("fineuploader", function(value, element, params) {
+		}, "<?php printMLText("js_no_file"); ?>");
+		/* The fineuploader validation is actually checking all fields that can contain
+		* a file to be uploaded. First checks if an alternative input field is set,
+		* second loops through the list of scheduled uploads, checking if at least one
+		* file will be submitted.
+		*/
+		jQuery.validator.addMethod("fineuploader", function(value, element, params) {
 		if(params[1].val() != '')
-			return true;
+		return true;
 		uploader = params[0];
 		arr = uploader.getUploads();
 		for(var i in arr) {
-			if(arr[i].status == 'submitted')
-				return true;
+		if(arr[i].status == 'submitted')
+		return true;
 		}
 		return false;
-	}, "<?php printMLText("js_no_file");?>");
-	$("#form1").validate({
+		}, "<?php printMLText("js_no_file"); ?>");
+		$("#form1").validate({
 		debug: false,
 		ignore: ":hidden:not(.do_validate)",
-<?php
-		if($enablelargefileupload) {
-?>
-		submitHandler: function(form) {
+		<?php
+		if ($enablelargefileupload) {
+			?>
+			submitHandler: function(form) {
 			/* fileuploader may not have any files if drop folder is used */
 			if(userfileuploader.getUploads().length)
-				userfileuploader.uploadStoredFiles();
+			userfileuploader.uploadStoredFiles();
 			else
-				form.submit();
-		},
-<?php
+			form.submit();
+			},
+			<?php
 		}
-?>
+		?>
 		rules: {
-<?php
-		if($enablelargefileupload) {
-?>
+		<?php
+		if ($enablelargefileupload) {
+			?>
 			'userfile-fine-uploader-uuids': {
-				fineuploader: [ userfileuploader, $('#dropfolderfileform1') ]
+			fineuploader: [ userfileuploader, $('#dropfolderfileform1') ]
 			}
-<?php
+			<?php
 		} else {
-?>
+			?>
 			userfile: {
-				require_from_group: [1, ".fileupload-group"],
-				maxsize: <?= $maxuploadsize ?>
+			require_from_group: [1, ".fileupload-group"],
+			maxsize: <?= $maxuploadsize ?>
 
-//				alternatives: $('#dropfolderfileform1')
+			// alternatives: $('#dropfolderfileform1')
 			},
 			dropfolderfileform1: {
-				require_from_group: [1, ".fileupload-group"]
-//				alternatives: $('#userfile')
+			require_from_group: [1, ".fileupload-group"]
+			// alternatives: $('#userfile')
 			}
-<?php
+			<?php
 		}
-?>
+		?>
 		},
 		messages: {
-			comment: "<?php printMLText("js_no_comment");?>",
+		comment: "<?php printMLText("js_no_comment"); ?>",
 		},
 		errorPlacement: function( error, element ) {
-			if ( element.is( ":file" ) ) {
-				error.appendTo( element.parent().parent().parent());
-console.log(element);
-			} else {
-				error.appendTo( element.parent());
-			}
+		if ( element.is( ":file" ) ) {
+		error.appendTo( element.parent().parent().parent());
+		console.log(element);
+		} else {
+		error.appendTo( element.parent());
 		}
-	});
-	$('#presetexpdate').on('change', function(ev){
+		}
+		});
+		$('#presetexpdate').on('change', function(ev){
 		if($(this).val() == 'date')
-			$('#control_expdate').show();
+		$('#control_expdate').show();
 		else
-			$('#control_expdate').hide();
-	});
-});
-<?php
+		$('#control_expdate').hide();
+		});
+		});
+		<?php
 	} /* }}} */
 
-	function show() { /* {{{ */
+	function show()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$settings = $this->params['settings'];
@@ -152,14 +155,15 @@ console.log(element);
 		$presetexpiration = $this->params['presetexpiration'];
 		$documentid = $document->getId();
 		$accept = $this->getParam('accept');
-		if($accept && is_array($accept))
+
+		if ($accept && is_array($accept))
 			$accept = implode(',', $accept);
 
-		$this->htmlAddHeader('<script type="text/javascript" src="../views/'.$this->theme.'/vendors/jquery-validation/jquery.validate.js"></script>'."\n", 'js');
-		$this->htmlAddHeader('<script type="text/javascript" src="../views/'.$this->theme.'/vendors/jquery-validation/additional-methods.js"></script>'."\n", 'js');
-		$this->htmlAddHeader('<script type="text/javascript" src="../views/'.$this->theme.'/styles/validation-default.js"></script>'."\n", 'js');
-		if($enablelargefileupload) {
-			$this->htmlAddHeader('<script type="text/javascript" src="../views/'.$this->theme.'/vendors/fine-uploader/jquery.fine-uploader.min.js"></script>'."\n", 'js');
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/vendors/jquery-validation/jquery.validate.js"></script>' . "\n", 'js');
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/vendors/jquery-validation/additional-methods.js"></script>' . "\n", 'js');
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/styles/validation-default.js"></script>' . "\n", 'js');
+		if ($enablelargefileupload) {
+			$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/vendors/fine-uploader/jquery.fine-uploader.min.js"></script>' . "\n", 'js');
 			$this->htmlAddHeader($this->getFineUploaderTemplate(), 'js');
 		}
 
@@ -174,14 +178,13 @@ console.log(element);
 			$lockingUser = $document->getLockingUser();
 
 			$html = '';
-			$html .= getMLText("update_locked_msg", array("username" => htmlspecialchars($lockingUser->getFullName()), "email" => $lockingUser->getEmail())).' ';
-			
+			$html .= getMLText("update_locked_msg", array("username" => htmlspecialchars($lockingUser->getFullName()), "email" => $lockingUser->getEmail())) . ' ';
+
 			if ($lockingUser->getID() == $user->getID())
 				$html .= getMLText("unlock_cause_locking_user");
 			else if ($document->getAccessMode($user) == M_ALL)
 				$html .= getMLText("unlock_cause_access_mode_all");
-			else
-			{
+			else {
 				$html .= getMLText("no_update_cause_locked");
 				$this->warningMsg($html);
 				$this->contentEnd();
@@ -196,15 +199,15 @@ console.log(element);
 		$reviewStatus = $latestContent->getReviewStatus();
 		$receiptStatus = $latestContent->getReceiptStatus();
 		$approvalStatus = $latestContent->getApprovalStatus();
-		if($workflowmode == 'advanced') {
-			if($status = $latestContent->getStatus()) {
-				if($status["status"] == S_IN_WORKFLOW) {
+		if ($workflowmode == 'advanced') {
+			if ($status = $latestContent->getStatus()) {
+				if ($status["status"] == S_IN_WORKFLOW) {
 					$this->warningMsg("The current version of this document is in a workflow. This will be interrupted and cannot be completed if you upload a new version.");
 				}
 			}
 		}
 
-		$msg = getMLText("max_upload_size").": ".SeedDMS_Core_File::format_filesize($maxuploadsize);
+		$msg = getMLText("max_upload_size") . ": " . SeedDMS_Core_File::format_filesize($maxuploadsize);
 		$this->warningMsg($msg);
 
 		if ($document->isCheckedOut()) {
@@ -212,165 +215,326 @@ console.log(element);
 			$this->warningMsg($msg);
 		}
 
-?>
+		?>
 
-<form class="form-horizontal" action="../op/op.UpdateDocument.php" enctype="multipart/form-data" method="post" name="form1" id="form1">
-	<?php echo createHiddenFieldWithKey('updatedocument'); ?>
-	<input type="hidden" name="documentid" value="<?php print $document->getID(); ?>">
-<?php
-		$this->contentContainerStart();
-		$this->formField(
-			getMLText("local_file"),
-			$enablelargefileupload ? $this->getFineUploaderHtml() : $this->getFileChooserHtml('userfile', false, $accept)
-		);
-		if($dropfolderdir) {
+		<form class="form-horizontal" action="../op/op.UpdateDocument.php" enctype="multipart/form-data" method="post"
+			name="form1" id="form1">
+			<?php echo createHiddenFieldWithKey('updatedocument'); ?>
+			<input type="hidden" name="documentid" value="<?php print $document->getID(); ?>">
+			<?php
+
+			$this->contentContainerStart();
 			$this->formField(
-				getMLText("dropfolder_file"),
-				$this->getDropFolderChooserHtml("form1")
-			);
-		}
-		if($arr = $this->callHook('addDocumentContentFile', 'update')) {
-			foreach($arr as $ar)
-				if(is_array($ar)) {
-					$this->formField($ar[0], $ar[1], isset($ar[2]) ? $ar[2] : null);
-				} elseif(is_string($ar)) {
-					echo $ar;
-				}
-		}
-		if(!$nodocumentformfields || !in_array('version_comment', $nodocumentformfields)) {
-		$this->formField(
-			getMLText("comment"),
-			array(
-				'element'=>'textarea',
-				'name'=>'comment',
-				'rows'=>4,
-				'cols'=>80
-			)
-		);
-		}
-		if(!$nodocumentformfields || !in_array('expires', $nodocumentformfields)) {
-		if($presetexpiration) {
-			if(!($expts = strtotime($presetexpiration)))
-				$expts = false;
-		} else {
-			$expts = false;
-		}
-		$options = array();
-		$options[] = array('never', getMLText('does_not_expire'));
-		$options[] = array('date', getMLText('expire_by_date'), $expts);
-		$options[] = array('1w', getMLText('expire_in_1w'));
-		$options[] = array('1m', getMLText('expire_in_1m'));
-		$options[] = array('1y', getMLText('expire_in_1y'));
-		$options[] = array('2y', getMLText('expire_in_2y'));
-		$this->formField(
-			getMLText("preset_expires"),
-			array(
-				'element'=>'select',
-				'id'=>'presetexpdate',
-				'name'=>'presetexpdate',
-				'options'=>$options
-			)
-		);
-		$this->formField(
-			getMLText("expires"),
-			$this->getDateChooser(($expts ? getReadableDate($expts) : ''), "expdate", $this->params['session']->getLanguage())
-		);
-		}
-		$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_documentcontent, SeedDMS_Core_AttributeDefinition::objtype_all));
-		if($attrdefs) {
-			foreach($attrdefs as $attrdef) {
-				$arr = $this->callHook('editDocumentContentAttribute', $document, $attrdef);
-				if(is_array($arr)) {
-					if($arr)
-						$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
-				} elseif(is_string($arr)) {
-					echo $arr;
-				} else {
-					$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, $document->getAttribute($attrdef), 'attributes_version'));
-				}
-			}
-		}
-		$arrs = $this->callHook('addDocumentContentAttributes', $document);
-		if(is_array($arrs)) {
-			foreach($arrs as $arr) {
-				$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
-			}
-		} elseif(is_string($arrs)) {
-			echo $arrs;
-		}
+				getMLText("local_file"),
 
-		$docAccess = $document->getReadAccessList($enableadminrevapp, $enableownerrevapp);
-		if($workflowmode == 'advanced') {
-			$mandatoryworkflows = $user->getMandatoryWorkflows();
-			if($mandatoryworkflows) {
-				if(count($mandatoryworkflows) == 1) {
-					$this->formField(
-						getMLText("workflow"),
-						htmlspecialchars($mandatoryworkflows[0]->getName()).'<input type="hidden" name="workflow" value="'.$mandatoryworkflows[0]->getID().'">'
-					);
+				$enablelargefileupload ? $this->getFineUploaderHtml() : $this->getFileChooserHtml('userfile', false, $accept)
+			);
+			if ($dropfolderdir) {
+				$this->formField(
+					getMLText("dropfolder_file"),
+					$this->getDropFolderChooserHtml("form1")
+				);
+			}
+			if ($arr = $this->callHook('addDocumentContentFile', 'update')) {
+				foreach ($arr as $ar)
+					if (is_array($ar)) {
+						$this->formField($ar[0], $ar[1], isset($ar[2]) ? $ar[2] : null);
+					} elseif (is_string($ar)) {
+						echo $ar;
+					}
+			}
+			if (!$nodocumentformfields || !in_array('version_comment', $nodocumentformfields)) {
+				$this->formField(
+					getMLText("comment"),
+					array(
+						'element' => 'textarea',
+						'name' => 'comment',
+						'rows' => 4,
+						'cols' => 80
+					)
+				);
+			}
+			if (!$nodocumentformfields || !in_array('expires', $nodocumentformfields)) {
+				if ($presetexpiration) {
+					if (!($expts = strtotime($presetexpiration)))
+						$expts = false;
+				} else {
+					$expts = false;
+				}
+				$options = array();
+				$options[] = array('never', getMLText('does_not_expire'));
+				$options[] = array('date', getMLText('expire_by_date'), $expts);
+				$options[] = array('1w', getMLText('expire_in_1w'));
+				$options[] = array('1m', getMLText('expire_in_1m'));
+				$options[] = array('1y', getMLText('expire_in_1y'));
+				$options[] = array('2y', getMLText('expire_in_2y'));
+				$this->formField(
+					getMLText("preset_expires"),
+					array(
+						'element' => 'select',
+						'id' => 'presetexpdate',
+						'name' => 'presetexpdate',
+						'options' => $options
+					)
+				);
+				$this->formField(
+					getMLText("expires"),
+					$this->getDateChooser(($expts ? getReadableDate($expts) : ''), "expdate", $this->params['session']->getLanguage())
+				);
+			}
+			$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_documentcontent, SeedDMS_Core_AttributeDefinition::objtype_all));
+			if ($attrdefs) {
+				foreach ($attrdefs as $attrdef) {
+					$arr = $this->callHook('editDocumentContentAttribute', $document, $attrdef);
+					if (is_array($arr)) {
+						if ($arr)
+							$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+					} elseif (is_string($arr)) {
+						echo $arr;
+					} else {
+						$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, $document->getAttribute($attrdef), 'attributes_version'));
+					}
+				}
+			}
+			$arrs = $this->callHook('addDocumentContentAttributes', $document);
+			if (is_array($arrs)) {
+				foreach ($arrs as $arr) {
+					$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+				}
+			} elseif (is_string($arrs)) {
+				echo $arrs;
+			}
+
+			$docAccess = $document->getReadAccessList($enableadminrevapp, $enableownerrevapp);
+			if ($workflowmode == 'advanced') {
+				$mandatoryworkflows = $user->getMandatoryWorkflows();
+				if ($mandatoryworkflows) {
+					if (count($mandatoryworkflows) == 1) {
+						$this->formField(
+							getMLText("workflow"),
+							htmlspecialchars($mandatoryworkflows[0]->getName()) . '<input type="hidden" name="workflow" value="' . $mandatoryworkflows[0]->getID() . '">'
+						);
+					} else {
+						$options = array();
+						$curworkflow = $latestContent->getWorkflow();
+						foreach ($mandatoryworkflows as $workflow) {
+							$options[] = array($workflow->getID(), htmlspecialchars($workflow->getName()), $curworkflow && $curworkflow->getID() == $workflow->getID());
+						}
+						$this->formField(
+							getMLText("workflow"),
+							array(
+								'element' => 'select',
+								'id' => 'workflow',
+								'name' => 'workflow',
+								'class' => 'chzn-select',
+								'attributes' => array(array('data-placeholder', getMLText('select_workflow'))),
+								'options' => $options
+							)
+						);
+					}
 				} else {
 					$options = array();
-					$curworkflow = $latestContent->getWorkflow();
-					foreach ($mandatoryworkflows as $workflow) {
-						$options[] = array($workflow->getID(), htmlspecialchars($workflow->getName()), $curworkflow && $curworkflow->getID() == $workflow->getID());
+					$options[] = array('', '');
+					$workflows = $dms->getAllWorkflows();
+					foreach ($workflows as $workflow) {
+						$options[] = array($workflow->getID(), htmlspecialchars($workflow->getName()));
 					}
 					$this->formField(
 						getMLText("workflow"),
 						array(
-							'element'=>'select',
-							'id'=>'workflow',
-							'name'=>'workflow',
-							'class'=>'chzn-select',
-							'attributes'=>array(array('data-placeholder', getMLText('select_workflow'))),
-							'options'=>$options
+							'element' => 'select',
+							'id' => 'workflow',
+							'name' => 'workflow',
+							'class' => 'chzn-select',
+							'attributes' => array(array('data-allow-clear', 'true'), array('data-placeholder', getMLText('select_workflow'))),
+							'options' => $options
 						)
 					);
 				}
-			} else {
-				$options = array();
-				$options[] = array('', '');
-				$workflows=$dms->getAllWorkflows();
-				foreach ($workflows as $workflow) {
-					$options[] = array($workflow->getID(), htmlspecialchars($workflow->getName()));
-				}
-				$this->formField(
-					getMLText("workflow"),
-					array(
-						'element'=>'select',
-						'id'=>'workflow',
-						'name'=>'workflow',
-						'class'=>'chzn-select',
-						'attributes'=>array(array('data-allow-clear', 'true'), array('data-placeholder', getMLText('select_workflow'))),
-						'options'=>$options
-					)
-				);
-			}
-			$this->contentContainerEnd();
-			if($settings->_initialDocumentStatus == S_RELEASED)
-				$this->warningMsg(getMLText("add_doc_workflow_warning"));
-		} elseif($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
-			if($workflowmode == 'traditional') {
 				$this->contentContainerEnd();
-				$this->contentSubHeading(getMLText("assign_reviewers"));
+				if ($settings->_initialDocumentStatus == S_RELEASED)
+					$this->warningMsg(getMLText("add_doc_workflow_warning"));
+			} elseif ($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
+				if ($workflowmode == 'traditional') {
+					$this->contentContainerEnd();
+					$this->contentSubHeading(getMLText("assign_reviewers"));
+					$this->contentContainerStart();
+
+					$mreviewers = getMandatoryReviewers($folder, $document, $user);
+
+					$options = array();
+					foreach ($docAccess["users"] as $usr) {
+						if (!$enablehiddenrevapp && $usr->isHidden())
+							continue;
+						if (!$enableselfrevapp && $usr->getID() == $user->getID())
+							continue;
+
+						$option = array($usr->getID(), htmlspecialchars($usr->getLogin() . " - " . $usr->getFullName()), null);
+						if (in_array($usr->getId(), $mreviewers['i']))
+							$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('user_is_mandatory_reviewer')));
+						$options[] = $option;
+					}
+					$tmp = array();
+					foreach ($reviewStatus as $r) {
+						if ($r['type'] == 0) {
+							if ($mreviewers) {
+								if (!in_array($r['required'], $mreviewers['i']))
+									$tmp[] = $r['required'];
+							} else {
+								$tmp[] = $r['required'];
+							}
+						}
+					}
+					$fieldwrap = array();
+					if ($tmp) {
+						$fieldwrap = array('', $this->getSelectPresetButtonHtml("IndReviewers", $tmp));
+					}
+					/* List all mandatory reviewers */
+					$tmp = array();
+					foreach ($mreviewers['i'] as $r) {
+						$u = $dms->getUser($r);
+						$tmp[] = htmlspecialchars($u->getFullName() . ' (' . $u->getLogin() . ')');
+					}
+
+					if ($tmp) {
+						if (isset($fieldwrap[1]))
+							$fieldwrap[1] .= '<div class="mandatories"><span>' . getMLText('mandatory_reviewers') . ':</span> ' . implode(', ', $tmp) . "</div>\n";
+						else
+							$fieldwrap[1] = '<div class="mandatories"><span>' . getMLText('mandatory_reviewers') . ':</span> ' . implode(', ', $tmp) . "</div>\n";
+					}
+
+					$this->formField(
+						getMLText("individuals"),
+						array(
+							'element' => 'select',
+							'name' => 'indReviewers[]',
+							'id' => 'IndReviewers',
+							'class' => 'chzn-select',
+							'attributes' => array(array('data-placeholder', getMLText('select_ind_reviewers'))),
+							'multiple' => true,
+							'options' => $options
+						),
+						array('field_wrap' => $fieldwrap)
+					);
+
+					/* Check for mandatory reviewer without access */
+					foreach ($mreviewers['ni'] as $r) {
+						$hasAccess = false;
+						foreach ($docAccess["users"] as $usr) {
+							if ($r == $usr->getID())
+								$hasAccess = true;
+						}
+						if (!$hasAccess) {
+							$noAccessUser = $dms->getUser($r);
+							$this->warningMsg(getMLText("mandatory_reviewer_no_access", array('user' => htmlspecialchars($noAccessUser->getFullName() . " (" . $noAccessUser->getLogin() . ")"))));
+						}
+					}
+
+					$options = array();
+					foreach ($docAccess["groups"] as $grp) {
+						$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
+					}
+					$this->formField(
+						getMLText("individuals_in_groups"),
+						array(
+							'element' => 'select',
+							'name' => 'grpIndReviewers[]',
+							'id' => 'GrpIndReviewers',
+							'class' => 'chzn-select',
+							'attributes' => array(array('data-placeholder', getMLText('select_grp_ind_reviewers'))),
+							'multiple' => true,
+							'options' => $options
+						)
+					);
+
+					$options = array();
+					foreach ($docAccess["groups"] as $grp) {
+						$option = array($grp->getID(), htmlspecialchars($grp->getName()), null);
+						if (in_array($grp->getId(), $mreviewers['g']))
+							$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('group_is_mandatory_reviewer')));
+						$options[] = $option;
+					}
+
+					$tmp = array();
+					foreach ($reviewStatus as $r) {
+						if ($r['type'] == 1) {
+							if ($mreviewers) {
+								if (!in_array($r['required'], $mreviewers['g']))
+									$tmp[] = $r['required'];
+							} else {
+								$tmp[] = $r['required'];
+							}
+						}
+					}
+					$fieldwrap = array('', '');
+					if ($tmp) {
+						$fieldwrap = array('', $this->getSelectPresetButtonHtml("GrpReviewers", $tmp));
+					}
+					/* List all mandatory groups of reviewers */
+					$tmp = array();
+					foreach ($mreviewers['g'] as $r) {
+						$u = $dms->getGroup($r);
+						$tmp[] = htmlspecialchars($u->getName());
+					}
+					if ($tmp) {
+						if (isset($fieldwrap[1]))
+							$fieldwrap[1] .= '<div class="mandatories"><span>' . getMLText('mandatory_reviewergroups') . ':</span> ' . implode(', ', $tmp) . "</div>\n";
+						else
+							$fieldwrap[1] = '<div class="mandatories"><span>' . getMLText('mandatory_reviewergroups') . ':</span> ' . implode(', ', $tmp) . "</div>\n";
+					}
+
+					$this->formField(
+						getMLText("groups"),
+						array(
+							'element' => 'select',
+							'name' => 'grpReviewers[]',
+							'id' => 'GrpReviewers',
+							'class' => 'chzn-select',
+							'attributes' => array(array('data-placeholder', getMLText('select_grp_reviewers'))),
+							'multiple' => true,
+							'options' => $options
+						),
+						array('field_wrap' => $fieldwrap)
+					);
+
+					/* Check for mandatory reviewer group without access */
+					foreach ($mreviewers['ng'] as $r) {
+						$hasAccess = false;
+						foreach ($docAccess["groups"] as $grp) {
+							if ($r == $grp->getID())
+								$hasAccess = true;
+						}
+						if (!$hasAccess) {
+							$noAccessGroup = $dms->getGroup($r['reviewerGroupID']);
+							$this->warningMsg(getMLText("mandatory_reviewergroup_no_access", array('group' => htmlspecialchars($noAccessGroup->getName()))));
+						}
+					}
+					$this->contentContainerEnd();
+				}
+
+				$this->contentSubHeading(getMLText("assign_approvers"));
 				$this->contentContainerStart();
 
-				$mreviewers = getMandatoryReviewers($folder, $document, $user);
+				$mapprovers = getMandatoryApprovers($folder, $document, $user);
 
 				$options = array();
 				foreach ($docAccess["users"] as $usr) {
-					if(!$enablehiddenrevapp && $usr->isHidden()) continue;
-					if(!$enableselfrevapp && $usr->getID()==$user->getID()) continue; 
+					if (!$enablehiddenrevapp && $usr->isHidden())
+						continue;
+					if (!$enableselfrevapp && $usr->getID() == $user->getID())
+						continue;
 
-					$option = array($usr->getID(), htmlspecialchars($usr->getLogin()." - ".$usr->getFullName()), null);
-					if(in_array($usr->getId(), $mreviewers['i']))
-						$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('user_is_mandatory_reviewer')));
+					$option = array($usr->getID(), htmlspecialchars($usr->getLogin() . " - " . $usr->getFullName()), null);
+					if (in_array($usr->getId(), $mapprovers['i']))
+						$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('user_is_mandatory_approver')));
 					$options[] = $option;
 				}
+
 				$tmp = array();
-				foreach($reviewStatus as $r) {
-					if($r['type'] == 0) {
-						if($mreviewers) {
-							if(!in_array($r['required'], $mreviewers['i']))
+				foreach ($approvalStatus as $r) {
+					if ($r['type'] == 0) {
+						if ($mapprovers) {
+							if (!in_array($r['required'], $mapprovers['i']))
 								$tmp[] = $r['required'];
 						} else {
 							$tmp[] = $r['required'];
@@ -378,47 +542,47 @@ console.log(element);
 					}
 				}
 				$fieldwrap = array();
-				if($tmp) {
-					$fieldwrap = array('', $this->getSelectPresetButtonHtml("IndReviewers", $tmp));
-				}
-				/* List all mandatory reviewers */
-				$tmp = array();
-				foreach ($mreviewers['i'] as $r) {
-					$u = $dms->getUser($r);
-					$tmp[] =  htmlspecialchars($u->getFullName().' ('.$u->getLogin().')');
+				if ($tmp) {
+					$fieldwrap = array('', $this->getSelectPresetButtonHtml("IndApprovers", $tmp));
 				}
 
-				if($tmp) {
-					if(isset($fieldwrap[1]))
-						$fieldwrap[1] .= '<div class="mandatories"><span>'.getMLText('mandatory_reviewers').':</span> '.implode(', ', $tmp)."</div>\n";
+				/* List all mandatory approvers */
+				$tmp = array();
+				foreach ($mapprovers['i'] as $r) {
+					$u = $dms->getUser($r);
+					$tmp[] = htmlspecialchars($u->getFullName() . ' (' . $u->getLogin() . ')');
+				}
+				if ($tmp) {
+					if (isset($fieldwrap[1]))
+						$fieldwrap[1] .= '<div class="mandatories"><span>' . getMLText('mandatory_approvers') . ':</span> ' . implode(', ', $tmp) . "</div>\n";
 					else
-						$fieldwrap[1] = '<div class="mandatories"><span>'.getMLText('mandatory_reviewers').':</span> '.implode(', ', $tmp)."</div>\n";
+						$fieldwrap[1] = '<div class="mandatories"><span>' . getMLText('mandatory_approvers') . ':</span> ' . implode(', ', $tmp) . "</div>\n";
 				}
 
 				$this->formField(
 					getMLText("individuals"),
 					array(
-						'element'=>'select',
-						'name'=>'indReviewers[]',
-						'id'=>'IndReviewers',
-						'class'=>'chzn-select',
-						'attributes'=>array(array('data-placeholder', getMLText('select_ind_reviewers'))),
-						'multiple'=>true,
-						'options'=>$options
+						'element' => 'select',
+						'name' => 'indApprovers[]',
+						'id' => 'IndApprovers',
+						'class' => 'chzn-select',
+						'attributes' => array(array('data-placeholder', getMLText('select_ind_approvers'))),
+						'multiple' => true,
+						'options' => $options
 					),
-					array('field_wrap'=>$fieldwrap)
+					array('field_wrap' => $fieldwrap)
 				);
 
-				/* Check for mandatory reviewer without access */
-				foreach($mreviewers['ni'] as $r) {
+				/* Check for mandatory approvers without access */
+				foreach ($mapprovers['ni'] as $r) {
 					$hasAccess = false;
 					foreach ($docAccess["users"] as $usr) {
 						if ($r == $usr->getID())
 							$hasAccess = true;
 					}
-					if(!$hasAccess) {
+					if (!$hasAccess) {
 						$noAccessUser = $dms->getUser($r);
-						$this->warningMsg(getMLText("mandatory_reviewer_no_access", array('user'=>htmlspecialchars($noAccessUser->getFullName()." (".$noAccessUser->getLogin().")"))));
+						$this->warningMsg(getMLText("mandatory_approver_no_access", array('user' => htmlspecialchars($noAccessUser->getFullName() . " (" . $noAccessUser->getLogin() . ")"))));
 					}
 				}
 
@@ -429,189 +593,35 @@ console.log(element);
 				$this->formField(
 					getMLText("individuals_in_groups"),
 					array(
-						'element'=>'select',
-						'name'=>'grpIndReviewers[]',
-						'id'=>'GrpIndReviewers',
-						'class'=>'chzn-select',
-						'attributes'=>array(array('data-placeholder', getMLText('select_grp_ind_reviewers'))),
-						'multiple'=>true,
-						'options'=>$options
+						'element' => 'select',
+						'name' => 'grpIndApprovers[]',
+						'id' => 'GrpIndApprovers',
+						'class' => 'chzn-select',
+						'attributes' => array(array('data-placeholder', getMLText('select_grp_ind_approvers'))),
+						'multiple' => true,
+						'options' => $options
 					)
 				);
 
 				$options = array();
 				foreach ($docAccess["groups"] as $grp) {
+
 					$option = array($grp->getID(), htmlspecialchars($grp->getName()), null);
-					if(in_array($grp->getId(), $mreviewers['g']))
-						$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('group_is_mandatory_reviewer')));
-					$options[] = $option;
-				}
-
-				$tmp = array();
-				foreach($reviewStatus as $r) {
-					if($r['type'] == 1) {
-						if($mreviewers) {
-							if(!in_array($r['required'], $mreviewers['g']))
-								$tmp[] = $r['required'];
-						} else {
-							$tmp[] = $r['required'];
-						}
-					}
-				}
-				$fieldwrap = array('', '');
-				if($tmp) {
-					$fieldwrap = array('', $this->getSelectPresetButtonHtml("GrpReviewers", $tmp));
-				}
-				/* List all mandatory groups of reviewers */
-				$tmp = array();
-				foreach ($mreviewers['g'] as $r) {
-					$u = $dms->getGroup($r);
-					$tmp[] =  htmlspecialchars($u->getName());
-				}
-				if($tmp) {
-					if(isset($fieldwrap[1]))
-						$fieldwrap[1] .= '<div class="mandatories"><span>'.getMLText('mandatory_reviewergroups').':</span> '.implode(', ', $tmp)."</div>\n";
-					else
-						$fieldwrap[1] = '<div class="mandatories"><span>'.getMLText('mandatory_reviewergroups').':</span> '.implode(', ', $tmp)."</div>\n";
-				}
-
-				$this->formField(
-					getMLText("groups"),
-					array(
-						'element'=>'select',
-						'name'=>'grpReviewers[]',
-						'id'=>'GrpReviewers',
-						'class'=>'chzn-select',
-						'attributes'=>array(array('data-placeholder', getMLText('select_grp_reviewers'))),
-						'multiple'=>true,
-						'options'=>$options
-					),
-					array('field_wrap'=>$fieldwrap)
-				);
-
-				/* Check for mandatory reviewer group without access */
-				foreach($mreviewers['ng'] as $r) {
-					$hasAccess = false;
-					foreach ($docAccess["groups"] as $grp) {
-						if ($r == $grp->getID())
-							$hasAccess = true;
-					}
-					if(!$hasAccess) {
-						$noAccessGroup = $dms->getGroup($r['reviewerGroupID']);
-						$this->warningMsg(getMLText("mandatory_reviewergroup_no_access", array('group'=>htmlspecialchars($noAccessGroup->getName()))));
-					}
-				}
-				$this->contentContainerEnd();
-			}
-
-			$this->contentSubHeading(getMLText("assign_approvers"));
-			$this->contentContainerStart();
-
-			$mapprovers = getMandatoryApprovers($folder, $document, $user);
-
-			$options = array();
-			foreach ($docAccess["users"] as $usr) {
-				if(!$enablehiddenrevapp && $usr->isHidden()) continue;
-				if(!$enableselfrevapp && $usr->getID()==$user->getID()) continue; 
-
-				$option = array($usr->getID(), htmlspecialchars($usr->getLogin()." - ".$usr->getFullName()), null);
-				if(in_array($usr->getId(), $mapprovers['i']))
-					$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('user_is_mandatory_approver')));
-				$options[] = $option;
-			}
-
-			$tmp = array();
-			foreach($approvalStatus as $r) {
-				if($r['type'] == 0) {
-					if($mapprovers) {
-						if(!in_array($r['required'], $mapprovers['i']))
-							$tmp[] = $r['required'];
-					} else {
-						$tmp[] = $r['required'];
-					}
-				}
-			}
-			$fieldwrap = array();
-			if($tmp) {
-				$fieldwrap = array('', $this->getSelectPresetButtonHtml("IndApprovers", $tmp));
-			}
-
-			/* List all mandatory approvers */
-			$tmp = array();
-			foreach ($mapprovers['i'] as $r) {
-				$u = $dms->getUser($r);
-				$tmp[] =  htmlspecialchars($u->getFullName().' ('.$u->getLogin().')');
-			}
-			if($tmp) {
-				if(isset($fieldwrap[1]))
-					$fieldwrap[1] .= '<div class="mandatories"><span>'.getMLText('mandatory_approvers').':</span> '.implode(', ', $tmp)."</div>\n";
-				else
-					$fieldwrap[1] = '<div class="mandatories"><span>'.getMLText('mandatory_approvers').':</span> '.implode(', ', $tmp)."</div>\n";
-			}
-
-			$this->formField(
-				getMLText("individuals"),
-				array(
-					'element'=>'select',
-					'name'=>'indApprovers[]',
-					'id'=>'IndApprovers',
-					'class'=>'chzn-select',
-					'attributes'=>array(array('data-placeholder', getMLText('select_ind_approvers'))),
-					'multiple'=>true,
-					'options'=>$options
-				),
-				array('field_wrap'=>$fieldwrap)
-			);
-
-				/* Check for mandatory approvers without access */
-				foreach($mapprovers['ni'] as $r) {
-						$hasAccess = false;
-						foreach ($docAccess["users"] as $usr) {
-							if ($r == $usr->getID())
-								$hasAccess = true;
-						}
-						if(!$hasAccess) {
-							$noAccessUser = $dms->getUser($r);
-							$this->warningMsg(getMLText("mandatory_approver_no_access", array('user'=>htmlspecialchars($noAccessUser->getFullName()." (".$noAccessUser->getLogin().")"))));
-						}
-				}
-
-				$options = array();
-				foreach ($docAccess["groups"] as $grp) {
-					$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
-				}
-				$this->formField(
-					getMLText("individuals_in_groups"),
-					array(
-						'element'=>'select',
-						'name'=>'grpIndApprovers[]',
-						'id'=>'GrpIndApprovers',
-						'class'=>'chzn-select',
-						'attributes'=>array(array('data-placeholder', getMLText('select_grp_ind_approvers'))),
-						'multiple'=>true,
-						'options'=>$options
-					)
-				);
-
-				$options = array();
-				foreach ($docAccess["groups"] as $grp) {
-				
-					$option = array($grp->getID(), htmlspecialchars($grp->getName()), null);
-					if(in_array($grp->getId(), $mapprovers['g']))
+					if (in_array($grp->getId(), $mapprovers['g']))
 						$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('group_is_mandatory_approver')));
 					$options[] = $option;
 				}
 				$tmp = array();
-				foreach($approvalStatus as $r) {
-					if($r['type'] == 1) {
-						if(!in_array($r['required'], $mapprovers['g']))
+				foreach ($approvalStatus as $r) {
+					if ($r['type'] == 1) {
+						if (!in_array($r['required'], $mapprovers['g']))
 							$tmp[] = $r['required'];
 					} else {
 						$tmp[] = $r['required'];
 					}
 				}
 				$fieldwrap = array('', '');
-				if($tmp) {
+				if ($tmp) {
 					$fieldwrap = array('', $this->getSelectPresetButtonHtml("GrpApprovers", $tmp));
 				}
 				/* List all mandatory groups of approvers */
@@ -620,125 +630,126 @@ console.log(element);
 					$u = $dms->getGroup($r);
 					$tmp[] = htmlspecialchars($u->getName());
 				}
-				if($tmp) {
-					$fieldwrap[1] .= '<div class="mandatories"><span>'.getMLText('mandatory_approvergroups').':</span> '.implode(', ', $tmp)."</div>\n";
+				if ($tmp) {
+					$fieldwrap[1] .= '<div class="mandatories"><span>' . getMLText('mandatory_approvergroups') . ':</span> ' . implode(', ', $tmp) . "</div>\n";
 				}
 
 				$this->formField(
 					getMLText("groups"),
 					array(
-						'element'=>'select',
-						'name'=>'grpApprovers[]',
-						'id'=>'GrpApprovers',
-						'class'=>'chzn-select',
-						'attributes'=>array(array('data-placeholder', getMLText('select_grp_approvers'))),
-						'multiple'=>true,
-						'options'=>$options
+						'element' => 'select',
+						'name' => 'grpApprovers[]',
+						'id' => 'GrpApprovers',
+						'class' => 'chzn-select',
+						'attributes' => array(array('data-placeholder', getMLText('select_grp_approvers'))),
+						'multiple' => true,
+						'options' => $options
 					),
-					array('field_wrap'=>$fieldwrap)
+					array('field_wrap' => $fieldwrap)
 				);
 
 				/* Check for mandatory approver groups without access */
-				foreach($mapprovers['ng'] as $r) {
+				foreach ($mapprovers['ng'] as $r) {
 					$hasAccess = false;
 					foreach ($docAccess["groups"] as $grp) {
 						if ($r == $grp->getID())
 							$hasAccess = true;
 					}
-					if(!$hasAccess) {
+					if (!$hasAccess) {
 						$noAccessGroup = $dms->getGroup($r);
-						$this->warningMsg(getMLText("mandatory_approvergroup_no_access", array('group'=>htmlspecialchars($noAccessGroup->getName()))));
+						$this->warningMsg(getMLText("mandatory_approvergroup_no_access", array('group' => htmlspecialchars($noAccessGroup->getName()))));
 					}
 				}
-			$this->contentContainerEnd();
-			$this->warningMsg(getMLText("add_doc_reviewer_approver_warning"));
-		} else {
-			$this->contentContainerEnd();
-		}
-		if($enablereceiptworkflow) {
-			$this->contentSubHeading(getMLText("assign_recipients"));
-			$this->contentContainerStart();
-			$options = array();
-			foreach ($docAccess["users"] as $usr) {
-				if (!$enableselfreceipt && $usr->getID()==$user->getID()) continue; 
-				$options[] = array($usr->getID(), htmlspecialchars($usr->getLogin()." - ".$usr->getFullName()));
+				$this->contentContainerEnd();
+				$this->warningMsg(getMLText("add_doc_reviewer_approver_warning"));
+			} else {
+				$this->contentContainerEnd();
 			}
-			$tmp = array();
-			foreach($receiptStatus as $r) {
-				if($r['type'] == 0) {
-					$tmp[] = $r['required'];
+			if ($enablereceiptworkflow) {
+				$this->contentSubHeading(getMLText("assign_recipients"));
+				$this->contentContainerStart();
+				$options = array();
+				foreach ($docAccess["users"] as $usr) {
+					if (!$enableselfreceipt && $usr->getID() == $user->getID())
+						continue;
+					$options[] = array($usr->getID(), htmlspecialchars($usr->getLogin() . " - " . $usr->getFullName()));
 				}
-			}
-			$fieldwrap = array();
-			if($tmp) {
-				$fieldwrap = array('', $this->getSelectPresetButtonHtml("IndRecipient", $tmp));
-			}
-			$this->formField(
-				getMLText("individuals"),
-				array(
-					'element'=>'select',
-					'name'=>'indRecipients[]',
-					'id'=>'IndRecipient',
-					'class'=>'chzn-select',
-					'attributes'=>array(array('data-placeholder', getMLText('select_ind_recipients')), array('data-no_results_text', getMLText('unknown_owner'))),
-					'multiple'=>true,
-					'options'=>$options
-				),
-				array('field_wrap'=>$fieldwrap)
-			);
-
-			$options = array();
-			foreach ($docAccess["groups"] as $grp) {
-				$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
-			}
-			$this->formField(
-				getMLText("individuals_in_groups"),
-				array(
-					'element'=>'select',
-					'name'=>'grpIndRecipients[]',
-					'id'=>'GrpIndRecipient',
-					'class'=>'chzn-select',
-					'attributes'=>array(array('data-placeholder', getMLText('select_grp_ind_recipients'))),
-					'multiple'=>true,
-					'options'=>$options
-				)
-			);
-
-			$options = array();
-			foreach ($docAccess["groups"] as $grp) {
-				$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
-			}
-			$tmp = array();
-			foreach($receiptStatus as $r) {
-				if($r['type'] == 1) {
-					$tmp[] = $r['required'];
+				$tmp = array();
+				foreach ($receiptStatus as $r) {
+					if ($r['type'] == 0) {
+						$tmp[] = $r['required'];
+					}
 				}
-			}
-			$fieldwrap = array();
-			if($tmp) {
-				$fieldwrap = array('', $this->getSelectPresetButtonHtml("GrpRecipient", $tmp));
-			}
-			$this->formField(
-				getMLText("groups"),
-				array(
-					'element'=>'select',
-					'name'=>'grpRecipients[]',
-					'id'=>'GrpRecipient',
-					'class'=>'chzn-select',
-					'attributes'=>array(array('data-placeholder', getMLText('select_grp_recipients')), array('data-no_results_text', getMLText('unknown_owner'))),
-					'multiple'=>true,
-					'options'=>$options
-				),
-				array('field_wrap'=>$fieldwrap)
-			);
+				$fieldwrap = array();
+				if ($tmp) {
+					$fieldwrap = array('', $this->getSelectPresetButtonHtml("IndRecipient", $tmp));
+				}
+				$this->formField(
+					getMLText("individuals"),
+					array(
+						'element' => 'select',
+						'name' => 'indRecipients[]',
+						'id' => 'IndRecipient',
+						'class' => 'chzn-select',
+						'attributes' => array(array('data-placeholder', getMLText('select_ind_recipients')), array('data-no_results_text', getMLText('unknown_owner'))),
+						'multiple' => true,
+						'options' => $options
+					),
+					array('field_wrap' => $fieldwrap)
+				);
 
-			$this->contentContainerEnd();
-		}
-		$this->formSubmit(getMLText('update_document'));
-?>
-</form>
+				$options = array();
+				foreach ($docAccess["groups"] as $grp) {
+					$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
+				}
+				$this->formField(
+					getMLText("individuals_in_groups"),
+					array(
+						'element' => 'select',
+						'name' => 'grpIndRecipients[]',
+						'id' => 'GrpIndRecipient',
+						'class' => 'chzn-select',
+						'attributes' => array(array('data-placeholder', getMLText('select_grp_ind_recipients'))),
+						'multiple' => true,
+						'options' => $options
+					)
+				);
 
-<?php
+				$options = array();
+				foreach ($docAccess["groups"] as $grp) {
+					$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
+				}
+				$tmp = array();
+				foreach ($receiptStatus as $r) {
+					if ($r['type'] == 1) {
+						$tmp[] = $r['required'];
+					}
+				}
+				$fieldwrap = array();
+				if ($tmp) {
+					$fieldwrap = array('', $this->getSelectPresetButtonHtml("GrpRecipient", $tmp));
+				}
+				$this->formField(
+					getMLText("groups"),
+					array(
+						'element' => 'select',
+						'name' => 'grpRecipients[]',
+						'id' => 'GrpRecipient',
+						'class' => 'chzn-select',
+						'attributes' => array(array('data-placeholder', getMLText('select_grp_recipients')), array('data-no_results_text', getMLText('unknown_owner'))),
+						'multiple' => true,
+						'options' => $options
+					),
+					array('field_wrap' => $fieldwrap)
+				);
+
+				$this->contentContainerEnd();
+			}
+			$this->formSubmit(getMLText('update_document'));
+			?>
+		</form>
+
+		<?php
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */
