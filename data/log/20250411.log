@@ -2,3 +2,9 @@ Apr 11 03:20:54  [info] admin (::1) op.Ajax.php add document 2 in folder 1
 Apr 11 03:26:19  [info] admin (::1) op.UsrMgr.php .php&action=adduser&login=testuser
 Apr 11 03:30:28  [info] admin (::1) op.UsrMgr.php .php&action=adduser&login=usertest
 Apr 11 06:28:37  [info] admin (::1) op.ViewOnline.php?documentid=1&version=1 
+Apr 11 07:02:49  [info] admin (::1) op.EditComment.php ?documentid=1
+Apr 11 08:42:10  [info] admin (::1) op.AddSubFolder.php ?name=das&folderid=1
+Apr 11 08:44:15  [info] admin (::1) op.AddSubFolder.php ?name=test&folderid=1
+Apr 11 08:44:29  [info] admin (::1) op.AddSubFolder.php ?name=test 2&folderid=1
+Apr 11 08:45:12  [info] admin (::1) op.Ajax.php?command=deletefolder&id=3&formtoken=f15e3f77f8df3052ac1c7dcda7eb7101 delete folder 3
+Apr 11 08:45:19  [info] admin (::1) op.AddSubFolder.php ?name=test 3&folderid=1

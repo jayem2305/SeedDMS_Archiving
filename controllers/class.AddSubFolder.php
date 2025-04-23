@@ -102,22 +102,16 @@ class SeedDMS_Controller_AddSubFolder extends SeedDMS_Controller_Common {
 			// Encrypt the name
 			$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
 			$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
-			$combined_name_name = $encryption_iv_name . $encrypted_name;
-			$iv_base64_name = base64_encode($combined_name_name);
+			$combined_name = $encryption_iv_name . $encrypted_name;
+			$iv_base64_name = base64_encode($combined_name);
 
 			// Encrypt the comment
 			$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
 			$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
-			$combined_name_comment = $encryption_iv_comment . $encrypted_comment;
-			$iv_base64_comment = base64_encode($combined_name_comment);
+			$combined_comment = $encryption_iv_comment . $encrypted_comment;
+			$iv_base64_comment = base64_encode($combined_comment);
 
-			// Encrypt the user ID
-			$encryption_iv_user = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
-			$encrypted_user = openssl_encrypt($user->getID(), $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_user);
-			$combined_name_user = $encryption_iv_user . $encrypted_user;
-			$iv_base64_user = base64_encode($combined_name_user);
-
-			$subFolder = $folder->addSubFolder($iv_base64_name, $iv_base64_comment, $iv_base64_user, $sequence, $attributes);
+			$subFolder = $folder->addSubFolder($iv_base64_name, $iv_base64_comment, $user, $sequence, $attributes);
 			if (!is_object($subFolder)) {
 				$this->errormsg = "error_occured";
 				return false;
