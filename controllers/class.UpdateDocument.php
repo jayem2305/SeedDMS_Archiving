@@ -56,6 +56,7 @@ class SeedDMS_Controller_UpdateDocument extends SeedDMS_Controller_Common {
 		$maxsizeforfulltext = $this->getParam('maxsizeforfulltext');
 		$initialdocumentstatus = $this->getParam('initialdocumentstatus');
 
+		$result = null; // Initialize $result with a default value
 		$content = $this->callHook('updateDocument');
 		if($content === null) {
 			$filesize = SeedDMS_Core_File::fileSize($userfiletmp);

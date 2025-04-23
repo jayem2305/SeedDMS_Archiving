@@ -38,13 +38,28 @@ class SeedDMS_Controller_EditFolder extends SeedDMS_Controller_Common {
 		$result = $this->callHook('editFolder', $folder);
 		if($result === null) {
 			$name = $this->params['name'];
-			if(($oldname = $folder->getName()) != $name)
-				if(!$folder->setName($name))
+
+			$encryption_method = 'AES-256-CBC';
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+			// Encrypt the name
+			$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+			$combined_name = $encryption_iv_name . $encrypted_name;
+			$iv_base64_name = base64_encode($combined_name);
+
+			if(($oldname = $folder->getName()) != $iv_base64_name)
+				if(!$folder->setName($iv_base64_name))
 					return false;
 
 			$comment = $this->params['comment'];
-			if(($oldcomment = $folder->getComment()) != $comment)
-				if(!$folder->setComment($comment))
+			// Encrypt the comment
+			$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
+			$combined_comment = $encryption_iv_comment . $encrypted_comment;
+			$iv_base64_comment = base64_encode($combined_comment);
+
+			if(($oldcomment = $folder->getComment()) != $iv_base64_comment)
+				if(!$folder->setComment($iv_base64_comment))
 					return false;
 
 			$attributes = $this->params['attributes'];

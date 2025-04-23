@@ -2,16 +2,4 @@ Apr 23 02:11:29  [error] admin (::1) out.ViewDocument.php?documentid=5  UI::exit
 Apr 23 02:12:57  [info] admin (::1) op.Ajax.php add document 3 in folder 1
 Apr 23 02:12:57  [info] Conversion from image/png to image/png with gd image service took 0.091240882873535 sec.
 Apr 23 02:13:00  [info] Conversion from image/png to image/png with gd image service took 0.10114216804504 sec.
-Apr 23 02:29:21  [info] admin (::1) op.UnlockDocument.php?documentid=4&formtoken=bd4d36a255ebd7c7b26467201fd52516 
-Apr 23 02:31:17  [info] admin (::1) op.Ajax.php add document 12 in folder 1
-Apr 23 02:51:24  [info] admin (::1) op.UpdateDocument.php update document 4 with version 2
-Apr 23 02:51:49  [info] admin (::1) op.Ajax.php add file 'THESIS-2-CAPSTONE-APPROVAL-SHEET_1.pdf' to document 4
-Apr 23 03:13:20  [error] admin (::1) op.UpdateDocument.php  UI::exitError error=New version is identical to current version. pagetitle=Document 'uvegMnsNkfwp9vmpFduLondn7Q64+JVYDE1RuSCMnaQRdRAwi/Hk5v3ucdRgCpSa3M/bl8RRIHycipexGpVUIKpuHUBqNbw7KQGr4bLz/3w2q6Ns1DSkY1jyi0jvRQDg'
-Apr 23 03:13:36  [info] admin (::1) op.UpdateDocument.php update document 4 with version 3
-Apr 23 03:14:16  [info] admin (::1) op.UpdateDocument.php update document 4 with version 4
-Apr 23 06:48:46  [info] admin (::1) op.UpdateDocument.php update document 4 with version 5
-Apr 23 06:49:09  [info] admin (::1) op.UpdateDocument.php update document 4 with version 6
-Apr 23 06:49:53  [info] admin (::1) op.UpdateDocument.php update document 4 with version 7
-Apr 23 06:50:06  [info] admin (::1) op.UpdateDocument.php update document 4 with version 8
-Apr 23 06:50:21  [info] admin (::1) op.UpdateDocument.php update document 4 with version 9
-Apr 23 08:10:31  [info] admin (::1) op.LockDocument.php?documentid=4&formtoken=c90f9ff44b0a08b4fae0ec8b3477149c 
+
