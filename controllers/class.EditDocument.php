@@ -39,14 +39,28 @@ class SeedDMS_Controller_EditDocument extends SeedDMS_Controller_Common {
 		$result = $this->callHook('editDocument', $document);
 		if($result === null) {
 			$name = $this->params['name'];
+			// Encrypt the name
+			$encryption_method = 'AES-256-CBC';
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+			$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
+			$combined_name = $encryption_iv_name . $encrypted_name;
+			$iv_base64_name = base64_encode($combined_name);
+
 			$oldname = $document->getName();
-			if($oldname != $name)
-				if(!$document->setName($name))
+			if($oldname != $iv_base64_name)
+				if(!$document->setName($iv_base64_name))
 					return false;
 
 			$comment = $this->params['comment'];
-			if(($oldcomment = $document->getComment()) != $comment)
-				if(!$document->setComment($comment))
+			// Encrypt the comment
+			$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
+			$combined_comment = $encryption_iv_comment . $encrypted_comment;
+			$iv_base64_comment = base64_encode($combined_comment);
+
+			if(($oldcomment = $document->getComment()) != $iv_base64_comment)
+				if(!$document->setComment($iv_base64_comment))
 					return false;
 
 			$expires = $this->params['expires'];
@@ -66,16 +80,22 @@ class SeedDMS_Controller_EditDocument extends SeedDMS_Controller_Common {
 			}
 
 			$keywords = $this->params['keywords'];
+			// Encrypt the keywords
+			$encryption_iv_keywords = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_keywords = openssl_encrypt($keywords, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_keywords);
+			$combined_keywords = $encryption_iv_keywords . $encrypted_keywords;
+			$iv_base64_keywords = base64_encode($combined_keywords);
+
 			$oldkeywords = $document->getKeywords();
-			if ($oldkeywords != $keywords) {
-				if(false === $this->callHook('preSetKeywords', $document, $keywords, $oldkeywords)) {
+			if ($oldkeywords != $iv_base64_keywords) {
+				if(false === $this->callHook('preSetKeywords', $document, $iv_base64_keywords, $oldkeywords)) {
 				}
 
-				if(!$document->setKeywords($keywords)) {
+				if(!$document->setKeywords($iv_base64_keywords)) {
 					return false;
 				}
 
-				if(false === $this->callHook('postSetKeywords', $document, $keywords, $oldkeywords)) {
+				if(false === $this->callHook('postSetKeywords', $document, $iv_base64_keywords, $oldkeywords)) {
 				}
 			}
 

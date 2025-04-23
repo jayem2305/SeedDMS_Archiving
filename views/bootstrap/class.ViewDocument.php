@@ -1955,7 +1955,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 							print getRevisionStatusText($r["status"]) . "</td>\n";
 							print "<td><ul class=\"actions unstyled\">";
 							if ($accesserr)
-								echo "<li><span class=\"text-error text-danger\">" . $ . "</span></li>";
+								echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
 							if ($accessobject->mayRevise($document)) {
 								if ($is_recipient && $r["status"] == 0) {
 									print $this->html_link('ReviseDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'revisionid' => $r['revisionID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_revision"), false, true, array('<li>', '</li>'));
