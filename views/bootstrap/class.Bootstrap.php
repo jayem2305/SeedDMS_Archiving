@@ -1,4 +1,6 @@
 <?php
+
+
 //    MyDMS. Document Management System
 //    Copyright (C) 2002-2005  Markus Westphal
 //    Copyright (C) 2006-2008 Malcolm Cowe
@@ -111,6 +113,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo substr($this->params['settings']->_language, 0, 2);
 			//			echo str_replace('_', '-', $this->params['settings']->_language);
 		}
+
 		echo "\">\n<head>\n";
 		echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
 		echo '<meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n";
@@ -123,6 +126,18 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo '<link rel="search" type="application/opensearchdescription+xml" href="' . $this->params['settings']->_httpRoot . 'out/out.OpensearchDesc.php" title="' . (strlen($sitename) > 0 ? $sitename : "") . '"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/bootstrap/css/bootstrap.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"/>' . "\n";
+
+
+
+		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/css_override/override.css" rel="stylesheet"/>' . "\n";
+
+
+
+		echo '<script href="' . $this->params['settings']->_httpRoot . 'styles/js_override/search.js"></script>' . "\n";
+
+
+		echo '<script type="text/javascript" src="' . $this->params['settings']->_httpRoot . 'styles/js_override/search.js"></script>' . "\n";
+
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/vendors/bootstrap-datepicker/css/bootstrap-datepicker.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/chosen/css/chosen.css" rel="stylesheet"/>' . "\n";
@@ -130,17 +145,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/select2/css/select2-bootstrap.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/vendors/jqtree/jqtree.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/styles/application.css" rel="stylesheet"/>' . "\n";
-
-		// Css override
-		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"/>' . "\n";
-
-
 		if ($this->extraheader['css'])
 			echo $this->extraheader['css'];
 		if (method_exists($this, 'css'))
 			echo '<link href="' . $this->params['absbaseprefix'] . 'out/out.' . $this->params['class'] . '.php?action=css' . (!empty($_SERVER['QUERY_STRING']) ? '&' . $_SERVER['QUERY_STRING'] : '') . '" rel="stylesheet"/>' . "\n";
 
 		echo '<script type="text/javascript" src="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/vendors/jquery/jquery.min.js"></script>' . "\n";
+
+
 		if ($this->extraheader['js'])
 			echo $this->extraheader['js'];
 		echo '<script type="text/javascript" src="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/passwordstrength/jquery.passwordstrength.js"></script>' . "\n";
@@ -431,24 +443,122 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo "   </a>\n";
 		echo "   <a href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\">" . (!empty($this->extraheader['logo']) ? '<img id="navbar-logo" src="' . $this->extraheader['logo'] . '">' : '<img id="navbar-logo" src="' . $this->params['settings']->_httpRoot . 'views/bootstrap/images/seeddms-logo.svg">') . "</a>";
 		echo "   <a class=\"brand\" href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\"><span class=\"hidden-phone\">" . (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "") . "</span></a>\n";
-
+		// Include the modal file
+		include __DIR__ . '/overrides/modal/search-modal.php';
 		/* user profile menu {{{ */
 		if (isset($this->params['session']) && isset($this->params['user']) && $this->params['user']) {
 			/* search form {{{ */
-			echo "     <form action=\"" . $this->params['settings']->_httpRoot . "out/out.Search.php\" class=\"form-inline navbar-search pull-left\" autocomplete=\"off\">";
+
+			//--- Header search modification
+			echo '<div id="search-container" tabindex="0">';
+			echo '<form id="search-form" action="' . $this->params['settings']->_httpRoot . 'out/out.Search.php" class="form-inline navbar-search pull-left" autocomplete="on">';
 			if ($folder != null && is_object($folder) && $folder->isType('folder')) {
-				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
+				echo '  <input type="hidden" name="folderid" value="' . $folder->getID() . '" />';
 			}
-			echo "      <input type=\"hidden\" name=\"navBar\" value=\"1\" />";
-			echo "      <input name=\"query\" class=\"search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" style=\"width: 150px;\" placeholder=\"" . getMLText("search") . "\"/>";
-			if ($this->params['defaultsearchmethod'] == 'fulltext')
-				echo "      <input type=\"hidden\" name=\"fullsearch\" value=\"1\" />";
-			//			if($this->params['enablefullsearch']) {
-//				echo "      <label class=\"checkbox\" style=\"color: #999999;\"><input type=\"checkbox\" name=\"fullsearch\" value=\"1\" title=\"".getMLText('fullsearch_hint')."\"/> ".getMLText('fullsearch')."</label>";
-//			}
-			//		echo "      <input type=\"submit\" value=\"".getMLText("search")."\" id=\"searchButton\" class=\"btn\"/>";
-			echo "</form>\n";
-			/* }}} End of search form */
+			echo '<div id="head-con">';
+			echo '  <input type="hidden" name="navBar" value="1" />';
+			echo '  <input name="query" class="search-query" ' . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "" : 'id="searchfield"') . ' 
+        data-provide="typeahead" type="search"  placeholder="' . getMLText("search") . '""/>';
+			if ($this->params['defaultsearchmethod'] == 'fulltext') {
+				echo '  <input type="hidden" name="fullsearch" value="1" />';
+			}
+
+
+			echo "   <ul id=\"header-nav\" class=\"nav\">\n";
+			$menuitems = array();
+			/* calendar {{{ */
+			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
+				$menuitems['calendar'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'], 'label' => getMLText("calendar"));
+			if ($accessobject->check_view_access('AdminTools'))
+				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
+			if ($this->params['enablehelp']) {
+				$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+				$menuitems['help'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Help.php?context=' . $tmp[1], 'label' => getMLText("help"));
+			}
+			/* }}} End of calendar */
+
+			/* Check if hook exists because otherwise callHook() will override $menuitems */
+			if ($this->hasHook('globalNavigationBar'))
+				$menuitems = $this->callHook('globalNavigationBar', $menuitems);
+			foreach ($menuitems as $menuitem) {
+				if (!empty($menuitem['children'])) {
+					echo "    <li class=\"dropdown\">\n";
+					echo "     <a class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . $menuitem['label'] . " <i class=\"fa fa-caret-down\"></i></a>\n";
+					echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
+					foreach ($menuitem['children'] as $submenuitem) {
+						echo "      <li><a href=\"" . $submenuitem['link'] . "\"" . (isset($submenuitem['target']) ? ' target="' . $submenuitem['target'] . '"' : '') . ">" . $submenuitem['label'] . "</a></li>\n";
+					}
+					echo "     </ul>\n";
+				} else {
+					echo "<li><a href=\"" . $menuitem['link'] . "\"" . (isset($menuitem['target']) ? ' target="' . $menuitem['target'] . '"' : '') . ">" . $menuitem['label'] . "</a></li>";
+				}
+			}
+			echo "   </ul>\n";
+
+
+
+
+			echo '</div>';
+
+
+			echo '<section id="search-filter-section">';
+
+			echo '<div id="filter-container">';
+
+			// Category Filter
+			echo '<label for="category-filter">Category:</label>';
+			echo '<select id="category-filter" name="category">
+				<option value="">sample</option>
+				<option value="Contracts">sample</option>
+				<option value="sample">sample</option>
+				<option value="Policies">sample</option>
+			</select>';
+
+			// Author Filter
+			echo '<label for="author-filter">Author:</label>';
+			echo '<input type="text" id="author-filter" name="author" placeholder="Enter author name">';
+
+			// Tags Filter
+			echo '<label for="tags-filter">Tags:</label>';
+			echo '<input type="text" id="tags-filter" name="tags" placeholder="Enter tags">';
+
+			// Date Range Filter
+			echo '<label for="date-range-filter">Date Range:</label>';
+			echo '<input type="date" id="start-date" name="start_date"> - ';
+			echo '<input type="date" id="end-date" name="end_date">';
+
+			echo '</div>'; // End filter-container
+
+			echo '<div id="recent-search-container">';
+			echo '<h1>Recent Searches</h1>';
+			echo '</div>'; // End recent-search-container
+
+			echo '</section>'; // End search-filter-section
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			echo '</form>';
+
+
+
+
+			echo '</div>';
+			echo '<div id="search-backdrop"></div>';
 
 			echo "   <div class=\"nav-collapse nav-col1\">\n";
 			echo "   <ul id=\"main-menu-admin\" class=\"nav pull-right\">\n";
@@ -486,7 +596,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 						echo "<li class=\"active\">";
 					else
 						echo "<li>";
-					echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.SetLanguage.php?lang=" . $currLang . "&referer=" . $_SERVER["REQUEST_URI"] . "\">";
+					echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.SetLanguage.php?lang=" . $currLang . "&referer=" . urlencode(encryptData($this->params['settings']->_encryptionKey, $_SERVER["REQUEST_URI"])) . "\">";
 					echo getMLText($currLang) . "</a></li>\n";
 				}
 				echo "     </ul>\n";
@@ -565,7 +675,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			}
 			/* }}} End of clipboard */
 
-			echo "   <ul class=\"nav\">\n";
+
+			//--- Header search modification (for other nav)
+			echo "   <ul id=\"header-nav-main\" class=\"nav\">\n";
 			$menuitems = array();
 			/* calendar {{{ */
 			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
@@ -633,6 +745,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo "   <a class=\"btn btn-navbar\" data-toggle=\"collapse\" data-target=\".col2\">\n";
 			echo " 		<span class=\"fa fa-bars\"></span>\n";
 			echo "   </a>\n";
+
 			switch ($pageType) {
 				case "view_folder":
 					$this->folderNavigationBar($extra);
@@ -800,6 +913,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	private function folderNavigationBar($folder)
 	{ /* {{{ */
 		$dms = $this->params['dms'];
+		$session = $this->params['session'];
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessobject = $this->params['accessobject'];
 		if (!is_object($folder) || !$folder->isType('folder')) {
@@ -841,9 +955,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			}
 			if ($accessobject->check_view_access('FolderNotify'))
 				$menuitems['edit_folder_notify'] = array('link' => $this->params['settings']->_httpRoot . "out/out.FolderNotify.php?folderid=" . $folderID . "&showtree=" . showtree(), 'label' => getMLText('edit_folder_notify'));
+
+
 		}
 		if ($enableClipboard) {
-			$menuitems['add_to_clipboard'] = array('class' => 'addtoclipboard', 'attributes' => array(['rel', 'F' . $folder->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label' => getMLText("add_to_clipboard"));
+			if ($session->isOnClipboard($folder))
+				$menuitems['remove_from_clipboard'] = array('class' => 'removefromclipboard', 'attributes' => array(['rel', 'F' . $folder->getId()], ['msg', getMLText('splash_removed_from_clipboard')], ['title', getMLText("remove_from_clipboard")]), 'label' => getMLText("remove_from_clipboard"));
+			else
+				$menuitems['add_to_clipboard'] = array('class' => 'addtoclipboard', 'attributes' => array(['rel', 'F' . $folder->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label' => getMLText("add_to_clipboard"));
 		}
 		if ($accessobject->check_view_access('Indexer') && $this->params['enablefullsearch']) {
 			$menuitems['index_folder'] = array('link' => $this->params['settings']->_httpRoot . "out/out.Indexer.php?folderid=" . $folderID . "&showtree=" . showtree(), 'label' => getMLText('index_folder'));
@@ -863,10 +982,12 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		self::showNavigationBar($menuitems);
 
 		echo "</div>\n";
+
 	} /* }}} */
 
 	private function documentNavigationBar($document)
 	{ /* {{{ */
+		$session = $this->params['session'];
 		$accessobject = $this->params['accessobject'];
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessMode = $document->getAccessMode($this->params['user']);
@@ -927,7 +1048,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$menuitems['edit_document_notify'] = array('link' => $this->params['settings']->_httpRoot . "out/out.DocumentNotify" . $docid, 'label' => getMLText('edit_document_notify'));
 		}
 		if ($enableClipboard) {
-			$menuitems['add_to_clipboard'] = array('class' => 'addtoclipboard', 'attributes' => array(['rel', 'D' . $document->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label' => getMLText("add_to_clipboard"));
+			if ($session->isOnClipboard($document))
+				$menuitems['remove_from_clipboard'] = array('class' => 'removefromclipboard', 'attributes' => array(['rel', 'D' . $document->getId()], ['msg', getMLText('splash_removed_from_clipboard')], ['title', getMLText("remove_from_clipboard")]), 'label' => getMLText("remove_from_clipboard"));
+			else
+				$menuitems['add_to_clipboard'] = array('class' => 'addtoclipboard', 'attributes' => array(['rel', 'D' . $document->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label' => getMLText("add_to_clipboard"));
 		}
 		if ($accessobject->check_view_access('TransferDocument')) {
 			$menuitems['transfer_document'] = array('link' => $this->params['settings']->_httpRoot . "out/out.TransferDocument" . $docid, 'label' => getMLText('transfer_document'));
@@ -1288,14 +1412,37 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	} /* }}} */
 
 	function contentHeading($heading, $noescape = false)
-	{ /* {{{ */
+	{
+		$icon = '';
 
-		if ($noescape)
-			echo "<legend>" . $heading . "</legend>\n";
-		else
-			echo "<legend>" . htmlspecialchars($heading) . "</legend>\n";
+		if (htmlspecialchars($heading) === 'Edit document') {
+			// $icon = " <i class='fa fa-gear header-icon'></i>";
+			$icon = '
+
+<a class="dropdown-toggle text-secondary edit-dropdown" href="#" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  <i class="fa fa-gear fa-lg"></i>
+</a>
+
+<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+  <a class="dropdown-item-edit" href="#">Update document</a>
+  <a class="dropdown-item-edit" href="#">Update document</a>
+  <a class="dropdown-item-edit" href="#">Update document</a>
+</div>
+'
+				// $this->documentNavigationBar($extra);
+
+			;
+		}
+
+		if ($noescape) {
+			echo "<legend style='display:flex;'>" . $heading . '<div class="dropdown">' . $icon . "</div></legend>\n";
+		} else {
+			echo "<legend style='display:flex;'>" . htmlspecialchars($heading) . '<div class="dropdown">' . $icon . "</div></legend>\n";
+		}
+
 		return;
-	} /* }}} */
+	}
+
 
 	function contentSubHeading($heading, $first = false)
 	{ /* {{{ */
@@ -2177,6 +2324,15 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo self::getAttributeEditField($attrdef, $attribute, $fieldname, $norequire, $namepostfix, $alwaysmultiple);
 	} /* }}} */
 
+	/**
+	 * Return html code for an input/select field of an attribute
+	 *
+	 * The passed attribute ($attribute) can either be an object of type
+	 * SeedDMS_Core_Attribute, scalar or an array. A scalar or array is
+	 * passed when the method is called to create the search form. In that
+	 * case $attribute has the value from the post data after submitting the
+	 * search form.
+	 */
 	function getAttributeEditField($attrdef, $attribute, $fieldname = 'attributes', $norequire = false, $namepostfix = '', $alwaysmultiple = false)
 	{ /* {{{ */
 		$dms = $this->params['dms'];
@@ -2202,9 +2358,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$content .= "<input type=\"text\" id=\"" . $attr_id . "\" name=\"" . $attr_name . "\" value=\"" . htmlspecialchars($objvalue) . "\"" . ((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '') . ' data-rule-email="true"' . " />";
 				break;
 			/* case SeedDMS_Core_AttributeDefinition::type_float:
-					  $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
-					  $content .= "<input type=\"text\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
-					  break; */
+																																																																																		$objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
+																																																																																		$content .= "<input type=\"text\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
+																																																																																		break; */
 			case SeedDMS_Core_AttributeDefinition::type_folder:
 				$target = $attribute ? $attribute->getValue() : null;
 				$content .= $this->getFolderChooserHtml("attr" . $attrdef->getId(), M_READWRITE, -1, $target, $attr_name, false);
@@ -2214,10 +2370,19 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$content .= $this->getDocumentChooserHtml("attr" . $attrdef->getId(), M_READ, -1, $target, $attr_name);
 				break;
 			case SeedDMS_Core_AttributeDefinition::type_user:
-				$target = $attribute ? $attribute->getValueAsArray() : [];
 				$objvalue = [];
-				foreach ($target as $t)
-					$objvalue[] = $t->getId();
+				if ($attribute) {
+					if (is_object($attribute)) {
+						$target = $attribute->getValueAsArray();
+						foreach ($target as $t)
+							$objvalue[] = $t->getId();
+					} elseif (is_array($attribute)) {
+						foreach ($attribute as $t)
+							$objvalue[] = $t;
+					} else {
+						$objvalue[] = $attribute;
+					}
+				}
 				$users = $dms->getAllUsers();
 				if ($users) {
 					$allowempty = $attrdef->getMinValues() == 0;
@@ -2237,10 +2402,19 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				}
 				break;
 			case SeedDMS_Core_AttributeDefinition::type_group:
-				$target = $attribute ? $attribute->getValueAsArray() : [];
 				$objvalue = [];
-				foreach ($target as $t)
-					$objvalue[] = $t->getId();
+				if ($attribute) {
+					if (is_object($attribute)) {
+						$target = $attribute->getValueAsArray();
+						foreach ($target as $t)
+							$objvalue[] = $t->getId();
+					} elseif (is_array($attribute)) {
+						foreach ($attribute as $t)
+							$objvalue[] = $t;
+					} else {
+						$objvalue[] = $attribute;
+					}
+				}
 				$groups = $dms->getAllGroups();
 				if ($groups) {
 					$allowempty = $attrdef->getMinValues() == 0;
@@ -3411,6 +3585,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function documentListRowAction($document, $previewer, $skipcont = false, $version = 0, $extracontent = array())
 	{ /* {{{ */
 		$user = $this->params['user'];
+		$session = $this->params['session'];
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessop = $this->params['accessobject'];
 		$onepage = $this->params['onepage'];
@@ -3440,7 +3615,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$actions['document_access'] = $this->printAccessButton($document, true);
 		}
 		if ($enableClipboard) {
-			$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="D' . $docID . '" msg="' . getMLText('splash_added_to_clipboard') . '" title="' . getMLText("add_to_clipboard") . '"><i class="fa fa-copy"></i></a>';
+			if ($session->isOnClipboard($document))
+				$actions['remove_from_clipboard'] = '<a class="removefromclipboard" rel="D' . $docID . '" msg="' . getMLText('splash_removed_from_clipboard') . '" title="' . getMLText("remove_from_clipboard") . '"><i class="fa fa-copy"></i></a>';
+			else
+				$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="D' . $docID . '" msg="' . getMLText('splash_added_to_clipboard') . '" title="' . getMLText("add_to_clipboard") . '"><i class="fa fa-copy"></i></a>';
 		}
 		if ($onepage)
 			$actions['view_document'] = '<a href="' . $this->params['settings']->_httpRoot . 'out/out.ViewDocument.php?documentid=' . $docID . '" title="' . getMLText("view_document") . '"><i class="fa fa-eye"></i></a>';
@@ -3652,6 +3830,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
+		$session = $this->params['session'];
 		//		$folder = $this->params['folder'];
 		$showtree = $this->params['showtree'];
 		$enableRecursiveCount = $this->params['enableRecursiveCount'];
@@ -3684,7 +3863,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$actions['folder_access'] = $this->printAccessButton($subFolder, true);
 		}
 		if ($enableClipboard) {
-			$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="F' . $subFolder->getID() . '" msg="' . getMLText('splash_added_to_clipboard') . '" title="' . getMLText("add_to_clipboard") . '"><i class="fa fa-copy"></i></a>';
+			if ($session->isOnClipboard($subFolder))
+				$actions['add_to_clipboard'] = '<a class="removefromclipboard" rel="F' . $subFolder->getID() . '" msg="' . getMLText('splash_removed_from_clipboard') . '" title="' . getMLText("remove_from_clipboard") . '"><i class="fa fa-copy"></i></a>';
+			else
+				$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="F' . $subFolder->getID() . '" msg="' . getMLText('splash_added_to_clipboard') . '" title="' . getMLText("add_to_clipboard") . '"><i class="fa fa-copy"></i></a>';
 		}
 		if ($onepage)
 			$actions['view_folder'] = '<a href="' . $this->params['settings']->_httpRoot . 'out/out.ViewFolder.php?folderid=' . $subFolder->getID() . '" title="' . getMLText("view_folder") . '"><i class="fa fa-eye"></i></a>';
@@ -4232,13 +4414,13 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = md5(uniqid());
 		/*
-			  $this->addFooterJS('
-	  $("body").on("click", "span.openpopupbox", function(e) {
-		  $(""+$(e.target).data("href")).toggle();
-	  //	$("div.popupbox").toggle();
-	  });
-	  ');
-			   */
+																																																						  $this->addFooterJS('
+																																																				  $("body").on("click", "span.openpopupbox", function(e) {
+																																																					  $(""+$(e.target).data("href")).toggle();
+																																																				  //	$("div.popupbox").toggle();
+																																																				  });
+																																																				  ');
+																																																						   */
 		$html = '
 		<span class="openpopupbox" data-href="#' . $id . '">' . $title . '</span>
 		<div id="' . $id . '" class="popupbox" style="display: none;">

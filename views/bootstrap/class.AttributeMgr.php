@@ -161,7 +161,11 @@ $(document).ready( function() {
 				foreach($res['docs'] as $document) {
 					$extracontent = array();
 					$extracontent['below_title'] = $this->getListRowPath($document);
-					echo $this->documentListRow($document, $previewer, false, 0, $extracontent);
+					$txt = $this->callHook('documentListItem', $document, $previewer, false, 'attributemgr', $extracontent);
+					if(is_string($txt))
+						echo $txt;
+					else
+						echo $this->documentListRow($document, $previewer, false, 0, $extracontent);
 				}
 
 				echo "</tbody>\n</table>\n";
@@ -176,10 +180,14 @@ $(document).ready( function() {
 				print "<th>".getMLText("action")."</th>\n";
 				print "</tr>\n</thead>\n<tbody>\n";
 				foreach($res['contents'] as $content) {
-					$doc = $content->getDocument();
+					$document = $content->getDocument();
 					$extracontent = array();
 					$extracontent['below_title'] = $this->getListRowPath($doc);
-					echo $this->documentListRow($doc, $previewer, false, 0, $extracontent);
+					$txt = $this->callHook('documentListItem', $document, $previewer, false, 'attributemgr', $extracontent);
+					if(is_string($txt))
+						echo $txt;
+					else
+						echo $this->documentListRow($document, $previewer, false, 0, $extracontent);
 				}
 				print "</tbody></table>";
 			}

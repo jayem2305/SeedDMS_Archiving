@@ -32,18 +32,6 @@
 class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 {
 
-	private function decryptName($encrypted_combined_base64, $key)
-	{
-		$data = base64_decode($encrypted_combined_base64);
-		if ($data === false || strlen($data) < 16) {
-			return '[INVALID NAME]';
-		}
-		$iv = substr($data, 0, 16);
-		$ciphertext = substr($data, 16);
-		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
-		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
-	}
-
 	protected function getAccessModeText($defMode)
 	{ /* {{{ */
 		switch ($defMode) {
@@ -428,6 +416,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$user = $this->params['user'];
 		$settings = $this->params['settings'];
 		$document = $this->params['document'];
+
 		$checkoutdir = $this->params['checkOutDir'];
 
 		$txt = $this->callHook('documentInfos', $document);
@@ -454,9 +443,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 			?>
 			<table class="table table-condensed table-sm">
 				<?php
-				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-				// Try to decrypt — if it fails, fallback to original heading
-				$decrypted = $this->decryptName($document->getName(), $encryption_key);
 				if ($user->isAdmin()) {
 					echo "<tr>";
 					echo "<td>" . getMLText("id") . ":</td>\n";
@@ -466,8 +452,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 				?>
 				<tr>
 					<td><?php printMLText("name"); ?>:</td>
-
-					<td><?php $this->printInlineEdit(htmlspecialchars($decrypted), $document); ?></td>
+					<td><?php $this->printInlineEdit(htmlspecialchars($document->getName()), $document); ?></td>
 				</tr>
 				<tr>
 					<td><?php printMLText("owner"); ?>:</td>
@@ -480,17 +465,11 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 				</tr>
 				<?php
 				if ($document->getComment()) {
-					// Get raw encrypted comment
-					$encrypted_comment = $document->getComment();
-
-					// Decrypt before doing anything else
-					$decrypted = $this->decryptName($encrypted_comment, $encryption_key);
-
 					if ($settings->_markdownComments) {
 						$Parsedown = new Parsedown();
-						$comment = $Parsedown->text(htmlspecialchars($decrypted));
+						$comment = $Parsedown->text(htmlspecialchars($document->getComment()));
 					} else {
-						$comment = htmlspecialchars($decrypted);
+						$comment = htmlspecialchars($document->getComment());
 					}
 					?>
 					<tr>
@@ -553,15 +532,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						?>
 						<tr>
 							<td><?php printMLText("keywords"); ?>:</td>
-							<?php
-							// Get raw encrypted comment
-							$encrypted_comment = $document->getKeywords();
-
-							// Decrypt before doing anything else
-							$decrypted = $this->decryptName($encrypted_comment, $encryption_key);
-
-							?>
-							<td><?php print htmlspecialchars($decrypted); ?></td>
+							<td><?php print htmlspecialchars($document->getKeywords()); ?></td>
 						</tr>
 						<?php
 					}
@@ -619,7 +590,86 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					echo $arrarr;
 				}
 				?>
+
+
 			</table>
+
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalLogs">
+				View Logs
+			</button>
+			<div class="modal fade" id="modalLogs" tabindex="-1" role="dialog" aria-labelledby="modalLogsLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="modalLogsLabel">Document Logs</h5>
+
+						</div>
+						<div class="modal-body">
+							<div class="grid-log-item mt-2">
+								<div class="item1">
+									<h4>Edit document</h4>
+									<p>2025-04-14 09:45:57</p>
+									<?php
+
+									echo "<td>" . htmlspecialchars($document->getID()) . "</td>\n";
+
+
+									?>
+								</div>
+								<div class="item2 mt-5">
+									<p class="text-secondary">PrivacyNoticePage(RORTIZ).pdf</p>
+									<p class="text-success">PrivacyNoticePage(RORTIZ)_NEW.pdf</p>
+									<p><?php $this->printInlineEdit(htmlspecialchars($document->getName()), $document); ?>
+									</p>
+
+								</div>
+							</div>
+
+
+
+							<div class="grid-log-item mt-2">
+								<div class="item1">
+									<h4>Edit document</h4>
+									<p>2025-04-14 09:45:57</p>
+								</div>
+								<div class="item2 mt-5">
+									<p class="text-secondary">PrivacyNoticePage(RORTIZ).pdf</p>
+									<p class="text-success">PrivacyNoticePage(RORTIZ)_NEW.pdf</p>
+
+								</div>
+							</div>
+
+							<div class="grid-log-item mt-2">
+								<div class="item1">
+									<h4>Move document</h4>
+									<p>2025-04-14 09:45:57</p>
+								</div>
+								<div class="item2 mt-5">
+									<p class="text-secondary">Folder1</p>
+									<p class="text-success">Folder2</p>
+
+								</div>
+							</div>
+							<div class="grid-log-item mt-2">
+								<div class="item1">
+									<h4>Edit document</h4>
+									<p>2025-04-14 09:45:57</p>
+								</div>
+								<div class="item2 mt-5">
+									<p class="text-secondary">PrivacyNoticePage(RORTIZ).pdf</p>
+									<p class="text-success">PrivacyNoticePage(RORTIZ)_NEW.pdf</p>
+
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
 			<?php
 			$txt = $this->callHook('postDocumentInfos', $document);
 			if (is_string($txt))
@@ -788,6 +838,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$enablerevisionworkflow = $this->params['enablerevisionworkflow'];
 		$workflowmode = $this->params['workflowmode'];
 		$previewwidthdetail = $this->params['previewWidthDetail'];
+
 		// verify if file exists
 		$file_exists = file_exists($dms->contentDir . $latestContent->getPath());
 
@@ -825,25 +876,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		//		print "<td>";
 		$this->columnEnd();
 		$this->columnStart(5);
-		;
-
 		print "<ul class=\"actions unstyled\">\n";
-		$encrypted_comment = $latestContent->getOriginalFileName();
-		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-
-		// Only attempt decryption if it looks like base64 (i.e., possibly encrypted)
-		if (base64_decode($encrypted_comment, true) !== false) {
-			$decrypted = $this->decryptName($encrypted_comment, $encryption_key);
-
-			// Only show if decryption succeeded
-			if ($decrypted !== '[DECRYPTION FAILED]') {
-				echo "<li>" . htmlspecialchars($decrypted) . "</li>\n";
-			}
-		} else {
-			// Not encrypted, just print as-is
-			echo "<li>" . htmlspecialchars($encrypted_comment) . "</li>\n";
-		}
-
+		print "<li>" . htmlspecialchars($latestContent->getOriginalFileName()) . "</li>\n";
+		print "<li>" . getMLText('version') . ": " . $latestContent->getVersion() . "</li>\n";
 
 		if ($file_exists) {
 			print "<li>" . SeedDMS_Core_File::format_filesize($latestContent->getFileSize()) . ", ";
@@ -1955,7 +1990,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 							print getRevisionStatusText($r["status"]) . "</td>\n";
 							print "<td><ul class=\"actions unstyled\">";
 							if ($accesserr)
-								echo "<li><span class=\"text-error text-danger\">" . $ . "</span></li>";
+								echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
 							if ($accessobject->mayRevise($document)) {
 								if ($is_recipient && $r["status"] == 0) {
 									print $this->html_link('ReviseDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'revisionid' => $r['revisionID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_revision"), false, true, array('<li>', '</li>'));
@@ -2165,14 +2200,19 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 			?>
 		</div>
 		<?php
+
+
 		if ($user->isAdmin()) {
+			echo '<div class="timeline-viewdoc">';
 			$this->contentHeading(getMLText("timeline"));
 			$this->printTimelineHtml(300);
+			echo '</div>';
 		}
-
-		$this->columnEnd();
 		$this->rowEnd();
+		$this->columnEnd();
+
 		echo $this->callHook('postContent');
+
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */

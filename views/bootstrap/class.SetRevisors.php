@@ -14,11 +14,6 @@
  */
 
 /**
- * Include parent class
- */
-//require_once("class.Bootstrap.php");
-
-/**
  * Class which outputs the html page for SetRevisors view
  *
  * @category   DMS
@@ -30,6 +25,26 @@
  * @version    Release: @package_version@
  */
 class SeedDMS_View_SetRevisors extends SeedDMS_Theme_Style {
+
+	function js() { /* {{{ */
+		header('Content-Type: application/javascript; charset=UTF-8');
+		parent::jsTranslations(array('js_form_error', 'js_form_errors'));
+?>
+function runValidation() {
+	$("#form1").validate({
+		rules: {
+			startdate: {
+				required: true
+			},
+		},
+		messages: {
+			comment: "<?php printMLText("js_no_reviѕion_date");?>",
+		}
+	});
+}
+runValidation();
+<?php
+	} /* }}} */
 
 	function show() { /* {{{ */
 		$dms = $this->params['dms'];
@@ -43,6 +58,9 @@ class SeedDMS_View_SetRevisors extends SeedDMS_Theme_Style {
 		$enablehiddenrevapp = $this->params['enablehiddenrevapp'];
 
 		$overallStatus = $content->getStatus();
+
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/'.$this->theme.'/vendors/jquery-validation/jquery.validate.js"></script>'."\n", 'js');
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/'.$this->theme.'/styles/validation-default.js"></script>'."\n", 'js');
 
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
@@ -69,7 +87,7 @@ class SeedDMS_View_SetRevisors extends SeedDMS_Theme_Style {
 		}
 ?>
 
-<form class="form-horizontal" action="../op/op.SetRevisors.php" method="post" name="form1">
+<form class="form-horizontal" action="../op/op.SetRevisors.php" method="post" id="form1" name="form1">
 	<input type='hidden' name='documentid' value='<?php echo $document->getID() ?>'/>
 	<input type='hidden' name='version' value='<?php echo $content->getVersion() ?>'/>
 
@@ -184,4 +202,3 @@ class SeedDMS_View_SetRevisors extends SeedDMS_Theme_Style {
 		$this->htmlEndPage();
 	} /* }}} */
 }
-?>

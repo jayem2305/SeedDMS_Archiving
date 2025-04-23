@@ -547,6 +547,7 @@ if(($kkk = $this->callHook('getFullSearchEngine')) && is_array($kkk))
 <?php $this->showConfigText('settings_partitionSize', 'partitionSize'); ?>
 <?php $this->showConfigText('settings_maxUploadSize', 'maxUploadSize'); ?>
 <?php $this->showConfigCheckbox('settings_enableXsendfile', 'enableXsendfile'); ?>
+<?php $this->showConfigCheckbox('settings_enableMemcached', 'enableMemcached'); ?>
       <!--
         -- SETTINGS - SYSTEM - AUTHENTICATION
       -->
@@ -729,9 +730,10 @@ if(($kkk = $this->callHook('getFullSearchEngine')) && is_array($kkk))
 							case 'select':
 								$allowempty = empty($conf['allow_empty']) ? false : $conf['allow_empty'];
 								$multiple = empty($conf['multiple']) ? false : $conf['multiple'];
+								$order = empty($conf['order']) ? '' : $conf['order'];
 								if(!empty($conf['options'])) {
 									$selections = empty($settings->_extensions[$extname][$confkey]) ? array() : explode(",", $settings->_extensions[$extname][$confkey]);
-									echo "<select class=\"chzn-select\"".($allowempty ? " data-allow-clear=\"true\"" : "")." name=\"extensions[".$extname."][".$confkey."][]\"".($multiple ? " multiple" : "").(!empty($conf['size']) ? " size=\"".$conf['size']."\"" : "")." data-placeholder=\"".getMLText("select_option")."\" style=\"width: 100%;\">";
+									echo "<select class=\"chzn-select\"".($allowempty ? " data-allow-clear=\"true\"" : "").($order ? " order=\"".$order."\"" : "")." name=\"extensions[".$extname."][".$confkey."][]\"".($multiple ? " multiple" : "").(!empty($conf['size']) ? " size=\"".$conf['size']."\"" : "")." data-placeholder=\"".getMLText("select_option")."\" style=\"width: 100%;\">";
 									if(is_array($conf['options'])) {
 										$options = $conf['options'];
 									} elseif(is_string($conf['options']) && $conf['options'] == 'hook') {
@@ -745,7 +747,12 @@ if(($kkk = $this->callHook('getFullSearchEngine')) && is_array($kkk))
 										echo "<option value=\"".$key."\"";
 										if(in_array($key, $selections))
 											echo " selected";
-										echo ">".htmlspecialchars(getMLText($extname.'_'.$opt, array(), $opt))."</option>";
+										if(is_array($opt)) {
+											echo " data-subtitle=\"".htmlspecialchars($opt['subtitle'])."\">".htmlspecialchars($opt['value']);
+										} else {
+											echo ">".htmlspecialchars(getMLText($extname.'_'.$opt, array(), $opt));
+										}
+										echo "</option>";
 									}
 									echo "</select>";
 								} elseif(!empty($conf['internal'])) {
