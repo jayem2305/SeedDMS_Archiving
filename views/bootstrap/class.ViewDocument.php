@@ -594,7 +594,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 
 			</table>
 
-			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalLogs">
+			<!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalLogs">
 				View Logs
 			</button>
 			<div class="modal fade" id="modalLogs" tabindex="-1" role="dialog" aria-labelledby="modalLogsLabel" aria-hidden="true">
@@ -667,7 +667,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						</div>
 					</div>
 				</div>
-			</div>
+			</div> -->
 
 
 			<?php
@@ -1112,10 +1112,13 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 
 		$this->rowStart();
 		$this->columnStart(4);
+
 		$txt = $this->callHook('startLeftColumn', $document);
+
 		if (is_string($txt))
 			echo $txt;
 		$this->documentInfos();
+
 		if ($accessobject->check_controller_access('ViewOnline', array('action' => 'run'))) {
 			$this->preview();
 		}
@@ -1237,6 +1240,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 				$this->contentContainerEnd();
 
 				if ($accessobject->check_view_access($this, array('action' => 'statuslog'))) {
+					echo '<div class="include-container-title">';
 					$this->contentHeading(getMLText("status"));
 					$this->contentContainerStart();
 					$statuslog = $latestContent->getStatusLog();
@@ -1252,6 +1256,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					}
 					print "</tbody>\n</table>\n";
 					$this->contentContainerEnd();
+					echo '</div>';
 				}
 
 				if ($workflowmode == 'advanced' && !$workflow) {

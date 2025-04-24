@@ -1,4 +1,8 @@
-/* Header Navigation */
+
+/* Header Nav css (remove) */
+/* ===================================================================== */
+/* ===================================================================== */
+/* ===================================================================== */
 #header-nav {
     margin-left: 10px;
     color: #222 !important;
@@ -12,7 +16,6 @@
     color: #222 !important;
 }
 
-/* Search Backdrop */
 #search-backdrop {
     position: fixed;
     top: 0;
@@ -26,7 +29,6 @@
     pointer-events: none;
 }
 
-/* Search Container */
 #search-container {
     position: absolute;
     margin-left: 134px;
@@ -64,7 +66,6 @@
     animation: fadeIn 0.4s ease-in-out;
 }
 
-/* Search Field */
 #searchfield {
     width: 150px;
     border: none;
@@ -86,7 +87,6 @@
     margin-left: 1rem;
 }
 
-/* Search Filter Section */
 #search-filter-section {
     max-width: 100%;
     padding: 1rem;
@@ -109,7 +109,6 @@
     transform: translateY(0);
 }
 
-/* Filter Container */
 #filter-container {
     display: flex;
     border-right: solid gray 1px;
@@ -118,7 +117,6 @@
     width: 240px;
 }
 
-/* Keyframes */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -131,7 +129,6 @@
     }
 }
 
-/* Responsive Styles */
 @media (max-width: 768px) {
     #search-backdrop {
         display: none;
@@ -174,7 +171,13 @@
     }
 }
 
-/* Miscellaneous Styles */
+
+/* ===================================================================== */
+/* ===================================================================== */
+/* ===================================================================== */
+
+
+
 .card {
     border-radius: 10px;
 }
@@ -192,13 +195,12 @@
     background: #f8f9fa;
 }
 
-#search-form {}
+
 
 #head-con {
     display: flex;
 }
 
-/* Logs */
 .modal-body {
     max-width: 30vw;
 }
@@ -218,14 +220,15 @@
     border-right: solid gray 1px;
 }
 
-/* Layout */
+
+
 .row-fluid {
     display: flex;
 }
 
 
 
-.addDocument-container, .addSubfolder-container{
+.addDocument-container, .addSubfolder-container, .editFolder-container{
     padding-left: 1rem;
 }
 
@@ -236,7 +239,6 @@
 .form-horizontal .controls {
     margin-left: 0px !important;
 }
-
 
 
 .controls.right {
@@ -267,7 +269,10 @@
 
 .well .control-label {
     text-align: start;
+    font-size: 1rem !important;
 }
+
+
 
 .form-horizontal {
     width: 88vw;
@@ -287,7 +292,7 @@
 }
 
 .controls textarea {
-    width: 100%;
+    width: 90%;
 }
 
 .controls input,
@@ -299,7 +304,9 @@
 .header-icon {
     margin-left: 12px;
 }
-
+.row-fluid .row-fluid .span4 {
+    background-color: none !important;
+}
 .span4 tbody tr {
     padding: 1rem !important;
 }
@@ -346,7 +353,7 @@ main {
     background-color: #F8F9FC;
 }
 
-/* View Document */
+
 .row-fluid .navbar {
     display: flex;
     width: 10vw;
@@ -354,12 +361,26 @@ main {
 
 .timeline-viewdoc {
     margin-left: 0vw;
-    width: 200%;
+    overflow: hidden;
+    width: 170%;
 }
 
+.span8 .btn {
+    background-image: none !important;
+    background-color: white;
+}
+
+.timeline-viewdoc legend {
+    background-color: #ECECEC;
+    color: gray;
+    border-radius: .8rem .8rem 0 0;
+    margin-bottom: 0px;
+    padding: .8rem;
+    font-weight: bold;
+}
 .row-fluid .row-fluid .span4 {
     order: 2;
-    /* margin-left: 5rem !important; */
+    margin-left: 5rem !important;
     border-radius: .6rem;
     box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.15);
     background-color: #ffff;
@@ -367,12 +388,6 @@ main {
     height: fit-content;
 }
 
-.row-fluid .span4 legend {
-    justify-content: center;
-    background-color: #ECECEC;
-    padding: .6rem 0;
-    color: gray;
-}
 
 .row-fluid .span5, .row-fluid .span3 {
     margin-left: 0px;
@@ -383,20 +398,53 @@ main {
 }
 
 
+.tab-pane {
+width: calc(100% - .1rem) !important;
+overflow: hidden;}
+.span4 legend {
+    justify-content: center;
+    background-color: #ededed;
+    color: gray;
+    padding: 0;
+    margin-bottom: 0;
 
-.span8 legend {
-    background-color: #ECECEC;
 }
+.span4 table {
+width: 100%;
+padding: .6rem 1.2rem;
+border-collapse: none;
+
+}
+.span4 tr td{
+padding: .8rem 1rem !important;
+border-top: none;
+border-bottom: solid black 1px;
+}
+.span4 {
+overflow: hidden;} 
+.well .row-fluid .span4  {
+overflow: visible;}
 
 .span8 {
     order: 1;
     margin-top: 1rem;
-    width: 40vw !important;
+    width: 50vw !important;
     border-radius: .8rem;
 }
 
 #docinfotab {
     display: flex;
+}
+#docinfo {
+    width: 765px;
+}
+
+#docinfo .alert{
+    margin-bottom: 0px;
+}
+
+.span3 .mimeicon{
+    margin-right: 19px;
 }
 
 #docinfotab #docinfo {
@@ -404,19 +452,41 @@ main {
     gap: 1rem;
 }
 
-.nav-pills,
-.tab-pane .well legend {
+.well .row-fluid .span4 {
+    box-shadow: none;
+}
+
+.action-list.nav.nav-pills.mb-4 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    gap: 1rem;
+    background-color: transparent !important;
+   
+}
+.nav.nav-pills {
     background-color: #ECECEC;
     padding: .6rem;
     border-radius: .8rem .8rem 0 0;
     margin-bottom: 0px;
 }
 
+.action-list.nav.nav-pills.mb-4{
+    width: 300px;
+    gap: .6rem;
+} 
+
+.nav-pills .nav-item ._nav-link span {
+    font-size: 1rem;
+}
+.nav-pills:before {
+    display: none;
+}
+
 .nav-pills>li>a {
     border-radius: 0px !important;
     padding-bottom: 2px 2px 1px 2px;
     font-size: 1.2rem;
-    color: gray;
+    /* color: gray; */
     cursor: pointer;
 }
 
@@ -433,3 +503,67 @@ main {
 .input-append.date.span4.datepicker {
 margin-left: 0px;
 width: fit-content;}
+
+
+.include-container-title {
+    justify-content: center;
+    padding: .6rem 0;
+    color: gray;
+    
+}
+
+.d-none.d-lg-inline {
+    font-size: 1rem;
+}
+
+.nav-item.m-1 {
+    background-color: none;
+}
+
+.include-container-title {
+    border-radius: .6rem .6rem 0 0;
+    
+}
+
+.include-container-title legend {
+    background-color: #ECECEC;
+    color: gray;
+        border-radius: .6rem .6rem 0 0;
+        padding-left: 1rem;
+        margin-bottom: 0px;
+        
+}
+
+.tab-content {
+    width: 100%;
+}
+
+
+
+.test {
+    border: solid red;
+    padding-left: 5rem;
+    margin-left: 1rem;
+}
+legend {
+    width: calc(100% - 1rem);
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+
+@media (max-width: 676px) {
+    .span4 {
+        order: 1;
+    }
+        .row-fluid .row-fluid .span4 {
+        margin-left: 0px !important;
+        }
+    .span8 {
+        order: 2;
+    }
+
+    .tab-pane, .span8 {
+        width: 100vw !important;
+    }
+}

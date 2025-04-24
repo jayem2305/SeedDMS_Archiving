@@ -224,10 +224,11 @@
     width: 100%;
     min-height: 30px;
     margin-left: 2.564102564102564%;
-    *margin-left: 2.5109110747408616%;
+    *
+    margin-left: 2.5109110747408616%;
     -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-            box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
   }
   .row-fluid [class*="span"]:first-child {
     margin-left: 0;
@@ -253,7 +254,8 @@
   }
   .row-fluid .span8 {
     width: 65.81196581196582%;
-    *width: 65.75877432260411%;
+    *
+    width: 65.75877432260411%;
   }
   .row-fluid .span7 {
     width: 57.26495726495726%;
@@ -382,7 +384,7 @@
   input,
   textarea,
   .uneditable-input {
-    margin-left: 0;
+    margin-left: 10px;
   }
   .controls-row [class*="span"] + [class*="span"] {
     margin-left: 30px;

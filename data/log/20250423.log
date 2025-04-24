@@ -2,3 +2,12 @@ Apr 23 02:11:29  [error] admin (::1) out.ViewDocument.php?documentid=5  UI::exit
 Apr 23 02:12:57  [info] admin (::1) op.Ajax.php add document 3 in folder 1
 Apr 23 02:12:57  [info] Conversion from image/png to image/png with gd image service took 0.091240882873535 sec.
 Apr 23 02:13:00  [info] Conversion from image/png to image/png with gd image service took 0.10114216804504 sec.
+Apr 23 07:56:26  [info] -- (::1) op.Login.php 
+Apr 23 07:56:26  [info] Authentication service 'db'
+Apr 23 07:56:26  [info] Authentication service 'db': Authentication of user 'admin' successful.
+Apr 23 08:14:44  [info] -- (::1) op.Login.php 
+Apr 23 08:14:44  [info] Authentication service 'db'
+Apr 23 08:14:44  [info] Authentication service 'db': Authentication of user 'admin' successful.
+Apr 23 10:25:18  [info] -- (::1) op.Login.php 
+Apr 23 10:25:18  [info] Authentication service 'db'
+Apr 23 10:25:18  [info] Authentication service 'db': Authentication of user 'admin' successful.
