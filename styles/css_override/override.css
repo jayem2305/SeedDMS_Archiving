@@ -435,6 +435,14 @@ overflow: visible;}
 #docinfotab {
     display: flex;
 }
+#docinfotab li {
+    padding: .6rem;
+}
+
+.well table {
+    width: 100%;
+}
+
 #docinfo {
     width: 765px;
 }
@@ -461,11 +469,12 @@ overflow: visible;}
     grid-template-columns: repeat(2, minmax(200px, 1fr));
     gap: 1rem;
     background-color: transparent !important;
+    padding: 0px !important;
    
 }
 .nav.nav-pills {
     background-color: #ECECEC;
-    padding: .6rem;
+    padding: 0px !important;
     border-radius: .8rem .8rem 0 0;
     margin-bottom: 0px;
 }
@@ -481,7 +490,9 @@ overflow: visible;}
 .nav-pills:before {
     display: none;
 }
-
+.nav-pills .nav-item ._nav-link:hover {
+    background-color: #ededed;
+}
 .nav-pills>li>a {
     border-radius: 0px !important;
     padding-bottom: 2px 2px 1px 2px;
