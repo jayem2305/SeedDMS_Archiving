@@ -228,7 +228,7 @@
 
 
 
-.addDocument-container, .addSubfolder-container, .editFolder-container, .updateDocument-container, .moveDocument-container,  .removeDocument-container, .accessRightsDocument-container, .notifyDocument-container, .transferDOcument-container{
+.addDocument-container, .addSubfolder-container, .editFolder-container, .updateDocument-container, .moveDocument-container,  .removeDocument-container, .accessRightsDocument-container, .notifyDocument-container, .transferDocument-container{
     padding-left: 1rem;
 }
 
