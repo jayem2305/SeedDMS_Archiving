@@ -29,21 +29,24 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_View_MoveDocument extends SeedDMS_Theme_Style {
+class SeedDMS_View_MoveDocument extends SeedDMS_Theme_Style
+{
 
-	function js() { /* {{{ */
+	function js()
+	{ /* {{{ */
 		header('Content-Type: application/javascript; charset=UTF-8');
 
-?>
-$(document).ready( function() {
-	$('input[id^=choosefoldersearch]').focus();
-});
-<?php
+		?>
+		$(document).ready( function() {
+		$('input[id^=choosefoldersearch]').focus();
+		});
+		<?php
 
-//		$this->printFolderChooserJs("form1");
+		//		$this->printFolderChooserJs("form1");
 	} /* }}} */
 
-	function show() { /* {{{ */
+	function show()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$folder = $this->params['folder'];
@@ -54,19 +57,23 @@ $(document).ready( function() {
 		$this->globalNavigation($folder);
 		$this->contentStart();
 		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
+
+		echo '<div class="moveDocument-container">';
+
 		$this->contentHeading(getMLText("move_document"));
-?>
-<form class="form-horizontal" action="../op/op.MoveDocument.php" name="form1">
-	<?php echo createHiddenFieldWithKey('movedocument'); ?>
-	<input type="hidden" name="documentid" value="<?php print $document->getID();?>">
-<?php
-		$this->contentContainerStart('warning');
-		$this->formField(getMLText("choose_target_folder"), $this->getFolderChooserHtml("form1", M_READ, -1, $target));
-		$this->contentContainerEnd();
-		$this->formSubmit(getMLText('move'));
-?>
-</form>
-<?php
+		?>
+		<form class="form-horizontal" action="../op/op.MoveDocument.php" name="form1">
+			<?php echo createHiddenFieldWithKey('movedocument'); ?>
+			<input type="hidden" name="documentid" value="<?php print $document->getID(); ?>">
+			<?php
+			$this->contentContainerStart('warning');
+			$this->formField(getMLText("choose_target_folder"), $this->getFolderChooserHtml("form1", M_READ, -1, $target));
+			$this->contentContainerEnd();
+			$this->formSubmit(getMLText('move'));
+			?>
+		</form>
+		</div>
+		<?php
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */

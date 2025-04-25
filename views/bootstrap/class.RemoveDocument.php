@@ -29,9 +29,11 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_View_RemoveDocument extends SeedDMS_Theme_Style {
+class SeedDMS_View_RemoveDocument extends SeedDMS_Theme_Style
+{
 
-	function show() { /* {{{ */
+	function show()
+	{ /* {{{ */
 		parent::show();
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
@@ -42,20 +44,24 @@ class SeedDMS_View_RemoveDocument extends SeedDMS_Theme_Style {
 		$this->globalNavigation($folder);
 		$this->contentStart();
 		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
+		echo '<div class="removeDocument-container">';
+
 		$this->contentHeading(getMLText("rm_document"));
 		if ($document->isCheckedOut()) {
 			$msg = getMLText('document_is_checked_out_remove');
 			$this->warningMsg($msg);
 		}
 
-		$this->warningMsg(getMLText("confirm_rm_document", array ("documentname" => htmlspecialchars($document->getName()))));
-?>
-<form action="../op/op.RemoveDocument.php" name="form1" method="post">
-<input type="Hidden" name="documentid" value="<?php print $document->getID();?>">
-<?php echo createHiddenFieldWithKey('removedocument'); ?>
-<p><?php $this->formSubmit('<i class="fa fa-remove"></i> '.getMLText('rm_document'),'','','danger');?></p>
-</form>
-<?php
+		$this->warningMsg(getMLText("confirm_rm_document", array("documentname" => htmlspecialchars($document->getName()))));
+		?>
+		<form action="../op/op.RemoveDocument.php" name="form1" method="post">
+			<input type="Hidden" name="documentid" value="<?php print $document->getID(); ?>">
+			<?php echo createHiddenFieldWithKey('removedocument'); ?>
+			<p><?php $this->formSubmit('<i class="fa fa-remove"></i> ' . getMLText('rm_document'), '', '', 'danger'); ?></p>
+		</form>
+
+		</div>
+		<?php
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */

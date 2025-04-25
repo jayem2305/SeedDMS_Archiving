@@ -228,10 +228,39 @@
 
 
 
-.addDocument-container, .addSubfolder-container, .editFolder-container{
+.addDocument-container, .addSubfolder-container, .editFolder-container, .updateDocument-container, .moveDocument-container,  .removeDocument-container, .accessRightsDocument-container, .notifyDocument-container, .transferDOcument-container{
     padding-left: 1rem;
 }
 
+.notifyDocument-container .row-fluid {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.accessRightsDocument-container .span4{
+    width: 90%;
+}
+
+.accessRightsDocument-container {
+    width: 90%;
+    overflow: hidden;
+}
+.accessRightsDocument-container .form-horizontal .controls {
+    margin-bottom: 2.3rem;
+}
+
+.accessRightsDocument-container legend {
+
+    background-color: white !important;
+    justify-content: start !important;
+    width: 90%;
+}
+
+
+.accessRightsDocument-container .controls  {
+    width: 60vw !important;
+}
 .breadcrumb {
     display: none;
 }
@@ -398,6 +427,11 @@ main {
 }
 
 
+.row-fluid .span5 .actions.unstyled {
+    width: 300px !important;
+}
+
+
 .tab-pane {
 width: calc(100% - .1rem) !important;
 overflow: hidden;}
@@ -421,7 +455,8 @@ border-top: none;
 border-bottom: solid black 1px;
 }
 .span4 {
-overflow: hidden;} 
+    overflow: hidden;
+} 
 .well .row-fluid .span4  {
 overflow: visible;}
 
@@ -572,9 +607,44 @@ legend {
         }
     .span8 {
         order: 2;
+        width: 100vw;
     }
 
     .tab-pane, .span8 {
         width: 100vw !important;
+    }
+
+    .timeline-viewdoc {
+        width: 100vw;
+    }
+
+    #docinfotab, #docinfo .well, #docinfo .alert {
+        width: 80vw;
+    }
+
+    #docinfotab li a {
+        font-size: .7rem;
+    }
+
+    .action-list.nav.nav-pills.mb-4 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(60px, 1fr));
+        gap: .4rem;
+        background-color: transparent !important;
+        padding: 0px !important;
+
+    }
+
+    .action-list.nav.nav-pills.mb-4 li a span,  .action-list.nav.nav-pills.mb-4 li a{
+        font-size: 13px;
+    }
+    .include-container-title{
+        width: 100vw;
+        overflow: hidden;
+    }
+
+    .include-container-title legend {
+        overflow: hidden;
+        width: 100px;
     }
 }
