@@ -1059,7 +1059,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$this->globalNavigation($folder);
 		$this->contentStart();
 		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
-
+		echo '<div class="viewDocument-container">';
 		echo $this->callHook('preContent');
 		if ($document->isLocked()) {
 			$lockingUser = $document->getLockingUser();
@@ -1067,7 +1067,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 			if (is_string($txt))
 				echo $txt;
 			else {
+				echo '<div>';
 				$this->warningMsg(getMLText("lock_message", array("email" => $lockingUser->getEmail(), "username" => htmlspecialchars($lockingUser->getFullName()))));
+				echo '</div>';
 			}
 		}
 
@@ -2217,7 +2219,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$this->columnEnd();
 
 		echo $this->callHook('postContent');
-
+		echo '</div>';
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */

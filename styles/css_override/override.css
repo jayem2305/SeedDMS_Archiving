@@ -176,6 +176,9 @@
 /* ===================================================================== */
 /* ===================================================================== */
 
+main {
+    overflow-x: hidden;
+}
 
 
 .card {
@@ -228,21 +231,21 @@
 
 
 
-.addDocument-container, .addSubfolder-container, .editFolder-container, .updateDocument-container, .moveDocument-container,  .removeDocument-container, .accessRightsDocument-container, .notifyDocument-container, .transferDocument-container{
+.addDocument-container, .addSubfolder-container, .editFolder-container, .updateDocument-container, .moveDocument-container,  .removeDocument-container, .accessRightsDocument-container, .accessRightsFolder-container, .notifyDocument-container, .transferDocument-container, .folderNotify-container, .setExpireDocument-container{
     padding-left: 1rem;
 }
 
-.notifyDocument-container .row-fluid {
+.notifyDocument-container .row-fluid, .folderNotify-container .row-fluid, .setExpireDocument-container .row-fluid, .accessRightsFolder-container {
     display: flex;
     flex-direction: column;
 }
 
 
-.accessRightsDocument-container .span4{
+.accessRightsDocument-container .span4, .accessRightsFolder-container .span4{
     width: 90%;
 }
 
-.accessRightsDocument-container {
+.accessRightsDocument-container, .accessRightsFolder-container {
     width: 90%;
     overflow: hidden;
 }
@@ -258,7 +261,7 @@
 }
 
 
-.accessRightsDocument-container .controls  {
+.accessRightsDocument-container .controls , .accessRightsFolder-container .controls {
     width: 60vw !important;
 }
 .breadcrumb {
@@ -647,4 +650,18 @@ legend {
         overflow: hidden;
         width: 100px;
     }
+}
+
+.accessRightsDocument-container .row-fluid, .accessRightsFolder-container .row-fluid {
+    display: grid;
+    gap: 1rem;
+}
+.accessRightsFolder-container {
+    width: 100vw;
+}
+
+.accessRightsDocument-container .row-fluid .span4{
+    margin-left: 0px !important;
+    
+
 }

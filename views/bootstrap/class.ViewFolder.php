@@ -464,7 +464,7 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			echo $txt;
 		else {
 			$this->pageNavigation($this->getFolderPathHTML($folder, true), "view_folder", $folder);
-			
+
 		}
 
 		echo $this->callHook('preContent');
@@ -598,7 +598,6 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			$previewer->setConversionMgr($conversionmgr);
 		else
 			$previewer->setConverters($previewconverters);
-
 		//		echo $this->callHook('startPage');
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
@@ -607,6 +606,8 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			<div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
 			<?php
 			$this->rowStart();
+			echo '<div class="viewFolder-container">';
+
 
 			// dynamic columns - left column removed if no content and right column then fills span12.
 			if (!($enableFolderTree || $enableClipboard)) {
@@ -702,7 +703,7 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			$this->rowEnd(); // End of div around left and right column
 	
 			echo $this->callHook('postContent');
-
+			echo '</div>';
 			$this->contentEnd();
 			$this->htmlEndPage();
 	} /* }}} */
