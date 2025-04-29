@@ -1,0 +1,56 @@
+Apr 29 05:26:35  [info] admin (::1) op.UpdateDocument.php update document 4 with version 11
+Apr 29 05:29:20  [info] admin (::1) op.EditDocument.php ?documentid=4
+Apr 29 05:30:55  [info] admin (::1) op.EditDocument.php ?documentid=4
+Apr 29 05:40:43  [info] admin (::1) op.EditDocument.php ?documentid=4
+Apr 29 06:41:28  [info] admin (::1) op.RemoveDocument.php delete document 4
+Apr 29 06:42:36  [info] admin (::1) op.EditDocument.php ?documentid=9
+Apr 29 07:14:55  [info] admin (::1) op.LockDocument.php?documentid=9&formtoken=c90f9ff44b0a08b4fae0ec8b3477149c 
+Apr 29 07:17:22  [info] admin (::1) op.ViewOnline.php?documentid=9&version=1 
+Apr 29 07:17:46  [info] admin (::1) op.EditComment.php ?documentid=9
+Apr 29 07:23:11  [info] admin (::1) op.EditComment.php ?documentid=9
+Apr 29 07:23:54  [info] admin (::1) op.EditComment.php ?documentid=9
+Apr 29 07:24:26  [info] admin (::1) op.UnlockDocument.php?documentid=9&formtoken=bd4d36a255ebd7c7b26467201fd52516 
+Apr 29 07:24:33  [info] admin (::1) op.EditComment.php ?documentid=9
+Apr 29 07:24:51  [info] admin (::1) op.EditComment.php ?documentid=9
+Apr 29 07:29:15  [info] admin (::1) op.EditDocument.php ?documentid=9
+Apr 29 07:34:35  [info] admin (::1) op.EditComment.php ?documentid=9
+Apr 29 07:43:04  [info] admin (::1) op.Ajax.php add file 'Turn it in Chapters 1 to 5_V1.docx' to document 9
+Apr 29 07:44:56  [info] admin (::1) op.EditComment.php ?documentid=5
+Apr 29 07:45:07  [info] admin (::1) op.UnlockDocument.php?documentid=5&formtoken=bd4d36a255ebd7c7b26467201fd52516 
+Apr 29 07:45:33  [info] admin (::1) op.AddSubFolder.php ?name=wbqwb&folderid=1
+Apr 29 07:46:02  [info] admin (::1) op.AddDocument.php add document 13 in folder 1
+Apr 29 07:46:29  [info] admin (::1) op.FolderAccess.php?formtoken=9414240441abd784f11ef79afce0788d&action=setowner&folderid=1&ownerid=1 
+Apr 29 07:46:30  [info] admin (::1) op.FolderAccess.php?formtoken=9414240441abd784f11ef79afce0788d&folderid=1&action=setdefault&mode=2 
+Apr 29 08:08:12  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=/o11HOG8YASvrzqKKFboYEDutcwRcmrqQBIMX1nfh7E=
+Apr 29 08:08:31  [info] admin (::1) op.RoleMgr.php .php&action=addrole&name=asdfsadf
+Apr 29 08:14:30  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=l30pNqL7fKTFww6DY/5oFAXGivnFal3sXiHnVtqpX4g=
+Apr 29 08:14:52  [info] admin (::1) op.DefaultKeywords.php .php&action=addcategory&categoryid=1
+Apr 29 08:14:59  [info] admin (::1) op.DefaultKeywords.php .php&action=newkeywords&categoryid=1
+Apr 29 08:15:07  [info] admin (::1) op.DefaultKeywords.php .php&action=editkeywords&categoryid=1
+Apr 29 08:15:34  [error] admin (::1) op.AttributeMgr.php  UI::exitError error=Attribute must have more than one value, but is not set multiple value pagetitle=Admin tools
+Apr 29 08:15:58  [error] admin (::1) op.AttributeMgr.php  UI::exitError error=Attribute must have more than one value, but is not set multiple value pagetitle=Admin tools
+Apr 29 08:16:11  [error] admin (::1) op.AttributeMgr.php  UI::exitError error=Attribute must have more than one value, but is not set multiple value pagetitle=Admin tools
+Apr 29 08:16:31  [info] admin (::1) op.AttributeMgr.php &action=addattrdef&name=srgsegrer
+Apr 29 08:36:56  [error] admin (::1) op.SchedulerTaskMgr.php  UI::exitError error=An error has occurred pagetitle=Admin tools
+Apr 29 12:14:53  [info] admin (::1) op.GroupMgr.php ?groupid=2&userid=1&action=addmember
+Apr 29 12:15:19  [info] admin (::1) op.GroupMgr.php ?groupid=2&userid=2&action=addmember
+Apr 29 12:15:39  [info] admin (::1) op.GroupMgr.php ?groupid=2&action=editgroup
+Apr 29 12:15:57  [info] admin (::1) op.GroupMgr.php ?groupid=1&userid=1&action=addmember
+Apr 29 12:16:05  [info] admin (::1) op.GroupMgr.php ?groupid=1&action=editgroup
+Apr 29 12:16:17  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=+PcPdgV0frkH851srUGf4jqN6opiYg2BiGYemBeUOIE=
+Apr 29 12:17:10  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=GVbSwgySbfpNpBl5cmqIHIV9XI70Ks6gWXCrN3G0oq0=
+Apr 29 12:24:12  [info] admin (::1) op.GroupMgr.php ?groupid=4&action=editgroup
+Apr 29 12:24:36  [info] admin (::1) op.GroupMgr.php ?groupid=4&action=editgroup
+Apr 29 12:24:55  [info] admin (::1) op.GroupMgr.php ?groupid=4&action=editgroup
+Apr 29 12:25:08  [info] admin (::1) op.GroupMgr.php ?groupid=4&action=editgroup
+Apr 29 12:26:02  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=36yBPRuE6RUje+zjrRa8qJJ0DEmv/hM94c34XPAAeDs=
+Apr 29 12:30:05  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=V9XjJyX7ygqrE9vcIfLApfS9E5+ukWqPVI2i2EFkOno=
+Apr 29 12:30:33  [info] admin (::1) op.GroupMgr.php ?groupid=6&action=editgroup
+Apr 29 12:33:18  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=z73SQPGp6iGnoRnjEY0tAaBFetHFDrwQnF+5JBg+R88=
+Apr 29 12:33:32  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=PfP12+PGsk/Gtsd7AzbJ/z77dJhibfKQD8kWyeppbLA=
+Apr 29 12:36:37  [info] admin (::1) op.GroupMgr.php ?groupid=5&userid=1&action=addmember
+Apr 29 12:40:29  [error] admin (::1) op.GroupMgr.php  UI::exitError error=Group already exists. pagetitle=Admin tools
+Apr 29 12:40:43  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=6NcSSEY7hJI8EAMvUOu5su3PqAFSxdrvMYCLV9vPV6U=
+Apr 29 12:49:34  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=XeY1jckT9T6+stHQt+7tIErC2N67NGBUErrImul/e9w=
+Apr 29 12:51:26  [info] admin (::1) op.GroupMgr.php ?groupid=4&action=editgroup
+Apr 29 12:51:36  [info] admin (::1) op.GroupMgr.php ?groupid=9&action=editgroup

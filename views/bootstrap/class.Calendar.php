@@ -66,7 +66,7 @@ class SeedDMS_View_Calendar extends SeedDMS_Theme_Style {
 		}
 		if($event) {
 //			print_r($event);
-			$this->contentHeading(getMLText('edit_event'));
+			$this->contentHeading(getMLText(key: 'edit_event'));
 ?>
 
 <form class="form-horizontal" action="../op/op.EditEvent.php" id="form1" name="form1" method="post">

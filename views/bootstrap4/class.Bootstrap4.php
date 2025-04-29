@@ -319,15 +319,15 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function contentStart()
 	{ /* {{{ */
 		/*
-																																																																							  echo "<div class=\"container-fluid\">\n";
-																																																																							  echo "<div class=\"row\">\n";
-																																																																							  echo "<nav class=\"_col-md-2 d-none d-md-block bg-light sidebar\">\n";
-																																																																							  echo "<div class=\"sidebar-sticky\">\n";
-																																																																							  echo "lsajdlf";
-																																																																							  echo "</div>\n";
-																																																																							  echo "</nav>\n";
-																																																																							  echo "<main role=\"main\" class=\"_col-md-10 _ml-sm-auto pb-3 px-4\">\n";
-																																																																					  */
+																																																																																																							echo "<div class=\"container-fluid\">\n";
+																																																																																																							echo "<div class=\"row\">\n";
+																																																																																																							echo "<nav class=\"_col-md-2 d-none d-md-block bg-light sidebar\">\n";
+																																																																																																							echo "<div class=\"sidebar-sticky\">\n";
+																																																																																																							echo "lsajdlf";
+																																																																																																							echo "</div>\n";
+																																																																																																							echo "</nav>\n";
+																																																																																																							echo "<main role=\"main\" class=\"_col-md-10 _ml-sm-auto pb-3 px-4\">\n";
+																																																																																																					*/
 		echo "<main role=\"main\" class=\"container-fluid mt-3 pb-3\">\n";
 		echo " <div class=\"row-fluid\">\n";
 	} /* }}} */
@@ -337,9 +337,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo " </div>\n";
 		echo "</main>\n";
 		/*
-																																																																							  echo "</div>\n";
-																																																																							  echo "</div>\n";
-																																																																					  */
+																																																																																																							echo "</div>\n";
+																																																																																																							echo "</div>\n";
+																																																																																																					*/
 	} /* }}} */
 
 	function globalBanner()
@@ -1269,6 +1269,8 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 	function formField($title, $value, $params = array())
 	{ /* {{{ */
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
 		if ($title !== null) {
 			echo "<div class=\"form-group row\">";
 			echo "	<label class=\"col-sm-4 col-lg-4 pt-0 col-form-label\"" . (!empty($params['help']) ? " title=\"" . $params['help'] . "\" style=\"cursor: help;\"" : "") . (!empty($value['id']) ? ' for="' . $value['id'] . '"' : '') . ">" . $title . ":</label>";
@@ -1312,31 +1314,41 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 					echo '</select>';
 					break;
 				case 'textarea':
+					$originalValue = isset($value['value']) ? $value['value'] : '';
+					$decrypted = $this->decryptName($originalValue, $encryption_key);
+					$commentsec = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $originalValue : $decrypted;
+
 					echo '<textarea' .
 						(!empty($value['id']) ? ' id="' . $value['id'] . '"' : '') .
-						(!empty($value['name']) ? ' name="' . $value['name'] . '"' : '') .
+						(!empty($value['name']) ? ' name="' . $commentsec . '"' : '') .
 						(empty($value['class']) ? ' class="form-control"' : ' class="form-control ' . $value['class'] . '"') .
 						(!empty($value['rows']) ? ' rows="' . $value['rows'] . '"' : '') .
 						(!empty($value['cols']) ? ' cols="' . $value['cols'] . '"' : '') .
 						(!empty($value['placeholder']) ? ' placeholder="' . $value['placeholder'] . '"' : '') .
-						(!empty($value['required']) ? ' required="required"' : '') . ">" . (!empty($value['value']) ? $value['value'] : '') . "</textarea>";
+						(!empty($value['required']) ? ' required="required"' : '') . ">" .
+						(!empty($originalValue) ? $commentsec : '') . "</textarea>";
 					break;
 				case 'plain':
-					echo $value['value'];
+					$decrypted = $this->decryptName($value['value'], $encryption_key);
+					$commentsec = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $value['value'] : $decrypted;
+					echo $commentsec;
 					break;
 				case 'input':
 				default:
+					// Try to decrypt — if it fails, fallback to original heading
 					switch ($value['type']) {
 						case 'checkbox':
+							$decrypted = $this->decryptName($value['value'], $encryption_key);
+							$name = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $value['name'] : $decrypted;
 							if (isset($value['default']) && !empty($value['name']))
-								echo '<input type="hidden" name="' . $value['name'] . '" value="' . $value['default'] . '" />';
+								echo '<input type="hidden" name="' . $value['name'] . '" value="' . $value['name'] . '" />';
 							echo '<div class="form-check">';
 							echo '<input' .
 								(!empty($value['type']) ? ' type="' . $value['type'] . '"' : '') .
 								(!empty($value['id']) ? ' id="' . $value['id'] . '"' : '') .
-								(!empty($value['name']) ? ' name="' . $value['name'] . '"' : '') .
+								(!empty($value['name']) ? ' name="' . $name . '"' : '') .
 								(empty($value['class']) ? ' class="form-check-input"' : ' class="form-check-input ' . $value['class'] . '"') .
-								((isset($value['value']) && is_string($value['value'])) || !empty($value['value']) ? ' value="' . $value['value'] . '"' : '') .
+								((isset($value['value']) && is_string($value['value'])) || !empty($value['value']) ? ' value="' . $name . '"' : '') .
 								(!empty($value['placeholder']) ? ' placeholder="' . $value['placeholder'] . '"' : '') .
 								(!empty($value['autocomplete']) ? ' autocomplete="' . $value['autocomplete'] . '"' : '') .
 								(!empty($value['checked']) ? ' checked' : '') .
@@ -1349,30 +1361,41 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 							echo "</div>";
 							break;
 						default:
+							// Check if value is set to avoid warnings
+							$originalValue = isset($value['value']) ? $value['value'] : '';
+							$decrypted = $this->decryptName($originalValue, $encryption_key);
+							$name = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $originalValue : $decrypted;
+
 							if (!empty($value['addon']))
 								echo '<div class="input-group date">';
+
 							echo '<input' .
 								(!empty($value['type']) ? ' type="' . $value['type'] . '"' : '') .
 								(!empty($value['id']) ? ' id="' . $value['id'] . '"' : '') .
 								(!empty($value['name']) ? ' name="' . $value['name'] . '"' : '') .
 								(empty($value['class']) ? ' class="form-control"' : ' class="form-control ' . $value['class'] . '"') .
-								((isset($value['value']) && is_string($value['value'])) || !empty($value['value']) ? ' value="' . $value['value'] . '"' : '') .
+								(!empty($originalValue) ? ' value="' . $name . '"' : '') .
 								(!empty($value['placeholder']) ? ' placeholder="' . $value['placeholder'] . '"' : '') .
 								(!empty($value['autocomplete']) ? ' autocomplete="' . $value['autocomplete'] . '"' : '') .
 								(isset($value['min']) ? ' min="' . $value['min'] . '"' : '') .
 								(!empty($value['checked']) ? ' checked' : '') .
 								(!empty($value['required']) ? ' required="required"' : '');
+
 							if (!empty($value['attributes']) && is_array($value['attributes']))
 								foreach ($value['attributes'] as $a)
 									echo ' ' . $a[0] . '="' . $a[1] . '"';
+
 							echo "/>";
+
 							if (!empty($value['addon'])) {
 								echo '<div class="input-group-append">';
 								echo '<span class="input-group-text">' . $value['addon'] . '</span>';
 								echo '</div>';
 								echo '</div>';
 							}
+
 							break;
+
 					}
 					break;
 			}
@@ -1434,7 +1457,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$icons["pot"] = "office-presentation.svg";
 		$icons["pptx"] = "office-presentation.svg";
 		$icons["potx"] = "office-presentation.svg";
-		$icons["exe"] = "executable.svg";
+		//$icons["exe"] = "executable.svg";
 		$icons["html"] = "web.svg";
 		$icons["htm"] = "web.svg";
 		$icons["gif"] = "image.svg";
@@ -1699,14 +1722,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = preg_replace('/[^A-Za-z]/', '', $varname);
 		/* do not use bootstrap4 custom form element because it is difficult to localize
-																																																																							  $html = '
-																																																																					  <div class="custom-file">
-																																																																						<input type="file" class="custom-file-input" id="'.$id.'" name="'.$varname.'">
-																																																																						<label class="custom-file-label" for="'.$id.'">'.getMLText("browse").'&hellip;'.'</label>
-																																																																					  </div>
-																																																																					  ';
-																																																																							  return $html;
-																																																																					   */
+																																																																																																							$html = '
+																																																																																																					<div class="custom-file">
+																																																																																																					  <input type="file" class="custom-file-input" id="'.$id.'" name="'.$varname.'">
+																																																																																																					  <label class="custom-file-label" for="'.$id.'">'.getMLText("browse").'&hellip;'.'</label>
+																																																																																																					</div>
+																																																																																																					';
+																																																																																																							return $html;
+																																																																																																					 */
 		$html = '
 	<div id="' . $id . '-upload-files">
 		<div id="' . $id . '-upload-file" class="upload-file">
@@ -1806,6 +1829,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	 */
 	function getSequenceChooser($parent, $type, $keepID = -1)
 	{ /* {{{ */
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		$objArr = [];
 		if ($type == 'd') {
 			if (($c = $parent->hasDocuments()) < 200)
@@ -1841,7 +1865,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				continue;
 			}
 			$index = ($objArr[$i]->getSequence() + $objArr[$i + 1]->getSequence()) / 2;
-			$content .= "  <option value=\"" . $index . "\">" . getMLText("seq_after", array("prevname" => htmlspecialchars($objArr[$i]->getName())));
+			$decrypted = $this->decryptName($objArr[$i]->getName(), $encryption_key);
+			$optionname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $objArr[$i]->getName() : $decrypted;
+			$content .= "  <option value=\"" . $index . "\">" . getMLText("seq_after", array("prevname" => htmlspecialchars($optionname)));
 		}
 		$content .= "</select>";
 		return $content;
@@ -2012,11 +2038,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 	function getKeywordChooserHtml($formName, $keywords = '', $fieldname = 'keywords')
 	{ /* {{{ */
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		$strictformcheck = $this->params['strictformcheck'];
 		$content = '';
+		$decrypted = $this->decryptName($keywords, $encryption_key);
+		$keyword = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $keywords : $decrypted;
 		$content .= '
 		    <div class="input-group">
-				<input class="form-control" type="text" name="' . $fieldname . '" id="' . $fieldname . '" value="' . htmlspecialchars($keywords) . '"' . ($strictformcheck ? ' required="required"' : '') . ' />
+				<input class="form-control" type="text" name="' . $fieldname . '" id="' . $fieldname . '" value="' . htmlspecialchars($keyword) . '"' . ($strictformcheck ? ' required="required"' : '') . ' />
 		    <div class="input-group-append">';
 		$content .= $this->getModalBoxLink(
 			array(
@@ -2177,9 +2206,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$content .= "<input type=\"text\" class=\"form-control\" id=\"" . $attr_id . "\" name=\"" . $attr_name . "\" value=\"" . htmlspecialchars($objvalue) . "\"" . ((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '') . ' data-rule-email="true"' . " />";
 				break;
 			/* case SeedDMS_Core_AttributeDefinition::type_float:
-																																																																																																										   $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
-																																																																																																										   $content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
-																																																																																																										   break; */
+																																																																																																																																																										$objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
+																																																																																																																																																										$content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
+																																																																																																																																																										break; */
 			case SeedDMS_Core_AttributeDefinition::type_folder:
 				$target = $attribute ? $attribute->getValue() : null;
 				$content .= $this->getFolderChooserHtml("attr" . $attrdef->getId(), M_READWRITE, -1, $target, $attr_name, false);
@@ -3558,6 +3587,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			if ($belowtitle = $this->callHook('documentListRowBelowTitle', $document, $latestContent))
 				$content .= $belowtitle;
 			else
+
 				$content .= "<span style=\"font-size: 85%; font-style: italic; color: #666; \">" . getMLText('owner') . ": <b>" . htmlspecialchars($owner->getFullName()) . "</b>, " . getMLText('creation_date') . ": <b>" . getReadableDate($document->getDate()) . "</b>, " . getMLText('version') . " <b>" . $version . "</b> - <b>" . getReadableDate($latestContent->getDate()) . "</b>" . ($document->expires() ? ", " . getMLText('expires') . ": <b>" . getReadableDate($document->getExpires()) . "</b>" : "") . "</span>";
 			if ($comment) {
 				$decrypted_comment = htmlspecialchars($this->decryptName($comment, $encryption_key));
@@ -4263,13 +4293,13 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = md5(uniqid());
 		/*
-																																																																							$this->addFooterJS('
-																																																																					$("body").on("click", "span.openpopupbox", function(e) {
-																																																																						$(""+$(e.target).data("href")).toggle();
-																																																																					//	$("div.popupbox").toggle();
-																																																																					});
-																																																																					');
-																																																																							 */
+																																																																																																						  $this->addFooterJS('
+																																																																																																				  $("body").on("click", "span.openpopupbox", function(e) {
+																																																																																																					  $(""+$(e.target).data("href")).toggle();
+																																																																																																				  //	$("div.popupbox").toggle();
+																																																																																																				  });
+																																																																																																				  ');
+																																																																																																						   */
 		$html = '
 		<span class="openpopupbox" data-href="#' . $id . '">' . $title . '</span>
 		<div id="' . $id . '" class="popupbox" style="display: none;">' . $content . '<span class="closepopupbox"><i class="fa fa-remove"></i></span>
