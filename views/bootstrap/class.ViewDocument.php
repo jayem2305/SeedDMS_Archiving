@@ -880,15 +880,21 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		if ($txt) {
 			echo $txt;
 		} else {
-			if ($latestContent->getComment())
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+			$encrypted_comment = $latestContent->getComment();
+			$decrypted = $this->decryptName($latestContent->getComment(), $encryption_key);
+			$keyword = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $latestContent->getComment() : $decrypted;
+
+			if ($encrypted_comment) {
 				if ($this->params['settings']->_markdownComments) {
 					$Parsedown = new Parsedown();
-					$comment = $Parsedown->text(htmlspecialchars($latestContent->getComment()));
+					$comment = $Parsedown->text(htmlspecialchars($keyword));
 					print "<div class=\"content-comment\">" . $comment . "</div>";
 				} else {
-					$comment = htmlspecialchars($latestContent->getComment());
-					print "<p style=\"font-style: italic;\">" . $comment . "</p>";
+					print "<p style=\"font-style: italic;\">" . $keyword . "</p>";
 				}
+			}
+
 		}
 		print "<ul class=\"actions unstyled\">\n";
 		$this->printVersionAttributes($folder, $latestContent);
