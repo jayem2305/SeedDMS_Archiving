@@ -1446,7 +1446,6 @@ background-image: linear-gradient(to bottom, #882222, #111111);;
 		$icons["pot"]  = "office-presentation.svg";
 		$icons["pptx"] = "office-presentation.svg";
 		$icons["potx"] = "office-presentation.svg";
-		$icons["exe"]  = "executable.svg";
 		$icons["html"] = "web.svg";
 		$icons["htm"]  = "web.svg";
 		$icons["gif"]  = "image.svg";

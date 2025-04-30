@@ -1423,7 +1423,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$icons["pot"] = "office-presentation.svg";
 		$icons["pptx"] = "office-presentation.svg";
 		$icons["potx"] = "office-presentation.svg";
-		$icons["exe"] = "executable.svg";
 		$icons["html"] = "web.svg";
 		$icons["htm"] = "web.svg";
 		$icons["gif"] = "image.svg";
