@@ -44,10 +44,10 @@ require_once "inc/inc.ClassAccessOperation.php";
 require_once "inc/inc.Authentication.php";
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user));
+$view = UI::factory($theme, $tmp[1], array('dms' => $dms, 'user' => $user));
 $accessop = new SeedDMS_AccessOperation($dms, $user, $settings);
 
-if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"])<1) {
+if (!isset($_GET["documentid"]) || !is_numeric($_GET["documentid"]) || intval($_GET["documentid"]) < 1) {
 	UI::exitError(getMLText("document_title", array("documentname" => getMLText("invalid_doc_id"))), getMLText("invalid_doc_id"));
 }
 $document = $dms->getDocument($_GET["documentid"]);
@@ -70,7 +70,7 @@ if ($document->isLocked()) {
 if ($settings->_quota > 0) {
 	$remain = checkQuota($user);
 	if ($remain < 0) {
-		UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))), getMLText("quota_exceeded", array('bytes'=>SeedDMS_Core_File::format_filesize(abs($remain)))));
+		UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))), getMLText("quota_exceeded", array('bytes' => SeedDMS_Core_File::format_filesize(abs($remain)))));
 	}
 }
 

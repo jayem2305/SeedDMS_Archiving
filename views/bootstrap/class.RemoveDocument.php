@@ -29,15 +29,30 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_View_RemoveDocument extends SeedDMS_Theme_Style {
+class SeedDMS_View_RemoveDocument extends SeedDMS_Theme_Style
+{
+	private function decryptName($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 
-	function show() { /* {{{ */
+
+	function show()
+	{ /* {{{ */
 		parent::show();
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$folder = $this->params['folder'];
 		$document = $this->params['document'];
-
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+		$decrypted_name = htmlspecialchars($this->decryptName($document->getName(), $encryption_key));
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
@@ -48,14 +63,14 @@ class SeedDMS_View_RemoveDocument extends SeedDMS_Theme_Style {
 			$this->warningMsg($msg);
 		}
 
-		$this->warningMsg(getMLText("confirm_rm_document", array ("documentname" => htmlspecialchars($document->getName()))));
-?>
-<form action="../op/op.RemoveDocument.php" name="form1" method="post">
-<input type="Hidden" name="documentid" value="<?php print $document->getID();?>">
-<?php echo createHiddenFieldWithKey('removedocument'); ?>
-<p><?php $this->formSubmit('<i class="fa fa-remove"></i> '.getMLText('rm_document'),'','','danger');?></p>
-</form>
-<?php
+		$this->warningMsg(getMLText("confirm_rm_document", array("documentname" => htmlspecialchars($decrypted_name))));
+		?>
+		<form action="../op/op.RemoveDocument.php" name="form1" method="post">
+			<input type="Hidden" name="documentid" value="<?php print $document->getID(); ?>">
+			<?php echo createHiddenFieldWithKey('removedocument'); ?>
+			<p><?php $this->formSubmit('<i class="fa fa-remove"></i> ' . getMLText('rm_document'), '', '', 'danger'); ?></p>
+		</form>
+		<?php
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */
