@@ -3,7 +3,7 @@
 /* ===================================================================== */
 /* ===================================================================== */
 /* ===================================================================== */
-#header-nav {
+/* #header-nav {
     margin-left: 10px;
     color: #222 !important;
 }
@@ -170,7 +170,7 @@
         margin-left: 0;
     }
 }
-
+ */
 
 /* ===================================================================== */
 /* ===================================================================== */
@@ -447,16 +447,19 @@ overflow: hidden;}
 
 }
 .span4 table {
-width: 100%;
-padding: .6rem 1.2rem;
-border-collapse: none;
-
-}
+    /* width: 100%; */
+    width: 30vw;
+    padding: 0 1.2rem;
+    border-collapse: none;}
 .span4 tr td{
-padding: .8rem 1rem !important;
-border-top: none;
-border-bottom: solid black 1px;
+    padding: .8rem 1rem !important;
+    border-top: none;
+    border-bottom: solid black 1px;
 }
+
+
+
+
 .span4 {
     overflow: hidden;
 } 
@@ -469,6 +472,11 @@ overflow: visible;}
     width: 50vw !important;
     border-radius: .8rem;
 }
+
+.span8 .tab-content {
+    min-height: 50vh !important;
+}
+
 
 #docinfotab {
     display: flex;
@@ -664,4 +672,31 @@ legend {
     margin-left: 0px !important;
     
 
+}
+
+
+.navbar-fixed-top .navbar-inner{
+    background-color: white !important;
+    background-image: none;
+    padding: .6rem 0;
+    border: none;
+
+}
+
+#searchfield {
+    border-radius: 4px 0 0 4px;
+    background-color: #F8F9FC;
+    border: none;
+}
+
+.searchicon {
+    background: #1D2329;
+    padding: 2px;
+    border-radius:0 4px 4px 0;
+    width: 30px;
+    text-align: center;
+    outline: solid #4E73DF 1px;
+}
+.searchicon i {
+    color: white;
 }
