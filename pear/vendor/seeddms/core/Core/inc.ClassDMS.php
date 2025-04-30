@@ -2909,12 +2909,6 @@ class SeedDMS_Core_DMS {
 		$combined_login = $encryption_iv_login . $encrypted_login;
 		$iv_base64_login = base64_encode($combined_login);
 
-		// Encrypt the password
-		$encryption_iv_pwd = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
-		$encrypted_pwd = openssl_encrypt($pwd, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_pwd);
-		$combined_pwd = $encryption_iv_pwd . $encrypted_pwd;
-		$iv_base64_pwd = base64_encode($combined_pwd);
-
 		// Encrypt the full name
 		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
 		$encrypted_name = openssl_encrypt($fullName, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
@@ -2933,7 +2927,7 @@ class SeedDMS_Core_DMS {
 		$combined_comment = $encryption_iv_comment . $encrypted_comment;
 		$iv_base64_comment = base64_encode($combined_comment);
 
-		$queryStr = "INSERT INTO `tblUsers` (`login`, `pwd`, `fullName`, `email`, `language`, `theme`, `comment`, `role`, `hidden`, `disabled`, `pwdExpiration`, `quota`, `homefolder`) VALUES (".$db->qstr($iv_base64_login).", ".$db->qstr($iv_base64_pwd).", ".$db->qstr($iv_base64_name).", ".$db->qstr($iv_base64_email).", '".$language."', '".$theme."', ".$db->qstr($iv_base64_comment).", '".intval($role->getId())."', '".intval($isHidden)."', '".intval($isDisabled)."', ".$pwdexpiration.", '".intval($quota)."', ".($homefolder ? intval($homefolder) : "NULL").")";
+		$queryStr = "INSERT INTO `tblUsers` (`login`, `pwd`, `fullName`, `email`, `language`, `theme`, `comment`, `role`, `hidden`, `disabled`, `pwdExpiration`, `quota`, `homefolder`) VALUES (".$db->qstr($iv_base64_login).", ".$db->qstr($pwd).", ".$db->qstr($iv_base64_name).", ".$db->qstr($iv_base64_email).", '".$language."', '".$theme."', ".$db->qstr($iv_base64_comment).", '".intval($role->getId())."', '".intval($isHidden)."', '".intval($isDisabled)."', ".$pwdexpiration.", '".intval($quota)."', ".($homefolder ? intval($homefolder) : "NULL").")";
 		$res = $this->db->getResult($queryStr);
 		if (!$res)
 			return false;
