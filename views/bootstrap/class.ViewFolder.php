@@ -293,6 +293,9 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 				}
 				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 				$decrypted_name = htmlspecialchars($this->decryptName(htmlspecialchars($comment), $encryption_key));
+				if ($decrypted_name === '[INVALID NAME]' || $decrypted_name === '[DECRYPTION FAILED]') {
+					$decrypted_name = $comment;
+				}
 				echo "<tr>";
 				echo "<td>" . getMLText("comment") . ":</td>\n";
 				echo "<td><div class=\"folder-comment\">" . $decrypted_name . "</div></td>\n";

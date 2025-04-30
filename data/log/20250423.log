@@ -66,18 +66,3 @@ Apr 23 08:12:44  [info] admin (::1) op.Categories.php .php&action=addcategory&ca
 Apr 23 08:12:59  [info] admin (::1) op.AttributeMgr.php &action=addattrdef&name=test
 Apr 23 08:13:49  [info] admin (::1) op.ExtensionMgr.php 
 Apr 23 08:13:55  [info] admin (::1) op.ClearCache.php 
-Apr 23 08:18:15  [info] admin (::1) op.EditComment.php ?documentid=1
-Apr 23 08:18:35  [info] admin (::1) op.UpdateDocument.php update document 1 with version 3
-Apr 23 08:19:49  [info] admin (::1) op.UpdateDocument.php update document 1 with version 4
-Apr 23 08:20:04  [info] admin (::1) op.EditComment.php ?documentid=1
-Apr 23 08:20:09  [info] admin (::1) op.EditComment.php ?documentid=1
-Apr 23 08:20:21  [info] admin (::1) op.OverrideContentStatus.php ?documentid=1
-Apr 23 08:28:27  [error] Notification service 'email': Sending notification 'review_request_email_subject' to user 'test@gmail.com' (3) failed.
-Apr 23 08:28:31  [error] Notification service 'email': Sending notification 'approval_request_email_subject' to user '+3CSj0mQdl5n1tLTwznyBzrN4nbWvosuewH7aknVIShMB05m6taBvdYb52+ejBk9' (4) failed.
-Apr 23 08:28:31  [info] admin (::1) op.SetReviewersApprovers.php ?documentid=1
-Apr 23 10:07:00  [info] admin (::1) op.Ajax.php add document 7 in folder 1
-Apr 23 10:07:11  [info] admin (::1) op.Ajax.php?command=deletedocument&id=7&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 7
-Apr 23 10:08:47  [info] admin (::1) op.Ajax.php add document 8 in folder 1
-Apr 23 10:09:14  [info] admin (::1) op.Ajax.php?command=deletedocument&id=8&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 8
-Apr 23 10:09:18  [info] admin (::1) op.Ajax.php add document 9 in folder 1
-Apr 23 10:09:39  [info] admin (::1) op.Ajax.php?command=deletedocument&id=9&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 9
