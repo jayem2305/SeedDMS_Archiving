@@ -31,6 +31,28 @@
  */
 class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 {
+	private function decryptName($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
+
+	private function looksEncrypted($string)
+	{
+		// Check if it’s valid base64 and long enough to hold IV + ciphertext
+		if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $string)) {
+			return false;
+		}
+
+		$decoded = base64_decode($string, true);
+		return $decoded !== false && strlen($decoded) > 16;
+	}
 
 	function js()
 	{ /* {{{ */
@@ -149,43 +171,6 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 			self::showButtonwithMenu($button);
 		}
 	} /* }}} */
-	private function decryptName($encrypted_combined_base64, $key)
-	{
-		// Decode the base64 encoded string
-		$data = base64_decode($encrypted_combined_base64);
-
-		// If the data can't be decoded properly or is too short, return an error
-		if ($data === false || strlen($data) < 16) {
-			error_log("Base64 decode failed or data too short for: " . $encrypted_combined_base64);
-			return '[INVALID NAME]';
-		}
-
-		// Extract the IV (first 16 bytes) and ciphertext (remaining data)
-		$iv = substr($data, 0, 16);
-		$ciphertext = substr($data, 16);
-
-		// Log the IV and ciphertext for debugging (as hex to see byte values)
-		error_log("IV (Hex): " . bin2hex($iv));
-		error_log("Ciphertext (Hex): " . bin2hex($ciphertext));
-
-		// Attempt decryption using AES-256-CBC
-		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
-
-		// If decryption fails, log the error and return a failure message
-		if ($decrypted === false) {
-			error_log("Decryption failed for data: " . $encrypted_combined_base64);
-			return '[DECRYPTION FAILED]';
-		}
-
-		return $decrypted;
-	}
-
-	private function isProbablyEncrypted($text)
-	{
-		$decoded = base64_decode($text, true);
-		return $decoded !== false && strlen($decoded) > 16;
-	}
-
 
 	function showGroupForm($group)
 	{ /* {{{ */
@@ -198,30 +183,19 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 		?>
 		<form class="form-horizontal" action="../op/op.GroupMgr.php" name="form_1" id="form_1" method="post">
 			<?php
-			$namedecrypt = '';
-			$commentdecrypt = '';
-			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-
 			if ($group) {
 				echo createHiddenFieldWithKey('editgroup');
-				$namedecrypt = $this->decryptName($group->getName(), $encryption_key);
-				$commentdecrypt = $this->decryptName($group->getComment(), $encryption_key);
 				?>
 				<input type="hidden" name="groupid" value="<?php print $group->getID(); ?>">
 				<input type="hidden" name="action" value="editgroup">
 				<?php
 			} else {
 				echo createHiddenFieldWithKey('addgroup');
-				// Leave name and comment blank for new group
-				$namedecrypt = '';
-				$commentdecrypt = '';
 				?>
 				<input type="hidden" name="action" value="addgroup">
 				<?php
 			}
-
 			$this->contentContainerStart();
-
 			$this->formField(
 				getMLText("name"),
 				array(
@@ -229,10 +203,9 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 					'type' => 'text',
 					'id' => 'name',
 					'name' => 'name',
-					'value' => htmlspecialchars($namedecrypt)
+					'value' => ($group ? htmlspecialchars($group->getName()) : '')
 				)
 			);
-
 			$this->formField(
 				getMLText("comment"),
 				array(
@@ -240,15 +213,13 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 					'id' => 'comment',
 					'name' => 'comment',
 					'rows' => 4,
-					'value' => htmlspecialchars($commentdecrypt)
+					'value' => ($group ? htmlspecialchars($group->getComment()) : '')
 				)
 			);
-
 			$this->contentContainerEnd();
 			$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('save'));
 			?>
 		</form>
-
 		<?php
 		if ($group) {
 			$this->contentHeading(getMLText("group_members"));
@@ -356,47 +327,34 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 		$this->contentHeading(getMLText("group_management"));
 		$this->rowStart();
 		$this->columnStart(4);
+		$encryption_key = hex2bin('b8c75fa53c0c7a18a84adb6ca815bd94'); // This will be 16 bytes, perfect for AES-128-CBC
 		?>
 		<form class="form-horizontal">
 			<?php
 			$options = array();
 			$options[] = array("-1", getMLText("choose_group"));
 			$options[] = array("0", getMLText("add_group"));
-			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-
 			foreach ($allGroups as $group) {
-				try {
-					$decrypted = $this->decryptName($group->getName(), $encryption_key);
+				// Ensure the key is 16 bytes (128 bits) for AES-128-CBC
+				//$encryption_key = hex2bin('b8c75fa53c0c7a18a84adb6ca815bd94'); // 16 bytes
+				$rawName = $group->getName();
 
-					// Check if decryption failed and log the error
-					if ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') {
-						// Log the error to the JavaScript console
-						echo '<script>';
-						echo 'console.log(' . json_encode("Decryption failed for group ID: " . $group->getID() . " with name: " . $group->getName()) . ');';
-						echo '</script>';
+				echo "<script>console.log(" . json_encode("[RAW BASE64] " . $group->getName()) . ");</script>";
 
-						// Fallback to '(Unreadable)'
-						$decrypted = '(Unreadable)';
-					}
-
-					// Sanitize the output for safe HTML rendering
-					$decrypted_names = htmlspecialchars($decrypted, ENT_QUOTES, 'UTF-8');
-
-				} catch (Exception $e) {
-					// Log the error message if an exception occurs during decryption
-					error_log("Exception during decryption for group ID: " . $group->getID() . ". Error: " . $e->getMessage());
-					$decrypted_names = '(Unreadable)';
+				// Check if the name *looks like* a base64-encoded encrypted string
+				if ($this->looksEncrypted($rawName)) {
+					$decrypted_name = $this->decryptName($rawName, $encryption_key);
+				} else {
+					$decrypted_name = $rawName;
 				}
 
-				// Add the decrypted group name to options
 				$options[] = array(
 					$group->getID(),
-					$decrypted_names,
+					htmlspecialchars($decrypted_name),
 					$selgroup && $group->getID() == $selgroup->getID()
 				);
 			}
 
-			// Create the select dropdown field
 			$this->formField(
 				null, //getMLText("selection"),
 				array(

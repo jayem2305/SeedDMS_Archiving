@@ -31,7 +31,17 @@
  */
 class SeedDMS_View_UpdateDocument extends SeedDMS_Theme_Style
 {
-
+	private function decryptName($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	function js()
 	{ /* {{{ */
 		$strictformcheck = $this->params['strictformcheck'];
@@ -717,7 +727,9 @@ class SeedDMS_View_UpdateDocument extends SeedDMS_Theme_Style
 
 				$options = array();
 				foreach ($docAccess["groups"] as $grp) {
-					$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
+					$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+					$decrypted_name = htmlspecialchars($this->decryptName($grp->getName(), $encryption_key));
+					$options[] = array($grp->getID(), htmlspecialchars($decrypted_name));
 				}
 				$tmp = array();
 				foreach ($receiptStatus as $r) {

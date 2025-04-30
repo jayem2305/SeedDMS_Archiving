@@ -54,3 +54,10 @@ Apr 29 12:40:43  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=6NcSSE
 Apr 29 12:49:34  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=XeY1jckT9T6+stHQt+7tIErC2N67NGBUErrImul/e9w=
 Apr 29 12:51:26  [info] admin (::1) op.GroupMgr.php ?groupid=4&action=editgroup
 Apr 29 12:51:36  [info] admin (::1) op.GroupMgr.php ?groupid=9&action=editgroup
+Apr 29 13:56:21  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=p40EYpnZkXivLCWhqTMIklnV4sKpjS4Cjtgr5n6oTl4=
+Apr 29 16:55:07  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=9zMXfQuUThZtxM7c3o+ow4c4cnbtMjPcjB9405v65aE=
+Apr 29 16:55:41  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=GAnA8Asf/EAxtka1qtBmi5E4oRPAGA+q78kNh7lDL6Y=
+Apr 29 17:01:45  [info] admin (::1) op.Categories.php .php&action=addcategory&categoryid=1
+Apr 29 17:01:56  [info] admin (::1) op.Categories.php .php&action=editcategory&categoryid=1
+Apr 29 17:02:11  [info] admin (::1) op.Categories.php .php&action=removecategory&categoryid=1
+Apr 29 17:02:24  [info] admin (::1) op.Categories.php .php&action=addcategory&categoryid=2
