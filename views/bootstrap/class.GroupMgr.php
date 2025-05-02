@@ -33,15 +33,39 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 {
 	private function decryptName($encrypted_combined_base64, $key)
 	{
-		$data = base64_decode($encrypted_combined_base64);
-		if ($data === false || strlen($data) < 16) {
+		// Ensure it's a valid base64-encoded string
+		$data = base64_decode($encrypted_combined_base64, true); // strict mode
+		if ($data === false || strlen($data) < 17) { // 16-byte IV + 1+ byte ciphertext
+			error_log("DecryptName: Invalid or non-encrypted string.");
 			return '[INVALID NAME]';
 		}
+
 		$iv = substr($data, 0, 16);
 		$ciphertext = substr($data, 16);
+
 		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
-		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+
+		if ($decrypted === false) {
+			error_log("DecryptName: Decryption failed for data: " . $encrypted_combined_base64);
+			return '[DECRYPTION FAILED]';
+		}
+
+		return $decrypted;
 	}
+	private function maybeDecrypt($value, $key)
+	{
+		$decoded = base64_decode($value, true);
+		if ($decoded === false || strlen($decoded) < 17) {
+			return $value; // Probably plain text
+		}
+
+		$iv = substr($decoded, 0, 16);
+		$ciphertext = substr($decoded, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+
+		return $decrypted === false ? $value : $decrypted;
+	}
+
 
 	private function looksEncrypted($string)
 	{
@@ -183,8 +207,12 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 		?>
 		<form class="form-horizontal" action="../op/op.GroupMgr.php" name="form_1" id="form_1" method="post">
 			<?php
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
 			if ($group) {
 				echo createHiddenFieldWithKey('editgroup');
+				$getName = $this->maybeDecrypt($group->getName(), $encryption_key);
+
 				?>
 				<input type="hidden" name="groupid" value="<?php print $group->getID(); ?>">
 				<input type="hidden" name="action" value="editgroup">
@@ -203,7 +231,7 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 					'type' => 'text',
 					'id' => 'name',
 					'name' => 'name',
-					'value' => ($group ? htmlspecialchars($group->getName()) : '')
+					'value' => ($group ? htmlspecialchars($getName) : '')
 				)
 			);
 			$this->formField(
@@ -213,9 +241,10 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 					'id' => 'comment',
 					'name' => 'comment',
 					'rows' => 4,
-					'value' => ($group ? htmlspecialchars($group->getComment()) : '')
+					'value' => ($group && $group->getComment() ? htmlspecialchars($this->maybeDecrypt($group->getComment(), $encryption_key)) : '')
 				)
 			);
+
 			$this->contentContainerEnd();
 			$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('save'));
 			?>
@@ -230,12 +259,14 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 				if (count($members) == 0)
 					print "<tr><td>" . getMLText("no_group_members") . "</td></tr>";
 				else {
-
+					$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 					foreach ($members as $member) {
-
+						$getName = $this->maybeDecrypt($member->getFullName(), $encryption_key);
+						$getLogin = $this->maybeDecrypt($member->getLogin(), $encryption_key);
+						$getEmail = $this->maybeDecrypt($member->getEmail(), $encryption_key);
 						print "<tr>";
 						print "<td><i class=\"fa fa-user\"></i></td>";
-						print "<td>" . htmlspecialchars($member->getFullName() . " (" . $member->getLogin() . ")") . "<br>" . htmlspecialchars($member->getEmail()) . "</td>";
+						print "<td>" . htmlspecialchars($getName . " (" . $getLogin . ")") . "<br>" . htmlspecialchars($getEmail) . "</td>";
 						print "<td>" . ($group->isMember($member, true) ? getMLText("manager") : "&nbsp;") . "</td>";
 						print "<td>";
 						print "<form action=\"../op/op.GroupMgr.php\" method=\"post\" class=\"form-inline\" style=\"display: inline-block; margin-bottom: 0px;\"><input type=\"hidden\" name=\"action\" value=\"rmmember\" /><input type=\"hidden\" name=\"groupid\" value=\"" . $group->getID() . "\" /><input type=\"hidden\" name=\"userid\" value=\"" . $member->getID() . "\" />" . createHiddenFieldWithKey('rmmember') . "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i><span class=\"d-none d-lg-block\"> " . getMLText("delete") . "</span></button></form>";
@@ -268,9 +299,14 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 				$this->contentContainerStart();
 				$options = array();
 				$allUsers = $dms->getAllUsers($sortusersinlist);
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
 				foreach ($allUsers as $currUser) {
+					$getName = $this->maybeDecrypt($member->getFullName(), $encryption_key);
+					$getLogin = $this->maybeDecrypt($member->getLogin(), $encryption_key);
+					$getEmail = $this->maybeDecrypt($member->getEmail(), $encryption_key);
 					if (!$group->isMember($currUser))
-						$options[] = array($currUser->getID(), htmlspecialchars($currUser->getLogin() . ' - ' . $currUser->getFullName()), ($currUser->getID() == $user->getID()), array(array('data-subtitle', htmlspecialchars($currUser->getEmail()))));
+						$options[] = array($currUser->getID(), htmlspecialchars($getLogin . ' - ' . $getName), ($currUser->getID() == $user->getID()), array(array('data-subtitle', htmlspecialchars($getEmail))));
 				}
 				$this->formField(
 					getMLText("user"),
@@ -327,7 +363,7 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 		$this->contentHeading(getMLText("group_management"));
 		$this->rowStart();
 		$this->columnStart(4);
-		$encryption_key = hex2bin('b8c75fa53c0c7a18a84adb6ca815bd94'); // This will be 16 bytes, perfect for AES-128-CBC
+		$encryption_key = "b8c75fa53c0c7a18a84adb6ca815bd94"; // This will be 16 bytes, perfect for AES-128-CBC
 		?>
 		<form class="form-horizontal">
 			<?php
@@ -343,7 +379,7 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 
 				// Check if the name *looks like* a base64-encoded encrypted string
 				if ($this->looksEncrypted($rawName)) {
-					$decrypted_name = $this->decryptName($rawName, $encryption_key);
+					$decrypted_name = $this->maybeDecrypt($rawName, $encryption_key);
 				} else {
 					$decrypted_name = $rawName;
 				}

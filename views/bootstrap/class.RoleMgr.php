@@ -169,7 +169,12 @@ class SeedDMS_View_RoleMgr extends SeedDMS_Theme_Style
 				<?php
 			}
 			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-			$decrypted_name = htmlspecialchars($this->decryptName($currRole->getName(), $encryption_key));
+			$decrypted_name = '';
+
+			if ($currRole) {
+				$decrypted_name = $this->decryptName($currRole->getName(), $encryption_key);
+			}
+
 			$this->contentContainerStart();
 			$this->formField(
 				getMLText("role_name"),
@@ -178,9 +183,10 @@ class SeedDMS_View_RoleMgr extends SeedDMS_Theme_Style
 					'type' => 'text',
 					'id' => 'name',
 					'name' => 'name',
-					'value' => ($currRole ? htmlspecialchars($decrypted_name) : '')
+					'value' => htmlspecialchars($decrypted_name)
 				)
 			);
+
 			$options = array();
 			$options[] = array(SeedDMS_Core_Role::role_user, getMLText("role_user"), $currRole && $currRole->getRole() == SeedDMS_Core_Role::role_user);
 			$options[] = array(SeedDMS_Core_Role::role_admin, getMLText("role_admin"), $currRole && $currRole->getRole() == SeedDMS_Core_Role::role_admin);
