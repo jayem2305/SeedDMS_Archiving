@@ -31,65 +31,67 @@ include("../inc/inc.Authentication.php");
 include("../inc/inc.ClassPasswordStrength.php");
 
 if (!$user->isAdmin()) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"), getMLText("access_denied"));
 }
 
 $accessop = new SeedDMS_AccessOperation($dms, $user, $settings);
 if (!$accessop->check_controller_access('UsrMgr', $_POST)) {
-	UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
+	UI::exitError(getMLText("admin_tools"), getMLText("access_denied"));
 }
 
-if (isset($_POST["action"])) $action=$_POST["action"];
-else $action=NULL;
+if (isset($_POST["action"]))
+	$action = $_POST["action"];
+else
+	$action = NULL;
 
 // add new user ---------------------------------------------------------
 if ($action == "adduser") {
-	
+
 	/* Check if the form data comes from a trusted request */
-	if(!checkFormKey('adduser')) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	if (!checkFormKey('adduser')) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_request_token"));
 	}
 
-	$login   = $_POST["login"];
-	$pwd     = $_POST["pwd"];
-	if(!isset($_POST["pwdexpiration"]))
+	$login = $_POST["login"];
+	$pwd = $_POST["pwd"];
+	if (!isset($_POST["pwdexpiration"]))
 		$pwdexpiration = '';
 	else
 		$pwdexpiration = $_POST["pwdexpiration"];
-	$name    = $_POST["name"];
-	if(!$name) {
-		UI::exitError(getMLText("admin_tools"),getMLText("user_name_missing"));
+	$name = $_POST["name"];
+	if (!$name) {
+		UI::exitError(getMLText("admin_tools"), getMLText("user_name_missing"));
 	}
-	$email   = $_POST["email"];
-	if(!$email) {
-		UI::exitError(getMLText("admin_tools"),getMLText("user_email_missing"));
+	$email = $_POST["email"];
+	if (!$email) {
+		UI::exitError(getMLText("admin_tools"), getMLText("user_email_missing"));
 	}
-	$comment = $_POST["comment"];
+	$comment = isset($_POST['comment']) ? $_POST['comment'] : '';
+
 	$theme = $_POST["theme"];
 	if ($settings->_strictFormCheck && !$comment) {
-		UI::exitError(getMLText("admin_tools"),getMLText("user_comment_missing"));
+		UI::exitError(getMLText("admin_tools"), getMLText("user_comment_missing"));
 	}
-	$role    = $dms->getRole($_POST["role"]);
-	$isHidden = (isset($_POST["ishidden"]) && $_POST["ishidden"]==1 ? 1 : 0);
-	$isDisabled = (isset($_POST["isdisabled"]) && $_POST["isdisabled"]==1 ? 1 : 0);
+	$role = $dms->getRole($_POST["role"]);
+	$isHidden = (isset($_POST["ishidden"]) && $_POST["ishidden"] == 1 ? 1 : 0);
+	$isDisabled = (isset($_POST["isdisabled"]) && $_POST["isdisabled"] == 1 ? 1 : 0);
 	$homefolder = (isset($_POST["homefolder"]) ? $_POST["homefolder"] : 0);
 	$quota = (isset($_POST["quota"]) ? (int) $_POST["quota"] : 0);
 
 	if (is_object($dms->getUserByLogin($login))) {
-		UI::exitError(getMLText("admin_tools"),getMLText("user_exists"));
+		UI::exitError(getMLText("admin_tools"), getMLText("user_exists"));
 	}
 
 	$newUser = $dms->addUser($login, seed_pass_hash($pwd), $name, $email, $settings->_language, $theme, $comment, $role, $isHidden, $isDisabled, $pwdexpiration, $quota, $homefolder);
 	if ($newUser) {
 
 		/* Set user image if uploaded */
-		if (isset($_FILES["userfile"]) && is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["size"] > 0 && $_FILES['userfile']['error']==0)
-		{
+		if (isset($_FILES["userfile"]) && is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["size"] > 0 && $_FILES['userfile']['error'] == 0) {
 			$userfiletype = $_FILES["userfile"]["type"];
 			$userfilename = $_FILES["userfile"]["name"];
-			$fileType = ".".pathinfo($userfilename, PATHINFO_EXTENSION);
+			$fileType = "." . pathinfo($userfilename, PATHINFO_EXTENSION);
 			if ($fileType != ".jpg" && $filetype != ".jpeg") {
-				UI::exitError(getMLText("admin_tools"),getMLText("only_jpg_user_images"));
+				UI::exitError(getMLText("admin_tools"), getMLText("only_jpg_user_images"));
 			} else {
 				resizeImage($_FILES["userfile"]["tmp_name"]);
 				$newUser->setImage($_FILES["userfile"]["tmp_name"], $userfiletype);
@@ -97,129 +99,129 @@ if ($action == "adduser") {
 		}
 
 		/* Set groups if set */
-		if(isset($_POST["groups"]) && $_POST["groups"]) {
-			foreach($_POST["groups"] as $groupid) {
+		if (isset($_POST["groups"]) && $_POST["groups"]) {
+			foreach ($_POST["groups"] as $groupid) {
 				$group = $dms->getGroup($groupid);
 				$group->addUser($newUser);
 			}
 		}
 
 		/* Set substitute user if set */
-		if(isset($_POST["substitute"]) && $_POST["substitute"]) {
-			foreach($_POST["substitute"] as $substitute) {
+		if (isset($_POST["substitute"]) && $_POST["substitute"]) {
+			foreach ($_POST["substitute"] as $substitute) {
 				$subsuser = $dms->getUser($substitute);
 				$newUser->addSubstitute($subsuser);
 			}
 		}
-	}
-	else UI::exitError(getMLText("admin_tools"),getMLText("access_denied"));
-	
-	if(isset($_POST["workflows"]) && $_POST["workflows"]) {
+	} else
+		UI::exitError(getMLText("admin_tools"), getMLText("access_denied"));
+
+	if (isset($_POST["workflows"]) && $_POST["workflows"]) {
 		$workflows = array();
-		foreach($_POST["workflows"] as $workflowid)
-			if($tmp = $dms->getWorkflow($workflowid))
+		foreach ($_POST["workflows"] as $workflowid)
+			if ($tmp = $dms->getWorkflow($workflowid))
 				$workflows[] = $tmp;
-		if($workflows)
+		if ($workflows)
 			$newUser->setMandatoryWorkflows($workflows);
 	}
 
-	if (isset($_POST["usrReviewers"])){
-		foreach ($_POST["usrReviewers"] as $revID) 
-			$newUser->setMandatoryReviewer($revID,false);
+	if (isset($_POST["usrReviewers"])) {
+		foreach ($_POST["usrReviewers"] as $revID)
+			$newUser->setMandatoryReviewer($revID, false);
 	}
-	
-	if (isset($_POST["grpReviewers"])){
-		foreach ($_POST["grpReviewers"] as $revID) 
-			$newUser->setMandatoryReviewer($revID,true);
-	}
-		
-	if (isset($_POST["usrApprovers"])){
-		foreach ($_POST["usrApprovers"] as $appID) 
-			$newUser->setMandatoryApprover($appID,false);
-	}
-			
-	if (isset($_POST["grpApprovers"])){
-		foreach ($_POST["grpApprovers"] as $appID) 
-			$newUser->setMandatoryApprover($appID,true);
-	}
-	
-	$userid=$newUser->getID();
-	
-	$session->setSplashMsg(array('type'=>'success', 'msg'=>getMLText('splash_add_user')));
 
-	add_log_line(".php&action=adduser&login=".$login);
+	if (isset($_POST["grpReviewers"])) {
+		foreach ($_POST["grpReviewers"] as $revID)
+			$newUser->setMandatoryReviewer($revID, true);
+	}
+
+	if (isset($_POST["usrApprovers"])) {
+		foreach ($_POST["usrApprovers"] as $appID)
+			$newUser->setMandatoryApprover($appID, false);
+	}
+
+	if (isset($_POST["grpApprovers"])) {
+		foreach ($_POST["grpApprovers"] as $appID)
+			$newUser->setMandatoryApprover($appID, true);
+	}
+
+	$userid = $newUser->getID();
+
+	$session->setSplashMsg(array('type' => 'success', 'msg' => getMLText('splash_add_user')));
+
+	add_log_line(".php&action=adduser&login=" . $login);
 }
 
 // delete user ------------------------------------------------------------
 else if ($action == "removeuser") {
 
 	/* Check if the form data comes from a trusted request */
-	if(!checkFormKey('removeuser')) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	if (!checkFormKey('removeuser')) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_request_token"));
 	}
 
 	if (isset($_POST["userid"])) {
 		$userid = $_POST["userid"];
 	}
 
-	if (!isset($userid) || !is_numeric($userid) || intval($userid)<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+	if (!isset($userid) || !is_numeric($userid) || intval($userid) < 1) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 	}
 
-	if(in_array($userid, $settings->_undelUserIds)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("cannot_delete_user"));
+	if (in_array($userid, $settings->_undelUserIds)) {
+		UI::exitError(getMLText("admin_tools"), getMLText("cannot_delete_user"));
 	}
 
 	/* This used to be a check if an admin is deleted. Now it checks if one
 	 * wants to delete herself.
 	 */
-	if ($userid==$user->getID()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("cannot_delete_yourself"));
+	if ($userid == $user->getID()) {
+		UI::exitError(getMLText("admin_tools"), getMLText("cannot_delete_yourself"));
 	}
 
 	$userToRemove = $dms->getUser($userid);
 	if (!is_object($userToRemove)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 	}
 
 	$userToAssign = $dms->getUser($_POST["assignTo"]);
 	if (!$userToRemove->remove($user, $userToAssign)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
+		UI::exitError(getMLText("admin_tools"), getMLText("error_occured"));
 	}
-		
-	add_log_line(".php&action=removeuser&userid=".$userid);
-	
-	$session->setSplashMsg(array('type'=>'success', 'msg'=>getMLText('splash_rm_user')));
-	$userid=-1;
+
+	add_log_line(".php&action=removeuser&userid=" . $userid);
+
+	$session->setSplashMsg(array('type' => 'success', 'msg' => getMLText('splash_rm_user')));
+	$userid = -1;
 }
 
 // remove user from all processes (approval, review)
 else if ($action == "removefromprocesses") {
 
 	/* Check if the form data comes from a trusted request */
-	if(!checkFormKey('removefromprocesses')) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	if (!checkFormKey('removefromprocesses')) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_request_token"));
 	}
 
 	if (isset($_POST["userid"])) {
 		$userid = $_POST["userid"];
 	}
 
-	if (!isset($userid) || !is_numeric($userid) || intval($userid)<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+	if (!isset($userid) || !is_numeric($userid) || intval($userid) < 1) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 	}
 
 	/* This used to be a check if an admin is deleted. Now it checks if one
 	 * wants to delete herself.
 	 */
-	if ($userid==$user->getID()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("cannot_delete_yourself"));
+	if ($userid == $user->getID()) {
+		UI::exitError(getMLText("admin_tools"), getMLText("cannot_delete_yourself"));
 	}
 
-	if(!empty($_POST["assignTo"])) {
+	if (!empty($_POST["assignTo"])) {
 		$userToAssign = $dms->getUser($_POST["assignTo"]);
 		if (!is_object($userToAssign)) {
-			UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+			UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 		}
 	} else {
 		$userToAssign = null;
@@ -227,26 +229,26 @@ else if ($action == "removefromprocesses") {
 
 	$userToRemove = $dms->getUser($userid);
 	if (!is_object($userToRemove)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 	}
 
-	if(isset($_POST["status"]) && is_array($_POST["status"]) && $_POST["status"]) {
-		if(!isset($_POST["status"]["review"]))
+	if (isset($_POST["status"]) && is_array($_POST["status"]) && $_POST["status"]) {
+		if (!isset($_POST["status"]["review"]))
 			$_POST["status"]["review"] = array();
-		if(!isset($_POST["status"]["approval"]))
+		if (!isset($_POST["status"]["approval"]))
 			$_POST["status"]["approval"] = array();
-		if(!isset($_POST["status"]["receipt"]))
+		if (!isset($_POST["status"]["receipt"]))
 			$_POST["status"]["receipt"] = array();
-		if(!isset($_POST["status"]["revision"]))
+		if (!isset($_POST["status"]["revision"]))
 			$_POST["status"]["revision"] = array();
-		if(!empty($_POST['needsdocs']) && empty($_POST['docs'])) {
-			$session->setSplashMsg(array('type'=>'error', 'msg'=>getMLText('error_rm_user_processes_no_docs')));
+		if (!empty($_POST['needsdocs']) && empty($_POST['docs'])) {
+			$session->setSplashMsg(array('type' => 'error', 'msg' => getMLText('error_rm_user_processes_no_docs')));
 		} else {
 			if (!$userToRemove->removeFromProcesses($user, $_POST['status'], $userToAssign, $_POST['docs'])) {
-				UI::exitError(getMLText("admin_tools"),getMLText("error_rm_user_processes"));
+				UI::exitError(getMLText("admin_tools"), getMLText("error_rm_user_processes"));
 			}
-			add_log_line(".php&action=removefromprocesses&userid=".$userid);
-			$session->setSplashMsg(array('type'=>'success', 'msg'=>getMLText('splash_rm_user_processes')));
+			add_log_line(".php&action=removefromprocesses&userid=" . $userid);
+			$session->setSplashMsg(array('type' => 'success', 'msg' => getMLText('splash_rm_user_processes')));
 		}
 	}
 }
@@ -255,51 +257,51 @@ else if ($action == "removefromprocesses") {
 else if ($action == "transferobjects") {
 
 	/* Check if the form data comes from a trusted request */
-	if(!checkFormKey('transferobjects')) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	if (!checkFormKey('transferobjects')) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_request_token"));
 	}
 
 	if (isset($_POST["userid"])) {
 		$userid = $_POST["userid"];
 	}
 
-	if (!isset($userid) || !is_numeric($userid) || intval($userid)<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+	if (!isset($userid) || !is_numeric($userid) || intval($userid) < 1) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 	}
 
 	/* Check if one  wants to transfer his/her own objects.
 	 */
-	if ($userid==$user->getID()) {
-		UI::exitError(getMLText("admin_tools"),getMLText("cannot_transfer_your_objects"));
+	if ($userid == $user->getID()) {
+		UI::exitError(getMLText("admin_tools"), getMLText("cannot_transfer_your_objects"));
 	}
 
 	$userToRemove = $dms->getUser($userid);
 	if (!is_object($userToRemove)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 	}
 
 	$userToAssign = $dms->getUser($_POST["assignTo"]);
-		
-//	if(isset($_POST["status"]) && is_array($_POST["status"]) && $_POST["status"]) {
-		if (!$userToRemove->transferDocumentsFolders($userToAssign)) {
-			UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
-		}
 
-		if (!$userToRemove->transferEvents($userToAssign)) {
-			UI::exitError(getMLText("admin_tools"),getMLText("error_occured"));
-		}
+	//	if(isset($_POST["status"]) && is_array($_POST["status"]) && $_POST["status"]) {
+	if (!$userToRemove->transferDocumentsFolders($userToAssign)) {
+		UI::exitError(getMLText("admin_tools"), getMLText("error_occured"));
+	}
 
-		add_log_line(".php&action=transferobjects&userid=".$userid);
-		
-		$session->setSplashMsg(array('type'=>'success', 'msg'=>getMLText('splash_transfer_objects')));
-//	}
+	if (!$userToRemove->transferEvents($userToAssign)) {
+		UI::exitError(getMLText("admin_tools"), getMLText("error_occured"));
+	}
+
+	add_log_line(".php&action=transferobjects&userid=" . $userid);
+
+	$session->setSplashMsg(array('type' => 'success', 'msg' => getMLText('splash_transfer_objects')));
+	//	}
 }
 
 // send login data to user
 else if ($action == "sendlogindata" && $settings->_enableEmail) {
 	/* Check if the form data comes from a trusted request */
-	if(!checkFormKey('sendlogindata')) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	if (!checkFormKey('sendlogindata')) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_request_token"));
 	}
 
 	if (isset($_POST["userid"])) {
@@ -311,94 +313,94 @@ else if ($action == "sendlogindata" && $settings->_enableEmail) {
 		$comment = $_POST["comment"];
 	}
 
-	if (!isset($userid) || !is_numeric($userid) || intval($userid)<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+	if (!isset($userid) || !is_numeric($userid) || intval($userid) < 1) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 	}
 
 	$newuser = $dms->getUser($userid);
 	if (!is_object($newuser)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 	}
 
-	if($notifier) {
+	if ($notifier) {
 		$subject = "send_login_data_subject";
 		$message = "send_login_data_body";
 		$params = array();
 		$params['username'] = $newuser->getFullName();
 		$params['login'] = $newuser->getLogin();
 		$params['comment'] = $comment;
-		$params['url'] = getBaseUrl().$settings->_httpRoot."out/out.ViewFolder.php";
+		$params['url'] = getBaseUrl() . $settings->_httpRoot . "out/out.ViewFolder.php";
 		$params['sitename'] = $settings->_siteName;
 		$params['http_root'] = $settings->_httpRoot;
 		$notifier->toIndividual($user, $newuser, $subject, $message, $params, SeedDMS_NotificationService::RECV_OWNER);
 	}
-	add_log_line(".php&action=sendlogindata&userid=".$userid);
-		
-	$session->setSplashMsg(array('type'=>'success', 'msg'=>getMLText('splash_send_login_data')));
+	add_log_line(".php&action=sendlogindata&userid=" . $userid);
+
+	$session->setSplashMsg(array('type' => 'success', 'msg' => getMLText('splash_send_login_data')));
 }
 
 // modify user ------------------------------------------------------------
 else if ($action == "edituser") {
 
 	/* Check if the form data comes from a trusted request */
-	if(!checkFormKey('edituser')) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_request_token"));
+	if (!checkFormKey('edituser')) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_request_token"));
 	}
 
-	if (!isset($_POST["userid"]) || !is_numeric($_POST["userid"]) || intval($_POST["userid"])<1) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+	if (!isset($_POST["userid"]) || !is_numeric($_POST["userid"]) || intval($_POST["userid"]) < 1) {
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 	}
-	
-	$userid=$_POST["userid"];
+
+	$userid = $_POST["userid"];
 	$editedUser = $dms->getUser($userid);
-	
+
 	if (!is_object($editedUser)) {
-		UI::exitError(getMLText("admin_tools"),getMLText("invalid_user_id"));
+		UI::exitError(getMLText("admin_tools"), getMLText("invalid_user_id"));
 	}
 
-	$login   = $_POST["login"];
-	$pwd     = $_POST["pwd"];
-	if(isset($_POST['clearpwd']) && $_POST['clearpwd'])
+	$login = $_POST["login"];
+	$pwd = $_POST["pwd"];
+	if (isset($_POST['clearpwd']) && $_POST['clearpwd'])
 		$clearpwd = 1;
 	else
 		$clearpwd = 0;
-	if(isset($_POST["pwdexpiration"]))
+	if (isset($_POST["pwdexpiration"]))
 		$pwdexpiration = $_POST["pwdexpiration"];
 	else
 		$pwdexpiration = '';
-	if(!isset($_POST["quota"]))
+	if (!isset($_POST["quota"]))
 		$quota = 0;
 	else
 		$quota = (int) $_POST["quota"];
-	$name    = $_POST["name"];
-	$email   = $_POST["email"];
+	$name = $_POST["name"];
+	$email = $_POST["email"];
 	$comment = $_POST["comment"];
 	$theme = $_POST["theme"];
-	$role    = $dms->getRole($_POST["role"]);
-	$isHidden = (isset($_POST["ishidden"]) && $_POST["ishidden"]==1 ? 1 : 0);
-	$isDisabled = (isset($_POST["isdisabled"]) && $_POST["isdisabled"]==1 ? 1 : 0);
+	$role = $dms->getRole($_POST["role"]);
+	$isHidden = (isset($_POST["ishidden"]) && $_POST["ishidden"] == 1 ? 1 : 0);
+	$isDisabled = (isset($_POST["isdisabled"]) && $_POST["isdisabled"] == 1 ? 1 : 0);
 	$homefolder = (isset($_POST["homefolder"]) ? $_POST["homefolder"] : 0);
 	$quota = (isset($_POST["quota"]) ? (int) $_POST["quota"] : 0);
-	
+
 	if (isset($pwd) && ($pwd != "")) {
-		if($settings->_passwordStrength) {
+		if ($settings->_passwordStrength) {
 			$ps = new Password_Strength();
 			$ps->set_password($pwd);
-			if($settings->_passwordStrengthAlgorithm == 'simple')
+			if ($settings->_passwordStrengthAlgorithm == 'simple')
 				$ps->simple_calculate();
 			else
 				$ps->calculate();
 			$score = $ps->get_score();
-			if($score < $settings->_passwordStrength) {
-				UI::exitError(getMLText("set_password"),getMLText("password_strength_insuffient"));
+			if ($score < $settings->_passwordStrength) {
+				UI::exitError(getMLText("set_password"), getMLText("password_strength_insuffient"));
 			}
 		}
 	}
 	if ($editedUser->getLogin() != $login)
 		$editedUser->setLogin($login);
-	if($pwdexpiration != 'keep')
+	if ($pwdexpiration != 'keep')
 		$editedUser->setPwdExpiration($pwdexpiration);
-	if($role->isGuest() && $clearpwd) {
+	if ($role->isGuest() && $clearpwd) {
 		$editedUser->setPwd('');
 	} else {
 		if (isset($pwd) && ($pwd != "")) {
@@ -421,111 +423,114 @@ else if ($action == "edituser") {
 		$editedUser->setHidden($isHidden);
 	if ($editedUser->isDisabled() != $isDisabled) {
 		$editedUser->setDisabled($isDisabled);
-		if(!$isDisabled)
+		if (!$isDisabled)
 			$editedUser->clearLoginFailures();
 	}
 	if ($editedUser->getHomeFolder() != $homefolder)
 		$editedUser->setHomeFolder($homefolder);
 	if ($editedUser->getQuota() != $quota)
 		$editedUser->setQuota($quota);
-	if(isset($_POST["workflows"]) && $_POST["workflows"]) {
+	if (isset($_POST["workflows"]) && $_POST["workflows"]) {
 		$workflows = array();
-		foreach($_POST["workflows"] as $workflowid) {
-			if($tmp = $dms->getWorkflow($workflowid))
+		foreach ($_POST["workflows"] as $workflowid) {
+			if ($tmp = $dms->getWorkflow($workflowid))
 				$workflows[] = $tmp;
 		}
-		if($workflows)
+		if ($workflows)
 			$editedUser->setMandatoryWorkflows($workflows);
 	} else {
 		$editedUser->delMandatoryWorkflow();
 	}
 
-	if (isset($_FILES['userfile']) && is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["size"] > 0 && $_FILES['userfile']['error']==0)
-	{
+	if (isset($_FILES['userfile']) && is_uploaded_file($_FILES["userfile"]["tmp_name"]) && $_FILES["userfile"]["size"] > 0 && $_FILES['userfile']['error'] == 0) {
 		$userfiletype = $_FILES["userfile"]["type"];
 		$userfilename = $_FILES["userfile"]["name"];
-		$fileType = ".".pathinfo($userfilename, PATHINFO_EXTENSION);
+		$fileType = "." . pathinfo($userfilename, PATHINFO_EXTENSION);
 		if ($fileType != ".jpg" && $filetype != ".jpeg") {
-			UI::exitError(getMLText("admin_tools"),getMLText("only_jpg_user_images"));
-		}
-		else {
+			UI::exitError(getMLText("admin_tools"), getMLText("only_jpg_user_images"));
+		} else {
 			resizeImage($_FILES["userfile"]["tmp_name"]);
 			$editedUser->setImage($_FILES["userfile"]["tmp_name"], $userfiletype);
 		}
 	}
-	
+
 	$editedUser->delMandatoryReviewers();
-	
-	if (isset($_POST["usrReviewers"])) foreach ($_POST["usrReviewers"] as $revID) 
-		$editedUser->setMandatoryReviewer($revID,false);
-			
-	if (isset($_POST["grpReviewers"])) foreach ($_POST["grpReviewers"] as $revID) 
-		$editedUser->setMandatoryReviewer($revID,true);
+
+	if (isset($_POST["usrReviewers"]))
+		foreach ($_POST["usrReviewers"] as $revID)
+			$editedUser->setMandatoryReviewer($revID, false);
+
+	if (isset($_POST["grpReviewers"]))
+		foreach ($_POST["grpReviewers"] as $revID)
+			$editedUser->setMandatoryReviewer($revID, true);
 
 	$editedUser->delMandatoryApprovers();
-	
-	if (isset($_POST["usrApprovers"])) foreach ($_POST["usrApprovers"] as $appID) 
-		$editedUser->setMandatoryApprover($appID,false);
-			
-	if (isset($_POST["grpApprovers"])) foreach ($_POST["grpApprovers"] as $appID) 
-		$editedUser->setMandatoryApprover($appID,true);
-	
+
+	if (isset($_POST["usrApprovers"]))
+		foreach ($_POST["usrApprovers"] as $appID)
+			$editedUser->setMandatoryApprover($appID, false);
+
+	if (isset($_POST["grpApprovers"]))
+		foreach ($_POST["grpApprovers"] as $appID)
+			$editedUser->setMandatoryApprover($appID, true);
+
 	/* Updates groups */
-	if(isset($_POST["groups"]))
+	if (isset($_POST["groups"]))
 		$newgroups = $_POST["groups"];
 	else
 		$newgroups = array();
 	$oldgroups = array();
-	foreach($editedUser->getGroups() as $k)
+	foreach ($editedUser->getGroups() as $k)
 		$oldgroups[] = $k->getID();
 
 	$addgroups = array_diff($newgroups, $oldgroups);
-	foreach($addgroups as $groupid) {
+	foreach ($addgroups as $groupid) {
 		$group = $dms->getGroup($groupid);
 		$group->addUser($editedUser);
 	}
 	$delgroups = array_diff($oldgroups, $newgroups);
-	foreach($delgroups as $groupid) {
+	foreach ($delgroups as $groupid) {
 		$group = $dms->getGroup($groupid);
 		$group->removeUser($editedUser);
 	}
 
 	/* Set substitute user if set */
-	if(isset($_POST["substitute"]) && $_POST["substitute"]) 
+	if (isset($_POST["substitute"]) && $_POST["substitute"])
 		$newsubs = $_POST['substitute'];
 	else
 		$newsubs = array();
 	$oldsubs = array();
-	foreach($editedUser->getSubstitutes() as $k)
+	foreach ($editedUser->getSubstitutes() as $k)
 		$oldsubs[] = $k->getID();
 
 	$addsubs = array_diff($newsubs, $oldsubs);
-	foreach($addsubs as $subid) {
+	foreach ($addsubs as $subid) {
 		$subsuser = $dms->getUser($subid);
 		$editedUser->addSubstitute($subsuser);
 	}
 	$delsubs = array_diff($oldsubs, $newsubs);
-	foreach($delsubs as $subid) {
+	foreach ($delsubs as $subid) {
 		$subsuser = $dms->getUser($subid);
 		$editedUser->removeSubstitute($subsuser);
 	}
 
-	$session->setSplashMsg(array('type'=>'success', 'msg'=>getMLText('splash_edit_user')));
-	add_log_line(".php&action=edituser&userid=".$userid);
-}
-else UI::exitError(getMLText("admin_tools"),getMLText("unknown_command"));
+	$session->setSplashMsg(array('type' => 'success', 'msg' => getMLText('splash_edit_user')));
+	add_log_line(".php&action=edituser&userid=" . $userid);
+} else
+	UI::exitError(getMLText("admin_tools"), getMLText("unknown_command"));
 
 
-function resizeImage($imageFile) {
+function resizeImage($imageFile)
+{
 	// read original image
 	$origImg = imagecreatefromjpeg($imageFile);
 	$width = imagesx($origImg);
 	$height = imagesy($origImg);
 	// Create thumbnail in memory
 	$newHeight = 300;
-	$newWidth = ($width/$height) * $newHeight;
+	$newWidth = ($width / $height) * $newHeight;
 	/* Do not scale images which are already small enough */
-	if($newWidth < $width || $newHeight < $height) {
+	if ($newWidth < $width || $newHeight < $height) {
 		$newImg = imagecreatetruecolor($newWidth, $newHeight);
 		// resize
 		imagecopyresized($newImg, $origImg, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
@@ -535,9 +540,9 @@ function resizeImage($imageFile) {
 		imagedestroy($newImg);
 	}
 	imagedestroy($origImg);
-	
+
 	return true;
 }
 
-header("Location:../out/out.UsrMgr.php?userid=".$userid);
+header("Location:../out/out.UsrMgr.php?userid=" . $userid);
 
