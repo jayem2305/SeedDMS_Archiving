@@ -390,26 +390,29 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		$i = 0;
 		if ((count($subFolders) > 0) || (count($documents) > 0)) {
 			$txt = $this->callHook('folderListHeader', $folder, $orderby, $orderdir);
+
 			if (is_string($txt)) {
 				echo $txt;
 			} elseif (is_array($txt)) {
-				print "<table id=\"viewfolder-table\" class=\"table table-condensed table-sm table-hover\">";
-				print "<thead>\n<tr>\n";
-				foreach ($txt as $headcol)
-					echo "<th>" . $headcol . "</th>\n";
-				print "</tr>\n</thead>\n";
+				echo '<div id="viewfolder-table" class="folder-grid">';
+				echo '<div class="folder-grid-header">';
+				foreach ($txt as $headcol) {
+					echo '<div class="folder-grid-cell header-cell">' . $headcol . '</div>';
+				}
+				echo '</div>'; // close header row
 			} else {
 				echo $this->folderListHeader();
 			}
-			print "<tbody>\n";
+
+			echo '<div class="folder-grid-body">';
 
 			foreach ($subFolders as $subFolder) {
 				if (!$maxItemsPerPage || $i < $maxItemsPerPage) {
 					$txt = $this->callHook('folderListItem', $subFolder, false, 'viewfolder');
-					if (is_string($txt))
-						echo $txt;
-					else {
-						echo $this->folderListRow($subFolder);
+					if (is_string($txt)) {
+						echo '<div class="folder-grid-row">' . $txt . '</div>';
+					} else {
+						echo '<div class="folder-grid-row">' . $this->folderListRow($subFolder) . '</div>';
 					}
 				}
 				$i++;
@@ -418,8 +421,9 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			if ($subFolders && $documents) {
 				if (!$maxItemsPerPage || $maxItemsPerPage > count($subFolders)) {
 					$txt = $this->callHook('folderListSeparator', $folder);
-					if (is_string($txt))
+					if (is_string($txt)) {
 						echo $txt;
+					}
 				}
 			}
 
@@ -427,20 +431,25 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 				if (!$maxItemsPerPage || $i < $maxItemsPerPage) {
 					$document->verifyLastestContentExpriry();
 					$txt = $this->callHook('documentListItem', $document, $previewer, false, 'viewfolder');
-					if (is_string($txt))
-						echo $txt;
-					else {
-						echo $this->documentListRow($document, $previewer);
+					if (is_string($txt)) {
+						echo '<div class="folder-grid-row">' . $txt . '</div>';
+					} else {
+						echo '<div class="folder-grid-row">' . $this->documentListRow($document, $previewer) . '</div>';
 					}
 				}
 				$i++;
 			}
 
+			echo '</div>'; // close folder-grid-body
+
 			$txt = $this->callHook('folderListFooter', $folder);
-			if (is_string($txt))
+			if (is_string($txt)) {
 				echo $txt;
-			else
-				echo "</tbody>\n</table>\n";
+			} else {
+				echo '</div>'; // close viewfolder-table
+			}
+
+
 
 			if ($maxItemsPerPage && $i > $maxItemsPerPage)
 				echo "<button id=\"loadmore\" style=\"width: 100%; margin-bottom: 20px;\" class=\"btn btn-secondary\" data-folder=\"" . $folder->getId() . "\"data-offset=\"" . $maxItemsPerPage . "\" data-limit=\"" . $incItemsPerPage . "\" data-orderby=\"" . $orderby . "\" data-all=\"" . ($i - $maxItemsPerPage) . "\">" . getMLText('x_more_objects', array('number' => ($i - $maxItemsPerPage))) . "</button>";
@@ -602,6 +611,7 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
+		$this->pageSidebar();
 		?>
 			<div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
 			<?php
@@ -699,9 +709,9 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			<div class="ajax" data-view="ViewFolder" data-action="folderList" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "&orderby=" . $orderby . "\"" : "") ?>></div>
 			<?php
 			echo $this->callHook('rightContentPost');
-			$this->columnEnd(); // End of right column div
-			$this->rowEnd(); // End of div around left and right column
-	
+			$this->columnEnd();
+			$this->rowEnd();
+
 			echo $this->callHook('postContent');
 			echo '</div>';
 			$this->contentEnd();

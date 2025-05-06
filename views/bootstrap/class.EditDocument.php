@@ -76,7 +76,11 @@ class SeedDMS_View_EditDocument extends SeedDMS_Theme_Style
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
+
+
+
 
 
 		echo '<div class="addDocument-container">';
@@ -84,8 +88,17 @@ class SeedDMS_View_EditDocument extends SeedDMS_Theme_Style
 		echo '</h1>';
 
 
+
+
 		$this->contentHeading(getMLText("edit_document_props"));
 
+
+
+
+		$this->dropDownNavigations('Edit document', 'view_document', $document);
+
+
+		$this->dropDownNavigations($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
 
 
 		if ($document->expires())

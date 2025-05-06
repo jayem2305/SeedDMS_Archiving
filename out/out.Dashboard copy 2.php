@@ -129,8 +129,6 @@ if ($view) {
 	$view->setParam('type', $type);
 	$view->setParam('data', $data);
 
-	$view->setParam('document', $document);
-
 
 
 	$view($_GET);

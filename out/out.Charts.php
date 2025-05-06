@@ -29,7 +29,7 @@ require_once("inc/inc.ClassUI.php");
 require_once("inc/inc.Authentication.php");
 
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user));
+$view = UI::factory($theme, $tmp[1], array('dms' => $dms, 'user' => $user));
 $accessop = new SeedDMS_AccessOperation($dms, $user, $settings);
 if (!$accessop->check_view_access($view, $_GET)) {
 	UI::exitError(getMLText("admin_tools"), getMLText("access_denied"));
@@ -41,11 +41,11 @@ if (!empty($_GET['type'])) {
 }
 if ($data = $dms->getStatisticalData($type)) {
 	switch ($type) {
-	case 'docsperstatus':
-		foreach ($data as &$rec) {
-			$rec['key'] = getOverallStatusText((int) $rec['key']);
-		}
-		break;
+		case 'docsperuser':
+			foreach ($data as &$rec) {
+				$rec['key'] = getOverallStatusText((int) $rec['key']);
+			}
+			break;
 	}
 }
 

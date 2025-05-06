@@ -176,13 +176,123 @@
 /* ===================================================================== */
 /* ===================================================================== */
 
-main {
-    overflow-x: hidden;
+
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 12vw;
+    background: #1D2329;
+    /* border: solid red; */
+    z-index: 1500;
+  
+}
+
+.img-sidebar-logo {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+.img-sidebar-logo img{
+    width: 38px;
+}
+
+.sidebar .sidebar-logo {
+    display: flex;
+
+}
+
+.sidebar-logo .img-sidebar-logo {
+    width: 35%;
+}
+.sidebar-logo .logo-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+   
+}
+.sidebar-logo .logo-text h3{
+    font-size: 15px;
+    color: white;
+}
+.sidebar a {
+    font-size: 12px;
 }
 
 
+.sidebar ul {
+    margin: 0 !important;
+}
+
+.sidebar .main-sidebar a, .sidebar .opt-sidebar a{
+    padding: .6rem;
+}
+
+
+
+.opt-sidebar {
+    overflow-y: auto;
+    max-height: 100vh;
+    padding-right: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+
+.opt-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.opt-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.opt-sidebar::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+.sidebar li {
+    list-style: none;
+    padding: 1rem;
+}
+
+.sidebar #selection  {
+    flex-direction: row;
+        justify-content: space-between;
+}
+
+.sidebar li a {
+    color: #8E9194;
+    text-decoration: none;
+    display: flex;
+    gap: 8px;
+
+    
+    
+
+
+}
+
+.brand {
+    opacity: 0;
+}
+
+
+
+
+.sidebar-logo {
+    width: 100%;
+    height: 3rem;
+    margin-bottom: 1rem;
+    /* border: solid red; */
+    
+}
+
 .card {
     border-radius: 10px;
+    width: 10vw !important;
 }
 
 .form-label {
@@ -225,15 +335,38 @@ main {
 
 
 
-.row-fluid {
-    display: flex;
-}
 
 
 
 .addDocument-container, .addSubfolder-container, .editFolder-container, .updateDocument-container, .moveDocument-container,  .removeDocument-container, .accessRightsDocument-container, .accessRightsFolder-container, .notifyDocument-container, .transferDocument-container, .folderNotify-container, .setExpireDocument-container{
-    padding-left: 1rem;
+    padding: 1rem;
 }
+
+
+
+main > .row-fluid  {
+    display: flex;
+    margin-left: 11vw;
+}
+
+.row-fluid {
+display: flex;
+}
+/* .addDocument-container * {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
+} */
+
+
+.navbar-inverse .nav li.dropdown.open>.dropdown-toggle,
+.navbar-inverse .nav li.dropdown.active>.dropdown-toggle,
+.navbar-inverse .nav li.dropdown.open.active>.dropdown-toggle {
+    background-color: white !important;
+}
+
 
 .notifyDocument-container .row-fluid, .folderNotify-container .row-fluid, .setExpireDocument-container .row-fluid, .accessRightsFolder-container {
     display: flex;
@@ -331,6 +464,52 @@ main {
 .controls textarea,
 .select2-container {
     box-shadow: -6px 5px 8px rgba(0, 0, 0, 0.15);
+    /* width: 90%; */
+}
+
+.addDocument-container .controls, .addDocument-container .controls input, .addDocument-container .controls textarea, .addDocument-container .controls .select2-container, .addDocument-container .controls .input-append, .controls .select2-container {
+    /* border: solid red; */
+    width: 80%;
+    height: 100%;
+    box-sizing: border-box;
+} 
+
+.controls .select2 {
+    width: 85% !important;
+    
+    box-sizing: border-box;
+}
+
+.select2-dropdown {
+    overflow-x: hidden !important;
+}
+
+.control-group {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.control-group .input-append input {
+    padding: .4rem !important;
+}
+
+.addDocument-container .controls .input-append a {
+    width: fit-content;
+}
+
+.addDocument-container .controls .input-append.date.span4.datepicker {
+    margin: 0px !important;
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+}
+
+.addDocument-container .controls .span12 {
+    box-shadow: -6px 5px 8px rgba(0, 0, 0, 0.15) !important;
+    width: 100%;
+}
+.addDocument-container .controls input#expdate {
+    width: 100%;
 }
 
 .header-icon {
@@ -365,6 +544,11 @@ main {
     text-decoration: none;
 }
 
+.controls button {
+    padding: .8rem;
+    font-size: 16px;
+}
+
 @media (max-width: 676px) {
     .form-horizontal {
         width: 100%;
@@ -383,7 +567,10 @@ main {
 
 main {
     background-color: #F8F9FC;
+    overflow-x: hidden;
+    
 }
+
 
 
 .row-fluid .navbar {
@@ -420,6 +607,15 @@ main {
     height: fit-content;
 }
 
+
+#drop-files {
+    border: solid red;
+}
+
+
+#drop-files legend {
+    display: none !important;
+}
 
 .row-fluid .span5, .row-fluid .span3 {
     margin-left: 0px;
@@ -680,6 +876,7 @@ legend {
     background-image: none;
     padding: .6rem 0;
     border: none;
+    padding-left: 1vw;
 
 }
 
@@ -699,4 +896,135 @@ legend {
 }
 .searchicon i {
     color: white;
+}
+
+
+.navbar-inverse .brand,
+.navbar-inverse .nav>li>a i {
+    color: black !important;
+}
+
+.navbar-inverse .brand,
+.navbar-inverse .nav>li>a:hover {
+    color: #4E73DF !important;
+    background-image: none;
+}
+
+
+.navbar-inverse .nav li.dropdown.open>.dropdown-toggle,
+.navbar-inverse .nav li.dropdown.active>.dropdown-toggle,
+.navbar-inverse .nav li.dropdown.open.active>.dropdown-toggle{
+    background-color: none !important;
+}
+
+.viewFolder-container .span8 .row-fluid .span8, .viewFolder-container .row-fluid .span4{
+    /* display: none; */
+}
+
+.viewFolder-container #viewfolder-table thead {
+    display: none;
+}
+.viewFolder-container #viewfolder-table {
+    width: 100%;
+    display: flex;
+}
+
+
+.dashboard-container {
+
+    width: 100%;
+    padding-left: 10vw;
+}
+
+.dashboard-container .dash1 {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.dashboard-container .dash1 .dash-details {
+    display: grid;
+    min-width: 700px;
+    gap: 1.4rem;
+    grid-template-columns: repeat(2, minmax(50px, 1fr));
+}
+
+.details-grid {
+    box-shadow: 1px 4px 12px rgba(0, 0, 0, 0.3);
+    border-radius: .6rem;
+    padding: 1.2rem;
+}
+
+.details-grid {
+    display: flex;
+    flex-direction: row;
+}
+
+.details-grid>div:first-child {
+    width: 60%;
+}
+
+.details-grid>div:last-child {
+    width: 40%;
+}
+
+.details-grid .text-details {
+    text-align: start;
+    padding-left: 1rem;
+}
+
+.details-grid .text-details h3 {
+    color: gray;
+    font-weight: 100;
+}
+
+.details-grid .rightside {
+    padding: .5rem;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+}
+
+.rightside i {
+    padding: 1.2rem;
+    border-radius: .4rem;
+    background-color: #4E73DF;
+    font-size: 1.6rem;
+    color: white;
+}
+
+
+
+.folder-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.folder-grid-header,
+.folder-grid-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.folder-grid-cell {
+    flex: 1;
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.header-cell {
+    font-weight: bold;
+    background-color: #f0f0f0;
+}
+
+.folder-grid-body {
+    display: flex;
+    flex-direction: column;
+}
+
+#login_wrapper  .form-horizontal {
+    width: 20vw !important;
 }

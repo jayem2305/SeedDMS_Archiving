@@ -194,6 +194,8 @@ class SeedDMS_View_AddDocument extends SeedDMS_Theme_Style
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
+
+		$this->pageSidebar();
 		$this->pageNavigation($this->getFolderPathHTML($folder, true), "view_folder", $folder);
 
 		// $msg = getMLText("max_upload_size") . ": " . SeedDMS_Core_File::format_filesize($maxuploadsize);

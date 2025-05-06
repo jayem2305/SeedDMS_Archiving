@@ -154,157 +154,154 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 			'upload_new_version'
 		));
 		?>
-		$(document).ready(function() {
+	$(document).ready(function() {
 		$('#searchfield').focus();
 
 		$("<div id='tooltip'></div>").css({
-		position: "absolute",
-		display: "none",
-		padding: "5px",
-		color: "white",
-		"background-color": "#000",
-		"border-radius": "5px",
-		opacity: 0.80
+			position: "absolute",
+			display: "none",
+			padding: "5px",
+			color: "white",
+			"background-color": "#000",
+			"border-radius": "5px",
+			opacity: 0.80
 		}).appendTo("body");
 
 		<?php if ($type === 'docspermonth' || $type === 'sizepermonth') { ?>
 			var data = [
-			<?php if ($data) {
-				foreach ($data as $rec) {
-					echo '["' . $rec['key'] . '",' . $rec['total'] . '],' . "\n";
-				}
-			} ?>
+				<?php if ($data) {
+					foreach ($data as $rec) {
+						echo '["' . $rec['key'] . '",' . $rec['total'] . '],' . "\n";
+					}
+				} ?>
 			];
 			$.plot("#chart", [data], {
-			xaxis: {
-			mode: "categories",
-			tickLength: 0
-			},
-			series: {
-			bars: {
-			show: true,
-			align: "center",
-			barWidth: 0.8
-			}
-			},
-			grid: {
-			hoverable: true,
-			clickable: true
-			}
+				xaxis: {
+					mode: "categories",
+					tickLength: 0
+				},
+				series: {
+					bars: {
+						show: true,
+						align: "center",
+						barWidth: 0.8
+					}
+				},
+				grid: {
+					hoverable: true,
+					clickable: true
+				}
 			});
 
 			$("#chart").bind("plothover", function (event, pos, item) {
-			if (item) {
-			var x = item.datapoint[0], y = item.datapoint[1];
-			var value = <?php echo ($type === 'sizepermonth') ? "formatFileSize(y, false, 2)" : "y"; ?>;
-			$("#tooltip").html(item.series.xaxis.ticks[x].label + ": " + value)
-			.css({ top: pos.pageY - 35, left: pos.pageX + 5 })
-			.fadeIn(200);
-			} else {
-			$("#tooltip").hide();
-			}
+				if (item) {
+					var x = item.datapoint[0], y = item.datapoint[1];
+					var value = <?php echo ($type === 'sizepermonth') ? "formatFileSize(y, false, 2)" : "y"; ?>;
+					$("#tooltip").html(item.series.xaxis.ticks[x].label + ": " + value)
+						.css({ top: pos.pageY - 35, left: pos.pageX + 5 })
+						.fadeIn(200);
+				} else {
+					$("#tooltip").hide();
+				}
 			});
 
 		<?php } elseif ($type === 'docsaccumulated') { ?>
 			var data = [
-			<?php if ($data) {
-				foreach ($data as $rec) {
-					echo '[' . htmlspecialchars($rec['key']) . ',' . $rec['total'] . '],' . "\n";
-				}
-			} ?>
+				<?php if ($data) {
+					foreach ($data as $rec) {
+						echo '[' . htmlspecialchars($rec['key']) . ',' . $rec['total'] . '],' . "\n";
+					}
+				} ?>
 			];
 			$.plot("#chart", [data], {
-			xaxis: { mode: "time" },
-			series: {
-			lines: { show: true },
-			points: { show: true }
-			},
-			grid: {
-			hoverable: true,
-			clickable: true
-			}
+				xaxis: { mode: "time" },
+				series: {
+					lines: { show: true },
+					points: { show: true }
+				},
+				grid: {
+					hoverable: true,
+					clickable: true
+				}
 			});
 
 			$("#chart").bind("plothover", function (event, pos, item) {
-			if (item) {
-			var x = item.datapoint[0], y = item.datapoint[1];
-			$("#tooltip").html($.plot.formatDate(new Date(x), '%e. %b %Y') + ": " + y)
-			.css({ top: pos.pageY - 35, left: pos.pageX + 5 })
-			.fadeIn(200);
-			} else {
-			$("#tooltip").hide();
-			}
+				if (item) {
+					var x = item.datapoint[0], y = item.datapoint[1];
+					$("#tooltip").html($.plot.formatDate(new Date(x), '%e. %b %Y') + ": " + y)
+						.css({ top: pos.pageY - 35, left: pos.pageX + 5 })
+						.fadeIn(200);
+				} else {
+					$("#tooltip").hide();
+				}
 			});
 
 		<?php } else { ?>
 			var data = [
-			<?php if ($data) {
-				foreach ($data as $rec) {
-					echo '{ label: "' . htmlspecialchars($rec['key']) . '", data: [[1,' . $rec['total'] . ']]},' . "\n";
-				}
-			} ?>
+				<?php if ($data) {
+					foreach ($data as $rec) {
+						echo '{ label: "' . htmlspecialchars($rec['key']) . '", data: [[1,' . $rec['total'] . ']]},' . "\n";
+					}
+				} ?>
 			];
 			$.plot('#chart', data, {
-			series: {
-			pie: {
-			show: true,
-			radius: 1,
-			label: {
-			show: true,
-			radius: 2 / 3,
-			formatter: labelFormatter,
-			threshold: 0.1,
-			background: { opacity: 0.8 }
-			}
-			}
-			},
-			grid: {
-			hoverable: true,
-			clickable: true
-			},
-			legend: {
-			show: true,
-			container: '#legend'
-			}
+				series: {
+					pie: {
+						show: true,
+						radius: 1,
+						label: {
+							show: true,
+							radius: 2 / 3,
+							formatter: labelFormatter,
+							threshold: 0.1,
+							background: { opacity: 0.8 }
+						}
+					}
+				},
+				grid: {
+					hoverable: true,
+					clickable: true
+				},
+				legend: {
+					show: true,
+					container: '#legend'
+				}
 			});
 
 			$("#chart").bind("plothover", function (event, pos, item) {
-			if (item) {
-			var y = item.series.data[0][1];
-			$("#tooltip").html(item.series.label + ": " + y + " (" + Math.round(item.series.percent) + "%)")
-			.css({ top: pos.pageY - 35, left: pos.pageX + 5 })
-			.fadeIn(200);
-			} else {
-			$("#tooltip").hide();
-			}
+				if (item) {
+					var y = item.series.data[0][1];
+					$("#tooltip").html(item.series.label + ": " + y + " (" + Math.round(item.series.percent) + "%)")
+						.css({ top: pos.pageY - 35, left: pos.pageX + 5 })
+						.fadeIn(200);
+				} else {
+					$("#tooltip").hide();
+				}
 			});
 
 			function labelFormatter(label, series) {
-			return "<div
-				style='font-size:8pt; line-height: 14px; text-align:center; padding:2px; color:black; background: white; border-radius: 5px;'>
-				" +
-				label + "<br />" + series.data[0][1] + " (" + Math.round(series.percent) + "%)</div>";
+				return "<div style='font-size:8pt; line-height: 14px; text-align:center; padding:2px; color:black; background: white; border-radius: 5px;'>" +
+					label + "<br />" + series.data[0][1] + " (" + Math.round(series.percent) + "%)</div>";
 			}
 		<?php } ?>
-		});
+	});
 
-		var seeddms_folder = <?= $folder->getID() ?>;
+	var seeddms_folder = <?= $folder->getID() ?>;
 
-		function folderSelectedmaintree(id, name) {
+	function folderSelectedmaintree(id, name) {
 		<?php if (!$onepage) { ?>
-			window.location = '../out/out.ViewFolder.php?folderid=' + id;
+				window.location = '../out/out.ViewFolder.php?folderid=' + id;
 		<?php } else { ?>
-			seeddms_folder = id;
-			var title_prefix = "<?= (strlen($sitename) > 0 ? $sitename : "SeedDMS") ?>";
-			$('div.ajax').trigger('update', { folderid: id, orderby: '<?= $orderby ?>' });
-			document.title = title_prefix + ": " + name;
-			window.history.pushState({ "html": "", "pageTitle": title_prefix + ": " + name }, "",
-			'../out/out.ViewFolder.php?folderid=' + id);
+				seeddms_folder = id;
+				var title_prefix = "<?= (strlen($sitename) > 0 ? $sitename : "SeedDMS") ?>";
+				$('div.ajax').trigger('update', { folderid: id, orderby: '<?= $orderby ?>' });
+				document.title = title_prefix + ": " + name;
+				window.history.pushState({ "html": "", "pageTitle": title_prefix + ": " + name }, "", '../out/out.ViewFolder.php?folderid=' + id);
 		<?php } ?>
-		}
+	}
 
-		<?php if ($maxItemsPerPage) { ?>
-			function loadMoreObjects(element, limit, orderby) {
+	<?php if ($maxItemsPerPage) { ?>
+		function loadMoreObjects(element, limit, orderby) {
 			if (!$(element).is(":visible")) return;
 
 			element.text('<?= getMLText('more_objects_loading') ?>');
@@ -312,33 +309,42 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 
 			var folder = element.data('folder');
 			var offset = element.data('offset');
-			var url = seeddms_webroot + "out/out.ViewFolder.php?action=entries&folderid=" + folder + "&offset=" + offset + "&limit="
-			+ limit + "&orderby=" + orderby;
+			var url = seeddms_webroot + "out/out.ViewFolder.php?action=entries&folderid=" + folder + "&offset=" + offset + "&limit=" + limit + "&orderby=" + orderby;
 
 			$.ajax({
-			type: 'GET',
-			url: url,
-			dataType: 'json',
-			async: false,
-			success: function(data) {
-			$('#viewfolder-table').append(data.html);
-			if (data.count <= 0) { element.hide(); } else { var str='<?= getMLText('x_more_objects') ?>' ;
-				element.text(str.replace('[number]', data.count)); element.data('offset', offset + limit); element.prop("disabled",
-				false); } } }); } $(window).scroll(function () { if ($(window).scrollTop() + $(window).height() + 3>=
-				$(document).height()) {
-				loadMoreObjects($('#loadmore'), $('#loadmore').data('limit'), $('#loadmore').data('orderby'));
+				type: 'GET',
+				url: url,
+				dataType: 'json',
+				async: false,
+				success: function(data) {
+					$('#viewfolder-table').append(data.html);
+					if (data.count <= 0) {
+						element.hide();
+					} else {
+						var str = '<?= getMLText('x_more_objects') ?>';
+						element.text(str.replace('[number]', data.count));
+						element.data('offset', offset + limit);
+						element.prop("disabled", false);
+					}
 				}
-				});
+			});
+		}
 
-				$('body').on('click', '#loadmore', function () {
-				loadMoreObjects($(this), $(this).data('all'), $(this).data('orderby'));
-				});
-			<?php } ?>
-			<?php
-	}
+		$(window).scroll(function () {
+			if ($(window).scrollTop() + $(window).height() + 3 >= $(document).height()) {
+				loadMoreObjects($('#loadmore'), $('#loadmore').data('limit'), $('#loadmore').data('orderby'));
+			}
+		});
+
+		$('body').on('click', '#loadmore', function () {
+			loadMoreObjects($(this), $(this).data('all'), $(this).data('orderby'));
+		});
+	<?php } ?>
+<?php
+		}
 
 
-	function folderInfos()
+		function folderInfos()
 	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
@@ -720,7 +726,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 
 		$data = $this->params['data'];
 		$type = $this->params['type'];
-		// $quota = $this->params['quota'];
+		$quota = $this->params['quota'];
 
 		$folderid = $folder->getId();
 		$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidth, $timeout, $xsendfile);
@@ -742,78 +748,6 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$this->globalNavigation($folder);
 		$this->contentStart();
 		$this->pageSidebar();
-
-
-		echo '<div class="dashboard-container">';
-		echo '<h1 class="content-header">';
-		$this->contentHeading(getMLText(key: "dashboard"));
-		echo '</h1>';
-
-		echo '        <div class="container dash1">';
-		echo '            <div class="dash-details">';
-		echo '                <div class="details-grid">';
-		echo '                    <div class="text-details">';
-		echo '                    <h3>Files</h3>';
-		echo '                    <h1>907</h1>';
-		echo '                    </div>';
-		echo '                    <div class="rightside">';
-		echo '                        <i class="fa fa-file fa-lg"></i>';
-		echo '                    </div>';
-		echo '                </div>';
-		echo '<div class="details-grid">';
-		echo '                    <div class="text-details">';
-		echo '                    <h3>Folders</h3>';
-		echo '                    <h1>907</h1>';
-		echo '                    </div>';
-		echo '                    <div class="rightside">';
-		echo '                        <i class="fa fa-folder fa-lg"></i>';
-		echo '                    </div>';
-		echo '                </div>';
-		echo '<div class="details-grid">';
-		echo '                    <div class="text-details">';
-		echo '                    <h3>Users</h3>';
-		echo '                    <h1>907</h1>';
-		echo '                    </div>';
-		echo '                    <div class="container rightside">';
-		echo '                        <i class="fa fa-user fa-lg"></i>';
-		echo '                    </div>';
-		echo '                </div>';
-		echo '<div class="details-grid">';
-		echo '                    <div class="text-details">';
-		echo '                    <h3>Disk Space</h3>';
-		echo '                    <h1>907</h1>';
-		echo '                    </div>';
-		echo '                    <div class="rightside">';
-		echo '                        <i class="fa fa-database fa-lg"></i>';
-		echo '                    </div>';
-		echo '                </div>';
-		echo '            </div>';
-		echo '            <div class="dash-upload">';
-
-		if ($enableDropUpload/* && $folder->getAccessMode($user) >= M_READWRITE*/) {
-			$this->columnEnd();
-			$this->columnStart(4);
-			?>
-				<div id="drop-files" class="ajax" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>>
-
-
-					<i class="fa fa-cloud"></i>
-
-				</div>
-				<?php
-
-				$this->columnEnd();
-				$this->rowEnd();
-		}
-
-		echo '        </div>';
-
-		echo '        </div>';
-
-
-
-
-
 
 		$this->rowStart();
 		$this->columnStart(3);
@@ -891,7 +825,6 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 				$this->columnStart(8);
 			}
 			?>
-
 			<ul class="nav nav-pills" id="folderinfotab" role="tablist">
 				<li class="nav-item <?php if (!$currenttab || $currenttab == 'folderinfo')
 					echo 'active'; ?>"><a class="nav-link <?php if (!$currenttab || $currenttab == 'folderinfo')

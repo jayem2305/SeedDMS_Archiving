@@ -56,6 +56,8 @@ class SeedDMS_View_MoveDocument extends SeedDMS_Theme_Style
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
+		$this->pageSidebar();
+
 		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
 
 		echo '<div class="moveDocument-container">';
