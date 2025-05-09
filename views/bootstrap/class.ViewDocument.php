@@ -1060,7 +1060,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$this->contentStart();
 		$this->pageSidebar();
 
-		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
+		// $this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
 		echo '<div class="viewDocument-container">';
 		echo $this->callHook('preContent');
 		if ($document->isLocked()) {

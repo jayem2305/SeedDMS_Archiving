@@ -614,7 +614,7 @@ main {
 
 
 #drop-files legend {
-    display: none !important;
+    /* display: none !important; */
 }
 
 .row-fluid .span5, .row-fluid .span3 {
@@ -805,6 +805,11 @@ legend {
 }
 
 
+.charts-dashboard-container {
+    width: 100%;
+    padding-left: 0vw !important;
+}
+
 @media (max-width: 676px) {
     .span4 {
         order: 1;
@@ -886,6 +891,15 @@ legend {
     border: none;
 }
 
+
+
+
+
+#searchfield::placeholder {
+  color: gray; 
+  opacity: 1;  
+}
+
 .searchicon {
     background: #1D2329;
     padding: 2px;
@@ -933,9 +947,27 @@ legend {
 .dashboard-container {
 
     width: 100%;
-    padding-left: 10vw;
 }
 
+
+.chart-container-wrapper table,.chart-container-wrapper .spancol-md-4 {
+    display: none !important;
+}
+
+
+
+#cloud-icon {
+    font-size: 200px !important;
+}
+
+.dash-upload {
+    width: 50%;
+    text-align: center;
+}
+
+.dash-upload .span4 {
+    width: 100%;
+}
 .dashboard-container .dash1 {
     display: flex;
     gap: 16px;
