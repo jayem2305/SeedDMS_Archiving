@@ -157,15 +157,15 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		}
 		if (!empty($this->params['session']) && $this->params['session']->getSu()) {
 			?>
-			<style type="text/css">
-				nav.navbar.fixed-top {
-					background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#882222), to(#111111));
-					background-image: webkit-linear-gradient(top, #882222, #111111);
-					background-image: linear-gradient(to bottom, #882222, #111111);
-					;
-				}
-			</style>
-			<?php
+						<style type="text/css">
+							nav.navbar.fixed-top {
+								background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#882222), to(#111111));
+								background-image: webkit-linear-gradient(top, #882222, #111111);
+								background-image: linear-gradient(to bottom, #882222, #111111);
+								;
+							}
+						</style>
+						<?php
 		}
 		echo "<title>" . (strlen($sitename) > 0 ? $sitename : "SeedDMS") . (strlen($title) > 0 ? ": " : "") . htmlspecialchars($title) . "</title>\n";
 		echo "</head>\n";
@@ -319,15 +319,15 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function contentStart()
 	{ /* {{{ */
 		/*
-																																																																																																													echo "<div class=\"container-fluid\">\n";
-																																																																																																													echo "<div class=\"row\">\n";
-																																																																																																													echo "<nav class=\"_col-md-2 d-none d-md-block bg-light sidebar\">\n";
-																																																																																																													echo "<div class=\"sidebar-sticky\">\n";
-																																																																																																													echo "lsajdlf";
-																																																																																																													echo "</div>\n";
-																																																																																																													echo "</nav>\n";
-																																																																																																													echo "<main role=\"main\" class=\"_col-md-10 _ml-sm-auto pb-3 px-4\">\n";
-																																																																																																											*/
+																																																																																																																															echo "<div class=\"container-fluid\">\n";
+																																																																																																																															echo "<div class=\"row\">\n";
+																																																																																																																															echo "<nav class=\"_col-md-2 d-none d-md-block bg-light sidebar\">\n";
+																																																																																																																															echo "<div class=\"sidebar-sticky\">\n";
+																																																																																																																															echo "lsajdlf";
+																																																																																																																															echo "</div>\n";
+																																																																																																																															echo "</nav>\n";
+																																																																																																																															echo "<main role=\"main\" class=\"_col-md-10 _ml-sm-auto pb-3 px-4\">\n";
+																																																																																																																													*/
 		echo "<main role=\"main\" class=\"container-fluid mt-3 pb-3\">\n";
 		echo " <div class=\"row-fluid\">\n";
 	} /* }}} */
@@ -337,9 +337,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo " </div>\n";
 		echo "</main>\n";
 		/*
-																																																																																																													echo "</div>\n";
-																																																																																																													echo "</div>\n";
-																																																																																																											*/
+																																																																																																																															echo "</div>\n";
+																																																																																																																															echo "</div>\n";
+																																																																																																																													*/
 	} /* }}} */
 
 	function globalBanner()
@@ -1306,7 +1306,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 						foreach ($value['options'] as $val) {
 							$originalValue = $val;
 
-							// Only attempt decryption if $val is a string
 							if (is_string($val) && base64_decode($val, true) !== false) {
 								$decrypted = $this->decryptName($val, $encryption_key);
 								$usableValue = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $originalValue : $decrypted;
@@ -1314,20 +1313,36 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 								echo '<optgroup label="' . htmlspecialchars($usableValue) . '">';
 							} elseif (is_array($val)) {
 								// Assume usableValue is an array [value, label, selected?, attributes?]
-								$usableValue = $val;  // Use original $val since no decryption applies
+								$usableValue = $val;
 
-								echo '<option value="' . htmlspecialchars($usableValue[0]) . '"'
+								// Decrypt value if base64
+								$decryptedValue = $usableValue[0];
+								if (is_string($usableValue[0]) && base64_decode($usableValue[0], true) !== false) {
+									$temp = $this->decryptName($usableValue[0], $encryption_key);
+									$decryptedValue = ($temp === '[DECRYPTION FAILED]' || $temp === '[INVALID NAME]') ? $usableValue[0] : $temp;
+								}
+
+								// Decrypt label if base64
+								$decryptedLabel = $usableValue[1];
+								if (is_string($usableValue[1]) && base64_decode($usableValue[1], true) !== false) {
+									$temp = $this->decryptName($usableValue[1], $encryption_key);
+									$decryptedLabel = ($temp === '[DECRYPTION FAILED]' || $temp === '[INVALID NAME]') ? $usableValue[1] : $temp;
+								}
+
+								echo '<option value="' . htmlspecialchars($decryptedValue) . '"'
 									. (!empty($usableValue[2]) ? ' selected' : '');
+
 								if (!empty($usableValue[3]) && is_array($usableValue[3])) {
 									foreach ($usableValue[3] as $a) {
 										echo ' ' . htmlspecialchars($a[0]) . '="' . htmlspecialchars($a[1]) . '"';
 									}
 								}
-								echo '>' . htmlspecialchars($usableValue[1]) . '</option>';
+
+								echo '>' . htmlspecialchars($decryptedLabel) . '</option>';
 							}
 						}
-
 					}
+
 
 					echo '</select>';
 					break;
@@ -1692,62 +1707,62 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$maxfilesize = $this->getParam('maxfilesize');
 		?>
-		$(document).ready(function() {
-		/* do not use bootstrap4 custom form element because it is difficult to localize
-		$(document).on('change', '.custom-file-input',function(){
-		//get the file name
-		var fileName = $(this).val().replace(/\\/g, '/').replace(/.*\//, '');
-		//replace the "Choose a file" label
-		$(this).next('.custom-file-label').html(fileName);
-		})
-		*/
-		/* Triggered after the file has been selected */
-		$(document).on('change', '.btn-file :file', function() {
-		var input = $(this),
-		numFiles = input.get(0).files ? input.get(0).files.length : 1,
-		label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-		<?php if ($maxfilesize): ?>
-			if(input.get(0).files[0].size > <?= $maxfilesize ?>) {
-			noty({
-			text: "<?= getMLText('uploading_maxsize') ?>",
-			type: 'error',
-			dismissQueue: true,
-			layout: 'topRight',
-			theme: 'defaultTheme',
-			timeout: 1500,
-			});
-			return;
-			}
-		<?php endif; ?>
-		input.trigger('fileselect', [numFiles, label]);
-		});
+				$(document).ready(function() {
+				/* do not use bootstrap4 custom form element because it is difficult to localize
+				$(document).on('change', '.custom-file-input',function(){
+				//get the file name
+				var fileName = $(this).val().replace(/\\/g, '/').replace(/.*\//, '');
+				//replace the "Choose a file" label
+				$(this).next('.custom-file-label').html(fileName);
+				})
+				*/
+				/* Triggered after the file has been selected */
+				$(document).on('change', '.btn-file :file', function() {
+				var input = $(this),
+				numFiles = input.get(0).files ? input.get(0).files.length : 1,
+				label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+				<?php if ($maxfilesize): ?>
+						if(input.get(0).files[0].size > <?= $maxfilesize ?>) {
+						noty({
+						text: "<?= getMLText('uploading_maxsize') ?>",
+						type: 'error',
+						dismissQueue: true,
+						layout: 'topRight',
+						theme: 'defaultTheme',
+						timeout: 1500,
+						});
+						return;
+						}
+				<?php endif; ?>
+				input.trigger('fileselect', [numFiles, label]);
+				});
 
-		$(document).on('fileselect', '.upload-file .btn-file :file', function(event, numFiles, label) {
-		var input = $(this).parents('.input-group').find(':text'),
-		log = numFiles > 1 ? numFiles + ' files selected' : label;
+				$(document).on('fileselect', '.upload-file .btn-file :file', function(event, numFiles, label) {
+				var input = $(this).parents('.input-group').find(':text'),
+				log = numFiles > 1 ? numFiles + ' files selected' : label;
 
-		if( input.length ) {
-		input.val(log);
-		} else {
-		// if( log ) alert(log);
-		}
-		});
-		});
-		<?php
+				if( input.length ) {
+				input.val(log);
+				} else {
+				// if( log ) alert(log);
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	function getFileChooserHtml($varname = 'userfile', $multiple = false, $accept = '')
 	{ /* {{{ */
 		$id = preg_replace('/[^A-Za-z]/', '', $varname);
 		/* do not use bootstrap4 custom form element because it is difficult to localize
-																																																																																																													$html = '
-																																																																																																											<div class="custom-file">
-																																																																																																											  <input type="file" class="custom-file-input" id="'.$id.'" name="'.$varname.'">
-																																																																																																											  <label class="custom-file-label" for="'.$id.'">'.getMLText("browse").'&hellip;'.'</label>
-																																																																																																											</div>
-																																																																																																											';
-																																																																																																													return $html;
-																																																																																																											 */
+																																																																																																																															$html = '
+																																																																																																																													<div class="custom-file">
+																																																																																																																													  <input type="file" class="custom-file-input" id="'.$id.'" name="'.$varname.'">
+																																																																																																																													  <label class="custom-file-label" for="'.$id.'">'.getMLText("browse").'&hellip;'.'</label>
+																																																																																																																													</div>
+																																																																																																																													';
+																																																																																																																															return $html;
+																																																																																																																													 */
 		$html = '
 	<div id="' . $id . '-upload-files">
 		<div id="' . $id . '-upload-file" class="upload-file">
@@ -1946,26 +1961,26 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$formname = "docid";
 		$formid = md5($formname . $form);
 		?>
-		function documentSelected<?php echo $formid ?>(id, name) {
-		$('#<?php echo $formid ?>').val(id);
-		$('#choosedocsearch<?php echo $formid ?>').val(name);
-		$('#docChooser<?php echo $formid ?>').modal('hide');
-		}
-		function folderSelected<?php echo $formid ?>(id, name) {
-		}
-		<?php
+				function documentSelected<?php echo $formid ?>(id, name) {
+				$('#<?php echo $formid ?>').val(id);
+				$('#choosedocsearch<?php echo $formid ?>').val(name);
+				$('#docChooser<?php echo $formid ?>').modal('hide');
+				}
+				function folderSelected<?php echo $formid ?>(id, name) {
+				}
+				<?php
 	} /* }}} */
 
 	function printDocumentChooser($form, $accessMode = M_READ, $exclude = -1, $default = false, $formname = '', $folder = '', $partialtree = 0)
 	{ /* {{{ */
 		$this->printDocumentChooserHtml($form, $accessMode, $exclude, $default, $formname, $folder, $partialtree);
 		?>
-		<script language="JavaScript">
-			<?php
-			$this->printDocumentChooserJs($form);
-			?>
-		</script>
-		<?php
+				<script language="JavaScript">
+					<?php
+					$this->printDocumentChooserJs($form);
+					?>
+				</script>
+				<?php
 	} /* }}} */
 
 	function getFolderChooserHtml($form, $accessMode, $exclude = -1, $default = false, $formname = '', $skiptree = false)
@@ -2021,32 +2036,32 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$formname = "targetid";
 		$formid = md5($formname . $form);
 		?>
-		function folderSelected<?php echo $formid ?>(id, name) {
-		$('#<?php echo $formid ?>').val(id);
-		$('#choosefoldersearch<?php echo $formid ?>').val(name);
-		$('#folderChooser<?php echo $formid ?>').modal('hide');
-		}
-		/*
-		$(document).ready(function() {
-		$('#clearfolder<?php print $formid ?>').click(function(ev) {
-		$('#choosefoldersearch<?php echo $formid ?>').val('');
-		$('#<?php echo $formid ?>').val('');
-		});
-		});
-		*/
-		<?php
+				function folderSelected<?php echo $formid ?>(id, name) {
+				$('#<?php echo $formid ?>').val(id);
+				$('#choosefoldersearch<?php echo $formid ?>').val(name);
+				$('#folderChooser<?php echo $formid ?>').modal('hide');
+				}
+				/*
+				$(document).ready(function() {
+				$('#clearfolder<?php print $formid ?>').click(function(ev) {
+				$('#choosefoldersearch<?php echo $formid ?>').val('');
+				$('#<?php echo $formid ?>').val('');
+				});
+				});
+				*/
+				<?php
 	} /* }}} */
 
 	function printFolderChooser($form, $accessMode, $exclude = -1, $default = false, $formname = '')
 	{ /* {{{ */
 		$this->printFolderChooserHtml($form, $accessMode, $exclude, $default, $formname);
 		?>
-		<script language="JavaScript">
-			<?php
-			$this->printFolderChooserJs($form, $formname);
-			?>
-		</script>
-		<?php
+				<script language="JavaScript">
+					<?php
+					$this->printFolderChooserJs($form, $formname);
+					?>
+				</script>
+				<?php
 	} /* }}} */
 
 	function printKeywordChooserHtml($formName, $keywords = '', $fieldname = 'keywords')
@@ -2093,24 +2108,24 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printKeywordChooserJs($formName)
 	{ /* {{{ */
 		?>
-		$(document).ready(function() {
-		$('#acceptkeywords').click(function(ev) {
-		acceptKeywords();
-		});
-		});
-		<?php
+				$(document).ready(function() {
+				$('#acceptkeywords').click(function(ev) {
+				acceptKeywords();
+				});
+				});
+				<?php
 	} /* }}} */
 
 	function printKeywordChooser($formName, $keywords = '', $fieldname = 'keywords')
 	{ /* {{{ */
 		$this->printKeywordChooserHtml($formName, $keywords, $fieldname);
 		?>
-		<script language="JavaScript">
-			<?php
-			$this->printKeywordChooserJs($formName);
-			?>
-		</script>
-		<?php
+				<script language="JavaScript">
+					<?php
+					$this->printKeywordChooserJs($formName);
+					?>
+				</script>
+				<?php
 	} /* }}} */
 
 	/**
@@ -2224,9 +2239,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$content .= "<input type=\"text\" class=\"form-control\" id=\"" . $attr_id . "\" name=\"" . $attr_name . "\" value=\"" . htmlspecialchars($objvalue) . "\"" . ((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '') . ' data-rule-email="true"' . " />";
 				break;
 			/* case SeedDMS_Core_AttributeDefinition::type_float:
-																																																																																																																																																																			$objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
-																																																																																																																																																																			$content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
-																																																																																																																																																																			break; */
+																																																																																																																																																																																														$objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
+																																																																																																																																																																																														$content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
+																																																																																																																																																																																														break; */
 			case SeedDMS_Core_AttributeDefinition::type_folder:
 				$target = $attribute ? $attribute->getValue() : null;
 				$content .= $this->getFolderChooserHtml("attr" . $attrdef->getId(), M_READWRITE, -1, $target, $attr_name, false);
@@ -2302,6 +2317,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 								$content .= " selected";
 							elseif ($value == $objvalue)
 								$content .= " selected";
+								
 							$content .= ">" . htmlspecialchars($value) . "</option>";
 						}
 					}
@@ -2355,38 +2371,38 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printDropFolderChooserJs($formName, $showfolders = 0)
 	{ /* {{{ */
 		?>
-		/* Set up a callback which is called when a folder in the tree is selected */
-		modalDropfolderChooser = $('#dropfolderChooser');
-		function fileSelected(name, form) {
-		// $('#dropfolderfile<?php echo $formName ?>').val(name);
-		$('#dropfolderfile'+form).val(name);
-		modalDropfolderChooser.modal('hide');
-		}
-		<?php if ($showfolders) { ?>
-			function folderSelected(name, form) {
-			// $('#dropfolderfile<?php echo $formName ?>').val(name);
-			$('#dropfolderfile'+form).val(name);
-			modalDropfolderChooser.modal('hide');
-			}
-		<?php } ?>
-		$(document).ready(function() {
-		$('#clearfilename<?php print $formName ?>').click(function(ev) {
-		$('#dropfolderfile<?php echo $formName ?>').val('');
-		});
-		});
-		<?php
+				/* Set up a callback which is called when a folder in the tree is selected */
+				modalDropfolderChooser = $('#dropfolderChooser');
+				function fileSelected(name, form) {
+				// $('#dropfolderfile<?php echo $formName ?>').val(name);
+				$('#dropfolderfile'+form).val(name);
+				modalDropfolderChooser.modal('hide');
+				}
+				<?php if ($showfolders) { ?>
+						function folderSelected(name, form) {
+						// $('#dropfolderfile<?php echo $formName ?>').val(name);
+						$('#dropfolderfile'+form).val(name);
+						modalDropfolderChooser.modal('hide');
+						}
+				<?php } ?>
+				$(document).ready(function() {
+				$('#clearfilename<?php print $formName ?>').click(function(ev) {
+				$('#dropfolderfile<?php echo $formName ?>').val('');
+				});
+				});
+				<?php
 	} /* }}} */
 
 	function printDropFolderChooser($formName, $dropfolderfile = "", $showfolders = 0, $recursive = 1)
 	{ /* {{{ */
 		$this->printDropFolderChooserHtml($formName, $dropfolderfile, $showfolders, $recursive);
 		?>
-		<script language="JavaScript">
-			<?php
-			$this->printDropFolderChooserJs($formName, $showfolders);
-			?>
-		</script>
-		<?php
+				<script language="JavaScript">
+					<?php
+					$this->printDropFolderChooserJs($formName, $showfolders);
+					?>
+				</script>
+				<?php
 	} /* }}} */
 
 	function getImgPath($img)
@@ -2491,12 +2507,12 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$this->printNewTreeNavigationHtml($folderid, $accessmode, $showdocs, $formid, $expandtree, $orderby);
 		?>
-		<script language="JavaScript">
-			<?php
-			$this->printNewTreeNavigationJs($folderid, $accessmode, $showdocs, $formid, $expandtree, $orderby);
-			?>
-		</script>
-		<?php
+				<script language="JavaScript">
+					<?php
+					$this->printNewTreeNavigationJs($folderid, $accessmode, $showdocs, $formid, $expandtree, $orderby);
+					?>
+				</script>
+				<?php
 	} /* }}} */
 
 	function printNewTreeNavigationHtml($folderid = 0, $accessmode = M_READ, $showdocs = 0, $formid = 'form1', $expandtree = 0, $orderby = '')
@@ -2521,8 +2537,21 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	 */
 	function printNewTreeNavigationJs($folderid = 0, $accessmode = M_READ, $showdocs = 0, $formid = 'form1', $expandtree = 0, $orderby = '', $partialtree = false)
 	{ /* {{{ */
+		function decryptLabel($encrypted_combined_base64, $key)
+		{
+			$data = base64_decode($encrypted_combined_base64);
+			if ($data === false || strlen($data) < 16) {
+				return '[INVALID NAME]';
+			}
+			$iv = substr($data, 0, 16);
+			$ciphertext = substr($data, 16);
+			$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+			return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+		}
+
 		function jqtree($obj, $path, $folder, $user, $accessmode, $showdocs = 1, $expandtree = 0, $orderby = '', $level = 0)
 		{ /* {{{ */
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 			$orderdir = (isset($orderby[1]) ? ($orderby[1] == 'd' ? 'desc' : 'asc') : 'asc');
 			if ($path/* || $expandtree>=$level*/) {
 				if ($path)
@@ -2535,7 +2564,11 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 					$subfolders = array($pathfolder);
 				}
 				foreach ($subfolders as $subfolder) {
-					$node = array('label' => $subfolder->getName(), 'id' => $subfolder->getID(), 'load_on_demand' => (1 && ($subfolder->hasSubFolders() || ($subfolder->hasDocuments() && $showdocs))) ? true : false, 'is_folder' => true);
+					$decrypted = decryptLabel($subfolder->getName(), $encryption_key);
+					$label_sub = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
+						? htmlspecialchars($subfolder->getName())
+						: htmlspecialchars($decrypted);
+					$node = array('label' => $label_sub, 'id' => $subfolder->getID(), 'load_on_demand' => (1 && ($subfolder->hasSubFolders() || ($subfolder->hasDocuments() && $showdocs))) ? true : false, 'is_folder' => true);
 					/* if the subfolder is in the path then further unfold the tree. */
 					if (/*$expandtree>=$level ||*/ $path && ($path[0]->getID() == $subfolder->getID())) {
 						$node['children'] = jqtree($obj, $path, $subfolder, $user, $accessmode, $showdocs, $expandtree, $orderby, $level + 1);
@@ -2545,7 +2578,11 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 							if ($obj->hasHook('filterTreeDocuments'))
 								$documents = $obj->callHook('filterTreeDocuments', $folder, $documents);
 							foreach ($documents as $document) {
-								$node2 = array('label' => $document->getName(), 'id' => $document->getID(), 'load_on_demand' => false, 'is_folder' => false);
+								$decrypted = decryptLabel($document->getName(), $encryption_key);
+								$label = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
+									? htmlspecialchars($subfolder->getName())
+									: htmlspecialchars($decrypted);
+								$node2 = array('label' => $label, 'id' => $document->getID(), 'load_on_demand' => false, 'is_folder' => false);
 								$node['children'][] = $node2;
 							}
 						}
@@ -2558,7 +2595,11 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$subfolders = SeedDMS_Core_DMS::filterAccess($subfolders, $user, $accessmode);
 				$children = array();
 				foreach ($subfolders as $subfolder) {
-					$node = array('label' => $subfolder->getName(), 'id' => $subfolder->getID(), 'load_on_demand' => ($subfolder->hasSubFolders() || ($subfolder->hasDocuments() && $showdocs)) ? true : false, 'is_folder' => true);
+					$decrypted = decryptLabel($subfolder->getName(), $encryption_key);
+					$label = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
+						? htmlspecialchars($subfolder->getName())
+						: htmlspecialchars($decrypted);
+					$node = array('label' => $label, 'id' => $subfolder->getID(), 'load_on_demand' => ($subfolder->hasSubFolders() || ($subfolder->hasDocuments() && $showdocs)) ? true : false, 'is_folder' => true);
 					$children[] = $node;
 				}
 				return $children;
@@ -2605,102 +2646,102 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$tree = array();
 		}
 		?>
-		var data = <?php echo json_encode($tree); ?>;
-		$(function() {
-		const $tree = $('#jqtree<?php echo $formid ?>');
-		$tree.tree({
-		// saveState: false,
-		selectable: false,
-		data: data,
-		saveState: 'jqtree<?php echo $formid; ?>',
-		openedIcon: $('<i class="fa fa-minus-circle"></i>'),
-		closedIcon: $('<i class="fa fa-plus-circle"></i>'),
-		/*
-		_onCanSelectNode: function(node) {
-		if(node.is_folder) {
-		folderSelected<?= $formid ?>(node.id, node.name);
-		treeFolderSelected('<?= $formid ?>', node.id, node.name);
-		} else {
-		documentSelected<?= $formid ?>(node.id, node.name);
-		treeDocumentSelected('<?= $formid ?>', node.id, node.name);
-		}
-		},
-		*/
-		autoOpen: false,
-		drapAndDrop: true,
-		onCreateLi: function(node, $li) {
-		// Add 'icon' span before title
-		if(node.is_folder)
-		$li.find('.jqtree-title').prepend('<i class="fa fa-folder-o"></i> ').attr('data-name', node.name).attr('rel', 'folder_'
-		+ node.id).attr('formtoken', '<?php echo createFormKey(''); ?>').attr('data-uploadformtoken',
-		'<?php echo createFormKey(''); ?>').attr('data-droptarget', 'folder_' + node.id).addClass('droptarget');
-		else
-		$li.find('.jqtree-title').prepend('<i class="fa fa-file"></i> ');
-		}
-		});
-		// Unfold node for currently selected folder
-		$('#jqtree<?php echo $formid ?>').tree('selectNode', $('#jqtree<?php echo $formid ?>').tree('getNodeById',
-		<?php echo $folderid ?>), false, true);
-		$('#jqtree<?php echo $formid ?>').on(
-		'tree.click',
-		function(event) {
-		var node = event.node;
-		if(!node)
-		return;
-		if(node.is_folder) {
-		$('#jqtree<?php echo $formid ?>').tree('openNode', node);
-		<?php if ($showdocs) { ?>
-			// event.preventDefault();
-			if(typeof node.fetched == 'undefined') {
-			node.fetched = true;
-			$(this).tree('loadDataFromUrl', node, function () {
-			$(this).tree('openNode', node);
-			});
-			}
-		<?php } ?>
-		/* folderSelectedXXXX() can still be set, e.g. for the main tree
-		* to update the folder list.
-		*/
-		if (typeof folderSelected<?= $formid ?> === 'function') {
-		folderSelected<?= $formid ?>(node.id, node.name);
-		}
-		treeFolderSelected('<?= $formid ?>', node.id, node.name);
-		} else {
-		<?php if ($showdocs) { ?>
-			if (typeof documentSelected<?= $formid ?> === 'function') {
-			documentSelected<?= $formid ?>(node.id, node.name);
-			}
-			treeDocumentSelected('<?= $formid ?>', node.id, node.name);
-		<?php } ?>
-		}
-		}
-		);
-		$('#jqtree<?php echo $formid ?>').on(
-		'tree.contextmenu',
-		function(event) {
-		// The clicked node is 'event.node'
-		var node = event.node;
-		if(typeof node.fetched == 'undefined') {
-		node.fetched = true;
-		$(this).tree('loadDataFromUrl', node);
-		}
-		$(this).tree('openNode', node);
-		}
-		);
-		$("#jqtree").on('dragenter', function (e) {
-		attr_rel = $(e.srcElement).attr('rel');
-		if(typeof attr_rel == 'undefined')
-		return;
-		target_type = attr_rel.split("_")[0];
-		target_id = attr_rel.split("_")[1];
-		var node = $(this).tree('getNodeById', parseInt(target_id));
-		if(typeof node.fetched == 'undefined') {
-		node.fetched = true;
-		$(this).tree('loadDataFromUrl', node, function() {$(this).tree('openNode', node);});
-		}
-		});
-		});
-		<?php
+				var data = <?php echo json_encode($tree); ?>;
+				$(function() {
+				const $tree = $('#jqtree<?php echo $formid ?>');
+				$tree.tree({
+				// saveState: false,
+				selectable: false,
+				data: data,
+				saveState: 'jqtree<?php echo $formid; ?>',
+				openedIcon: $('<i class="fa fa-minus-circle"></i>'),
+				closedIcon: $('<i class="fa fa-plus-circle"></i>'),
+				/*
+				_onCanSelectNode: function(node) {
+				if(node.is_folder) {
+				folderSelected<?= $formid ?>(node.id, node.name);
+				treeFolderSelected('<?= $formid ?>', node.id, node.name);
+				} else {
+				documentSelected<?= $formid ?>(node.id, node.name);
+				treeDocumentSelected('<?= $formid ?>', node.id, node.name);
+				}
+				},
+				*/
+				autoOpen: false,
+				drapAndDrop: true,
+				onCreateLi: function(node, $li) {
+				// Add 'icon' span before title
+				if(node.is_folder)
+				$li.find('.jqtree-title').prepend('<i class="fa fa-folder-o"></i> ').attr('data-name', node.name).attr('rel', 'folder_'
+				+ node.id).attr('formtoken', '<?php echo createFormKey(''); ?>').attr('data-uploadformtoken',
+				'<?php echo createFormKey(''); ?>').attr('data-droptarget', 'folder_' + node.id).addClass('droptarget');
+				else
+				$li.find('.jqtree-title').prepend('<i class="fa fa-file"></i> ');
+				}
+				});
+				// Unfold node for currently selected folder
+				$('#jqtree<?php echo $formid ?>').tree('selectNode', $('#jqtree<?php echo $formid ?>').tree('getNodeById',
+				<?php echo $folderid ?>), false, true);
+				$('#jqtree<?php echo $formid ?>').on(
+				'tree.click',
+				function(event) {
+				var node = event.node;
+				if(!node)
+				return;
+				if(node.is_folder) {
+				$('#jqtree<?php echo $formid ?>').tree('openNode', node);
+				<?php if ($showdocs) { ?>
+						// event.preventDefault();
+						if(typeof node.fetched == 'undefined') {
+						node.fetched = true;
+						$(this).tree('loadDataFromUrl', node, function () {
+						$(this).tree('openNode', node);
+						});
+						}
+				<?php } ?>
+				/* folderSelectedXXXX() can still be set, e.g. for the main tree
+				* to update the folder list.
+				*/
+				if (typeof folderSelected<?= $formid ?> === 'function') {
+				folderSelected<?= $formid ?>(node.id, node.name);
+				}
+				treeFolderSelected('<?= $formid ?>', node.id, node.name);
+				} else {
+				<?php if ($showdocs) { ?>
+						if (typeof documentSelected<?= $formid ?> === 'function') {
+						documentSelected<?= $formid ?>(node.id, node.name);
+						}
+						treeDocumentSelected('<?= $formid ?>', node.id, node.name);
+				<?php } ?>
+				}
+				}
+				);
+				$('#jqtree<?php echo $formid ?>').on(
+				'tree.contextmenu',
+				function(event) {
+				// The clicked node is 'event.node'
+				var node = event.node;
+				if(typeof node.fetched == 'undefined') {
+				node.fetched = true;
+				$(this).tree('loadDataFromUrl', node);
+				}
+				$(this).tree('openNode', node);
+				}
+				);
+				$("#jqtree").on('dragenter', function (e) {
+				attr_rel = $(e.srcElement).attr('rel');
+				if(typeof attr_rel == 'undefined')
+				return;
+				target_type = attr_rel.split("_")[0];
+				target_id = attr_rel.split("_")[1];
+				var node = $(this).tree('getNodeById', parseInt(target_id));
+				if(typeof node.fetched == 'undefined') {
+				node.fetched = true;
+				$(this).tree('loadDataFromUrl', node, function() {$(this).tree('openNode', node);});
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	/**
@@ -2747,14 +2788,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$this->contentHeading("<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=0\"><i class=\"fa fa-minus-circle\"></i></a>", true);
 			$this->contentContainerStart();
 			?>
-			<script language="JavaScript">
-				function folderSelected(id, name) {
-					window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + id;
-				}
-			</script>
-			<?php
-			$this->printNewTreeNavigation($folderid, M_READ, 0, '');
-			$this->contentContainerEnd();
+						<script language="JavaScript">
+							function folderSelected(id, name) {
+								window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + id;
+							}
+						</script>
+						<?php
+						$this->printNewTreeNavigation($folderid, M_READ, 0, '');
+						$this->contentContainerEnd();
 		} else {
 			$this->contentHeading("<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=1\"><i class=\"fa fa-plus-circle\"></i></a>", true);
 		}
@@ -2771,10 +2812,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$this->contentHeading(getMLText("clipboard") . '<span id="clipboard-float"><i class="fa fa-sort"></i></span>', true);
 		echo "<div id=\"main-clipboard\">\n";
 		?>
-		<div class="ajax" data-view="Clipboard" data-action="mainClipboard"></div>
-		<?php
-		echo "</div>\n";
-		echo "</div>\n";
+				<div class="ajax" data-view="Clipboard" data-action="mainClipboard"></div>
+				<?php
+				echo "</div>\n";
+				echo "</div>\n";
 	} /* }}} */
 
 	/**
@@ -3046,23 +3087,23 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printSelectPresetButtonJs()
 	{ /* {{{ */
 		?>
-		$(document).ready( function() {
-		$('.selectpreset_btn').click(function(ev){
-		ev.preventDefault();
-		if (typeof $(ev.currentTarget).data('ids') != 'undefined') {
-		target = $(ev.currentTarget).data('ref');
-		// Use attr() instead of data() because data() converts to int which cannot be split
-		items = $(ev.currentTarget).attr('data-ids');
-		arr = items.split(",");
-		for(var i in arr) {
-		$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
-		}
-		// $("#"+target).trigger("chosen:updated");
-		$("#"+target).trigger("change");
-		}
-		});
-		});
-		<?php
+				$(document).ready( function() {
+				$('.selectpreset_btn').click(function(ev){
+				ev.preventDefault();
+				if (typeof $(ev.currentTarget).data('ids') != 'undefined') {
+				target = $(ev.currentTarget).data('ref');
+				// Use attr() instead of data() because data() converts to int which cannot be split
+				items = $(ev.currentTarget).attr('data-ids');
+				arr = items.split(",");
+				for(var i in arr) {
+				$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
+				}
+				// $("#"+target).trigger("chosen:updated");
+				$("#"+target).trigger("change");
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	/**
@@ -3102,26 +3143,26 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printInputPresetButtonJs()
 	{ /* {{{ */
 		?>
-		$(document).ready( function() {
-		$('.inputpreset_btn').click(function(ev){
-		ev.preventDefault();
-		if (typeof $(ev.currentTarget).data('text') != 'undefined') {
-		target = $(ev.currentTarget).data('ref');
-		value = $(ev.currentTarget).data('text');
-		sep = $(ev.currentTarget).data('sep');
-		if(sep) {
-		// Use attr() instead of data() because data() converts to int which cannot be split
-		arr = value.split(sep);
-		for(var i in arr) {
-		$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
-		}
-		} else {
-		$("#"+target).val(value);
-		}
-		}
-		});
-		});
-		<?php
+				$(document).ready( function() {
+				$('.inputpreset_btn').click(function(ev){
+				ev.preventDefault();
+				if (typeof $(ev.currentTarget).data('text') != 'undefined') {
+				target = $(ev.currentTarget).data('ref');
+				value = $(ev.currentTarget).data('text');
+				sep = $(ev.currentTarget).data('sep');
+				if(sep) {
+				// Use attr() instead of data() because data() converts to int which cannot be split
+				arr = value.split(sep);
+				for(var i in arr) {
+				$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
+				}
+				} else {
+				$("#"+target).val(value);
+				}
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	/**
@@ -3137,11 +3178,11 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function getCheckboxPresetButtonHtml($name, $text)
 	{ /* {{{ */
 		?>
-		return '<span id="'.$name.'_btn" class="checkboxpreset_btn" style="cursor: pointer;" title="'.getMLText("
-			takeOverAttributeValue").'" data-ref="'.$name.'"
-			data-text="'.(is_array($text) ? implode($sep, $text) : htmlspecialchars($text)).'"'.($sep ? " data-sep=\"".$sep."\"" : "").'><i
-				class="fa fa-arrow-left"></i></span>';
-		<?php
+				return '<span id="'.$name.'_btn" class="checkboxpreset_btn" style="cursor: pointer;" title="'.getMLText("
+					takeOverAttributeValue").'" data-ref="'.$name.'"
+					data-text="'.(is_array($text) ? implode($sep, $text) : htmlspecialchars($text)).'"'.($sep ? " data-sep=\"".$sep."\"" : "").'><i
+						class="fa fa-arrow-left"></i></span>';
+				<?php
 	} /* }}} */
 
 	/**
@@ -3166,21 +3207,21 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printCheckboxPresetButtonJs()
 	{ /* {{{ */
 		?>
-		$(document).ready( function() {
-		$('.checkboxpreset_btn').click(function(ev){
-		ev.preventDefault();
-		if (typeof $(ev.currentTarget).data('text') != 'undefined') {
-		target = $(ev.currentTarget).data('ref');
-		value = $(ev.currentTarget).data('text');
-		if(value) {
-		$("#"+target).attr('checked', '');
-		} else {
-		$("#"+target).removeAttribute('checked');
-		}
-		}
-		});
-		});
-		<?php
+				$(document).ready( function() {
+				$('.checkboxpreset_btn').click(function(ev){
+				ev.preventDefault();
+				if (typeof $(ev.currentTarget).data('text') != 'undefined') {
+				target = $(ev.currentTarget).data('ref');
+				value = $(ev.currentTarget).data('text');
+				if(value) {
+				$("#"+target).attr('checked', '');
+				} else {
+				$("#"+target).removeAttribute('checked');
+				}
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	/**
@@ -3276,16 +3317,16 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$onepage = $this->params['onepage'];
 		if ($onepage) {
 			?>
-			/* catch click on a document row in the list folders and documents */
-			$('body').on('click', '[id^=\"table-row-document\"] td:nth-child(2)', function(ev) {
-			if(ev.shiftKey) {
-			$(ev.currentTarget).parent().toggleClass('selected');
-			} else {
-			attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
-			window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewDocument.php?documentid=' + attr_id;
-			}
-			});
-			<?php
+						/* catch click on a document row in the list folders and documents */
+						$('body').on('click', '[id^=\"table-row-document\"] td:nth-child(2)', function(ev) {
+						if(ev.shiftKey) {
+						$(ev.currentTarget).parent().toggleClass('selected');
+						} else {
+						attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
+						window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewDocument.php?documentid=' + attr_id;
+						}
+						});
+						<?php
 		}
 	} /* }}} */
 
@@ -3302,18 +3343,18 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$onepage = $this->params['onepage'];
 		if ($onepage) {
 			?>
-			/* catch click on a document row in the list folders and documents */
-			$('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev) {
-			if(ev.shiftKey) {
-			$(ev.currentTarget).parent().toggleClass('selected');
-			} else {
-			attr_id = $(ev.currentTarget).parent().data('target-id');
-			if(typeof attr_id == 'undefined')
-			attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
-			window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + attr_id;
-			}
-			});
-			<?php
+						/* catch click on a document row in the list folders and documents */
+						$('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev) {
+						if(ev.shiftKey) {
+						$(ev.currentTarget).parent().toggleClass('selected');
+						} else {
+						attr_id = $(ev.currentTarget).parent().data('target-id');
+						if(typeof attr_id == 'undefined')
+						attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
+						window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + attr_id;
+						}
+						});
+						<?php
 		}
 	} /* }}} */
 
@@ -4033,56 +4074,56 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printFineUploaderJs($uploadurl, $partsize = 0, $maxuploadsize = 0, $multiple = true, $prefix = 'userfile', $formname = 'form1')
 	{ /* {{{ */
 		?>
-		$(document).ready(function() {
-		<?php echo $prefix; ?>uploader = new qq.FineUploader({
-		debug: false,
-		autoUpload: false,
-		multiple: <?php echo ($multiple ? 'true' : 'false'); ?>,
-		element: $('#<?php echo $prefix; ?>-fine-uploader')[0],
-		template: 'qq-template',
-		request: {
-		endpoint: '<?php echo $uploadurl . "?formkey=" . md5($this->params['settings']->_encryptionKey . 'uploadchunks'); ?>'
-		},
-		<?php echo ($maxuploadsize > 0 ? '
+				$(document).ready(function() {
+				<?php echo $prefix; ?>uploader = new qq.FineUploader({
+				debug: false,
+				autoUpload: false,
+				multiple: <?php echo ($multiple ? 'true' : 'false'); ?>,
+				element: $('#<?php echo $prefix; ?>-fine-uploader')[0],
+				template: 'qq-template',
+				request: {
+				endpoint: '<?php echo $uploadurl . "?formkey=" . md5($this->params['settings']->_encryptionKey . 'uploadchunks'); ?>'
+				},
+				<?php echo ($maxuploadsize > 0 ? '
 		validation: {
 			sizeLimit: ' . $maxuploadsize . '
 		},
 ' : ''); ?>
-		chunking: {
-		enabled: true,
-		<?php echo $partsize ? 'partSize: ' . (int) $partsize . ",\n" : ''; ?>
-		mandatory: true
-		},
-		messages: {
-		sizeError: '{file} is too large, maximum file size is {sizeLimit}.'
-		},
-		callbacks: {
-		onComplete: function(id, name, json, xhr) {
-		},
-		onAllComplete: function(succeeded, failed) {
-		var uuids = Array();
-		var names = Array();
-		for (var i = 0; i < succeeded.length; i++) { uuids.push(this.getUuid(succeeded[i]))
-			names.push(this.getName(succeeded[i])) } $('#<?php echo $prefix; ?>-fine-uploader-uuids').val(uuids.join(';'));
-			$('#<?php echo $prefix; ?>-fine-uploader-names').val(names.join(';'));
-			/* Run upload only if all files could be uploaded */
-			if(succeeded.length > 0 && failed.length == 0)
-			document.getElementById('<?= $formname ?>').submit();
-			},
-			onError: function(id, name, reason, xhr) {
-			noty({
-			text: reason,
-			type: 'error',
-			dismissQueue: true,
-			layout: 'topRight',
-			theme: 'defaultTheme',
-			timeout: 3500,
-			});
-			}
-			}
-			});
-			});
-			<?php
+				chunking: {
+				enabled: true,
+				<?php echo $partsize ? 'partSize: ' . (int) $partsize . ",\n" : ''; ?>
+				mandatory: true
+				},
+				messages: {
+				sizeError: '{file} is too large, maximum file size is {sizeLimit}.'
+				},
+				callbacks: {
+				onComplete: function(id, name, json, xhr) {
+				},
+				onAllComplete: function(succeeded, failed) {
+				var uuids = Array();
+				var names = Array();
+				for (var i = 0; i < succeeded.length; i++) { uuids.push(this.getUuid(succeeded[i]))
+					names.push(this.getName(succeeded[i])) } $('#<?php echo $prefix; ?>-fine-uploader-uuids').val(uuids.join(';'));
+					$('#<?php echo $prefix; ?>-fine-uploader-names').val(names.join(';'));
+					/* Run upload only if all files could be uploaded */
+					if(succeeded.length > 0 && failed.length == 0)
+					document.getElementById('<?= $formname ?>').submit();
+					},
+					onError: function(id, name, reason, xhr) {
+					noty({
+					text: reason,
+					type: 'error',
+					dismissQueue: true,
+					layout: 'topRight',
+					theme: 'defaultTheme',
+					timeout: 3500,
+					});
+					}
+					}
+					});
+					});
+					<?php
 	} /* }}} */
 
 	/**
@@ -4096,102 +4137,102 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$document = $latestContent->getDocument();
 		$accessop = $this->params['accessobject'];
 		?>
-			<legend><?php printMLText($type . '_log'); ?></legend>
-			<table class="table table-sm">
-				<tr>
-					<th><?php printMLText('name'); ?></th>
-					<th><?php printMLText('last_update'); ?>, <?php printMLText('comment'); ?></th>
-					<th><?php printMLText('status'); ?></th>
-				</tr>
-				<?php
-				switch ($type) {
-					case "review":
-						$statusList = $latestContent->getReviewStatus(10);
-						break;
-					case "approval":
-						$statusList = $latestContent->getApprovalStatus(10);
-						break;
-					case "revision":
-						$statusList = $latestContent->getRevisionStatus(10);
-						break;
-					case "receipt":
-						$statusList = $latestContent->getReceiptStatus(10);
-						break;
-					default:
-						$statusList = array();
-				}
-				foreach ($statusList as $rec) {
-					echo "<tr>";
-					echo "<td>";
-					switch ($rec["type"]) {
-						case 0: // individual.
-							$required = $dms->getUser($rec["required"]);
-							if (!is_object($required)) {
-								$reqName = getMLText("unknown_user") . " '" . $rec["required"] . "'";
-							} else {
-								$reqName = htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
+					<legend><?php printMLText($type . '_log'); ?></legend>
+					<table class="table table-sm">
+						<tr>
+							<th><?php printMLText('name'); ?></th>
+							<th><?php printMLText('last_update'); ?>, <?php printMLText('comment'); ?></th>
+							<th><?php printMLText('status'); ?></th>
+						</tr>
+						<?php
+						switch ($type) {
+							case "review":
+								$statusList = $latestContent->getReviewStatus(10);
+								break;
+							case "approval":
+								$statusList = $latestContent->getApprovalStatus(10);
+								break;
+							case "revision":
+								$statusList = $latestContent->getRevisionStatus(10);
+								break;
+							case "receipt":
+								$statusList = $latestContent->getReceiptStatus(10);
+								break;
+							default:
+								$statusList = array();
+						}
+						foreach ($statusList as $rec) {
+							echo "<tr>";
+							echo "<td>";
+							switch ($rec["type"]) {
+								case 0: // individual.
+									$required = $dms->getUser($rec["required"]);
+									if (!is_object($required)) {
+										$reqName = getMLText("unknown_user") . " '" . $rec["required"] . "'";
+									} else {
+										$reqName = htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
+									}
+									break;
+								case 1: // Approver is a group.
+									$required = $dms->getGroup($rec["required"]);
+									if (!is_object($required)) {
+										$reqName = getMLText("unknown_group") . " '" . $rec["required"] . "'";
+									} else {
+										$reqName = "<i>" . htmlspecialchars($required->getName()) . "</i>";
+									}
+									break;
 							}
-							break;
-						case 1: // Approver is a group.
-							$required = $dms->getGroup($rec["required"]);
-							if (!is_object($required)) {
-								$reqName = getMLText("unknown_group") . " '" . $rec["required"] . "'";
-							} else {
-								$reqName = "<i>" . htmlspecialchars($required->getName()) . "</i>";
+							echo $reqName;
+							echo "</td>";
+							echo "<td>";
+							echo "<i style=\"font-size: 80%;\">" . getLongReadableDate($rec['date']) . " - ";
+							$updateuser = $dms->getUser($rec["userID"]);
+							if (!is_object($updateuser))
+								echo getMLText("unknown_user");
+							else
+								echo htmlspecialchars($updateuser->getFullName() . " (" . $updateuser->getLogin() . ")");
+							echo "</i>";
+							if ($rec['comment'])
+								echo "<br />" . htmlspecialchars($rec['comment']);
+							switch ($type) {
+								case "review":
+									if ($accessop->check_controller_access('Download', array('action' => 'review')))
+										if ($rec['file']) {
+											echo "<br />";
+											echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&reviewlogid=" . $rec['reviewLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
+										}
+									break;
+								case "approval":
+									if ($accessop->check_controller_access('Download', array('action' => 'approval')))
+										if ($rec['file']) {
+											echo "<br />";
+											echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&approvelogid=" . $rec['approveLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
+										}
+									break;
 							}
-							break;
-					}
-					echo $reqName;
-					echo "</td>";
-					echo "<td>";
-					echo "<i style=\"font-size: 80%;\">" . getLongReadableDate($rec['date']) . " - ";
-					$updateuser = $dms->getUser($rec["userID"]);
-					if (!is_object($updateuser))
-						echo getMLText("unknown_user");
-					else
-						echo htmlspecialchars($updateuser->getFullName() . " (" . $updateuser->getLogin() . ")");
-					echo "</i>";
-					if ($rec['comment'])
-						echo "<br />" . htmlspecialchars($rec['comment']);
-					switch ($type) {
-						case "review":
-							if ($accessop->check_controller_access('Download', array('action' => 'review')))
-								if ($rec['file']) {
-									echo "<br />";
-									echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&reviewlogid=" . $rec['reviewLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
-								}
-							break;
-						case "approval":
-							if ($accessop->check_controller_access('Download', array('action' => 'approval')))
-								if ($rec['file']) {
-									echo "<br />";
-									echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&approvelogid=" . $rec['approveLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
-								}
-							break;
-					}
-					echo "</td>";
-					echo "<td>";
-					switch ($type) {
-						case "review":
-							echo getReviewStatusText($rec["status"]);
-							break;
-						case "approval":
-							echo getApprovalStatusText($rec["status"]);
-							break;
-						case "revision":
-							echo getRevisionStatusText($rec["status"]);
-							break;
-						case "receipt":
-							echo getReceiptStatusText($rec["status"]);
-							break;
-						default:
-					}
-					echo "</td>";
-					echo "</tr>";
-				}
-				?>
-			</table>
-			<?php
+							echo "</td>";
+							echo "<td>";
+							switch ($type) {
+								case "review":
+									echo getReviewStatusText($rec["status"]);
+									break;
+								case "approval":
+									echo getApprovalStatusText($rec["status"]);
+									break;
+								case "revision":
+									echo getRevisionStatusText($rec["status"]);
+									break;
+								case "receipt":
+									echo getReceiptStatusText($rec["status"]);
+									break;
+								default:
+							}
+							echo "</td>";
+							echo "</tr>";
+						}
+						?>
+					</table>
+					<?php
 	} /* }}} */
 
 	protected function printWorkflowLog($wkflogs)
@@ -4246,57 +4287,57 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		if (!$timelineurl)
 			return;
 		?>
-			var timeline;
-			var data;
+					var timeline;
+					var data;
 
-			// specify options
-			var options = {
-			'width': '100%',
-			'height': '100%',
-			<?php
-			if ($start) {
-				$tmp = explode('-', $start);
-				echo "\t\t\t'min': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
-			}
-			if ($end) {
-				$tmp = explode('-', $end);
-				echo "'\t\t\tmax': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
-			}
-			?>
-			'editable': false,
-			'selectable': true,
-			'style': 'box',
-			'locale': '<?php echo $this->params['session']->getLanguage() ?>'
-			};
+					// specify options
+					var options = {
+					'width': '100%',
+					'height': '100%',
+					<?php
+					if ($start) {
+						$tmp = explode('-', $start);
+						echo "\t\t\t'min': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
+					}
+					if ($end) {
+						$tmp = explode('-', $end);
+						echo "'\t\t\tmax': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
+					}
+					?>
+					'editable': false,
+					'selectable': true,
+					'style': 'box',
+					'locale': '<?php echo $this->params['session']->getLanguage() ?>'
+					};
 
-			$(document).ready(function () {
-			// Instantiate our timeline object.
-			timeline = new links.Timeline(document.getElementById('timeline'), options);
-			<?php
-			if ($onselect):
-				?>
-				links.events.addListener(timeline, 'select', <?= $onselect ?>);
-				<?php
-			endif;
-			?>
-			$.getJSON(
-			'<?php echo $timelineurl ?>',
-			function(data) {
-			$.each( data, function( key, val ) {
-			val.start = new Date(val.start);
-			});
-			timeline.draw(data);
-			}
-			);
-			});
-			<?php
+					$(document).ready(function () {
+					// Instantiate our timeline object.
+					timeline = new links.Timeline(document.getElementById('timeline'), options);
+					<?php
+					if ($onselect):
+						?>
+							links.events.addListener(timeline, 'select', <?= $onselect ?>);
+							<?php
+					endif;
+					?>
+					$.getJSON(
+					'<?php echo $timelineurl ?>',
+					function(data) {
+					$.each( data, function( key, val ) {
+					val.start = new Date(val.start);
+					});
+					timeline.draw(data);
+					}
+					);
+					});
+					<?php
 	} /* }}} */
 
 	protected function printTimelineHtml($height)
 	{ /* {{{ */
 		?>
-			<div id="timeline" style="height: <?php echo $height ?>px;"></div>
-			<?php
+					<div id="timeline" style="height: <?php echo $height ?>px;"></div>
+					<?php
 	} /* }}} */
 
 	protected function printTimeline($timelineurl, $height = 300, $start = '', $end = '', $skip = array())
@@ -4311,13 +4352,13 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = md5(uniqid());
 		/*
-																																																																																																												  $this->addFooterJS('
-																																																																																																										  $("body").on("click", "span.openpopupbox", function(e) {
-																																																																																																											  $(""+$(e.target).data("href")).toggle();
-																																																																																																										  //	$("div.popupbox").toggle();
-																																																																																																										  });
-																																																																																																										  ');
-																																																																																																												   */
+																																																																																																																														  $this->addFooterJS('
+																																																																																																																												  $("body").on("click", "span.openpopupbox", function(e) {
+																																																																																																																													  $(""+$(e.target).data("href")).toggle();
+																																																																																																																												  //	$("div.popupbox").toggle();
+																																																																																																																												  });
+																																																																																																																												  ');
+																																																																																																																														   */
 		$html = '
 		<span class="openpopupbox" data-href="#' . $id . '">' . $title . '</span>
 		<div id="' . $id . '" class="popupbox" style="display: none;">' . $content . '<span class="closepopupbox"><i class="fa fa-remove"></i></span>
@@ -4332,45 +4373,45 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = substr(md5(uniqid()), 0, 4);
 		?>
-			<div class="accordion mb-4" id="accordion<?php echo $id; ?>">
-				<div class="card">
-					<div class="card-header" id="accordionheader<?php echo $id; ?>">
-						<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
-							data-target="#collapse<?php echo $id; ?>" <?= $open ? ' aria-expanded="true"' : '' ?>>
-							<?php echo $title; ?>
-						</a>
-					</div>
-					<div id="collapse<?php echo $id; ?>" class="collapse<?= $open ? ' show' : '' ?>"
-						data-parent="accordion<?php echo $id; ?>">
-						<div class="card-body">
-							<?php
-							echo $content;
-							?>
+					<div class="accordion mb-4" id="accordion<?php echo $id; ?>">
+						<div class="card">
+							<div class="card-header" id="accordionheader<?php echo $id; ?>">
+								<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
+									data-target="#collapse<?php echo $id; ?>" <?= $open ? ' aria-expanded="true"' : '' ?>>
+									<?php echo $title; ?>
+								</a>
+							</div>
+							<div id="collapse<?php echo $id; ?>" class="collapse<?= $open ? ' show' : '' ?>"
+								data-parent="accordion<?php echo $id; ?>">
+								<div class="card-body">
+									<?php
+									echo $content;
+									?>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-			<?php
+					<?php
 	} /* }}} */
 
 	public function printAccordion2($title, $content)
 	{ /* {{{ */
 		$id = substr(md5(uniqid()), 0, 4);
 		?>
-			<div class="accordion2" id="accordion<?php echo $id; ?>">
-				<a class="accordion2-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
-					data-target="#collapse<?php echo $id; ?>">
+					<div class="accordion2" id="accordion<?php echo $id; ?>">
+						<a class="accordion2-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
+							data-target="#collapse<?php echo $id; ?>">
+							<?php
+							$this->contentHeading($title);
+							?>
+						</a>
+						<div id="collapse<?php echo $id; ?>" class="collapse" data-parent="accordion<?php echo $id; ?>">
+							<?php
+							echo $content;
+							?>
+						</div>
+					</div>
 					<?php
-					$this->contentHeading($title);
-					?>
-				</a>
-				<div id="collapse<?php echo $id; ?>" class="collapse" data-parent="accordion<?php echo $id; ?>">
-					<?php
-					echo $content;
-					?>
-				</div>
-			</div>
-			<?php
 	} /* }}} */
 }
 
