@@ -65,6 +65,39 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 
 		return $decrypted === false ? $value : $decrypted;
 	}
+	public function decrypt($data, $encryption_key)
+	{
+		$encryption_method = 'AES-256-CBC';
+
+		// Make sure key is 32 bytes
+		if (strlen($encryption_key) !== 32) {
+			$encryption_key = hash('sha256', $encryption_key, true);
+		}
+
+		$decoded = base64_decode($data);
+		if ($decoded === false) {
+			return '[BASE64 DECODE FAILED]';
+		}
+
+		$iv_length = openssl_cipher_iv_length($encryption_method); // = 16
+
+		if (strlen($decoded) < $iv_length) {
+			return '[INVALID ENCRYPTED DATA]';
+		}
+
+		$iv = substr($decoded, 0, $iv_length);
+		$ciphertext = substr($decoded, $iv_length);
+
+		$decrypted = openssl_decrypt($ciphertext, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $iv);
+		if ($decrypted === false) {
+			return '[DECRYPTION FAILED]';
+		}
+
+		return $decrypted;
+	}
+
+
+
 
 
 	private function looksEncrypted($string)
@@ -374,8 +407,9 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 				// Ensure the key is 16 bytes (128 bits) for AES-128-CBC
 				//$encryption_key = hex2bin('b8c75fa53c0c7a18a84adb6ca815bd94'); // 16 bytes
 				$rawName = $group->getName();
-
+				$decrypted = $this->decrypt("O0NGRSxQ7limaHMfr6TCl5u3mfqSxEjmWOJDpv0pa9njP+nfXW", $encryption_key);
 				echo "<script>console.log(" . json_encode("[RAW BASE64] " . $group->getName()) . ");</script>";
+				echo "<script>console.log(" . json_encode("[decrypted data] " . $decrypted) . ");</script>";
 
 				// Check if the name *looks like* a base64-encoded encrypted string
 				if ($this->looksEncrypted($rawName)) {

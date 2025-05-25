@@ -31,6 +31,17 @@
  */
 class SeedDMS_View_UserList extends SeedDMS_Theme_Style
 {
+	private function decrypt($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	private function decryptName($encrypted_combined_base64, $key)
 	{
 		// Base64 decode with strict mode
@@ -118,23 +129,37 @@ class SeedDMS_View_UserList extends SeedDMS_Theme_Style
 					$login = $currUser->getLogin() ?? '';
 					$email = $currUser->getEmail() ?? '';
 					$comment = $currUser->getComment() ?? '';
+					$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 
-					echo htmlspecialchars($fullName) . " (" . htmlspecialchars($login) . ")<br />";
+					$decrypted = $this->decrypt($currUser->getFullName(), $encryption_key);
+					$fullname_v1 = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $currUser->getFullName() : $decrypted;
+					$decryptedlogin = $this->decrypt($currUser->getLogin(), $encryption_key);
+					$login = ($decryptedlogin === '[DECRYPTION FAILED]' || $decryptedlogin === '[INVALID NAME]') ? $currUser->getLogin() : $decryptedlogin;
+					$decryptedemail = $this->decrypt($currUser->getEmail(), $encryption_key);
+					$email = ($decryptedemail === '[DECRYPTION FAILED]' || $decryptedemail === '[INVALID NAME]') ? $currUser->getEmail() : $decryptedemail;
+					$decryptedcomment = $this->decrypt($currUser->getComment(), $encryption_key);
+					$comment_v1 = ($decryptedemail === '[DECRYPTION FAILED]' || $decryptedemail === '[INVALID NAME]') ? $currUser->getEmail() : $decryptedemail;
+
+					echo htmlspecialchars($fullname_v1) . " (" . htmlspecialchars($login) . ")<br />";
 					echo "<a href=\"mailto:" . htmlspecialchars($email) . "\">" . htmlspecialchars($email) . "</a><br />";
-					echo "<small>" . htmlspecialchars($comment) . "</small>";
+					echo "<small>" . htmlspecialchars($comment_v1) . "</small>";
 					echo "</td>";
 					echo "<td>";
-					$encryption_key = hex2bin('b8c75fa53c0c7a18a84adb6ca815bd94'); // 64 hex chars = 32 bytes// 64 hex chars
 					$groups = $currUser->getGroups();
 
 					if (count($groups) != 0) {
 						for ($j = 0; $j < count($groups); $j++) {
 
 							$encrypted_name = $groups[$j]->getName();
-							$decrypted_name = $this->decryptName($encrypted_name, $encryption_key);
+							$encrypted_name = $groups[$j]->getName();
+							$maybe_decrypted = $this->decrypt($encrypted_name, $encryption_key);
 
+							// If decryption failed or returned an invalid response, assume it was already decrypted
+							$decrypted_name = ($maybe_decrypted === '[DECRYPTION FAILED]' || $maybe_decrypted === '[INVALID NAME]')
+								? $encrypted_name
+								: $maybe_decrypted;
 							// If decryption failed, fallback to something readable
-							if ($decrypted_name === '[DECRYPTION FAILED]' || $decrypted_name === '[INVALID NAME]') {
+							if ($decrypted_name == '[DECRYPTION FAILED]' || $decrypted_name === '[INVALID NAME]') {
 								$decrypted_name = '(Unreadable)';
 							}
 
