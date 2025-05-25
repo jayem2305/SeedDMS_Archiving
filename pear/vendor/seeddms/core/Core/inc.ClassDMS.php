@@ -72,7 +72,8 @@ require_once("inc.ClassStorageFile.php");
  * @author     Uwe Steinmann <uwe@steinmann.cx>
  * @copyright  Copyright (C) 2010-2024 Uwe Steinmann
  */
-class SeedDMS_Core_DMS {
+class SeedDMS_Core_DMS
+{
 	/**
 	 * @var SeedDMS_Core_DatabaseAccess $db reference to database object. This must be an instance
 	 *      of {@see SeedDMS_Core_DatabaseAccess}.
@@ -227,7 +228,7 @@ class SeedDMS_Core_DMS {
 	/**
 	 * @var SeedDMS_Core_DMS
 	 */
-//	public $_dms;
+	//	public $_dms;
 
 
 	/**
@@ -242,7 +243,8 @@ class SeedDMS_Core_DMS {
 	 * @param object $object2 second object to be compared
 	 * @return boolean true if objects are equal, otherwise false
 	 */
-	public static function checkIfEqual($object1, $object2) { /* {{{ */
+	public static function checkIfEqual($object1, $object2)
+	{ /* {{{ */
 		if (get_class($object1) != get_class($object2))
 			return false;
 		if ($object1->getID() != $object2->getID())
@@ -266,7 +268,8 @@ class SeedDMS_Core_DMS {
 	 * @param array $list list of objects (haystack)
 	 * @return boolean|integer index in array if object was found, otherwise false
 	 */
-	public static function inList($object, $list) { /* {{{ */
+	public static function inList($object, $list)
+	{ /* {{{ */
 		foreach ($list as $i => $item) {
 			if (get_class($item) == get_class($object) && $item->getID() == $object->getID())
 				return $i;
@@ -282,7 +285,8 @@ class SeedDMS_Core_DMS {
 	 * format is not given.
 	 * @return boolean true if date is in propper format, otherwise false
 	 */
-	public static function checkDate($date, $format = 'Y-m-d H:i:s') { /* {{{ */
+	public static function checkDate($date, $format = 'Y-m-d H:i:s')
+	{ /* {{{ */
 		$d = DateTime::createFromFormat($format, $date);
 		return $d && $d->format($format) == $date;
 	} /* }}} */
@@ -307,7 +311,8 @@ class SeedDMS_Core_DMS {
 	 *        M_READ, M_READWRITE, M_ALL)
 	 * @return array filtered list of objects
 	 */
-	public static function filterAccess($objArr, $user, $minMode) { /* {{{ */
+	public static function filterAccess($objArr, $user, $minMode)
+	{ /* {{{ */
 		if (!is_array($objArr)) {
 			return array();
 		}
@@ -341,7 +346,8 @@ class SeedDMS_Core_DMS {
 	 *        (M_ANY, M_NONE, M_READ, M_READWRITE, M_ALL)
 	 * @return array filtered list of users
 	 */
-	public static function filterUsersByAccess($obj, $users, $minMode) { /* {{{ */
+	public static function filterUsersByAccess($obj, $users, $minMode)
+	{ /* {{{ */
 		$newArr = array();
 		foreach ($users as $currUser) {
 			if ($obj->getAccessMode($currUser) >= $minMode)
@@ -365,10 +371,11 @@ class SeedDMS_Core_DMS {
 	 * If not set, then access rights will not be checked at all.
 	 * @return array filtered list of links
 	 */
-	public static function filterDocumentLinks($user, $links, $access = '') { /* {{{ */
+	public static function filterDocumentLinks($user, $links, $access = '')
+	{ /* {{{ */
 		$tmp = array();
 		foreach ($links as $link) {
-			if ($link->isPublic() || ($link->getUser()->getID() == $user->getID()) || $user->isAdmin()){
+			if ($link->isPublic() || ($link->getUser()->getID() == $user->getID()) || $user->isAdmin()) {
 				if ($access == 'source') {
 					$obj = $link->getDocument();
 					if ($obj->getAccessMode($user) >= M_READ)
@@ -396,15 +403,18 @@ class SeedDMS_Core_DMS {
 	 * @param array $secont list of access rights
 	 * @return array merged list
 	 */
-	static function mergeAccessLists($first, $second) { /* {{{ */
+	static function mergeAccessLists($first, $second)
+	{ /* {{{ */
 		if ($first && !$second)
 			return $first;
 		if (!$first && $second)
 			return $second;
 
-		$tmp = array('users'=>array(), 'groups'=>array());
-		if (!isset($first['users']) || !isset($first['groups']) ||
-			!isset($second['users']) || !isset($second['groups']))
+		$tmp = array('users' => array(), 'groups' => array());
+		if (
+			!isset($first['users']) || !isset($first['groups']) ||
+			!isset($second['users']) || !isset($second['groups'])
+		)
 			return false;
 
 		foreach ($first['users'] as $f) {
@@ -451,7 +461,8 @@ class SeedDMS_Core_DMS {
 	 * @param object $user user for which access is being checked
 	 * @return array filtered list of files
 	 */
-	public static function filterDocumentFiles($user, $files) { /* {{{ */
+	public static function filterDocumentFiles($user, $files)
+	{ /* {{{ */
 		$tmp = array();
 		if ($files) {
 			foreach ($files as $file)
@@ -470,7 +481,8 @@ class SeedDMS_Core_DMS {
 	 * @param string $contentDir path in filesystem containing the data store
 	 *        all document contents is stored
 	 */
-	public function __construct($db, $contentDir) { /* {{{ */
+	public function __construct($db, $contentDir)
+	{ /* {{{ */
 		$this->db = $db;
 		if (is_object($contentDir)) {
 			$this->storage = $contentDir;
@@ -479,7 +491,7 @@ class SeedDMS_Core_DMS {
 			if (substr($contentDir, -1) == DIRECTORY_SEPARATOR)
 				$this->contentDir = $contentDir;
 			else
-				$this->contentDir = $contentDir.DIRECTORY_SEPARATOR;
+				$this->contentDir = $contentDir . DIRECTORY_SEPARATOR;
 		}
 		$this->memcache = null;
 		$this->rootFolderID = 1;
@@ -523,7 +535,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return string/boolean name of class or false if object name is invalid
 	 */
-	public function getClassname($objectname) { /* {{{ */
+	public function getClassname($objectname)
+	{ /* {{{ */
 		if (isset($this->classnames[$objectname]))
 			return $this->classnames[$objectname];
 		else
@@ -544,9 +557,10 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return string/boolean name of old class or false if not set
 	 */
-	public function setClassname($objectname, $classname) { /* {{{ */
+	public function setClassname($objectname, $classname)
+	{ /* {{{ */
 		if (isset($this->classnames[$objectname]))
-			$oldclass =  $this->classnames[$objectname];
+			$oldclass = $this->classnames[$objectname];
 		else
 			$oldclass = false;
 		$this->classnames[$objectname] = $classname;
@@ -566,7 +580,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array/boolean list of class names or false if object name is invalid
 	 */
-	public function getDecorators($objectname) { /* {{{ */
+	public function getDecorators($objectname)
+	{ /* {{{ */
 		if (isset($this->decorators[$objectname]))
 			return $this->decorators[$objectname];
 		else
@@ -586,7 +601,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return boolean true if decorator could be added, otherwise false
 	 */
-	public function addDecorator($objectname, $decorator) { /* {{{ */
+	public function addDecorator($objectname, $decorator)
+	{ /* {{{ */
 		$this->decorators[$objectname][] = $decorator;
 		return true;
 	} /* }}} */
@@ -599,7 +615,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return SeedDMS_Core_DatabaseAccess database
 	 */
-	public function getDB() { /* {{{ */
+	public function getDB()
+	{ /* {{{ */
 		return $this->db;
 	} /* }}} */
 
@@ -611,7 +628,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return SeedDMS_Core_Storage
 	 */
-	public function getStorage() { /* {{{ */
+	public function getStorage()
+	{ /* {{{ */
 		return $this->storage;
 	} /* }}} */
 
@@ -620,7 +638,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array|bool
 	 */
-	public function getDBVersion() { /* {{{ */
+	public function getDBVersion()
+	{ /* {{{ */
 		$tbllist = $this->db->TableList();
 		$tbllist = explode(',', strtolower(join(',', $tbllist)));
 		if (!in_array('tblversion', $tbllist))
@@ -642,7 +661,8 @@ class SeedDMS_Core_DMS {
 	 * @return boolean returns false if versions do not match, but returns
 	 *         true if version matches or table tblVersion does not exists.
 	 */
-	public function checkVersion() { /* {{{ */
+	public function checkVersion()
+	{ /* {{{ */
 		$tbllist = $this->db->TableList();
 		$tbllist = explode(',', strtolower(join(',', $tbllist)));
 		if (!in_array('tblversion', $tbllist))
@@ -672,7 +692,8 @@ class SeedDMS_Core_DMS {
 	 * @param object $memcache memcache object created with new Memcached()
 	 * @return void
 	 */
-	public function setMemcache($memcache) { /* {{{ */
+	public function setMemcache($memcache)
+	{ /* {{{ */
 		$this->memcache = $memcache;
 	} /* }}} */
 
@@ -688,7 +709,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id id of root folder
 	 * @return boolean/int old root folder id if new root folder exists, otherwise false
 	 */
-	public function setRootFolderID($id) { /* {{{ */
+	public function setRootFolderID($id)
+	{ /* {{{ */
 		if ($this->getFolder($id)) {
 			$oldid = $this->rootFolderID;
 			$this->rootFolderID = $id;
@@ -719,7 +741,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @param integer $id id of root folder
 	 */
-	public function setMaxDirID($id) { /* {{{ */
+	public function setMaxDirID($id)
+	{ /* {{{ */
 		$this->maxDirID = $id;
 	} /* }}} */
 
@@ -729,16 +752,20 @@ class SeedDMS_Core_DMS {
 	 * @return SeedDMS_Core_Folder|boolean return the object of the root folder or false if
 	 *        the root folder id was not set before with {@see SeedDMS_Core_DMS::setRootFolderID()}.
 	 */
-	public function getRootFolder() { /* {{{ */
-		if (!$this->rootFolderID) return false;
+	public function getRootFolder()
+	{ /* {{{ */
+		if (!$this->rootFolderID)
+			return false;
 		return $this->getFolder($this->rootFolderID);
 	} /* }}} */
 
-	public function setForceRename($enable) { /* {{{ */
+	public function setForceRename($enable)
+	{ /* {{{ */
 		$this->forceRename = $enable;
 	} /* }}} */
 
-	public function setForceLink($enable) { /* {{{ */
+	public function setForceLink($enable)
+	{ /* {{{ */
 		$this->forceLink = $enable;
 	} /* }}} */
 
@@ -753,7 +780,8 @@ class SeedDMS_Core_DMS {
 	 * @return bool|object returns the old user object or null on success, otherwise false
 	 *
 	 */
-	public function setUser($user) { /* {{{ */
+	public function setUser($user)
+	{ /* {{{ */
 		if (!$user) {
 			$olduser = $this->user;
 			$this->user = null;
@@ -775,7 +803,8 @@ class SeedDMS_Core_DMS {
 	 * @return SeedDMS_Core_User $user
 	 *
 	 */
-	public function getLoggedInUser() { /* {{{ */
+	public function getLoggedInUser()
+	{ /* {{{ */
 		return $this->user;
 	} /* }}} */
 
@@ -787,7 +816,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id internal id of document
 	 * @return SeedDMS_Core_Document instance of {@see SeedDMS_Core_Document}, null or false
 	 */
-	public function getDocument($id) { /* {{{ */
+	public function getDocument($id)
+	{ /* {{{ */
 		$classname = $this->classnames['document'];
 		return $classname::getInstance($id, $this);
 	} /* }}} */
@@ -798,7 +828,8 @@ class SeedDMS_Core_DMS {
 	 * @param object $user
 	 * @return array list of documents
 	 */
-	public function getDocumentsByUser($user) { /* {{{ */
+	public function getDocumentsByUser($user)
+	{ /* {{{ */
 		return $user->getDocuments();
 	} /* }}} */
 
@@ -808,7 +839,8 @@ class SeedDMS_Core_DMS {
 	 * @param object $user
 	 * @return array list of documents
 	 */
-	public function getDocumentsLockedByUser($user) { /* {{{ */
+	public function getDocumentsLockedByUser($user)
+	{ /* {{{ */
 		return $user->getDocumentsLocked();
 	} /* }}} */
 
@@ -835,7 +867,8 @@ class SeedDMS_Core_DMS {
 	 * @param bool $update update status of document if set to true
 	 * @return bool|SeedDMS_Core_Document[]
 	 */
-	public function getDocumentsExpired($date, $user = null, $orderby = 'e', $orderdir = 'desc', $update = true) { /* {{{ */
+	public function getDocumentsExpired($date, $user = null, $orderby = 'e', $orderdir = 'desc', $update = true)
+	{ /* {{{ */
 		$db = $this->getDB();
 
 		if (!$db->createTemporaryTable("ttstatid") || !$db->createTemporaryTable("ttcontentid")) {
@@ -856,14 +889,14 @@ class SeedDMS_Core_DMS {
 			}
 			if ($ts < $tsnow) { /* Check for docs expired in the past */
 				$startts = $ts;
-				$endts = $tsnow+86400; /* Use end of day */
+				$endts = $tsnow + 86400; /* Use end of day */
 				$updatestatus = $update;
 			} else { /* Check for docs which will expire in the future */
 				$startts = $tsnow;
-				$endts = $ts+86400; /* Use end of day */
+				$endts = $ts + 86400; /* Use end of day */
 				$updatestatus = false;
 			}
-		}	elseif (is_array($date)) { // start and end date
+		} elseif (is_array($date)) { // start and end date
 			if (!empty($date['start'])) {
 				if (is_int($date['start']))
 					$startts = $date['start'];
@@ -890,7 +923,7 @@ class SeedDMS_Core_DMS {
 					$endts = mktime(24, 0, 0, (int) $tmp[1], (int) $tmp[2], (int) $tmp[0]);
 				}
 			} else {
-				$endts = time() + 365*86400;
+				$endts = time() + 365 * 86400;
 			}
 			if (($startts < $tsnow) && ($endts < $tsnow))
 				$updatestatus = $update;
@@ -903,19 +936,19 @@ class SeedDMS_Core_DMS {
 		 * the latest status which should be S_EXPIRED, but doesn't have to, because
 		 * status may have not been updated after the expiration date has been reached.
 		 **/
-		$queryStr = "SELECT `tblDocuments`.`id`, `tblDocumentStatusLog`.`status`  FROM `tblDocuments` ".
-			"LEFT JOIN `ttcontentid` ON `ttcontentid`.`document` = `tblDocuments`.`id` ".
-			"LEFT JOIN `tblDocumentContent` ON `tblDocuments`.`id` = `tblDocumentContent`.`document` AND `tblDocumentContent`.`version` = `ttcontentid`.`maxVersion` ".
-			"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID` = `tblDocumentContent`.`document` AND `tblDocumentContent`.`version` = `tblDocumentStatus`.`version` ".
-			"LEFT JOIN `ttstatid` ON `ttstatid`.`statusID` = `tblDocumentStatus`.`statusID` ".
+		$queryStr = "SELECT `tblDocuments`.`id`, `tblDocumentStatusLog`.`status`  FROM `tblDocuments` " .
+			"LEFT JOIN `ttcontentid` ON `ttcontentid`.`document` = `tblDocuments`.`id` " .
+			"LEFT JOIN `tblDocumentContent` ON `tblDocuments`.`id` = `tblDocumentContent`.`document` AND `tblDocumentContent`.`version` = `ttcontentid`.`maxVersion` " .
+			"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID` = `tblDocumentContent`.`document` AND `tblDocumentContent`.`version` = `tblDocumentStatus`.`version` " .
+			"LEFT JOIN `ttstatid` ON `ttstatid`.`statusID` = `tblDocumentStatus`.`statusID` " .
 			"LEFT JOIN `tblDocumentStatusLog` ON `tblDocumentStatusLog`.`statusLogID` = `ttstatid`.`maxLogID`";
 		$queryStr .=
-			" WHERE `tblDocuments`.`expires` >= ".$startts." AND `tblDocuments`.`expires` < ".$endts;
+			" WHERE `tblDocuments`.`expires` >= " . $startts . " AND `tblDocuments`.`expires` < " . $endts;
 		if ($user)
 			$queryStr .=
-				" AND `tblDocuments`.`owner` = '".$user->getID()."' ";
+				" AND `tblDocuments`.`owner` = '" . $user->getID() . "' ";
 		$queryStr .=
-			" ORDER BY ".($orderby == 'e' ? "`expires`" : "`name`")." ".($orderdir == 'd' ? "DESC" : "ASC");
+			" ORDER BY " . ($orderby == 'e' ? "`expires`" : "`name`") . " " . ($orderdir == 'd' ? "DESC" : "ASC");
 
 		$resArr = $db->getResultArray($queryStr);
 		if (is_bool($resArr) && !$resArr)
@@ -945,18 +978,20 @@ class SeedDMS_Core_DMS {
 	 * @param object $folder parent folder of document
 	 * @return SeedDMS_Core_Document|null|boolean found document or null if not document was found or false in case of an error
 	 */
-	public function getDocumentByName($name, $folder = null) { /* {{{ */
+	public function getDocumentByName($name, $folder = null)
+	{ /* {{{ */
 		$name = trim($name);
-		if (!$name) return false;
+		if (!$name)
+			return false;
 
-		$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser` ".
-			"FROM `tblDocuments` ".
-			"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` ".
+		$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser` " .
+			"FROM `tblDocuments` " .
+			"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` " .
 			"WHERE `tblDocuments`.`name` = " . $this->db->qstr($name);
 		if ($folder)
-			$queryStr .= " AND `tblDocuments`.`folder` = ". $folder->getID();
+			$queryStr .= " AND `tblDocuments`.`folder` = " . $folder->getID();
 		if ($this->checkWithinRootDir)
-			$queryStr .= " AND `tblDocuments`.`folderList` LIKE '%:".$this->rootFolderID.":%'";
+			$queryStr .= " AND `tblDocuments`.`folderList` LIKE '%:" . $this->rootFolderID . ":%'";
 		$queryStr .= " ORDER BY `tblDocuments`.`id` DESC LIMIT 1";
 
 		$resArr = $this->db->getResultArray($queryStr);
@@ -986,21 +1021,23 @@ class SeedDMS_Core_DMS {
 	 * @param object $folder parent folder of document
 	 * @return SeedDMS_Core_Document|null|boolean found document or null if not document was found or false in case of an error
 	 */
-	public function getDocumentByOriginalFilename($name, $folder = null) { /* {{{ */
+	public function getDocumentByOriginalFilename($name, $folder = null)
+	{ /* {{{ */
 		$name = trim($name);
-		if (!$name) return false;
+		if (!$name)
+			return false;
 
 		if (!$this->db->createTemporaryTable("ttcontentid")) {
 			return false;
 		}
-		$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser` ".
-			"FROM `tblDocuments` ".
-			"LEFT JOIN `ttcontentid` ON `ttcontentid`.`document` = `tblDocuments`.`id` ".
-			"LEFT JOIN `tblDocumentContent` ON `tblDocumentContent`.`document` = `tblDocuments`.`id` AND `tblDocumentContent`.`version` = `ttcontentid`.`maxVersion` ".
-			"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` ".
+		$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser` " .
+			"FROM `tblDocuments` " .
+			"LEFT JOIN `ttcontentid` ON `ttcontentid`.`document` = `tblDocuments`.`id` " .
+			"LEFT JOIN `tblDocumentContent` ON `tblDocumentContent`.`document` = `tblDocuments`.`id` AND `tblDocumentContent`.`version` = `ttcontentid`.`maxVersion` " .
+			"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` " .
 			"WHERE `tblDocumentContent`.`orgFileName` = " . $this->db->qstr($name);
 		if ($folder)
-			$queryStr .= " AND `tblDocuments`.`folder` = ". $folder->getID();
+			$queryStr .= " AND `tblDocuments`.`folder` = " . $folder->getID();
 		$queryStr .= " ORDER BY `tblDocuments`.`id` DESC LIMIT 1";
 
 		$resArr = $this->db->getResultArray($queryStr);
@@ -1018,15 +1055,16 @@ class SeedDMS_Core_DMS {
 	} /* }}} */
 
 	/**
-	 * Return a document content by its id
-	 *
-	 * This method retrieves a document content from the database by its id.
-	 *
-	 * @param integer $id internal id of document content
-	 * @return bool|null|SeedDMS_Core_DocumentContent found document content or null if not document content was found or false in case of an error
+					* Return a document content by its id
+					*
+					* This method retrieves a document content from the database by its id.
+					*
+					* @param integer $id internal id of document content
+					* @return bool|null|SeedDMS_Core_DocumentContent found document content or null if not document content was found or false in case of an error
 
-	 */
-	public function getDocumentContent($id) { /* {{{ */
+					*/
+	public function getDocumentContent($id)
+	{ /* {{{ */
 		$classname = $this->classnames['documentcontent'];
 		return $classname::getInstance($id, $this);
 	} /* }}} */
@@ -1039,7 +1077,8 @@ class SeedDMS_Core_DMS {
 	 * @param object $user user
 	 * @return array list of documents records
 	 */
-	public function countTasks($listtype, $user = null, $param5 = true) { /* {{{ */
+	public function countTasks($listtype, $user = null, $param5 = true)
+	{ /* {{{ */
 		if (!$this->db->createTemporaryTable("ttstatid") || !$this->db->createTemporaryTable("ttcontentid")) {
 			return false;
 		}
@@ -1051,131 +1090,131 @@ class SeedDMS_Core_DMS {
 		}
 		$selectStr = "count(distinct ttcontentid.document) c ";
 		$queryStr =
-			"FROM `ttcontentid` ".
-			"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID`=`ttcontentid`.`document` AND `tblDocumentStatus`.`version`=`ttcontentid`.`maxVersion` ".
-			"LEFT JOIN `ttstatid` ON `ttstatid`.`statusID` = `tblDocumentStatus`.`statusID` ".
+			"FROM `ttcontentid` " .
+			"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID`=`ttcontentid`.`document` AND `tblDocumentStatus`.`version`=`ttcontentid`.`maxVersion` " .
+			"LEFT JOIN `ttstatid` ON `ttstatid`.`statusID` = `tblDocumentStatus`.`statusID` " .
 			"LEFT JOIN `tblDocumentStatusLog` ON `ttstatid`.`statusID` = `tblDocumentStatusLog`.`statusID` AND `ttstatid`.`maxLogID` = `tblDocumentStatusLog`.`statusLogID` ";
 		switch ($listtype) {
-		case 'ReviewByMe': // Documents I have to review {{{
-			if (!$this->db->createTemporaryTable("ttreviewid")) {
-				return false;
-			}
-			$queryStr .=
-				"LEFT JOIN `tblDocumentReviewers` on `ttcontentid`.`document`=`tblDocumentReviewers`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentReviewers`.`version` ".
-				"LEFT JOIN `ttreviewid` ON `ttreviewid`.`reviewID` = `tblDocumentReviewers`.`reviewID` ".
-				"LEFT JOIN `tblDocumentReviewLog` ON `tblDocumentReviewLog`.`reviewLogID`=`ttreviewid`.`maxLogID` ";
+			case 'ReviewByMe': // Documents I have to review {{{
+				if (!$this->db->createTemporaryTable("ttreviewid")) {
+					return false;
+				}
+				$queryStr .=
+					"LEFT JOIN `tblDocumentReviewers` on `ttcontentid`.`document`=`tblDocumentReviewers`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentReviewers`.`version` " .
+					"LEFT JOIN `ttreviewid` ON `ttreviewid`.`reviewID` = `tblDocumentReviewers`.`reviewID` " .
+					"LEFT JOIN `tblDocumentReviewLog` ON `tblDocumentReviewLog`.`reviewLogID`=`ttreviewid`.`maxLogID` ";
 
-			$queryStr .= "WHERE (`tblDocumentReviewers`.`type` = 0 AND `tblDocumentReviewers`.`required` = ".$user->getID()." ";
-			if ($groups)
-				$queryStr .= "OR `tblDocumentReviewers`.`type` = 1 AND `tblDocumentReviewers`.`required` IN (".implode(',', $groups).") ";
-			$queryStr .= ") ";
-			$queryStr .= "AND `tblDocumentReviewLog`.`status` = 0 ";
-			$docstatarr = array(S_DRAFT_REV);
-			if ($param5)
-				$docstatarr[] = S_EXPIRED;
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (".implode(',', $docstatarr).") ";
-			break; /* }}} */
-		case 'ApproveByMe': // Documents I have to approve {{{
-			if (!$this->db->createTemporaryTable("ttapproveid")) {
-				return false;
-			}
-			$queryStr .=
-				"LEFT JOIN `tblDocumentApprovers` on `ttcontentid`.`document`=`tblDocumentApprovers`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentApprovers`.`version` ".
-				"LEFT JOIN `ttapproveid` ON `ttapproveid`.`approveID` = `tblDocumentApprovers`.`approveID` ".
-				"LEFT JOIN `tblDocumentApproveLog` ON `tblDocumentApproveLog`.`approveLogID`=`ttapproveid`.`maxLogID` ";
-
-			if ($user) {
-				$queryStr .= "WHERE (`tblDocumentApprovers`.`type` = 0 AND `tblDocumentApprovers`.`required` = ".$user->getID()." ";
+				$queryStr .= "WHERE (`tblDocumentReviewers`.`type` = 0 AND `tblDocumentReviewers`.`required` = " . $user->getID() . " ";
 				if ($groups)
-					$queryStr .= "OR `tblDocumentApprovers`.`type` = 1 AND `tblDocumentApprovers`.`required` IN (".implode(',', $groups).") ";
+					$queryStr .= "OR `tblDocumentReviewers`.`type` = 1 AND `tblDocumentReviewers`.`required` IN (" . implode(',', $groups) . ") ";
 				$queryStr .= ") ";
-			}
-			$queryStr .= "AND `tblDocumentApproveLog`.`status` = 0 ";
-			$docstatarr = array(S_DRAFT_APP);
-			if ($param5)
-				$docstatarr[] = S_EXPIRED;
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (".implode(',', $docstatarr).") ";
-			break; /* }}} */
-		case 'ReceiptByMe': // Documents I have to receipt {{{
-			if (!$this->db->createTemporaryTable("ttreceiptid")) {
-				return false;
-			}
-			$queryStr .=
-				"LEFT JOIN `tblDocumentRecipients` on `ttcontentid`.`document`=`tblDocumentRecipients`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRecipients`.`version` ".
-				"LEFT JOIN `ttreceiptid` ON `ttreceiptid`.`receiptID` = `tblDocumentRecipients`.`receiptID` ".
-				"LEFT JOIN `tblDocumentReceiptLog` ON `tblDocumentReceiptLog`.`receiptLogID`=`ttreceiptid`.`maxLogID` ";
+				$queryStr .= "AND `tblDocumentReviewLog`.`status` = 0 ";
+				$docstatarr = array(S_DRAFT_REV);
+				if ($param5)
+					$docstatarr[] = S_EXPIRED;
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (" . implode(',', $docstatarr) . ") ";
+				break; /* }}} */
+			case 'ApproveByMe': // Documents I have to approve {{{
+				if (!$this->db->createTemporaryTable("ttapproveid")) {
+					return false;
+				}
+				$queryStr .=
+					"LEFT JOIN `tblDocumentApprovers` on `ttcontentid`.`document`=`tblDocumentApprovers`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentApprovers`.`version` " .
+					"LEFT JOIN `ttapproveid` ON `ttapproveid`.`approveID` = `tblDocumentApprovers`.`approveID` " .
+					"LEFT JOIN `tblDocumentApproveLog` ON `tblDocumentApproveLog`.`approveLogID`=`ttapproveid`.`maxLogID` ";
 
-			if ($user) {
-				$queryStr .= "WHERE (`tblDocumentRecipients`.`type` = 0 AND `tblDocumentRecipients`.`required` = ".$user->getID()." ";
-				if ($groups)
-					$queryStr .= "OR `tblDocumentRecipients`.`type` = 1 AND `tblDocumentRecipients`.`required` IN (".implode(',', $groups).") ";
-				$queryStr .= ") ";
-			}
-			$queryStr .= "AND `tblDocumentReceiptLog`.`status` = 0 ";
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (".S_RELEASED.") ";
-			break; /* }}} */
-		case 'ReviseByMe': // Documents I have to receipt {{{
-			if (!$this->db->createTemporaryTable("ttrevisionid")) {
-				return false;
-			}
-			$queryStr .=
-				"LEFT JOIN `tblDocumentRevisors` on `ttcontentid`.`document`=`tblDocumentRevisors`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRevisors`.`version` ".
-				"LEFT JOIN `ttrevisionid` ON `ttrevisionid`.`revisionID` = `tblDocumentRevisors`.`revisionID` ".
-				"LEFT JOIN `tblDocumentRevisionLog` ON `tblDocumentRevisionLog`.`revisionLogID`=`ttrevisionid`.`maxLogID` ";
+				if ($user) {
+					$queryStr .= "WHERE (`tblDocumentApprovers`.`type` = 0 AND `tblDocumentApprovers`.`required` = " . $user->getID() . " ";
+					if ($groups)
+						$queryStr .= "OR `tblDocumentApprovers`.`type` = 1 AND `tblDocumentApprovers`.`required` IN (" . implode(',', $groups) . ") ";
+					$queryStr .= ") ";
+				}
+				$queryStr .= "AND `tblDocumentApproveLog`.`status` = 0 ";
+				$docstatarr = array(S_DRAFT_APP);
+				if ($param5)
+					$docstatarr[] = S_EXPIRED;
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (" . implode(',', $docstatarr) . ") ";
+				break; /* }}} */
+			case 'ReceiptByMe': // Documents I have to receipt {{{
+				if (!$this->db->createTemporaryTable("ttreceiptid")) {
+					return false;
+				}
+				$queryStr .=
+					"LEFT JOIN `tblDocumentRecipients` on `ttcontentid`.`document`=`tblDocumentRecipients`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRecipients`.`version` " .
+					"LEFT JOIN `ttreceiptid` ON `ttreceiptid`.`receiptID` = `tblDocumentRecipients`.`receiptID` " .
+					"LEFT JOIN `tblDocumentReceiptLog` ON `tblDocumentReceiptLog`.`receiptLogID`=`ttreceiptid`.`maxLogID` ";
 
-			if ($user) {
-				$queryStr .= "WHERE (`tblDocumentRevisors`.`type` = 0 AND `tblDocumentRevisors`.`required` = ".$user->getID()." ";
-				if ($groups)
-					$queryStr .= "OR `tblDocumentRevisors`.`type` = 1 AND `tblDocumentRevisors`.`required` IN (".implode(',', $groups).") ";
-				$queryStr .= ") ";
-			}
-			$queryStr .= "AND `tblDocumentRevisionLog`.`status` = 0 ";
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (".S_IN_REVISION.") ";
-			break; /* }}} */
-		case 'SleepingReviseByMe': // Documents I have to receipt {{{
-			if (!$this->db->createTemporaryTable("ttrevisionid")) {
-				return false;
-			}
-			$queryStr .=
-				"LEFT JOIN `tblDocumentRevisors` on `ttcontentid`.`document`=`tblDocumentRevisors`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRevisors`.`version` ".
-				"LEFT JOIN `ttrevisionid` ON `ttrevisionid`.`revisionID` = `tblDocumentRevisors`.`revisionID` ".
-				"LEFT JOIN `tblDocumentRevisionLog` ON `tblDocumentRevisionLog`.`revisionLogID`=`ttrevisionid`.`maxLogID` ";
+				if ($user) {
+					$queryStr .= "WHERE (`tblDocumentRecipients`.`type` = 0 AND `tblDocumentRecipients`.`required` = " . $user->getID() . " ";
+					if ($groups)
+						$queryStr .= "OR `tblDocumentRecipients`.`type` = 1 AND `tblDocumentRecipients`.`required` IN (" . implode(',', $groups) . ") ";
+					$queryStr .= ") ";
+				}
+				$queryStr .= "AND `tblDocumentReceiptLog`.`status` = 0 ";
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (" . S_RELEASED . ") ";
+				break; /* }}} */
+			case 'ReviseByMe': // Documents I have to receipt {{{
+				if (!$this->db->createTemporaryTable("ttrevisionid")) {
+					return false;
+				}
+				$queryStr .=
+					"LEFT JOIN `tblDocumentRevisors` on `ttcontentid`.`document`=`tblDocumentRevisors`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRevisors`.`version` " .
+					"LEFT JOIN `ttrevisionid` ON `ttrevisionid`.`revisionID` = `tblDocumentRevisors`.`revisionID` " .
+					"LEFT JOIN `tblDocumentRevisionLog` ON `tblDocumentRevisionLog`.`revisionLogID`=`ttrevisionid`.`maxLogID` ";
 
-			if ($user) {
-				$queryStr .= "WHERE (`tblDocumentRevisors`.`type` = 0 AND `tblDocumentRevisors`.`required` = ".$user->getID()." ";
-				if ($groups)
-					$queryStr .= "OR `tblDocumentRevisors`.`type` = 1 AND `tblDocumentRevisors`.`required` IN (".implode(',', $groups).") ";
-				$queryStr .= ") ";
-			}
-			$queryStr .= "AND `tblDocumentContent`.`revisiondate` IS NOT NULL AND `tblDocumentContent`.`revisiondate` <= ".$this->db->getCurrentDatetime(14)." ";
-			$queryStr .= "AND `tblDocumentRevisionLog`.`status` = -3 ";
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (".S_RELEASED.") ";
-			break; /* }}} */
-		case 'NeedsCorrectionOwner': // Documents that need to be corrected {{{
-			$queryStr .=
-				"LEFT JOIN `tblDocuments` ON `tblDocuments`.`id` = `ttcontentid`.`document` ";
-			$queryStr .= "WHERE `tblDocuments`.`owner` = '".$user->getID()."' ".
-				"AND `tblDocumentStatusLog`.`status` IN (".S_NEEDS_CORRECTION.") ";
-			break; /* }}} */
-		case 'WorkflowByMe': // Documents which need my workflow action {{{
+				if ($user) {
+					$queryStr .= "WHERE (`tblDocumentRevisors`.`type` = 0 AND `tblDocumentRevisors`.`required` = " . $user->getID() . " ";
+					if ($groups)
+						$queryStr .= "OR `tblDocumentRevisors`.`type` = 1 AND `tblDocumentRevisors`.`required` IN (" . implode(',', $groups) . ") ";
+					$queryStr .= ") ";
+				}
+				$queryStr .= "AND `tblDocumentRevisionLog`.`status` = 0 ";
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (" . S_IN_REVISION . ") ";
+				break; /* }}} */
+			case 'SleepingReviseByMe': // Documents I have to receipt {{{
+				if (!$this->db->createTemporaryTable("ttrevisionid")) {
+					return false;
+				}
+				$queryStr .=
+					"LEFT JOIN `tblDocumentRevisors` on `ttcontentid`.`document`=`tblDocumentRevisors`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRevisors`.`version` " .
+					"LEFT JOIN `ttrevisionid` ON `ttrevisionid`.`revisionID` = `tblDocumentRevisors`.`revisionID` " .
+					"LEFT JOIN `tblDocumentRevisionLog` ON `tblDocumentRevisionLog`.`revisionLogID`=`ttrevisionid`.`maxLogID` ";
 
-			$queryStr .=
-				"LEFT JOIN `tblWorkflowDocumentContent` on `ttcontentid`.`document`=`tblWorkflowDocumentContent`.`document` AND `ttcontentid`.`maxVersion`=`tblWorkflowDocumentContent`.`version` ".
-				"LEFT JOIN `tblWorkflowTransitions` on `tblWorkflowDocumentContent`.`workflow`=`tblWorkflowTransitions`.`workflow` AND `tblWorkflowDocumentContent`.`state`=`tblWorkflowTransitions`.`state` ".
-				"LEFT JOIN `tblWorkflowTransitionUsers` on `tblWorkflowTransitionUsers`.`transition` = `tblWorkflowTransitions`.`id` ".
-				"LEFT JOIN `tblWorkflowTransitionGroups` on `tblWorkflowTransitionGroups`.`transition` = `tblWorkflowTransitions`.`id` ";
+				if ($user) {
+					$queryStr .= "WHERE (`tblDocumentRevisors`.`type` = 0 AND `tblDocumentRevisors`.`required` = " . $user->getID() . " ";
+					if ($groups)
+						$queryStr .= "OR `tblDocumentRevisors`.`type` = 1 AND `tblDocumentRevisors`.`required` IN (" . implode(',', $groups) . ") ";
+					$queryStr .= ") ";
+				}
+				$queryStr .= "AND `tblDocumentContent`.`revisiondate` IS NOT NULL AND `tblDocumentContent`.`revisiondate` <= " . $this->db->getCurrentDatetime(14) . " ";
+				$queryStr .= "AND `tblDocumentRevisionLog`.`status` = -3 ";
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (" . S_RELEASED . ") ";
+				break; /* }}} */
+			case 'NeedsCorrectionOwner': // Documents that need to be corrected {{{
+				$queryStr .=
+					"LEFT JOIN `tblDocuments` ON `tblDocuments`.`id` = `ttcontentid`.`document` ";
+				$queryStr .= "WHERE `tblDocuments`.`owner` = '" . $user->getID() . "' " .
+					"AND `tblDocumentStatusLog`.`status` IN (" . S_NEEDS_CORRECTION . ") ";
+				break; /* }}} */
+			case 'WorkflowByMe': // Documents which need my workflow action {{{
 
-			if ($user) {
-				$queryStr .= "WHERE (`tblWorkflowTransitionUsers`.`userid` = ".$user->getID()." ";
-				if ($groups)
-					$queryStr .= "OR `tblWorkflowTransitionGroups`.`groupid` IN (".implode(',', $groups).")";
-				$queryStr .= ") ";
-			}
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` = ".S_IN_WORKFLOW." ";
-			break; // }}}
+				$queryStr .=
+					"LEFT JOIN `tblWorkflowDocumentContent` on `ttcontentid`.`document`=`tblWorkflowDocumentContent`.`document` AND `ttcontentid`.`maxVersion`=`tblWorkflowDocumentContent`.`version` " .
+					"LEFT JOIN `tblWorkflowTransitions` on `tblWorkflowDocumentContent`.`workflow`=`tblWorkflowTransitions`.`workflow` AND `tblWorkflowDocumentContent`.`state`=`tblWorkflowTransitions`.`state` " .
+					"LEFT JOIN `tblWorkflowTransitionUsers` on `tblWorkflowTransitionUsers`.`transition` = `tblWorkflowTransitions`.`id` " .
+					"LEFT JOIN `tblWorkflowTransitionGroups` on `tblWorkflowTransitionGroups`.`transition` = `tblWorkflowTransitions`.`id` ";
+
+				if ($user) {
+					$queryStr .= "WHERE (`tblWorkflowTransitionUsers`.`userid` = " . $user->getID() . " ";
+					if ($groups)
+						$queryStr .= "OR `tblWorkflowTransitionGroups`.`groupid` IN (" . implode(',', $groups) . ")";
+					$queryStr .= ") ";
+				}
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` = " . S_IN_WORKFLOW . " ";
+				break; // }}}
 		}
 		if ($queryStr) {
-			$resArr = $this->db->getResultArray('SELECT '.$selectStr.$queryStr);
+			$resArr = $this->db->getResultArray('SELECT ' . $selectStr . $queryStr);
 			if (is_bool($resArr) && !$resArr) {
 				return false;
 			}
@@ -1238,7 +1277,8 @@ class SeedDMS_Core_DMS {
 	 * @param bool $param5 set to false if expired documents shall not be considered
 	 * @return array|bool
 	 */
-	public function getDocumentList($listtype, $param1 = null, $param2 = false, $param3 = '', $param4 = '', $param5 = true) { /* {{{ */
+	public function getDocumentList($listtype, $param1 = null, $param2 = false, $param3 = '', $param4 = '', $param5 = true)
+	{ /* {{{ */
 		/* The following query will get all documents and lots of additional
 		 * information. It requires the two temporary tables ttcontentid and
 		 * ttstatid.
@@ -1249,652 +1289,723 @@ class SeedDMS_Core_DMS {
 		/* The following statement retrieves the status of the last version of all
 		 * documents. It must be restricted by further where clauses.
 		 */
-/*
-		$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser`, ".
-			"`tblDocumentContent`.`version`, `tblDocumentStatus`.*, `tblDocumentStatusLog`.`status`, ".
-			"`tblDocumentStatusLog`.`comment` AS `statusComment`, `tblDocumentStatusLog`.`date` as `statusDate`, ".
-			"`tblDocumentStatusLog`.`userID`, `oTbl`.`fullName` AS `ownerName`, `sTbl`.`fullName` AS `statusName` ".
-			"FROM `tblDocumentContent` ".
-			"LEFT JOIN `tblDocuments` ON `tblDocuments`.`id` = `tblDocumentContent`.`document` ".
-			"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID` = `tblDocumentContent`.`document` ".
-			"LEFT JOIN `tblDocumentStatusLog` ON `tblDocumentStatusLog`.`statusID` = `tblDocumentStatus`.`statusID` ".
-			"LEFT JOIN `ttstatid` ON `ttstatid`.`maxLogID` = `tblDocumentStatusLog`.`statusLogID` ".
-			"LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion` = `tblDocumentStatus`.`version` AND `ttcontentid`.`document` = `tblDocumentStatus`.`documentID` ".
-			"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` ".
-			"LEFT JOIN `tblUsers` AS `oTbl` on `oTbl`.`id` = `tblDocuments`.`owner` ".
-			"LEFT JOIN `tblUsers` AS `sTbl` on `sTbl`.`id` = `tblDocumentStatusLog`.`userID` ".
-			"WHERE `ttstatid`.`maxLogID`=`tblDocumentStatusLog`.`statusLogID` ".
-			"AND `ttcontentid`.`maxVersion` = `tblDocumentContent`.`version` ";
- */
+		/*
+										$queryStr = "SELECT `tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser`, ".
+											"`tblDocumentContent`.`version`, `tblDocumentStatus`.*, `tblDocumentStatusLog`.`status`, ".
+											"`tblDocumentStatusLog`.`comment` AS `statusComment`, `tblDocumentStatusLog`.`date` as `statusDate`, ".
+											"`tblDocumentStatusLog`.`userID`, `oTbl`.`fullName` AS `ownerName`, `sTbl`.`fullName` AS `statusName` ".
+											"FROM `tblDocumentContent` ".
+											"LEFT JOIN `tblDocuments` ON `tblDocuments`.`id` = `tblDocumentContent`.`document` ".
+											"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID` = `tblDocumentContent`.`document` ".
+											"LEFT JOIN `tblDocumentStatusLog` ON `tblDocumentStatusLog`.`statusID` = `tblDocumentStatus`.`statusID` ".
+											"LEFT JOIN `ttstatid` ON `ttstatid`.`maxLogID` = `tblDocumentStatusLog`.`statusLogID` ".
+											"LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion` = `tblDocumentStatus`.`version` AND `ttcontentid`.`document` = `tblDocumentStatus`.`documentID` ".
+											"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` ".
+											"LEFT JOIN `tblUsers` AS `oTbl` on `oTbl`.`id` = `tblDocuments`.`owner` ".
+											"LEFT JOIN `tblUsers` AS `sTbl` on `sTbl`.`id` = `tblDocumentStatusLog`.`userID` ".
+											"WHERE `ttstatid`.`maxLogID`=`tblDocumentStatusLog`.`statusLogID` ".
+											"AND `ttcontentid`.`maxVersion` = `tblDocumentContent`.`version` ";
+								 */
 		/* New sql statement which retrieves all documents, its latest version and
 		 * status, the owner and user initiating the latest status.
 		 * It doesn't need the where clause anymore. Hence the statement could be
 		 * extended with further left joins.
 		 */
-		$selectStr = "`tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser`, ".
-			"`tblDocumentContent`.`version`, `tblDocumentStatus`.*, `tblDocumentStatusLog`.`status`, ".
-			"`tblDocumentStatusLog`.`comment` AS `statusComment`, `tblDocumentStatusLog`.`date` as `statusDate`, ".
+		$selectStr = "`tblDocuments`.*, `tblDocumentLocks`.`userID` as `lockUser`, " .
+			"`tblDocumentContent`.`version`, `tblDocumentStatus`.*, `tblDocumentStatusLog`.`status`, " .
+			"`tblDocumentStatusLog`.`comment` AS `statusComment`, `tblDocumentStatusLog`.`date` as `statusDate`, " .
 			"`tblDocumentStatusLog`.`userID`, `oTbl`.`fullName` AS `ownerName`, `sTbl`.`fullName` AS `statusName` ";
 		$queryStr =
-			"FROM `ttcontentid` ".
-			"LEFT JOIN `tblDocuments` ON `tblDocuments`.`id` = `ttcontentid`.`document` ".
-			"LEFT JOIN `tblDocumentContent` ON `tblDocumentContent`.`document` = `ttcontentid`.`document` AND `tblDocumentContent`.`version` = `ttcontentid`.`maxVersion` ".
-			"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID`=`ttcontentid`.`document` AND `tblDocumentStatus`.`version`=`ttcontentid`.`maxVersion` ".
-			"LEFT JOIN `ttstatid` ON `ttstatid`.`statusID` = `tblDocumentStatus`.`statusID` ".
-			"LEFT JOIN `tblDocumentStatusLog` ON `ttstatid`.`statusID` = `tblDocumentStatusLog`.`statusID` AND `ttstatid`.`maxLogID` = `tblDocumentStatusLog`.`statusLogID` ".
-			"LEFT JOIN `tblDocumentLocks` ON `ttcontentid`.`document`=`tblDocumentLocks`.`document` ".
-			"LEFT JOIN `tblUsers` `oTbl` ON `oTbl`.`id` = `tblDocuments`.`owner` ".
+			"FROM `ttcontentid` " .
+			"LEFT JOIN `tblDocuments` ON `tblDocuments`.`id` = `ttcontentid`.`document` " .
+			"LEFT JOIN `tblDocumentContent` ON `tblDocumentContent`.`document` = `ttcontentid`.`document` AND `tblDocumentContent`.`version` = `ttcontentid`.`maxVersion` " .
+			"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID`=`ttcontentid`.`document` AND `tblDocumentStatus`.`version`=`ttcontentid`.`maxVersion` " .
+			"LEFT JOIN `ttstatid` ON `ttstatid`.`statusID` = `tblDocumentStatus`.`statusID` " .
+			"LEFT JOIN `tblDocumentStatusLog` ON `ttstatid`.`statusID` = `tblDocumentStatusLog`.`statusID` AND `ttstatid`.`maxLogID` = `tblDocumentStatusLog`.`statusLogID` " .
+			"LEFT JOIN `tblDocumentLocks` ON `ttcontentid`.`document`=`tblDocumentLocks`.`document` " .
+			"LEFT JOIN `tblUsers` `oTbl` ON `oTbl`.`id` = `tblDocuments`.`owner` " .
 			"LEFT JOIN `tblUsers` `sTbl` ON `sTbl`.`id` = `tblDocumentStatusLog`.`userID` ";
 
-//		echo $queryStr;
+		//		echo $queryStr;
 
 		switch ($listtype) {
-		case 'AppRevByMe': // Documents I have to review/approve {{{
-			$queryStr .= "WHERE 1=1 ";
+			case 'AppRevByMe': // Documents I have to review/approve {{{
+				$queryStr .= "WHERE 1=1 ";
 
-			$user = $param1;
-			// Get document list for the current user.
-			$reviewStatus = $user->getReviewStatus();
-			$approvalStatus = $user->getApprovalStatus();
+				$user = $param1;
+				// Get document list for the current user.
+				$reviewStatus = $user->getReviewStatus();
+				$approvalStatus = $user->getApprovalStatus();
 
-			// Create a comma separated list of all the documentIDs whose information is
-			// required.
-			// Take only those documents into account which hasn't be touched by the user
-			$dList = array();
-			foreach ($reviewStatus["indstatus"] as $st) {
-				if (($st["status"]==0 || $param2) && !in_array($st["documentID"], $dList)) {
-					$dList[] = $st["documentID"];
+				// Create a comma separated list of all the documentIDs whose information is
+				// required.
+				// Take only those documents into account which hasn't be touched by the user
+				$dList = array();
+				foreach ($reviewStatus["indstatus"] as $st) {
+					if (($st["status"] == 0 || $param2) && !in_array($st["documentID"], $dList)) {
+						$dList[] = $st["documentID"];
+					}
 				}
-			}
-			foreach ($reviewStatus["grpstatus"] as $st) {
-				if (($st["status"]==0 || $param2) && !in_array($st["documentID"], $dList)) {
-					$dList[] = $st["documentID"];
+				foreach ($reviewStatus["grpstatus"] as $st) {
+					if (($st["status"] == 0 || $param2) && !in_array($st["documentID"], $dList)) {
+						$dList[] = $st["documentID"];
+					}
 				}
-			}
-			foreach ($approvalStatus["indstatus"] as $st) {
-				if (($st["status"]==0 || $param2) && !in_array($st["documentID"], $dList)) {
-					$dList[] = $st["documentID"];
+				foreach ($approvalStatus["indstatus"] as $st) {
+					if (($st["status"] == 0 || $param2) && !in_array($st["documentID"], $dList)) {
+						$dList[] = $st["documentID"];
+					}
 				}
-			}
-			foreach ($approvalStatus["grpstatus"] as $st) {
-				if (($st["status"]==0 || $param2) && !in_array($st["documentID"], $dList)) {
-					$dList[] = $st["documentID"];
+				foreach ($approvalStatus["grpstatus"] as $st) {
+					if (($st["status"] == 0 || $param2) && !in_array($st["documentID"], $dList)) {
+						$dList[] = $st["documentID"];
+					}
 				}
-			}
-			$docCSV = "";
-			foreach ($dList as $d) {
-				$docCSV .= (strlen($docCSV)==0 ? "" : ", ")."'".$d."'";
-			}
+				$docCSV = "";
+				foreach ($dList as $d) {
+					$docCSV .= (strlen($docCSV) == 0 ? "" : ", ") . "'" . $d . "'";
+				}
 
-			if (strlen($docCSV)>0) {
-				$docstatarr = array(S_DRAFT_REV, S_DRAFT_APP);
+				if (strlen($docCSV) > 0) {
+					$docstatarr = array(S_DRAFT_REV, S_DRAFT_APP);
+					if ($param5)
+						$docstatarr[] = S_EXPIRED;
+					$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (" . implode(',', $docstatarr) . ") " .
+						"AND `tblDocuments`.`id` IN (" . $docCSV . ") " .
+						"ORDER BY `statusDate` DESC";
+				} else {
+					$queryStr = '';
+				}
+				break; // }}}
+			case 'ReviewByMe': // Documents I have to review {{{
+				if (!$this->db->createTemporaryTable("ttreviewid")) {
+					return false;
+				}
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+
+				$groups = array();
+				if ($user) {
+					$tmp = $user->getGroups();
+					foreach ($tmp as $group)
+						$groups[] = $group->getID();
+				}
+
+				$selectStr .= ", `tblDocumentReviewLog`.`date` as `duedate` ";
+				$queryStr .=
+					"LEFT JOIN `tblDocumentReviewers` ON `ttcontentid`.`document`=`tblDocumentReviewers`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentReviewers`.`version` " .
+					"LEFT JOIN `ttreviewid` ON `ttreviewid`.`reviewID` = `tblDocumentReviewers`.`reviewID` " .
+					"LEFT JOIN `tblDocumentReviewLog` ON `tblDocumentReviewLog`.`reviewLogID`=`ttreviewid`.`maxLogID` ";
+
+				if ($user) {
+					$queryStr .= "WHERE (`tblDocumentReviewers`.`type` = 0 AND `tblDocumentReviewers`.`required` = " . $user->getID() . " ";
+					if ($groups)
+						$queryStr .= "OR `tblDocumentReviewers`.`type` = 1 AND `tblDocumentReviewers`.`required` IN (" . implode(',', $groups) . ") ";
+					$queryStr .= ") ";
+				}
+				$docstatarr = array(S_DRAFT_REV);
 				if ($param5)
 					$docstatarr[] = S_EXPIRED;
-				$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (".implode(',', $docstatarr).") ".
-							"AND `tblDocuments`.`id` IN (" . $docCSV . ") ".
-							"ORDER BY `statusDate` DESC";
-			} else {
-				$queryStr = '';
-			}
-			break; // }}}
-		case 'ReviewByMe': // Documents I have to review {{{
-			if (!$this->db->createTemporaryTable("ttreviewid")) {
-				return false;
-			}
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (" . implode(',', $docstatarr) . ") ";
+				if (!$param2)
+					$queryStr .= " AND `tblDocumentReviewLog`.`status` = 0 ";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				elseif ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				elseif ($orderby == 's')
+					$queryStr .= "ORDER BY `tblDocumentStatusLog`.`status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'ApproveByMe': // Documents I have to approve {{{
+				if (!$this->db->createTemporaryTable("ttapproveid")) {
+					return false;
+				}
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
 
-			$groups = array();
-			if ($user) {
+				$groups = array();
+				if ($user) {
+					$tmp = $user->getGroups();
+					foreach ($tmp as $group)
+						$groups[] = $group->getID();
+				}
+
+				$selectStr .= ", `tblDocumentApproveLog`.`date` as `duedate` ";
+				$queryStr .=
+					"LEFT JOIN `tblDocumentApprovers` ON `ttcontentid`.`document`=`tblDocumentApprovers`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentApprovers`.`version` " .
+					"LEFT JOIN `ttapproveid` ON `ttapproveid`.`approveID` = `tblDocumentApprovers`.`approveID` " .
+					"LEFT JOIN `tblDocumentApproveLog` ON `tblDocumentApproveLog`.`approveLogID`=`ttapproveid`.`maxLogID` ";
+
+				if ($user) {
+					$queryStr .= "WHERE (`tblDocumentApprovers`.`type` = 0 AND `tblDocumentApprovers`.`required` = " . $user->getID() . " ";
+					if ($groups)
+						$queryStr .= "OR `tblDocumentApprovers`.`type` = 1 AND `tblDocumentApprovers`.`required` IN (" . implode(',', $groups) . ")";
+					$queryStr .= ") ";
+				}
+				$docstatarr = array(S_DRAFT_APP);
+				if ($param5)
+					$docstatarr[] = S_EXPIRED;
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (" . implode(',', $docstatarr) . ") ";
+				if (!$param2)
+					$queryStr .= " AND `tblDocumentApproveLog`.`status` = 0 ";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				elseif ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				elseif ($orderby == 's')
+					$queryStr .= "ORDER BY `tblDocumentStatusLog`.`status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'ReceiptByMe': // Documents I have to receipt {{{
+				if (!$this->db->createTemporaryTable("ttreceiptid")) {
+					return false;
+				}
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+
+				$groups = array();
 				$tmp = $user->getGroups();
 				foreach ($tmp as $group)
 					$groups[] = $group->getID();
-			}
 
-			$selectStr .= ", `tblDocumentReviewLog`.`date` as `duedate` ";
-			$queryStr .=
-				"LEFT JOIN `tblDocumentReviewers` ON `ttcontentid`.`document`=`tblDocumentReviewers`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentReviewers`.`version` ".
-				"LEFT JOIN `ttreviewid` ON `ttreviewid`.`reviewID` = `tblDocumentReviewers`.`reviewID` ".
-				"LEFT JOIN `tblDocumentReviewLog` ON `tblDocumentReviewLog`.`reviewLogID`=`ttreviewid`.`maxLogID` ";
+				$selectStr .= ", `tblDocumentReceiptLog`.`date` as `duedate` ";
+				$queryStr .=
+					"LEFT JOIN `tblDocumentRecipients` on `ttcontentid`.`document`=`tblDocumentRecipients`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRecipients`.`version` " .
+					"LEFT JOIN `ttreceiptid` ON `ttreceiptid`.`receiptID` = `tblDocumentRecipients`.`receiptID` " .
+					"LEFT JOIN `tblDocumentReceiptLog` ON `tblDocumentReceiptLog`.`receiptLogID`=`ttreceiptid`.`maxLogID` ";
 
-			if ($user) {
-				$queryStr .= "WHERE (`tblDocumentReviewers`.`type` = 0 AND `tblDocumentReviewers`.`required` = ".$user->getID()." ";
+				$queryStr .= "WHERE (`tblDocumentRecipients`.`type` = 0 AND `tblDocumentRecipients`.`required` = " . $user->getID() . " ";
+				/* Checking for groups slows down the statement extremly on sqlite */
 				if ($groups)
-					$queryStr .= "OR `tblDocumentReviewers`.`type` = 1 AND `tblDocumentReviewers`.`required` IN (".implode(',', $groups).") ";
+					$queryStr .= "OR `tblDocumentRecipients`.`type` = 1 AND `tblDocumentRecipients`.`required` IN (" . implode(',', $groups) . ")";
 				$queryStr .= ") ";
-			}
-			$docstatarr = array(S_DRAFT_REV);
-			if ($param5)
-				$docstatarr[] = S_EXPIRED;
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (".implode(',', $docstatarr).") ";
-			if (!$param2)
-				$queryStr .= " AND `tblDocumentReviewLog`.`status` = 0 ";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			elseif ($orderby == 's') $queryStr .= "ORDER BY `tblDocumentStatusLog`.`status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'ApproveByMe': // Documents I have to approve {{{
-			if (!$this->db->createTemporaryTable("ttapproveid")) {
-				return false;
-			}
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` = " . S_RELEASED . " ";
+				if (!$param2)
+					$queryStr .= " AND `tblDocumentReceiptLog`.`status` = 0 ";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				else if ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				else if ($orderby == 's')
+					$queryStr .= "ORDER BY `tblDocumentStatusLog`.`status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'ReviseByMe': // Documents I have to revise {{{
+				if (!$this->db->createTemporaryTable("ttrevisionid")) {
+					return false;
+				}
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
 
-			$groups = array();
-			if ($user) {
+				$groups = array();
 				$tmp = $user->getGroups();
 				foreach ($tmp as $group)
 					$groups[] = $group->getID();
-			}
 
-			$selectStr .= ", `tblDocumentApproveLog`.`date` as `duedate` ";
-			$queryStr .=
-				"LEFT JOIN `tblDocumentApprovers` ON `ttcontentid`.`document`=`tblDocumentApprovers`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentApprovers`.`version` ".
-				"LEFT JOIN `ttapproveid` ON `ttapproveid`.`approveID` = `tblDocumentApprovers`.`approveID` ".
-				"LEFT JOIN `tblDocumentApproveLog` ON `tblDocumentApproveLog`.`approveLogID`=`ttapproveid`.`maxLogID` ";
+				$selectStr .= ", `tblDocumentRevisionLog`.`date` as `duedate` ";
+				$queryStr .=
+					"LEFT JOIN `tblDocumentRevisors` on `ttcontentid`.`document`=`tblDocumentRevisors`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRevisors`.`version` " .
+					"LEFT JOIN `ttrevisionid` ON `ttrevisionid`.`revisionID` = `tblDocumentRevisors`.`revisionID` " .
+					"LEFT JOIN `tblDocumentRevisionLog` ON `tblDocumentRevisionLog`.`revisionLogID`=`ttrevisionid`.`maxLogID` ";
 
-			if ($user) {
-			$queryStr .= "WHERE (`tblDocumentApprovers`.`type` = 0 AND `tblDocumentApprovers`.`required` = ".$user->getID()." ";
-			if ($groups)
-				$queryStr .= "OR `tblDocumentApprovers`.`type` = 1 AND `tblDocumentApprovers`.`required` IN (".implode(',', $groups).")";
-			$queryStr .= ") ";
-			}
-			$docstatarr = array(S_DRAFT_APP);
-			if ($param5)
-				$docstatarr[] = S_EXPIRED;
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (".implode(',', $docstatarr).") ";
-			if (!$param2)
-				$queryStr .= " AND `tblDocumentApproveLog`.`status` = 0 ";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			elseif ($orderby == 's') $queryStr .= "ORDER BY `tblDocumentStatusLog`.`status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'ReceiptByMe': // Documents I have to receipt {{{
-			if (!$this->db->createTemporaryTable("ttreceiptid")) {
-				return false;
-			}
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-
-			$groups = array();
-			$tmp = $user->getGroups();
-			foreach ($tmp as $group)
-				$groups[] = $group->getID();
-
-			$selectStr .= ", `tblDocumentReceiptLog`.`date` as `duedate` ";
-			$queryStr .=
-				"LEFT JOIN `tblDocumentRecipients` on `ttcontentid`.`document`=`tblDocumentRecipients`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRecipients`.`version` ".
-				"LEFT JOIN `ttreceiptid` ON `ttreceiptid`.`receiptID` = `tblDocumentRecipients`.`receiptID` ".
-				"LEFT JOIN `tblDocumentReceiptLog` ON `tblDocumentReceiptLog`.`receiptLogID`=`ttreceiptid`.`maxLogID` ";
-
-			$queryStr .= "WHERE (`tblDocumentRecipients`.`type` = 0 AND `tblDocumentRecipients`.`required` = ".$user->getID()." ";
-			/* Checking for groups slows down the statement extremly on sqlite */
-			if ($groups)
-				$queryStr .= "OR `tblDocumentRecipients`.`type` = 1 AND `tblDocumentRecipients`.`required` IN (".implode(',', $groups).")";
-			$queryStr .= ") ";
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` = ".S_RELEASED." ";
-			if (!$param2)
-				$queryStr .= " AND `tblDocumentReceiptLog`.`status` = 0 ";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			else if ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			else if ($orderby == 's') $queryStr .= "ORDER BY `tblDocumentStatusLog`.`status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'ReviseByMe': // Documents I have to revise {{{
-			if (!$this->db->createTemporaryTable("ttrevisionid")) {
-				return false;
-			}
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-
-			$groups = array();
-			$tmp = $user->getGroups();
-			foreach ($tmp as $group)
-				$groups[] = $group->getID();
-
-			$selectStr .= ", `tblDocumentRevisionLog`.`date` as `duedate` ";
-			$queryStr .=
-				"LEFT JOIN `tblDocumentRevisors` on `ttcontentid`.`document`=`tblDocumentRevisors`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRevisors`.`version` ".
-				"LEFT JOIN `ttrevisionid` ON `ttrevisionid`.`revisionID` = `tblDocumentRevisors`.`revisionID` ".
-				"LEFT JOIN `tblDocumentRevisionLog` ON `tblDocumentRevisionLog`.`revisionLogID`=`ttrevisionid`.`maxLogID` ";
-
-			$queryStr .= "WHERE (`tblDocumentRevisors`.`type` = 0 AND `tblDocumentRevisors`.`required` = ".$user->getID()." ";
-			if ($groups)
-				$queryStr .= "OR `tblDocumentRevisors`.`type` = 1 AND `tblDocumentRevisors`.`required` IN (".implode(',', $groups).")";
-			$queryStr .= ") ";
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` = ".S_IN_REVISION." ";
-			if (!$param2)
-				$queryStr .= " AND `tblDocumentRevisionLog`.`status` = 0 ";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			else if ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			else if ($orderby == 's') $queryStr .= "ORDER BY `tblDocumentStatusLog`.`status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'SleepingReviseByMe': // Documents I have to revise but are still sleeping {{{
-			if (!$this->db->createTemporaryTable("ttrevisionid")) {
-				return false;
-			}
-
-			$dayoffset = 0;
-			if (is_int($param2)) {
-				$dayoffset = (int) $param2;
-			}
-
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-
-			$groups = array();
-			$tmp = $user->getGroups();
-			foreach ($tmp as $group)
-				$groups[] = $group->getID();
-
-			$selectStr .= ", `tblDocumentRevisionLog`.`date` as `duedate` ";
-			$queryStr .=
-				"LEFT JOIN `tblDocumentRevisors` on `ttcontentid`.`document`=`tblDocumentRevisors`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRevisors`.`version` ".
-				"LEFT JOIN `ttrevisionid` ON `ttrevisionid`.`revisionID` = `tblDocumentRevisors`.`revisionID` ".
-				"LEFT JOIN `tblDocumentRevisionLog` ON `tblDocumentRevisionLog`.`revisionLogID`=`ttrevisionid`.`maxLogID` ";
-
-			$queryStr .= "WHERE (`tblDocumentRevisors`.`type` = 0 AND `tblDocumentRevisors`.`required` = ".$user->getID()." ";
-			if ($groups)
-				$queryStr .= "OR `tblDocumentRevisors`.`type` = 1 AND `tblDocumentRevisors`.`required` IN (".implode(',', $groups).")";
-			$queryStr .= ") ";
-			$queryStr .= "AND `tblDocumentContent`.`revisiondate` IS NOT NULL AND `tblDocumentContent`.`revisiondate` <= ".$this->db->getCurrentDatetime($dayoffset)." ";
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` = ".S_RELEASED." ";
-			$queryStr .= " AND `tblDocumentRevisionLog`.`status` = -3 ";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			else if ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			else if ($orderby == 's') $queryStr .= "ORDER BY `tblDocumentStatusLog`.`status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'DueRevision': // Documents with a due revision, which is not started {{{
-			if (!$this->db->createTemporaryTable("ttrevisionid")) {
-				return false;
-			}
-
-			$dayoffset = 0;
-			if (is_int($param2)) {
-				$dayoffset = (int) $param2;
-			}
-
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-
-			$selectStr .= ", `tblDocumentContent`.`revisiondate` ";
-			$queryStr .= "WHERE `tblDocumentContent`.`revisiondate` IS NOT NULL AND `tblDocumentContent`.`revisiondate` <= ".$this->db->getCurrentDatetime($dayoffset)." ";
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` = ".S_RELEASED." ";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			else if ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			else if ($orderby == 's') $queryStr .= "ORDER BY `status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			$queryStr .= ", `tblDocumentContent`.`revisiondate` ASC";
-			break; // }}}
-		case 'WorkflowByMe': // Documents I to trigger in Worklflow {{{
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-
-			$groups = array();
-			if ($user) {
-				$tmp = $user->getGroups();
-				foreach ($tmp as $group)
-					$groups[] = $group->getID();
-			}
-			$selectStr = 'distinct '.$selectStr;
-			$queryStr .=
-				"LEFT JOIN `tblWorkflowDocumentContent` ON `ttcontentid`.`document`=`tblWorkflowDocumentContent`.`document` AND `ttcontentid`.`maxVersion`=`tblWorkflowDocumentContent`.`version` ".
-				"LEFT JOIN `tblWorkflowTransitions` ON `tblWorkflowDocumentContent`.`workflow`=`tblWorkflowTransitions`.`workflow` AND `tblWorkflowDocumentContent`.`state`=`tblWorkflowTransitions`.`state` ".
-				"LEFT JOIN `tblWorkflowTransitionUsers` ON `tblWorkflowTransitionUsers`.`transition` = `tblWorkflowTransitions`.`id` ".
-				"LEFT JOIN `tblWorkflowTransitionGroups` ON `tblWorkflowTransitionGroups`.`transition` = `tblWorkflowTransitions`.`id` ";
-
-			if ($user) {
-				$queryStr .= "WHERE (`tblWorkflowTransitionUsers`.`userid` = ".$user->getID()." ";
+				$queryStr .= "WHERE (`tblDocumentRevisors`.`type` = 0 AND `tblDocumentRevisors`.`required` = " . $user->getID() . " ";
 				if ($groups)
-					$queryStr .= "OR `tblWorkflowTransitionGroups`.`groupid` IN (".implode(',', $groups).")";
+					$queryStr .= "OR `tblDocumentRevisors`.`type` = 1 AND `tblDocumentRevisors`.`required` IN (" . implode(',', $groups) . ")";
 				$queryStr .= ") ";
-			}
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` = ".S_IN_WORKFLOW." ";
-//			echo 'SELECT '.$selectStr." ".$queryStr;
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			else $queryStr .= "ORDER BY `name`";
-			break; // }}}
-		case 'AppRevOwner': // Documents waiting for review/approval/revision I'm owning {{{
-			$queryStr .= "WHERE 1=1 ";
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` = " . S_IN_REVISION . " ";
+				if (!$param2)
+					$queryStr .= " AND `tblDocumentRevisionLog`.`status` = 0 ";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				else if ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				else if ($orderby == 's')
+					$queryStr .= "ORDER BY `tblDocumentStatusLog`.`status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'SleepingReviseByMe': // Documents I have to revise but are still sleeping {{{
+				if (!$this->db->createTemporaryTable("ttrevisionid")) {
+					return false;
+				}
 
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-			/** @noinspection PhpUndefinedConstantInspection */
-			$queryStr .=	"AND `tblDocuments`.`owner` = '".$user->getID()."' ".
-				"AND `tblDocumentStatusLog`.`status` IN (".S_DRAFT_REV.", ".S_DRAFT_APP.", ".S_IN_REVISION.") ";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			elseif ($orderby == 's') $queryStr .= "ORDER BY `status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-//			$queryStr .= "AND `tblDocuments`.`owner` = '".$user->getID()."' ".
+				$dayoffset = 0;
+				if (is_int($param2)) {
+					$dayoffset = (int) $param2;
+				}
+
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+
+				$groups = array();
+				$tmp = $user->getGroups();
+				foreach ($tmp as $group)
+					$groups[] = $group->getID();
+
+				$selectStr .= ", `tblDocumentRevisionLog`.`date` as `duedate` ";
+				$queryStr .=
+					"LEFT JOIN `tblDocumentRevisors` on `ttcontentid`.`document`=`tblDocumentRevisors`.`documentID` AND `ttcontentid`.`maxVersion`=`tblDocumentRevisors`.`version` " .
+					"LEFT JOIN `ttrevisionid` ON `ttrevisionid`.`revisionID` = `tblDocumentRevisors`.`revisionID` " .
+					"LEFT JOIN `tblDocumentRevisionLog` ON `tblDocumentRevisionLog`.`revisionLogID`=`ttrevisionid`.`maxLogID` ";
+
+				$queryStr .= "WHERE (`tblDocumentRevisors`.`type` = 0 AND `tblDocumentRevisors`.`required` = " . $user->getID() . " ";
+				if ($groups)
+					$queryStr .= "OR `tblDocumentRevisors`.`type` = 1 AND `tblDocumentRevisors`.`required` IN (" . implode(',', $groups) . ")";
+				$queryStr .= ") ";
+				$queryStr .= "AND `tblDocumentContent`.`revisiondate` IS NOT NULL AND `tblDocumentContent`.`revisiondate` <= " . $this->db->getCurrentDatetime($dayoffset) . " ";
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` = " . S_RELEASED . " ";
+				$queryStr .= " AND `tblDocumentRevisionLog`.`status` = -3 ";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				else if ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				else if ($orderby == 's')
+					$queryStr .= "ORDER BY `tblDocumentStatusLog`.`status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'DueRevision': // Documents with a due revision, which is not started {{{
+				if (!$this->db->createTemporaryTable("ttrevisionid")) {
+					return false;
+				}
+
+				$dayoffset = 0;
+				if (is_int($param2)) {
+					$dayoffset = (int) $param2;
+				}
+
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+
+				$selectStr .= ", `tblDocumentContent`.`revisiondate` ";
+				$queryStr .= "WHERE `tblDocumentContent`.`revisiondate` IS NOT NULL AND `tblDocumentContent`.`revisiondate` <= " . $this->db->getCurrentDatetime($dayoffset) . " ";
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` = " . S_RELEASED . " ";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				else if ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				else if ($orderby == 's')
+					$queryStr .= "ORDER BY `status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				$queryStr .= ", `tblDocumentContent`.`revisiondate` ASC";
+				break; // }}}
+			case 'WorkflowByMe': // Documents I to trigger in Worklflow {{{
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+
+				$groups = array();
+				if ($user) {
+					$tmp = $user->getGroups();
+					foreach ($tmp as $group)
+						$groups[] = $group->getID();
+				}
+				$selectStr = 'distinct ' . $selectStr;
+				$queryStr .=
+					"LEFT JOIN `tblWorkflowDocumentContent` ON `ttcontentid`.`document`=`tblWorkflowDocumentContent`.`document` AND `ttcontentid`.`maxVersion`=`tblWorkflowDocumentContent`.`version` " .
+					"LEFT JOIN `tblWorkflowTransitions` ON `tblWorkflowDocumentContent`.`workflow`=`tblWorkflowTransitions`.`workflow` AND `tblWorkflowDocumentContent`.`state`=`tblWorkflowTransitions`.`state` " .
+					"LEFT JOIN `tblWorkflowTransitionUsers` ON `tblWorkflowTransitionUsers`.`transition` = `tblWorkflowTransitions`.`id` " .
+					"LEFT JOIN `tblWorkflowTransitionGroups` ON `tblWorkflowTransitionGroups`.`transition` = `tblWorkflowTransitions`.`id` ";
+
+				if ($user) {
+					$queryStr .= "WHERE (`tblWorkflowTransitionUsers`.`userid` = " . $user->getID() . " ";
+					if ($groups)
+						$queryStr .= "OR `tblWorkflowTransitionGroups`.`groupid` IN (" . implode(',', $groups) . ")";
+					$queryStr .= ") ";
+				}
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` = " . S_IN_WORKFLOW . " ";
+				//			echo 'SELECT '.$selectStr." ".$queryStr;
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				elseif ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				break; // }}}
+			case 'AppRevOwner': // Documents waiting for review/approval/revision I'm owning {{{
+				$queryStr .= "WHERE 1=1 ";
+
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+				/** @noinspection PhpUndefinedConstantInspection */
+				$queryStr .= "AND `tblDocuments`.`owner` = '" . $user->getID() . "' " .
+					"AND `tblDocumentStatusLog`.`status` IN (" . S_DRAFT_REV . ", " . S_DRAFT_APP . ", " . S_IN_REVISION . ") ";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				elseif ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				elseif ($orderby == 's')
+					$queryStr .= "ORDER BY `status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				//			$queryStr .= "AND `tblDocuments`.`owner` = '".$user->getID()."' ".
 //				"AND `tblDocumentStatusLog`.`status` IN (".S_DRAFT_REV.", ".S_DRAFT_APP.") ".
 //				"ORDER BY `statusDate` DESC";
-			break; // }}}
-		case 'ReceiveOwner': // Documents having a reception I'm owning {{{
-			$queryStr .= "WHERE 1=1 ";
+				break; // }}}
+			case 'ReceiveOwner': // Documents having a reception I'm owning {{{
+				$queryStr .= "WHERE 1=1 ";
 
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
 
-			//			$qs = 'SELECT DISTINCT `documentID` FROM `tblDocumentRecipients` LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion` = `tblDocumentRecipients`.`version` AND `ttcontentid`.`document` = `tblDocumentRecipients`.`documentID`';
-			// sql statement without older versions of a document
-			$qs = 'SELECT DISTINCT `document` as `documentID` FROM `ttcontentid` a LEFT JOIN `tblDocumentRecipients` b on a.`document`=b.`documentID` AND a.`maxVersion`=b.`version` WHERE b.`receiptID` IS NOT NULL';
-			$ra = $this->db->getResultArray($qs);
-			if (is_bool($ra) && !$ra) {
-				return false;
-			}
-			$docs = array();
-			foreach ($ra as $d) {
-				$docs[] = $d['documentID'];
-			}
-
-			if ($docs) {
-				$queryStr .= "AND `tblDocuments`.`id` IN (" . implode(',', $docs) . ") ";
-				$queryStr .=	"AND `tblDocuments`.`owner` = '".$user->getID()."'";
-				$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (".S_RELEASED.") ";
-				if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-				else if ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-				else if ($orderby == 's') $queryStr .= "ORDER BY `status`";
-				else $queryStr .= "ORDER BY `name`";
-				$queryStr .= " ".$orderdir;
-			} else {
-				$queryStr = '';
-			}
-			break; // }}}
-		case 'NoReceiveOwner': // Documents *not* having a reception I'm owning {{{
-			$queryStr .= "WHERE 1=1 ";
-
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-
-			//			$qs = 'SELECT DISTINCT `documentID` FROM `tblDocumentRecipients` LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion` = `tblDocumentRecipients`.`version` AND `ttcontentid`.`document` = `tblDocumentRecipients`.`documentID`';
-			// sql statement without older versions of a document
-			$qs = 'SELECT DISTINCT `document` as `documentID` FROM `ttcontentid` a LEFT JOIN `tblDocumentRecipients` b on a.`document`=b.`documentID` AND a.`maxVersion`=b.`version` WHERE b.`receiptID` IS NULL';
-			$ra = $this->db->getResultArray($qs);
-			if (is_bool($ra) && !$ra) {
-				return false;
-			}
-			$docs = array();
-			foreach ($ra as $d) {
-				$docs[] = $d['documentID'];
-			}
-
-			if ($docs) {
-				$queryStr .= "AND `tblDocuments`.`id` IN (" . implode(',', $docs) . ") ";
-				$queryStr .=	"AND `tblDocuments`.`owner` = '".$user->getID()."' ".
-					"AND `tblDocumentStatusLog`.`status` IN (".S_RELEASED.") ";
-				if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-				else if ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-				else if ($orderby == 's') $queryStr .= "ORDER BY `status`";
-				else $queryStr .= "ORDER BY `name`";
-				$queryStr .= " ".$orderdir;
-			} else {
-				$queryStr = '';
-			}
-			break; // }}}
-		case 'RejectOwner': // Documents that has been rejected and I'm owning {{{
-			$queryStr .= "WHERE 1=1 ";
-
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-			$queryStr .= "AND `tblDocuments`.`owner` = '".$user->getID()."' ";
-			$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (".S_REJECTED.") ";
-			//$queryStr .= "ORDER BY `statusDate` DESC";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			elseif ($orderby == 's') $queryStr .= "ORDER BY `status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'LockedByMe': // Documents locked by me {{{
-			$queryStr .= "WHERE 1=1 ";
-
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-
-			$qs = 'SELECT `document` FROM `tblDocumentLocks` WHERE `userID`='.$user->getID();
-			$ra = $this->db->getResultArray($qs);
-			if (is_bool($ra) && !$ra) {
-				return false;
-			}
-			$docs = array();
-			foreach ($ra as $d) {
-				$docs[] = $d['document'];
-			}
-
-			if ($docs) {
-				$queryStr .= "AND `tblDocuments`.`id` IN (" . implode(',', $docs) . ") ";
-				if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-				elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-				elseif ($orderby == 's') $queryStr .= "ORDER BY `status`";
-				else $queryStr .= "ORDER BY `name`";
-				$queryStr .= " ".$orderdir;
-			} else {
-				$queryStr = '';
-			}
-			break; // }}}
-		case 'ExpiredOwner': // Documents expired and owned by me {{{
-			if (is_int($param2)) {
-				$ts = mktime(0, 0, 0) + $param2 * 86400;
-			} elseif (is_string($param2)) {
-				$tmp = explode('-', $param2, 3);
-				if (count($tmp) != 3)
+				//			$qs = 'SELECT DISTINCT `documentID` FROM `tblDocumentRecipients` LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion` = `tblDocumentRecipients`.`version` AND `ttcontentid`.`document` = `tblDocumentRecipients`.`documentID`';
+				// sql statement without older versions of a document
+				$qs = 'SELECT DISTINCT `document` as `documentID` FROM `ttcontentid` a LEFT JOIN `tblDocumentRecipients` b on a.`document`=b.`documentID` AND a.`maxVersion`=b.`version` WHERE b.`receiptID` IS NOT NULL';
+				$ra = $this->db->getResultArray($qs);
+				if (is_bool($ra) && !$ra) {
 					return false;
-				if (!self::checkDate($param2, 'Y-m-d'))
+				}
+				$docs = array();
+				foreach ($ra as $d) {
+					$docs[] = $d['documentID'];
+				}
+
+				if ($docs) {
+					$queryStr .= "AND `tblDocuments`.`id` IN (" . implode(',', $docs) . ") ";
+					$queryStr .= "AND `tblDocuments`.`owner` = '" . $user->getID() . "'";
+					$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (" . S_RELEASED . ") ";
+					if ($orderby == 'e')
+						$queryStr .= "ORDER BY `expires`";
+					else if ($orderby == 'u')
+						$queryStr .= "ORDER BY `statusDate`";
+					else if ($orderby == 's')
+						$queryStr .= "ORDER BY `status`";
+					else
+						$queryStr .= "ORDER BY `name`";
+					$queryStr .= " " . $orderdir;
+				} else {
+					$queryStr = '';
+				}
+				break; // }}}
+			case 'NoReceiveOwner': // Documents *not* having a reception I'm owning {{{
+				$queryStr .= "WHERE 1=1 ";
+
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+
+				//			$qs = 'SELECT DISTINCT `documentID` FROM `tblDocumentRecipients` LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion` = `tblDocumentRecipients`.`version` AND `ttcontentid`.`document` = `tblDocumentRecipients`.`documentID`';
+				// sql statement without older versions of a document
+				$qs = 'SELECT DISTINCT `document` as `documentID` FROM `ttcontentid` a LEFT JOIN `tblDocumentRecipients` b on a.`document`=b.`documentID` AND a.`maxVersion`=b.`version` WHERE b.`receiptID` IS NULL';
+				$ra = $this->db->getResultArray($qs);
+				if (is_bool($ra) && !$ra) {
 					return false;
-				$ts = mktime(0, 0, 0, (int) $tmp[1], (int) $tmp[2], (int) $tmp[0]);
-			} else
-				$ts = mktime(0, 0, 0)-365*86400; /* Start of today - 1 year */
+				}
+				$docs = array();
+				foreach ($ra as $d) {
+					$docs[] = $d['documentID'];
+				}
 
-			$tsnow = mktime(0, 0, 0); /* Start of today */
-			if ($ts < $tsnow) { /* Check for docs expired in the past */
-				$startts = $ts;
-				$endts = $tsnow+86400; /* Use end of day */
-			} else { /* Check for docs which will expire in the future */
-				$startts = $tsnow;
-				$endts = $ts+86400; /* Use end of day */
-			}
+				if ($docs) {
+					$queryStr .= "AND `tblDocuments`.`id` IN (" . implode(',', $docs) . ") ";
+					$queryStr .= "AND `tblDocuments`.`owner` = '" . $user->getID() . "' " .
+						"AND `tblDocumentStatusLog`.`status` IN (" . S_RELEASED . ") ";
+					if ($orderby == 'e')
+						$queryStr .= "ORDER BY `expires`";
+					else if ($orderby == 'u')
+						$queryStr .= "ORDER BY `statusDate`";
+					else if ($orderby == 's')
+						$queryStr .= "ORDER BY `status`";
+					else
+						$queryStr .= "ORDER BY `name`";
+					$queryStr .= " " . $orderdir;
+				} else {
+					$queryStr = '';
+				}
+				break; // }}}
+			case 'RejectOwner': // Documents that has been rejected and I'm owning {{{
+				$queryStr .= "WHERE 1=1 ";
 
-			$queryStr .=
-				"WHERE `tblDocuments`.`expires` >= ".$startts." AND `tblDocuments`.`expires` <= ".$endts." ";
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+				$queryStr .= "AND `tblDocuments`.`owner` = '" . $user->getID() . "' ";
+				$queryStr .= "AND `tblDocumentStatusLog`.`status` IN (" . S_REJECTED . ") ";
+				//$queryStr .= "ORDER BY `statusDate` DESC";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				elseif ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				elseif ($orderby == 's')
+					$queryStr .= "ORDER BY `status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'LockedByMe': // Documents locked by me {{{
+				$queryStr .= "WHERE 1=1 ";
 
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-			$queryStr .=	"AND `tblDocuments`.`owner` = '".$user->getID()."' ";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			elseif ($orderby == 's') $queryStr .= "ORDER BY `status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'ObsoleteOwner': // Documents that are obsolete and I'm owning {{{
-			$queryStr .= "WHERE 1=1 ";
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
 
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-			$queryStr .= "AND `tblDocuments`.`owner` = '".$user->getID()."' ".
-				"AND `tblDocumentStatusLog`.`status` IN (".S_OBSOLETE.") ";
-			//$queryStr .= "ORDER BY `statusDate` DESC";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			elseif ($orderby == 's') $queryStr .= "ORDER BY `status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'NeedsCorrectionOwner': // Documents that needs correction and I'm owning {{{
-			$queryStr .= "WHERE 1=1 ";
+				$qs = 'SELECT `document` FROM `tblDocumentLocks` WHERE `userID`=' . $user->getID();
+				$ra = $this->db->getResultArray($qs);
+				if (is_bool($ra) && !$ra) {
+					return false;
+				}
+				$docs = array();
+				foreach ($ra as $d) {
+					$docs[] = $d['document'];
+				}
 
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-			$queryStr .= "AND `tblDocuments`.`owner` = '".$user->getID()."' ".
-				"AND `tblDocumentStatusLog`.`status` IN (".S_NEEDS_CORRECTION.") ";
-			//$queryStr .= "ORDER BY `statusDate` DESC";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			elseif ($orderby == 's') $queryStr .= "ORDER BY `status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'DraftOwner': // Documents in draft status and I'm owning {{{
-			$queryStr .= "WHERE 1=1 ";
+				if ($docs) {
+					$queryStr .= "AND `tblDocuments`.`id` IN (" . implode(',', $docs) . ") ";
+					if ($orderby == 'e')
+						$queryStr .= "ORDER BY `expires`";
+					elseif ($orderby == 'u')
+						$queryStr .= "ORDER BY `statusDate`";
+					elseif ($orderby == 's')
+						$queryStr .= "ORDER BY `status`";
+					else
+						$queryStr .= "ORDER BY `name`";
+					$queryStr .= " " . $orderdir;
+				} else {
+					$queryStr = '';
+				}
+				break; // }}}
+			case 'ExpiredOwner': // Documents expired and owned by me {{{
+				if (is_int($param2)) {
+					$ts = mktime(0, 0, 0) + $param2 * 86400;
+				} elseif (is_string($param2)) {
+					$tmp = explode('-', $param2, 3);
+					if (count($tmp) != 3)
+						return false;
+					if (!self::checkDate($param2, 'Y-m-d'))
+						return false;
+					$ts = mktime(0, 0, 0, (int) $tmp[1], (int) $tmp[2], (int) $tmp[0]);
+				} else
+					$ts = mktime(0, 0, 0) - 365 * 86400; /* Start of today - 1 year */
 
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-			$queryStr .= "AND `tblDocuments`.`owner` = '".$user->getID()."' ".
-				"AND `tblDocumentStatusLog`.`status` IN (".S_DRAFT.") ";
-			//$queryStr .= "ORDER BY `statusDate` DESC";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			elseif ($orderby == 's') $queryStr .= "ORDER BY `status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'WorkflowOwner': // Documents waiting for workflow trigger I'm owning {{{
-			$queryStr .= "WHERE 1=1 ";
+				$tsnow = mktime(0, 0, 0); /* Start of today */
+				if ($ts < $tsnow) { /* Check for docs expired in the past */
+					$startts = $ts;
+					$endts = $tsnow + 86400; /* Use end of day */
+				} else { /* Check for docs which will expire in the future */
+					$startts = $tsnow;
+					$endts = $ts + 86400; /* Use end of day */
+				}
 
-			$user = $param1;
-			$queryStr .= "AND `tblDocuments`.`owner` = '".$user->getID()."' ".
-				"AND `tblDocumentStatusLog`.`status` IN (".S_IN_WORKFLOW.") ".
-				"ORDER BY `statusDate` DESC";
-			break; // }}}
-		case 'MyDocs': // Documents owned by me {{{
-			$queryStr .= "WHERE 1=1 ";
+				$queryStr .=
+					"WHERE `tblDocuments`.`expires` >= " . $startts . " AND `tblDocuments`.`expires` <= " . $endts . " ";
 
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
-			$queryStr .=	"AND `tblDocuments`.`owner` = '".$user->getID()."' ";
-			if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-			elseif ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-			elseif ($orderby == 's') $queryStr .= "ORDER BY `status`";
-			else $queryStr .= "ORDER BY `name`";
-			$queryStr .= " ".$orderdir;
-			break; // }}}
-		case 'CheckedOutByMe': // Documents I have checked out {{{
-			$queryStr .= "WHERE 1=1 ";
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+				$queryStr .= "AND `tblDocuments`.`owner` = '" . $user->getID() . "' ";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				elseif ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				elseif ($orderby == 's')
+					$queryStr .= "ORDER BY `status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'ObsoleteOwner': // Documents that are obsolete and I'm owning {{{
+				$queryStr .= "WHERE 1=1 ";
 
-			$user = $param1;
-			$orderby = $param3;
-			if ($param4 == 'desc')
-				$orderdir = 'DESC';
-			else
-				$orderdir = 'ASC';
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+				$queryStr .= "AND `tblDocuments`.`owner` = '" . $user->getID() . "' " .
+					"AND `tblDocumentStatusLog`.`status` IN (" . S_OBSOLETE . ") ";
+				//$queryStr .= "ORDER BY `statusDate` DESC";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				elseif ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				elseif ($orderby == 's')
+					$queryStr .= "ORDER BY `status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'NeedsCorrectionOwner': // Documents that needs correction and I'm owning {{{
+				$queryStr .= "WHERE 1=1 ";
 
-			$qs = 'SELECT `document` FROM `tblDocumentCheckOuts` WHERE `userID`='.$user->getID();
-			$ra = $this->db->getResultArray($qs);
-			if (is_bool($ra) && !$ra) {
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+				$queryStr .= "AND `tblDocuments`.`owner` = '" . $user->getID() . "' " .
+					"AND `tblDocumentStatusLog`.`status` IN (" . S_NEEDS_CORRECTION . ") ";
+				//$queryStr .= "ORDER BY `statusDate` DESC";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				elseif ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				elseif ($orderby == 's')
+					$queryStr .= "ORDER BY `status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'DraftOwner': // Documents in draft status and I'm owning {{{
+				$queryStr .= "WHERE 1=1 ";
+
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+				$queryStr .= "AND `tblDocuments`.`owner` = '" . $user->getID() . "' " .
+					"AND `tblDocumentStatusLog`.`status` IN (" . S_DRAFT . ") ";
+				//$queryStr .= "ORDER BY `statusDate` DESC";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				elseif ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				elseif ($orderby == 's')
+					$queryStr .= "ORDER BY `status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'WorkflowOwner': // Documents waiting for workflow trigger I'm owning {{{
+				$queryStr .= "WHERE 1=1 ";
+
+				$user = $param1;
+				$queryStr .= "AND `tblDocuments`.`owner` = '" . $user->getID() . "' " .
+					"AND `tblDocumentStatusLog`.`status` IN (" . S_IN_WORKFLOW . ") " .
+					"ORDER BY `statusDate` DESC";
+				break; // }}}
+			case 'MyDocs': // Documents owned by me {{{
+				$queryStr .= "WHERE 1=1 ";
+
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+				$queryStr .= "AND `tblDocuments`.`owner` = '" . $user->getID() . "' ";
+				if ($orderby == 'e')
+					$queryStr .= "ORDER BY `expires`";
+				elseif ($orderby == 'u')
+					$queryStr .= "ORDER BY `statusDate`";
+				elseif ($orderby == 's')
+					$queryStr .= "ORDER BY `status`";
+				else
+					$queryStr .= "ORDER BY `name`";
+				$queryStr .= " " . $orderdir;
+				break; // }}}
+			case 'CheckedOutByMe': // Documents I have checked out {{{
+				$queryStr .= "WHERE 1=1 ";
+
+				$user = $param1;
+				$orderby = $param3;
+				if ($param4 == 'desc')
+					$orderdir = 'DESC';
+				else
+					$orderdir = 'ASC';
+
+				$qs = 'SELECT `document` FROM `tblDocumentCheckOuts` WHERE `userID`=' . $user->getID();
+				$ra = $this->db->getResultArray($qs);
+				if (is_bool($ra) && !$ra) {
+					return false;
+				}
+				$docs = array();
+				foreach ($ra as $d) {
+					$docs[] = $d['document'];
+				}
+
+				if ($docs) {
+					$queryStr .= "AND `tblDocuments`.`id` IN (" . implode(',', $docs) . ") ";
+					if ($orderby == 'e')
+						$queryStr .= "ORDER BY `expires`";
+					else if ($orderby == 'u')
+						$queryStr .= "ORDER BY `statusDate`";
+					else if ($orderby == 's')
+						$queryStr .= "ORDER BY `status`";
+					else
+						$queryStr .= "ORDER BY `name`";
+					$queryStr .= " " . $orderdir;
+				} else {
+					$queryStr = '';
+				}
+				break; // }}}
+			default: // {{{
 				return false;
-			}
-			$docs = array();
-			foreach ($ra as $d) {
-				$docs[] = $d['document'];
-			}
-
-			if ($docs) {
-				$queryStr .= "AND `tblDocuments`.`id` IN (" . implode(',', $docs) . ") ";
-				if ($orderby == 'e') $queryStr .= "ORDER BY `expires`";
-				else if ($orderby == 'u') $queryStr .= "ORDER BY `statusDate`";
-				else if ($orderby == 's') $queryStr .= "ORDER BY `status`";
-				else $queryStr .= "ORDER BY `name`";
-				$queryStr .= " ".$orderdir;
-			} else {
-				$queryStr = '';
-			}
-			break; // }}}
-		default: // {{{
-			return false;
-			break; // }}}
+				break; // }}}
 		}
 
 		if ($queryStr) {
-			$resArr = $this->db->getResultArray('SELECT '.$selectStr.$queryStr);
+			$resArr = $this->db->getResultArray('SELECT ' . $selectStr . $queryStr);
 			if (is_bool($resArr) && !$resArr) {
 				return false;
 			}
 			/*
-			$documents = array();
-			foreach ($resArr as $row)
-				$documents[] = $this->getDocument($row["id"]);
-			 */
+														 $documents = array();
+														 foreach ($resArr as $row)
+															 $documents[] = $this->getDocument($row["id"]);
+														  */
 		} else {
 			return array();
 		}
@@ -1916,13 +2027,14 @@ class SeedDMS_Core_DMS {
 	 * @param int $day day
 	 * @return int|boolean unix time stamp or false if range check failed
 	 */
-	public function makeTimeStamp($hour, $min, $sec, $year, $month, $day) { /* {{{ */
-		$thirtyone = array (1, 3, 5, 7, 8, 10, 12);
-		$thirty = array (4, 6, 9, 11);
+	public function makeTimeStamp($hour, $min, $sec, $year, $month, $day)
+	{ /* {{{ */
+		$thirtyone = array(1, 3, 5, 7, 8, 10, 12);
+		$thirty = array(4, 6, 9, 11);
 
 		// Very basic check that the terms are valid. Does not fail for illegal
 		// dates such as 31 Feb.
-		if (!is_numeric($hour) || !is_numeric($min) || !is_numeric($sec) || !is_numeric($year) || !is_numeric($month) || !is_numeric($day) || $month<1 || $month>12 || $day<1 || $day>31 || $hour<0 || $hour>23 || $min<0 || $min>59 || $sec<0 || $sec>59) {
+		if (!is_numeric($hour) || !is_numeric($min) || !is_numeric($sec) || !is_numeric($year) || !is_numeric($month) || !is_numeric($day) || $month < 1 || $month > 12 || $day < 1 || $day > 31 || $hour < 0 || $hour > 23 || $min < 0 || $min > 59 || $sec < 0 || $sec > 59) {
 			return false;
 		}
 		$year = (int) $year;
@@ -1938,7 +2050,7 @@ class SeedDMS_Core_DMS {
 		}
 
 		// Check again if day of month is valid in the given month
-		if ($day>$max) {
+		if ($day > $max) {
 			return false;
 		}
 
@@ -1987,7 +2099,8 @@ class SeedDMS_Core_DMS {
 	 * @param array $expirationenddate search for documents expiring before and on this date
 	 * @return array|bool
 	 */
-	public function search($query, $limit = 0, $offset = 0, $logicalmode = 'AND', $searchin = array(), $startFolder = null, $owner = null, $status = array(), $creationstartdate = array(), $creationenddate = array(), $modificationstartdate = array(), $modificationenddate = array(), $categories = array(), $attributes = array(), $mode = 0x3, $expirationstartdate = array(), $expirationenddate = array(), $reception = array()) { /* {{{ */
+	public function search($query, $limit = 0, $offset = 0, $logicalmode = 'AND', $searchin = array(), $startFolder = null, $owner = null, $status = array(), $creationstartdate = array(), $creationenddate = array(), $modificationstartdate = array(), $modificationenddate = array(), $categories = array(), $attributes = array(), $mode = 0x3, $expirationstartdate = array(), $expirationenddate = array(), $reception = array())
+	{ /* {{{ */
 		$orderby = '';
 		$revisionstartdate = $revisionenddate = '';
 		$statusstartdate = array();
@@ -2005,12 +2118,12 @@ class SeedDMS_Core_DMS {
 
 		// Split the search string into constituent keywords.
 		$tkeys = array();
-		if (strlen($query)>0) {
+		if (strlen($query) > 0) {
 			$tkeys = preg_split("/[\t\r\n ,]+/", $query);
 		}
 
 		// if none is checkd search all
-		if (count($searchin)==0)
+		if (count($searchin) == 0)
 			$searchin = array(1, 2, 3, 4, 5);
 
 		/*--------- Do it all over again for folders -------------*/
@@ -2021,11 +2134,11 @@ class SeedDMS_Core_DMS {
 			$classname = $this->classnames['folder'];
 			$searchFields = $classname::getSearchFields($this, $searchin);
 
-			if (count($searchFields)>0) {
+			if (count($searchFields) > 0) {
 				foreach ($tkeys as $key) {
 					$key = trim($key);
-					if (strlen($key)>0) {
-						$searchKey = (strlen($searchKey)==0 ? "" : $searchKey." ".$logicalmode." ")."(".implode(" like ".$this->db->qstr("%".$key."%")." OR ", $searchFields)." like ".$this->db->qstr("%".$key."%").")";
+					if (strlen($key) > 0) {
+						$searchKey = (strlen($searchKey) == 0 ? "" : $searchKey . " " . $logicalmode . " ") . "(" . implode(" like " . $this->db->qstr("%" . $key . "%") . " OR ", $searchFields) . " like " . $this->db->qstr("%" . $key . "%") . ")";
 					}
 				}
 			}
@@ -2034,11 +2147,11 @@ class SeedDMS_Core_DMS {
 			// the folder hierarchy.
 			$searchFolder = "";
 			if ($startFolder) {
-				$searchFolder = "`tblFolders`.`folderList` LIKE '%:".$startFolder->getID().":%'";
+				$searchFolder = "`tblFolders`.`folderList` LIKE '%:" . $startFolder->getID() . ":%'";
 				if ($this->checkWithinRootDir)
-					$searchFolder = '('.$searchFolder." AND `tblFolders`.`folderList` LIKE '%:".$this->rootFolderID.":%')";
+					$searchFolder = '(' . $searchFolder . " AND `tblFolders`.`folderList` LIKE '%:" . $this->rootFolderID . ":%')";
 			} elseif ($this->checkWithinRootDir) {
-				$searchFolder = "`tblFolders`.`folderList` LIKE '%:".$this->rootFolderID.":%'";
+				$searchFolder = "`tblFolders`.`folderList` LIKE '%:" . $this->rootFolderID . ":%'";
 			}
 
 			// Check to see if the search has been restricted to a particular
@@ -2050,9 +2163,9 @@ class SeedDMS_Core_DMS {
 					foreach ($owner as $o)
 						$ownerids[] = $o->getID();
 					if ($ownerids)
-						$searchOwner = "`tblFolders`.`owner` IN (".implode(',', $ownerids).")";
+						$searchOwner = "`tblFolders`.`owner` IN (" . implode(',', $ownerids) . ")";
 				} else {
-					$searchOwner = "`tblFolders`.`owner` = '".$owner->getId()."'";
+					$searchOwner = "`tblFolders`.`owner` = '" . $owner->getId() . "'";
 				}
 			}
 
@@ -2070,33 +2183,33 @@ class SeedDMS_Core_DMS {
 								foreach ($attribute as &$v)
 									$v = trim($this->db->qstr($v), "'");
 								if ($attrdef->getMultipleValues()) {
-									$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=".$attrdefid." AND (`tblFolderAttributes`.`value` like '%".$valueset[0].implode("%' OR `tblFolderAttributes`.`value` like '%".$valueset[0], $attribute)."%') AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
+									$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=" . $attrdefid . " AND (`tblFolderAttributes`.`value` like '%" . $valueset[0] . implode("%' OR `tblFolderAttributes`.`value` like '%" . $valueset[0], $attribute) . "%') AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
 								} else {
-									$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=".$attrdefid." AND (`tblFolderAttributes`.`value`='".(is_array($attribute) ? implode("' OR `tblFolderAttributes`.`value` = '", $attribute) : $attribute)."') AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
+									$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=" . $attrdefid . " AND (`tblFolderAttributes`.`value`='" . (is_array($attribute) ? implode("' OR `tblFolderAttributes`.`value` = '", $attribute) : $attribute) . "') AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
 								}
 							} else {
 								if (in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_date, SeedDMS_Core_AttributeDefinition::type_int, SeedDMS_Core_AttributeDefinition::type_float]) && is_array($attribute)) {
 									$kkll = [];
 									if (!empty($attribute['from'])) {
 										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
-											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS INTEGER)>=".(int) $attribute['from'];
+											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS INTEGER)>=" . (int) $attribute['from'];
 										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
-											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS DECIMAL)>=".(float) $attribute['from'];
+											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS DECIMAL)>=" . (float) $attribute['from'];
 										else
-											$kkll[] = "`tblFolderAttributes`.`value`>=".$this->db->qstr($attribute['from']);
+											$kkll[] = "`tblFolderAttributes`.`value`>=" . $this->db->qstr($attribute['from']);
 									}
 									if (!empty($attribute['to'])) {
 										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
-											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS INTEGER)<=".(int) $attribute['to'];
+											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS INTEGER)<=" . (int) $attribute['to'];
 										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
-											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS DECIMAL)<=".(float) $attribute['to'];
+											$kkll[] = "CAST(`tblFolderAttributes`.`value` AS DECIMAL)<=" . (float) $attribute['to'];
 										else
-											$kkll[] = "`tblFolderAttributes`.`value`<=".$this->db->qstr($attribute['to']);
+											$kkll[] = "`tblFolderAttributes`.`value`<=" . $this->db->qstr($attribute['to']);
 									}
 									if ($kkll)
-										$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=".$attrdefid." AND ".implode(' AND ', $kkll)." AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
+										$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=" . $attrdefid . " AND " . implode(' AND ', $kkll) . " AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
 								} elseif (is_string($attribute)) {
-									$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=".$attrdefid." AND `tblFolderAttributes`.`value` like ".$this->db->qstr("%".$attribute."%")." AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
+									$searchAttributes[] = "EXISTS (SELECT NULL FROM `tblFolderAttributes` WHERE `tblFolderAttributes`.`attrdef`=" . $attrdefid . " AND `tblFolderAttributes`.`value` like " . $this->db->qstr("%" . $attribute . "%") . " AND `tblFolderAttributes`.`folder`=`tblFolders`.`id`)";
 								}
 							}
 						}
@@ -2112,7 +2225,7 @@ class SeedDMS_Core_DMS {
 				else
 					$startdate = SeedDMS_Core_DMS::makeTimeStamp($creationstartdate['hour'], $creationstartdate['minute'], $creationstartdate['second'], $creationstartdate['year'], $creationstartdate["month"], $creationstartdate["day"]);
 				if ($startdate) {
-					$searchCreateDate .= "`tblFolders`.`date` >= ".(int) $startdate;
+					$searchCreateDate .= "`tblFolders`.`date` >= " . (int) $startdate;
 				}
 			}
 			if ($creationenddate) {
@@ -2124,26 +2237,26 @@ class SeedDMS_Core_DMS {
 					/** @noinspection PhpUndefinedVariableInspection */
 					if ($startdate)
 						$searchCreateDate .= " AND ";
-					$searchCreateDate .= "`tblFolders`.`date` <= ".(int) $stopdate;
+					$searchCreateDate .= "`tblFolders`.`date` <= " . (int) $stopdate;
 				}
 			}
 
-			$searchQuery = "FROM ".$classname::getSearchTables()." WHERE 1=1";
+			$searchQuery = "FROM " . $classname::getSearchTables() . " WHERE 1=1";
 
-			if (strlen($searchKey)>0) {
-				$searchQuery .= " AND (".$searchKey.")";
+			if (strlen($searchKey) > 0) {
+				$searchQuery .= " AND (" . $searchKey . ")";
 			}
-			if (strlen($searchFolder)>0) {
-				$searchQuery .= " AND ".$searchFolder;
+			if (strlen($searchFolder) > 0) {
+				$searchQuery .= " AND " . $searchFolder;
 			}
-			if (strlen($searchOwner)>0) {
-				$searchQuery .= " AND (".$searchOwner.")";
+			if (strlen($searchOwner) > 0) {
+				$searchQuery .= " AND (" . $searchOwner . ")";
 			}
-			if (strlen($searchCreateDate)>0) {
-				$searchQuery .= " AND (".$searchCreateDate.")";
+			if (strlen($searchCreateDate) > 0) {
+				$searchQuery .= " AND (" . $searchCreateDate . ")";
 			}
 			if ($searchAttributes) {
-				$searchQuery .= " AND (".implode(" AND ", $searchAttributes).")";
+				$searchQuery .= " AND (" . implode(" AND ", $searchAttributes) . ")";
 			}
 
 			/* Do not search for folders if not at least a search for a key,
@@ -2151,9 +2264,9 @@ class SeedDMS_Core_DMS {
 			 */
 			if ($searchKey || $searchOwner || $searchCreateDate || $searchAttributes) {
 				// Count the number of rows that the search will produce.
-				$resArr = $this->db->getResultArray("SELECT COUNT(*) AS num FROM (SELECT DISTINCT `tblFolders`.id ".$searchQuery.") a");
-				if ($resArr && isset($resArr[0]) && is_numeric($resArr[0]["num"]) && $resArr[0]["num"]>0) {
-					$totalFolders = (integer)$resArr[0]["num"];
+				$resArr = $this->db->getResultArray("SELECT COUNT(*) AS num FROM (SELECT DISTINCT `tblFolders`.id " . $searchQuery . ") a");
+				if ($resArr && isset($resArr[0]) && is_numeric($resArr[0]["num"]) && $resArr[0]["num"] > 0) {
+					$totalFolders = (integer) $resArr[0]["num"];
 				}
 
 				// If there are no results from the count query, then there is no real need
@@ -2163,36 +2276,36 @@ class SeedDMS_Core_DMS {
 				// Only search if the offset is not beyond the number of folders
 				if ($totalFolders > $offset) {
 					// Prepare the complete search query, including the LIMIT clause.
-					$searchQuery = "SELECT DISTINCT `tblFolders`.`id` ".$searchQuery." GROUP BY `tblFolders`.`id`";
+					$searchQuery = "SELECT DISTINCT `tblFolders`.`id` " . $searchQuery . " GROUP BY `tblFolders`.`id`";
 
 					switch ($orderby) {
-					case 'dd':
-						$searchQuery .= " ORDER BY `tblFolders`.`date` DESC";
-						break;
-					case 'da':
-					case 'd':
-						$searchQuery .= " ORDER BY `tblFolders`.`date`";
-						break;
-					case 'nd':
-						$searchQuery .= " ORDER BY `tblFolders`.`name` DESC";
-						break;
-					case 'na':
-					case 'n':
-						$searchQuery .= " ORDER BY `tblFolders`.`name`";
-						break;
-					case 'id':
-						$searchQuery .= " ORDER BY `tblFolders`.`id` DESC";
-						break;
-					case 'ia':
-					case 'i':
-						$searchQuery .= " ORDER BY `tblFolders`.`id`";
-						break;
-					default:
-						break;
+						case 'dd':
+							$searchQuery .= " ORDER BY `tblFolders`.`date` DESC";
+							break;
+						case 'da':
+						case 'd':
+							$searchQuery .= " ORDER BY `tblFolders`.`date`";
+							break;
+						case 'nd':
+							$searchQuery .= " ORDER BY `tblFolders`.`name` DESC";
+							break;
+						case 'na':
+						case 'n':
+							$searchQuery .= " ORDER BY `tblFolders`.`name`";
+							break;
+						case 'id':
+							$searchQuery .= " ORDER BY `tblFolders`.`id` DESC";
+							break;
+						case 'ia':
+						case 'i':
+							$searchQuery .= " ORDER BY `tblFolders`.`id`";
+							break;
+						default:
+							break;
 					}
 
 					if ($limit) {
-						$searchQuery .= " LIMIT ".$limit." OFFSET ".$offset;
+						$searchQuery .= " LIMIT " . $limit . " OFFSET " . $offset;
 					}
 
 					// Send the complete search query to the database.
@@ -2204,19 +2317,19 @@ class SeedDMS_Core_DMS {
 				// ------------------- Ausgabe der Ergebnisse ----------------------------
 				$numResults = count($resArr);
 				if ($numResults == 0) {
-					$folderresult = array('totalFolders'=>$totalFolders, 'folders'=>array());
+					$folderresult = array('totalFolders' => $totalFolders, 'folders' => array());
 				} else {
 					foreach ($resArr as $folderArr) {
 						$folders[] = $this->getFolder($folderArr['id']);
 					}
 					/** @noinspection PhpUndefinedVariableInspection */
-					$folderresult = array('totalFolders'=>$totalFolders, 'folders'=>$folders);
+					$folderresult = array('totalFolders' => $totalFolders, 'folders' => $folders);
 				}
 			} else {
-				$folderresult = array('totalFolders'=>0, 'folders'=>array());
+				$folderresult = array('totalFolders' => 0, 'folders' => array());
 			}
 		} else {
-			$folderresult = array('totalFolders'=>0, 'folders'=>array());
+			$folderresult = array('totalFolders' => 0, 'folders' => array());
 		}
 
 		/*--------- Do it all over again for documents -------------*/
@@ -2228,11 +2341,11 @@ class SeedDMS_Core_DMS {
 			$classname = $this->classnames['document'];
 			$searchFields = $classname::getSearchFields($this, $searchin);
 
-			if (count($searchFields)>0) {
+			if (count($searchFields) > 0) {
 				foreach ($tkeys as $key) {
 					$key = trim($key);
-					if (strlen($key)>0) {
-						$searchKey = (strlen($searchKey)==0 ? "" : $searchKey." ".$logicalmode." ")."(".implode(" like ".$this->db->qstr("%".$key."%")." OR ", $searchFields)." like ".$this->db->qstr("%".$key."%").")";
+					if (strlen($key) > 0) {
+						$searchKey = (strlen($searchKey) == 0 ? "" : $searchKey . " " . $logicalmode . " ") . "(" . implode(" like " . $this->db->qstr("%" . $key . "%") . " OR ", $searchFields) . " like " . $this->db->qstr("%" . $key . "%") . ")";
 					}
 				}
 			}
@@ -2241,11 +2354,11 @@ class SeedDMS_Core_DMS {
 			// the folder hierarchy.
 			$searchFolder = "";
 			if ($startFolder) {
-				$searchFolder = "`tblDocuments`.`folderList` LIKE '%:".$startFolder->getID().":%'";
+				$searchFolder = "`tblDocuments`.`folderList` LIKE '%:" . $startFolder->getID() . ":%'";
 				if ($this->checkWithinRootDir)
-					$searchFolder = '('.$searchFolder." AND `tblDocuments`.`folderList` LIKE '%:".$this->rootFolderID.":%')";
+					$searchFolder = '(' . $searchFolder . " AND `tblDocuments`.`folderList` LIKE '%:" . $this->rootFolderID . ":%')";
 			} elseif ($this->checkWithinRootDir) {
-				$searchFolder = "`tblDocuments`.`folderList` LIKE '%:".$this->rootFolderID.":%'";
+				$searchFolder = "`tblDocuments`.`folderList` LIKE '%:" . $this->rootFolderID . ":%'";
 			}
 
 			// Check to see if the search has been restricted to a particular
@@ -2257,9 +2370,9 @@ class SeedDMS_Core_DMS {
 					foreach ($owner as $o)
 						$ownerids[] = $o->getID();
 					if ($ownerids)
-						$searchOwner = "`tblDocuments`.`owner` IN (".implode(',', $ownerids).")";
+						$searchOwner = "`tblDocuments`.`owner` IN (" . implode(',', $ownerids) . ")";
 				} else {
-					$searchOwner = "`tblDocuments`.`owner` = '".$owner->getId()."'";
+					$searchOwner = "`tblDocuments`.`owner` = '" . $owner->getId() . "'";
 				}
 			}
 
@@ -2270,7 +2383,7 @@ class SeedDMS_Core_DMS {
 				$catids = array();
 				foreach ($categories as $category)
 					$catids[] = $category->getId();
-				$searchCategories = "`tblDocumentCategory`.`categoryID` in (".implode(',', $catids).")";
+				$searchCategories = "`tblDocumentCategory`.`categoryID` in (" . implode(',', $catids) . ")";
 			}
 
 			// Check to see if the search has been restricted to a particular
@@ -2288,33 +2401,33 @@ class SeedDMS_Core_DMS {
 								foreach ($attribute as &$v)
 									$v = trim($this->db->qstr($v), "'");
 								if ($attrdef->getMultipleValues()) {
-									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentAttributes`.`value` like '%".$valueset[0].implode("%' OR `tblDocumentAttributes`.`value` like '%".$valueset[0], $attribute)."%') AND `tblDocumentAttributes`.`document` = `tblDocuments`.`id`)";
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=" . $attrdefid . " AND (`tblDocumentAttributes`.`value` like '%" . $valueset[0] . implode("%' OR `tblDocumentAttributes`.`value` like '%" . $valueset[0], $attribute) . "%') AND `tblDocumentAttributes`.`document` = `tblDocuments`.`id`)";
 								} else {
-									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentAttributes`.`value`='".(is_array($attribute) ? implode("' OR `tblDocumentAttributes`.`value` = '", $attribute) : $attribute)."') AND `tblDocumentAttributes`.`document` = `tblDocuments`.`id`)";
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=" . $attrdefid . " AND (`tblDocumentAttributes`.`value`='" . (is_array($attribute) ? implode("' OR `tblDocumentAttributes`.`value` = '", $attribute) : $attribute) . "') AND `tblDocumentAttributes`.`document` = `tblDocuments`.`id`)";
 								}
 							} else {
 								if (in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_date, SeedDMS_Core_AttributeDefinition::type_int, SeedDMS_Core_AttributeDefinition::type_float]) && is_array($attribute)) {
 									$kkll = [];
 									if (!empty($attribute['from'])) {
 										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
-											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS INTEGER)>=".(int) $attribute['from'];
+											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS INTEGER)>=" . (int) $attribute['from'];
 										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
-											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS DECIMAL)>=".(float) $attribute['from'];
+											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS DECIMAL)>=" . (float) $attribute['from'];
 										else
-											$kkll[] = "`tblDocumentAttributes`.`value`>=".$this->db->qstr($attribute['from']);
+											$kkll[] = "`tblDocumentAttributes`.`value`>=" . $this->db->qstr($attribute['from']);
 									}
 									if (!empty($attribute['to'])) {
 										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
-											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS INTEGER)<=".(int) $attribute['to'];
+											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS INTEGER)<=" . (int) $attribute['to'];
 										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
-											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS DECIMAL)<=".(float) $attribute['to'];
+											$kkll[] = "CAST(`tblDocumentAttributes`.`value` AS DECIMAL)<=" . (float) $attribute['to'];
 										else
-											$kkll[] = "`tblDocumentAttributes`.`value`<=".$this->db->qstr($attribute['to']);
+											$kkll[] = "`tblDocumentAttributes`.`value`<=" . $this->db->qstr($attribute['to']);
 									}
 									if ($kkll)
-										$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=".$attrdefid." AND ".implode(' AND ', $kkll)." AND `tblDocumentAttributes`.`document`=`tblDocuments`.`id`)";
+										$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=" . $attrdefid . " AND " . implode(' AND ', $kkll) . " AND `tblDocumentAttributes`.`document`=`tblDocuments`.`id`)";
 								} else {
-									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=".$attrdefid." AND `tblDocumentAttributes`.`value` like ".$this->db->qstr("%".$attribute."%")." AND `tblDocumentAttributes`.`document` = `tblDocuments`.`id`)";
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentAttributes` WHERE `tblDocumentAttributes`.`attrdef`=" . $attrdefid . " AND `tblDocumentAttributes`.`value` like " . $this->db->qstr("%" . $attribute . "%") . " AND `tblDocumentAttributes`.`document` = `tblDocuments`.`id`)";
 								}
 							}
 						}
@@ -2325,38 +2438,38 @@ class SeedDMS_Core_DMS {
 								foreach ($attribute as &$v)
 									$v = trim($this->db->qstr($v), "'");
 								if ($attrdef->getMultipleValues()) {
-									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentContentAttributes`.`value` like '%".$valueset[0].implode("%' OR `tblDocumentContentAttributes`.`value` like '%".$valueset[0], $attribute)."%') AND `tblDocumentContentAttributes`.`content` = `tblDocumentContent`.`id`)";
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=" . $attrdefid . " AND (`tblDocumentContentAttributes`.`value` like '%" . $valueset[0] . implode("%' OR `tblDocumentContentAttributes`.`value` like '%" . $valueset[0], $attribute) . "%') AND `tblDocumentContentAttributes`.`content` = `tblDocumentContent`.`id`)";
 								} else {
-									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND (`tblDocumentContentAttributes`.`value`='".(is_array($attribute) ? implode("' OR `tblDocumentContentAttributes`.`value` = '", $attribute) : $attribute)."') AND `tblDocumentContentAttributes`.content = `tblDocumentContent`.id)";
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=" . $attrdefid . " AND (`tblDocumentContentAttributes`.`value`='" . (is_array($attribute) ? implode("' OR `tblDocumentContentAttributes`.`value` = '", $attribute) : $attribute) . "') AND `tblDocumentContentAttributes`.content = `tblDocumentContent`.id)";
 								}
 							} else {
 								if (in_array($attrdef->getType(), [SeedDMS_Core_AttributeDefinition::type_date, SeedDMS_Core_AttributeDefinition::type_int, SeedDMS_Core_AttributeDefinition::type_float]) && is_array($attribute)) {
 									$kkll = [];
 									if (!empty($attribute['from'])) {
 										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
-											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS INTEGER)>=".(int) $attribute['from'];
+											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS INTEGER)>=" . (int) $attribute['from'];
 										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
-											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS DECIMAL)>=".(float) $attribute['from'];
+											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS DECIMAL)>=" . (float) $attribute['from'];
 										else
-											$kkll[] = "`tblDocumentContentAttributes`.`value`>=".$this->db->qstr($attribute['from']);
+											$kkll[] = "`tblDocumentContentAttributes`.`value`>=" . $this->db->qstr($attribute['from']);
 									}
 									if (!empty($attribute['to'])) {
 										if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_int)
-											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS INTEGER)<=".(int) $attribute['to'];
+											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS INTEGER)<=" . (int) $attribute['to'];
 										elseif ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_float)
-											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS DECIMAL)<=".(float) $attribute['to'];
+											$kkll[] = "CAST(`tblDocumentContentAttributes`.`value` AS DECIMAL)<=" . (float) $attribute['to'];
 										else
-											$kkll[] = "`tblDocumentContentAttributes`.`value`<=".$this->db->qstr($attribute['to']);
+											$kkll[] = "`tblDocumentContentAttributes`.`value`<=" . $this->db->qstr($attribute['to']);
 									}
 									if ($kkll)
-										$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND ".implode(' AND ', $kkll)." AND `tblDocumentContentAttributes`.`content`=`tblDocumentContent`.`id`)";
+										$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=" . $attrdefid . " AND " . implode(' AND ', $kkll) . " AND `tblDocumentContentAttributes`.`content`=`tblDocumentContent`.`id`)";
 								} else {
-									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=".$attrdefid." AND `tblDocumentContentAttributes`.`value` like ".$this->db->qstr("%".$attribute."%")." AND `tblDocumentContentAttributes`.content = `tblDocumentContent`.id)";
+									$lsearchAttributes[] = "EXISTS (SELECT NULL FROM `tblDocumentContentAttributes` WHERE `tblDocumentContentAttributes`.`attrdef`=" . $attrdefid . " AND `tblDocumentContentAttributes`.`value` like " . $this->db->qstr("%" . $attribute . "%") . " AND `tblDocumentContentAttributes`.content = `tblDocumentContent`.id)";
 								}
 							}
 						}
 						if ($lsearchAttributes)
-							$searchAttributes[] = "(".implode(" OR ", $lsearchAttributes).")";
+							$searchAttributes[] = "(" . implode(" OR ", $lsearchAttributes) . ")";
 					}
 				}
 			}
@@ -2369,7 +2482,7 @@ class SeedDMS_Core_DMS {
 				else
 					$startdate = SeedDMS_Core_DMS::makeTimeStamp($creationstartdate['hour'], $creationstartdate['minute'], $creationstartdate['second'], $creationstartdate['year'], $creationstartdate["month"], $creationstartdate["day"]);
 				if ($startdate) {
-					$searchCreateDate .= "`tblDocuments`.`date` >= ".(int) $startdate;
+					$searchCreateDate .= "`tblDocuments`.`date` >= " . (int) $startdate;
 				}
 			}
 			if ($creationenddate) {
@@ -2380,7 +2493,7 @@ class SeedDMS_Core_DMS {
 				if ($stopdate) {
 					if ($searchCreateDate)
 						$searchCreateDate .= " AND ";
-					$searchCreateDate .= "`tblDocuments`.`date` <= ".(int) $stopdate;
+					$searchCreateDate .= "`tblDocuments`.`date` <= " . (int) $stopdate;
 				}
 			}
 
@@ -2392,7 +2505,7 @@ class SeedDMS_Core_DMS {
 				if ($startdate) {
 					if ($searchCreateDate)
 						$searchCreateDate .= " AND ";
-					$searchCreateDate .= "`tblDocumentContent`.`date` >= ".(int) $startdate;
+					$searchCreateDate .= "`tblDocumentContent`.`date` >= " . (int) $startdate;
 				}
 			}
 			if ($modificationenddate) {
@@ -2403,7 +2516,7 @@ class SeedDMS_Core_DMS {
 				if ($stopdate) {
 					if ($searchCreateDate)
 						$searchCreateDate .= " AND ";
-					$searchCreateDate .= "`tblDocumentContent`.`date` <= ".(int) $stopdate;
+					$searchCreateDate .= "`tblDocumentContent`.`date` <= " . (int) $stopdate;
 				}
 			}
 			$searchRevisionDate = "";
@@ -2412,7 +2525,7 @@ class SeedDMS_Core_DMS {
 				if ($startdate) {
 					if ($searchRevisionDate)
 						$searchRevisionDate .= " AND ";
-					$searchRevisionDate .= "`tblDocumentContent`.`revisiondate` >= '".$startdate."'";
+					$searchRevisionDate .= "`tblDocumentContent`.`revisiondate` >= '" . $startdate . "'";
 				}
 			}
 			if ($revisionenddate) {
@@ -2420,14 +2533,14 @@ class SeedDMS_Core_DMS {
 				if ($stopdate) {
 					if ($searchRevisionDate)
 						$searchRevisionDate .= " AND ";
-					$searchRevisionDate .= "`tblDocumentContent`.`revisiondate` <= '".$stopdate."'";
+					$searchRevisionDate .= "`tblDocumentContent`.`revisiondate` <= '" . $stopdate . "'";
 				}
 			}
 			$searchExpirationDate = '';
 			if ($expirationstartdate) {
 				$startdate = SeedDMS_Core_DMS::makeTimeStamp($expirationstartdate['hour'], $expirationstartdate['minute'], $expirationstartdate['second'], $expirationstartdate['year'], $expirationstartdate["month"], $expirationstartdate["day"]);
 				if ($startdate) {
-					$searchExpirationDate .= "`tblDocuments`.`expires` >= ".(int) $startdate;
+					$searchExpirationDate .= "`tblDocuments`.`expires` >= " . (int) $startdate;
 				}
 			}
 			if ($expirationenddate) {
@@ -2437,24 +2550,24 @@ class SeedDMS_Core_DMS {
 						$searchExpirationDate .= " AND ";
 					else // do not find documents without an expiration date
 						$searchExpirationDate .= "`tblDocuments`.`expires` != 0 AND ";
-					$searchExpirationDate .= "`tblDocuments`.`expires` <= ".(int) $stopdate;
+					$searchExpirationDate .= "`tblDocuments`.`expires` <= " . (int) $stopdate;
 				}
 			}
 			$searchStatusDate = '';
 			if ($statusstartdate) {
-				$startdate = $statusstartdate['year'].'-'.$statusstartdate["month"].'-'.$statusstartdate["day"].' '.$statusstartdate['hour'].':'.$statusstartdate['minute'].':'.$statusstartdate['second'];
+				$startdate = $statusstartdate['year'] . '-' . $statusstartdate["month"] . '-' . $statusstartdate["day"] . ' ' . $statusstartdate['hour'] . ':' . $statusstartdate['minute'] . ':' . $statusstartdate['second'];
 				if ($startdate) {
 					if ($searchStatusDate)
 						$searchStatusDate .= " AND ";
-					$searchStatusDate .= "`tblDocumentStatusLog`.`date` >= ".$this->db->qstr($startdate);
+					$searchStatusDate .= "`tblDocumentStatusLog`.`date` >= " . $this->db->qstr($startdate);
 				}
 			}
 			if ($statusenddate) {
-				$stopdate = $statusenddate['year'].'-'.$statusenddate["month"].'-'.$statusenddate["day"].' '.$statusenddate['hour'].':'.$statusenddate['minute'].':'.$statusenddate['second'];
+				$stopdate = $statusenddate['year'] . '-' . $statusenddate["month"] . '-' . $statusenddate["day"] . ' ' . $statusenddate['hour'] . ':' . $statusenddate['minute'] . ':' . $statusenddate['second'];
 				if ($stopdate) {
 					if ($searchStatusDate)
 						$searchStatusDate .= " AND ";
-					$searchStatusDate .= "`tblDocumentStatusLog`.`date` <= ".$this->db->qstr($stopdate);
+					$searchStatusDate .= "`tblDocumentStatusLog`.`date` <= " . $this->db->qstr($stopdate);
 				}
 			}
 
@@ -2473,55 +2586,55 @@ class SeedDMS_Core_DMS {
 				}
 			}
 
-			$searchQuery = "FROM `tblDocuments` ".
-				"LEFT JOIN `tblDocumentContent` ON `tblDocuments`.`id` = `tblDocumentContent`.`document` ".
-				"LEFT JOIN `tblDocumentAttributes` ON `tblDocuments`.`id` = `tblDocumentAttributes`.`document` ".
-				"LEFT JOIN `tblDocumentContentAttributes` ON `tblDocumentContent`.`id` = `tblDocumentContentAttributes`.`content` ".
-				"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID` = `tblDocumentContent`.`document` ".
-				"LEFT JOIN `ttstatid` ON `ttstatid`.`statusID` = `tblDocumentStatus`.`statusID` ".
-				"LEFT JOIN `tblDocumentStatusLog` ON `tblDocumentStatusLog`.`statusLogID` = `ttstatid`.`maxLogID` ".
-				"LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion` = `tblDocumentStatus`.`version` AND `ttcontentid`.`document` = `tblDocumentStatus`.`documentID` ".
-				"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` ".
-				"LEFT JOIN `tblDocumentCategory` ON `tblDocuments`.`id`=`tblDocumentCategory`.`documentID` ".
-//				"LEFT JOIN `tblDocumentRecipients` ON `tblDocuments`.`id`=`tblDocumentRecipients`.`documentID` ".
+			$searchQuery = "FROM `tblDocuments` " .
+				"LEFT JOIN `tblDocumentContent` ON `tblDocuments`.`id` = `tblDocumentContent`.`document` " .
+				"LEFT JOIN `tblDocumentAttributes` ON `tblDocuments`.`id` = `tblDocumentAttributes`.`document` " .
+				"LEFT JOIN `tblDocumentContentAttributes` ON `tblDocumentContent`.`id` = `tblDocumentContentAttributes`.`content` " .
+				"LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatus`.`documentID` = `tblDocumentContent`.`document` " .
+				"LEFT JOIN `ttstatid` ON `ttstatid`.`statusID` = `tblDocumentStatus`.`statusID` " .
+				"LEFT JOIN `tblDocumentStatusLog` ON `tblDocumentStatusLog`.`statusLogID` = `ttstatid`.`maxLogID` " .
+				"LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion` = `tblDocumentStatus`.`version` AND `ttcontentid`.`document` = `tblDocumentStatus`.`documentID` " .
+				"LEFT JOIN `tblDocumentLocks` ON `tblDocuments`.`id`=`tblDocumentLocks`.`document` " .
+				"LEFT JOIN `tblDocumentCategory` ON `tblDocuments`.`id`=`tblDocumentCategory`.`documentID` " .
+				//				"LEFT JOIN `tblDocumentRecipients` ON `tblDocuments`.`id`=`tblDocumentRecipients`.`documentID` ".
 //				"LEFT JOIN `tblDocumentReceiptLog` ON `tblDocumentRecipients`.`receiptID`=`tblDocumentReceiptLog`.`receiptID` ".
 //				"LEFT JOIN `ttreceiptid` ON `ttreceiptid`.`maxLogID` = `tblDocumentReceiptLog`.`receiptLogID` ".
-				"WHERE ".
-//				"`ttstatid`.`maxLogID`=`tblDocumentStatusLog`.`statusLogID` AND ".
+				"WHERE " .
+				//				"`ttstatid`.`maxLogID`=`tblDocumentStatusLog`.`statusLogID` AND ".
 //				"`ttreceiptid`.`maxLogID`=`tblDocumentReceiptLog`.`receiptLogID` AND ".
 				"`ttcontentid`.`maxVersion` = `tblDocumentContent`.`version`";
 
-			if (strlen($searchKey)>0) {
-				$searchQuery .= " AND (".$searchKey.")";
+			if (strlen($searchKey) > 0) {
+				$searchQuery .= " AND (" . $searchKey . ")";
 			}
-			if (strlen($searchFolder)>0) {
-				$searchQuery .= " AND ".$searchFolder;
+			if (strlen($searchFolder) > 0) {
+				$searchQuery .= " AND " . $searchFolder;
 			}
-			if (strlen($searchOwner)>0) {
-				$searchQuery .= " AND (".$searchOwner.")";
+			if (strlen($searchOwner) > 0) {
+				$searchQuery .= " AND (" . $searchOwner . ")";
 			}
-			if (strlen($searchCategories)>0) {
-				$searchQuery .= " AND (".$searchCategories.")";
+			if (strlen($searchCategories) > 0) {
+				$searchQuery .= " AND (" . $searchCategories . ")";
 			}
-			if (strlen($searchCreateDate)>0) {
-				$searchQuery .= " AND (".$searchCreateDate.")";
+			if (strlen($searchCreateDate) > 0) {
+				$searchQuery .= " AND (" . $searchCreateDate . ")";
 			}
-			if (strlen($searchRevisionDate)>0) {
-				$searchQuery .= " AND (".$searchRevisionDate.")";
+			if (strlen($searchRevisionDate) > 0) {
+				$searchQuery .= " AND (" . $searchRevisionDate . ")";
 			}
-			if (strlen($searchExpirationDate)>0) {
-				$searchQuery .= " AND (".$searchExpirationDate.")";
+			if (strlen($searchExpirationDate) > 0) {
+				$searchQuery .= " AND (" . $searchExpirationDate . ")";
 			}
-			if (strlen($searchStatusDate)>0) {
-				$searchQuery .= " AND (".$searchStatusDate.")";
+			if (strlen($searchStatusDate) > 0) {
+				$searchQuery .= " AND (" . $searchStatusDate . ")";
 			}
 			if ($searchAttributes) {
-				$searchQuery .= " AND (".implode(" AND ", $searchAttributes).")";
+				$searchQuery .= " AND (" . implode(" AND ", $searchAttributes) . ")";
 			}
 
 			// status
 			if ($status) {
-				$searchQuery .= " AND `tblDocumentStatusLog`.`status` IN (".implode(',', $status).")";
+				$searchQuery .= " AND `tblDocumentStatusLog`.`status` IN (" . implode(',', $status) . ")";
 			}
 
 			if ($reception) {
@@ -2541,16 +2654,16 @@ class SeedDMS_Core_DMS {
 				if ($searchReception) {
 					$searchQuery .= " AND EXISTS (SELECT NULL FROM `tblDocumentRecipients` a LEFT JOIN `tblDocumentReceiptLog` b ON a.`receiptID`=b.`receiptID` LEFT JOIN `ttreceiptid` c ON c.`maxLogID` = b.`receiptLogID` WHERE ";
 					$searchQuery .= "c.`maxLogID`=b.`receiptLogID` AND `tblDocuments`.`id` = a.`documentID` ";
-					$searchQuery .= "AND (".implode(' OR ', $searchReception)."))";
+					$searchQuery .= "AND (" . implode(' OR ', $searchReception) . "))";
 				}
 			}
 
 			if ($searchKey || $searchOwner || $searchCategories || $searchCreateDate || $searchRevisionDate || $searchExpirationDate || $searchStatusDate || $searchAttributes || $status) {
 				// Count the number of rows that the search will produce.
-				$resArr = $this->db->getResultArray("SELECT COUNT(*) AS num FROM (SELECT DISTINCT `tblDocuments`.`id` ".$searchQuery.") a");
+				$resArr = $this->db->getResultArray("SELECT COUNT(*) AS num FROM (SELECT DISTINCT `tblDocuments`.`id` " . $searchQuery . ") a");
 				$totalDocs = 0;
-				if (is_numeric($resArr[0]["num"]) && $resArr[0]["num"]>0) {
-					$totalDocs = (integer)$resArr[0]["num"];
+				if (is_numeric($resArr[0]["num"]) && $resArr[0]["num"] > 0) {
+					$totalDocs = (integer) $resArr[0]["num"];
 				}
 
 				// If there are no results from the count query, then there is no real need
@@ -2558,35 +2671,35 @@ class SeedDMS_Core_DMS {
 				// queries when no initial results are found.
 
 				// Prepare the complete search query, including the LIMIT clause.
-				$searchQuery = "SELECT DISTINCT `tblDocuments`.*, ".
-					"`tblDocumentContent`.`version`, ".
-					"`tblDocumentStatusLog`.`status`, `tblDocumentLocks`.`userID` as `lockUser` ".$searchQuery;
+				$searchQuery = "SELECT DISTINCT `tblDocuments`.*, " .
+					"`tblDocumentContent`.`version`, " .
+					"`tblDocumentStatusLog`.`status`, `tblDocumentLocks`.`userID` as `lockUser` " . $searchQuery;
 
 				switch ($orderby) {
-				case 'dd':
-					$orderbyQuery = " ORDER BY `tblDocuments`.`date` DESC";
-					break;
-				case 'da':
-				case 'd':
-					$orderbyQuery = " ORDER BY `tblDocuments`.`date`";
-					break;
-				case 'nd':
-					$orderbyQuery = " ORDER BY `tblDocuments`.`name` DESC";
-					break;
-				case 'na':
-				case 'n':
-					$orderbyQuery = " ORDER BY `tblDocuments`.`name`";
-					break;
-				case 'id':
-					$orderbyQuery = " ORDER BY `tblDocuments`.`id` DESC";
-					break;
-				case 'ia':
-				case 'i':
-					$orderbyQuery = " ORDER BY `tblDocuments`.`id`";
-					break;
-				default:
-					$orderbyQuery = "";
-					break;
+					case 'dd':
+						$orderbyQuery = " ORDER BY `tblDocuments`.`date` DESC";
+						break;
+					case 'da':
+					case 'd':
+						$orderbyQuery = " ORDER BY `tblDocuments`.`date`";
+						break;
+					case 'nd':
+						$orderbyQuery = " ORDER BY `tblDocuments`.`name` DESC";
+						break;
+					case 'na':
+					case 'n':
+						$orderbyQuery = " ORDER BY `tblDocuments`.`name`";
+						break;
+					case 'id':
+						$orderbyQuery = " ORDER BY `tblDocuments`.`id` DESC";
+						break;
+					case 'ia':
+					case 'i':
+						$orderbyQuery = " ORDER BY `tblDocuments`.`id`";
+						break;
+					default:
+						$orderbyQuery = "";
+						break;
 				}
 
 				// calculate the remaining entrїes of the current page
@@ -2602,7 +2715,7 @@ class SeedDMS_Core_DMS {
 						$searchQuery .= $orderbyQuery;
 
 						if ($limit)
-							$searchQuery .= " LIMIT ".$limit." OFFSET ".$offset;
+							$searchQuery .= " LIMIT " . $limit . " OFFSET " . $offset;
 
 						// Send the complete search query to the database.
 						$resArr = $this->db->getResultArray($searchQuery);
@@ -2623,31 +2736,31 @@ class SeedDMS_Core_DMS {
 				// ------------------- Ausgabe der Ergebnisse ----------------------------
 				$numResults = count($resArr);
 				if ($numResults == 0) {
-					$docresult = array('totalDocs'=>$totalDocs, 'docs'=>array());
+					$docresult = array('totalDocs' => $totalDocs, 'docs' => array());
 				} else {
 					foreach ($resArr as $docArr) {
 						$docs[] = $this->getDocument($docArr['id']);
 					}
 					/** @noinspection PhpUndefinedVariableInspection */
-					$docresult = array('totalDocs'=>$totalDocs, 'docs'=>$docs);
+					$docresult = array('totalDocs' => $totalDocs, 'docs' => $docs);
 				}
 			} else {
-				$docresult = array('totalDocs'=>0, 'docs'=>array());
+				$docresult = array('totalDocs' => 0, 'docs' => array());
 			}
 		} else {
-			$docresult = array('totalDocs'=>0, 'docs'=>array());
+			$docresult = array('totalDocs' => 0, 'docs' => array());
 		}
 
 		if ($limit) {
-			$totalPages = (integer)(($totalDocs+$totalFolders)/$limit);
-			if ((($totalDocs+$totalFolders)%$limit) > 0) {
+			$totalPages = (integer) (($totalDocs + $totalFolders) / $limit);
+			if ((($totalDocs + $totalFolders) % $limit) > 0) {
 				$totalPages++;
 			}
 		} else {
 			$totalPages = 1;
 		}
 
-		return array_merge($docresult, $folderresult, array('totalPages'=>$totalPages));
+		return array_merge($docresult, $folderresult, array('totalPages' => $totalPages));
 	} /* }}} */
 
 	/**
@@ -2658,7 +2771,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id internal id of folder
 	 * @return SeedDMS_Core_Folder instance of SeedDMS_Core_Folder or false
 	 */
-	public function getFolder($id) { /* {{{ */
+	public function getFolder($id)
+	{ /* {{{ */
 		if ($this->usecache && isset($this->cache['folders'][$id])) {
 			return $this->cache['folders'][$id];
 		}
@@ -2681,7 +2795,8 @@ class SeedDMS_Core_DMS {
 	 * @param SeedDMS_Core_Folder $folder parent folder
 	 * @return SeedDMS_Core_Folder|boolean found folder or false
 	 */
-	public function getFolderByName($name, $folder = null) { /* {{{ */
+	public function getFolderByName($name, $folder = null)
+	{ /* {{{ */
 		$name = trim($name);
 		$classname = $this->classnames['folder'];
 		return $classname::getInstanceByName($name, $folder, $this);
@@ -2694,7 +2809,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array|bool
 	 */
-	public function checkFolders() { /* {{{ */
+	public function checkFolders()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblFolders`";
 		$resArr = $this->db->getResultArray($queryStr);
 
@@ -2703,29 +2819,29 @@ class SeedDMS_Core_DMS {
 
 		$cache = array();
 		foreach ($resArr as $rec) {
-			$cache[$rec['id']] = array('name'=>$rec['name'], 'parent'=>$rec['parent'], 'folderList'=>$rec['folderList']);
+			$cache[$rec['id']] = array('name' => $rec['name'], 'parent' => $rec['parent'], 'folderList' => $rec['folderList']);
 		}
 		$errors = array();
 		foreach ($cache as $id => $rec) {
 			if (!array_key_exists($rec['parent'], $cache) && $rec['parent'] != 0) {
-				$errors[$id] = array('id'=>$id, 'name'=>$rec['name'], 'parent'=>$rec['parent'], 'msg'=>'Missing parent');
+				$errors[$id] = array('id' => $id, 'name' => $rec['name'], 'parent' => $rec['parent'], 'msg' => 'Missing parent');
 			}
-			if (!isset($errors[$id]))	{
+			if (!isset($errors[$id])) {
 				/* Create the real folderList and compare it with the stored folderList */
 				$parent = $rec['parent'];
 				$fl = [];
-				while($parent) {
+				while ($parent) {
 					array_unshift($fl, $parent);
 					$parent = $cache[$parent]['parent'];
 				}
 				if ($fl)
-					$flstr = ':'.implode(':', $fl).':';
+					$flstr = ':' . implode(':', $fl) . ':';
 				else
 					$flstr = '';
 				if ($flstr != $rec['folderList'])
-					$errors[$id] = array('id'=>$id, 'name'=>$rec['name'], 'parent'=>$rec['parent'], 'msg'=>'Wrong folder list '.$flstr.'!='.$rec['folderList']);
+					$errors[$id] = array('id' => $id, 'name' => $rec['name'], 'parent' => $rec['parent'], 'msg' => 'Wrong folder list ' . $flstr . '!=' . $rec['folderList']);
 			}
-			if (!isset($errors[$id]))	{
+			if (!isset($errors[$id])) {
 				/* This is the old insufficient test which will most likely not be called
 				 * anymore, because the check for a wrong folder list will cache a folder
 				 * list problem anyway.
@@ -2733,7 +2849,7 @@ class SeedDMS_Core_DMS {
 				$tmparr = explode(':', $rec['folderList']);
 				array_shift($tmparr);
 				if (count($tmparr) != count(array_unique($tmparr))) {
-					$errors[$id] = array('id'=>$id, 'name'=>$rec['name'], 'parent'=>$rec['parent'], 'msg'=>'Duplicate entry in folder list ('.$rec['folderList'].')');
+					$errors[$id] = array('id' => $id, 'name' => $rec['name'], 'parent' => $rec['parent'], 'msg' => 'Duplicate entry in folder list (' . $rec['folderList'] . ')');
 				}
 			}
 		}
@@ -2748,7 +2864,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array|bool
 	 */
-	public function checkDocuments() { /* {{{ */
+	public function checkDocuments()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblFolders`";
 		$resArr = $this->db->getResultArray($queryStr);
 
@@ -2757,7 +2874,7 @@ class SeedDMS_Core_DMS {
 
 		$fcache = array();
 		foreach ($resArr as $rec) {
-			$fcache[$rec['id']] = array('name'=>$rec['name'], 'parent'=>$rec['parent'], 'folderList'=>$rec['folderList']);
+			$fcache[$rec['id']] = array('name' => $rec['name'], 'parent' => $rec['parent'], 'folderList' => $rec['folderList']);
 		}
 
 		$queryStr = "SELECT * FROM `tblDocuments`";
@@ -2768,31 +2885,31 @@ class SeedDMS_Core_DMS {
 
 		$dcache = array();
 		foreach ($resArr as $rec) {
-			$dcache[$rec['id']] = array('name'=>$rec['name'], 'parent'=>$rec['folder'], 'folderList'=>$rec['folderList']);
+			$dcache[$rec['id']] = array('name' => $rec['name'], 'parent' => $rec['folder'], 'folderList' => $rec['folderList']);
 		}
 		$errors = array();
 		foreach ($dcache as $id => $rec) {
 			if (!array_key_exists($rec['parent'], $fcache) && $rec['parent'] != 0) {
-				$errors[$id] = array('id'=>$id, 'name'=>$rec['name'], 'parent'=>$rec['parent'], 'msg'=>'Missing parent');
+				$errors[$id] = array('id' => $id, 'name' => $rec['name'], 'parent' => $rec['parent'], 'msg' => 'Missing parent');
 			}
-			if (!isset($errors[$id]))	{
+			if (!isset($errors[$id])) {
 				/* Create the real folderList and compare it with the stored folderList */
 				$parent = $rec['parent'];
 				$fl = [];
-				while($parent) {
+				while ($parent) {
 					array_unshift($fl, $parent);
 					$parent = $fcache[$parent]['parent'];
 				}
 				if ($fl)
-					$flstr = ':'.implode(':', $fl).':';
+					$flstr = ':' . implode(':', $fl) . ':';
 				if ($flstr != $rec['folderList'])
-					$errors[$id] = array('id'=>$id, 'name'=>$rec['name'], 'parent'=>$rec['parent'], 'msg'=>'Wrong folder list '.$flstr.'!='.$rec['folderList']);
+					$errors[$id] = array('id' => $id, 'name' => $rec['name'], 'parent' => $rec['parent'], 'msg' => 'Wrong folder list ' . $flstr . '!=' . $rec['folderList']);
 			}
-			if (!isset($errors[$id]))	{
+			if (!isset($errors[$id])) {
 				$tmparr = explode(':', $rec['folderList']);
 				array_shift($tmparr);
 				if (count($tmparr) != count(array_unique($tmparr))) {
-					$errors[$id] = array('id'=>$id, 'name'=>$rec['name'], 'parent'=>$rec['parent'], 'msg'=>'Duplicate entry in folder list ('.$rec['folderList'].'');
+					$errors[$id] = array('id' => $id, 'name' => $rec['name'], 'parent' => $rec['parent'], 'msg' => 'Duplicate entry in folder list (' . $rec['folderList'] . '');
 				}
 			}
 		}
@@ -2808,7 +2925,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id internal id of user
 	 * @return SeedDMS_Core_User|boolean instance of {@see SeedDMS_Core_User} or false
 	 */
-	public function getUser($id) { /* {{{ */
+	public function getUser($id)
+	{ /* {{{ */
 		if ($this->usecache && isset($this->cache['users'][$id])) {
 			return $this->cache['users'][$id];
 		}
@@ -2830,7 +2948,8 @@ class SeedDMS_Core_DMS {
 	 * @param string $email email of user
 	 * @return object instance of {@see SeedDMS_Core_User} or false
 	 */
-	public function getUserByLogin($login, $email = '') { /* {{{ */
+	public function getUserByLogin($login, $email = '')
+	{ /* {{{ */
 		$classname = $this->classnames['user'];
 		return $classname::getInstance($login, $this, 'name', $email);
 	} /* }}} */
@@ -2844,7 +2963,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $email email address of user
 	 * @return object instance of {@see SeedDMS_Core_User} or false in case of an error
 	 */
-	public function getUserByEmail($email) { /* {{{ */
+	public function getUserByEmail($email)
+	{ /* {{{ */
 		$classname = $this->classnames['user'];
 		return $classname::getInstance($email, $this, 'email');
 	} /* }}} */
@@ -2855,7 +2975,8 @@ class SeedDMS_Core_DMS {
 	 * @param string $orderby
 	 * @return array list of instances of {@see SeedDMS_Core_User} or false in case of an error
 	 */
-	public function getAllUsers($orderby = '') { /* {{{ */
+	public function getAllUsers($orderby = '')
+	{ /* {{{ */
 		$classname = $this->classnames['user'];
 		return $classname::getAllInstances($orderby, $this);
 	} /* }}} */
@@ -2882,7 +3003,8 @@ class SeedDMS_Core_DMS {
 	 * @param null $homefolder
 	 * @return bool|SeedDMS_Core_User or false if the user already exists or in case of an error
 	 */
-	public function addUser($login, $pwd, $fullName, $email, $language, $theme, $comment, $role = '3', $isHidden = 0, $isDisabled = 0, $pwdexpiration = '', $quota = 0, $homefolder = null) { /* {{{ */
+	public function addUser($login, $pwd, $fullName, $email, $language, $theme, $comment, $role = '3', $isHidden = 0, $isDisabled = 0, $pwdexpiration = '', $quota = 0, $homefolder = null)
+	{ /* {{{ */
 		$db = $this->db;
 		if (is_object($this->getUserByLogin($login))) {
 			return false;
@@ -2927,7 +3049,7 @@ class SeedDMS_Core_DMS {
 		$combined_comment = $encryption_iv_comment . $encrypted_comment;
 		$iv_base64_comment = base64_encode($combined_comment);
 
-		$queryStr = "INSERT INTO `tblUsers` (`login`, `pwd`, `fullName`, `email`, `language`, `theme`, `comment`, `role`, `hidden`, `disabled`, `pwdExpiration`, `quota`, `homefolder`) VALUES (".$db->qstr($iv_base64_login).", ".$db->qstr($pwd).", ".$db->qstr($iv_base64_name).", ".$db->qstr($iv_base64_email).", '".$language."', '".$theme."', ".$db->qstr($iv_base64_comment).", '".intval($role->getId())."', '".intval($isHidden)."', '".intval($isDisabled)."', ".$pwdexpiration.", '".intval($quota)."', ".($homefolder ? intval($homefolder) : "NULL").")";
+		$queryStr = "INSERT INTO `tblUsers` (`login`, `pwd`, `fullName`, `email`, `language`, `theme`, `comment`, `role`, `hidden`, `disabled`, `pwdExpiration`, `quota`, `homefolder`) VALUES (" . $db->qstr($iv_base64_login) . ", " . $db->qstr($pwd) . ", " . $db->qstr($iv_base64_name) . ", " . $db->qstr($iv_base64_email) . ", '" . $language . "', '" . $theme . "', " . $db->qstr($iv_base64_comment) . ", '" . intval($role->getId()) . "', '" . intval($isHidden) . "', '" . intval($isDisabled) . "', " . $pwdexpiration . ", '" . intval($quota) . "', " . ($homefolder ? intval($homefolder) : "NULL") . ")";
 		$res = $this->db->getResult($queryStr);
 		if (!$res)
 			return false;
@@ -2952,7 +3074,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id id of group
 	 * @return SeedDMS_Core_Group|boolean group or false if no group was found
 	 */
-	public function getGroup($id) { /* {{{ */
+	public function getGroup($id)
+	{ /* {{{ */
 		if ($this->usecache && isset($this->cache['groups'][$id])) {
 			return $this->cache['groups'][$id];
 		}
@@ -2969,7 +3092,8 @@ class SeedDMS_Core_DMS {
 	 * @param string $name name of group
 	 * @return SeedDMS_Core_Group|boolean group or false if no group was found
 	 */
-	public function getGroupByName($name) { /* {{{ */
+	public function getGroupByName($name)
+	{ /* {{{ */
 		$name = trim($name);
 		$classname = $this->classnames['group'];
 		return $classname::getInstance($name, $this, 'name');
@@ -2980,7 +3104,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return SeedDMS_Core_Group[] array of instances of {@see SeedDMS_Core_Group}
 	 */
-	public function getAllGroups() { /* {{{ */
+	public function getAllGroups()
+	{ /* {{{ */
 		$classname = $this->classnames['group'];
 		return $classname::getAllInstances('name', $this);
 	} /* }}} */
@@ -2993,8 +3118,10 @@ class SeedDMS_Core_DMS {
 	 * @return SeedDMS_Core_Group|boolean instance of {@see SeedDMS_Core_Group} or false in
 	 *         case of an error.
 	 */
-	public function addGroup($name, $comment) { /* {{{ */
-		$name = trim($name);
+	public function addGroup($name, $comment)
+	{
+		//$name = trim($name);
+
 		if (is_object($this->getGroupByName($name))) {
 			return false;
 		}
@@ -3002,35 +3129,52 @@ class SeedDMS_Core_DMS {
 		$encryption_method = 'AES-256-CBC';
 		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 
-		// Encrypt the name
-		$encryption_iv_name = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
-		$encrypted_name = openssl_encrypt($name, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_name);
-		$combined_name = $encryption_iv_name . $encrypted_name;
-		$iv_base64_name = base64_encode($combined_name);
+		$encrypt = function ($plaintext, $label) use ($encryption_method, $encryption_key) {
+			$iv_length = openssl_cipher_iv_length($encryption_method); // Usually 16 bytes
+			$iv = openssl_random_pseudo_bytes($iv_length);
 
-		// Encrypt the comment
-		$encryption_iv_comment = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
-		$encrypted_comment = openssl_encrypt($comment, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv_comment);
-		$combined_comment = $encryption_iv_comment . $encrypted_comment;
-		$iv_base64_comment = base64_encode($combined_comment);
+			$ciphertext_raw = openssl_encrypt(
+				$plaintext,
+				$encryption_method,
+				$encryption_key,
+				OPENSSL_RAW_DATA,
+				$iv
+			);
 
-		$queryStr = "INSERT INTO `tblGroups` (`name`, `comment`) VALUES (".$this->db->qstr($iv_base64_name).", ".$this->db->qstr($iv_base64_comment).")";
-		if (!$this->db->getResult($queryStr))
+			// Combine IV and ciphertext, then encode in base64
+			$combined = $iv . $ciphertext_raw;
+			$encoded = base64_encode($combined);
+
+			return $encoded;
+		};
+
+		// Encrypt name and comment
+		//$encrypted_name = $encrypt($name, 'Name Encryption');
+		//$encrypted_comment = $encrypt($comment, 'Comment Encryption');
+
+		// Ensure enough length in DB (VARCHAR(255) or TEXT recommended)
+		$queryStr = "INSERT INTO `tblGroups` (`name`, `comment`) VALUES (" .
+			$this->db->qstr($name) . ", " .
+			$this->db->qstr($comment) . ")";
+
+		if (!$this->db->getResult($queryStr)) {
 			return false;
+		}
 
+		// Get inserted group
 		$group = $this->getGroup($this->db->getInsertID('tblGroups'));
 
-		/* Check if 'onPostAddGroup' callback is set */
+		// Trigger post-add callbacks if any
 		if (isset($this->callbacks['onPostAddGroup'])) {
 			foreach ($this->callbacks['onPostAddGroup'] as $callback) {
-				/** @noinspection PhpStatementHasEmptyBodyInspection */
-				if (!call_user_func($callback[0], $callback[1], $group)) {
-				}
+				call_user_func($callback[0], $callback[1], $group);
 			}
 		}
 
 		return $group;
-	} /* }}} */
+	}
+
+
 
 	/**
 	 * Get a role by its id
@@ -3038,7 +3182,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id id of role
 	 * @return object/boolean role or false if no role was found
 	 */
-	public function getRole($id) { /* {{{ */
+	public function getRole($id)
+	{ /* {{{ */
 		$classname = $this->classnames['role'];
 		return $classname::getInstance($id, $this);
 	} /* }}} */
@@ -3049,7 +3194,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $name name of role
 	 * @return object/boolean role or false if no role was found
 	 */
-	public function getRoleByName($name) { /* {{{ */
+	public function getRoleByName($name)
+	{ /* {{{ */
 		$classname = $this->classnames['role'];
 		return $classname::getInstance($name, $this, 'name');
 	} /* }}} */
@@ -3059,7 +3205,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array of instances of {@link SeedDMS_Core_Role} or false
 	 */
-	public function getAllRoles($orderby = '') { /* {{{ */
+	public function getAllRoles($orderby = '')
+	{ /* {{{ */
 		$classname = $this->classnames['role'];
 		return $classname::getAllInstances($orderby, $this);
 	} /* }}} */
@@ -3071,7 +3218,8 @@ class SeedDMS_Core_DMS {
 	 * @return object/boolean instance of {@link SeedDMS_Core_Role} or false in
 	 *         case of an error.
 	 */
-	public function addRole($name, $role) { /* {{{ */
+	public function addRole($name, $role)
+	{ /* {{{ */
 		if (is_object($this->getRoleByName($name))) {
 			return false;
 		}
@@ -3091,7 +3239,7 @@ class SeedDMS_Core_DMS {
 		$combined_role = $encryption_iv_role . $encrypted_role;
 		$iv_base64_role = base64_encode($combined_role);
 
-		$queryStr = "INSERT INTO `tblRoles` (`name`, `role`) VALUES (".$this->db->qstr($iv_base64_name).", ".$this->db->qstr($iv_base64_role).")";
+		$queryStr = "INSERT INTO `tblRoles` (`name`, `role`) VALUES (" . $this->db->qstr($iv_base64_name) . ", " . $this->db->qstr($iv_base64_role) . ")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -3104,7 +3252,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id id of transmittal
 	 * @return object/boolean transmittal or false if no group was found
 	 */
-	public function getTransmittal($id) { /* {{{ */
+	public function getTransmittal($id)
+	{ /* {{{ */
 		$classname = $this->classnames['transmittal'];
 		return $classname::getInstance($id, $this, '');
 	} /* }}} */
@@ -3115,7 +3264,8 @@ class SeedDMS_Core_DMS {
 	 * @param string $name name of transmittal
 	 * @return object/boolean transmittal or false if no group was found
 	 */
-	public function getTransmittalByName($name) { /* {{{ */
+	public function getTransmittalByName($name)
+	{ /* {{{ */
 		$classname = $this->classnames['transmittal'];
 		return $classname::getInstance($name, $this, 'name');
 	} /* }}} */
@@ -3125,7 +3275,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array of instances of {@link SeedDMS_Core_Transmittal} or false
 	 */
-	public function getAllTransmittals($user = null, $orderby = '') { /* {{{ */
+	public function getAllTransmittals($user = null, $orderby = '')
+	{ /* {{{ */
 		$classname = $this->classnames['transmittal'];
 		return $classname::getAllInstances($user, $orderby, $this);
 	} /* }}} */
@@ -3139,7 +3290,8 @@ class SeedDMS_Core_DMS {
 	 * @return object/boolean instance of {@link SeedDMS_Core_Transmittal} or
 	 *         false in case of an error.
 	 */
-	public function addTransmittal($name, $comment, $user) { /* {{{ */
+	public function addTransmittal($name, $comment, $user)
+	{ /* {{{ */
 		if (is_object($this->getTransmittalByName($name))) {
 			return false;
 		}
@@ -3159,14 +3311,15 @@ class SeedDMS_Core_DMS {
 		$combined_comment = $encryption_iv_comment . $encrypted_comment;
 		$iv_base64_comment = base64_encode($combined_comment);
 
-		$queryStr = "INSERT INTO `tblTransmittals` (`name`, `comment`, `userID`) VALUES (".$this->db->qstr($iv_base64_name).", ".$this->db->qstr($iv_base64_comment).", ".$user->getID().")";
+		$queryStr = "INSERT INTO `tblTransmittals` (`name`, `comment`, `userID`) VALUES (" . $this->db->qstr($iv_base64_name) . ", " . $this->db->qstr($iv_base64_comment) . ", " . $user->getID() . ")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
 		return $this->getTransmittal($this->db->getInsertID('tblTransmittals'));
 	} /* }}} */
 
-	public function getKeywordCategory($id) { /* {{{ */
+	public function getKeywordCategory($id)
+	{ /* {{{ */
 		if (!is_numeric($id) || $id < 1)
 			return false;
 
@@ -3183,7 +3336,8 @@ class SeedDMS_Core_DMS {
 		return $cat;
 	} /* }}} */
 
-	public function getKeywordCategoryByName($name, $userID) { /* {{{ */
+	public function getKeywordCategoryByName($name, $userID)
+	{ /* {{{ */
 		if (!is_numeric($userID) || $userID < 1)
 			return false;
 		$name = trim($name);
@@ -3200,12 +3354,15 @@ class SeedDMS_Core_DMS {
 		return $cat;
 	} /* }}} */
 
-	public function getAllKeywordCategories($userIDs = array()) { /* {{{ */
+	public function getAllKeywordCategories($userIDs = array())
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblKeywordCategories`";
 		/* Ensure $userIDs() will only contain integers > 0 */
-		$userIDs = array_filter(array_unique(array_map('intval', $userIDs)), function($a) {return $a > 0;});
+		$userIDs = array_filter(array_unique(array_map('intval', $userIDs)), function ($a) {
+			return $a > 0;
+		});
 		if ($userIDs) {
-			$queryStr .= " WHERE `owner` IN (".implode(',', $userIDs).")";
+			$queryStr .= " WHERE `owner` IN (" . implode(',', $userIDs) . ")";
 		}
 
 		$resArr = $this->db->getResultArray($queryStr);
@@ -3228,13 +3385,15 @@ class SeedDMS_Core_DMS {
 	 * @param $userID
 	 * @return SeedDMS_Core_KeywordCategory[]|bool
 	 */
-	public function getAllUserKeywordCategories($userID) { /* {{{ */
+	public function getAllUserKeywordCategories($userID)
+	{ /* {{{ */
 		if (!is_numeric($userID) || $userID < 1)
 			return false;
 		return self::getAllKeywordCategories([$userID]);
 	} /* }}} */
 
-	public function addKeywordCategory($userID, $name) { /* {{{ */
+	public function addKeywordCategory($userID, $name)
+	{ /* {{{ */
 		if (!is_numeric($userID) || $userID < 1)
 			return false;
 		$name = trim($name);
@@ -3252,7 +3411,7 @@ class SeedDMS_Core_DMS {
 		$combined_name = $encryption_iv_name . $encrypted_name;
 		$iv_base64_name = base64_encode($combined_name);
 
-		$queryStr = "INSERT INTO `tblKeywordCategories` (`owner`, `name`) VALUES (".(int) $userID.", ".$this->db->qstr($iv_base64_name).")";
+		$queryStr = "INSERT INTO `tblKeywordCategories` (`owner`, `name`) VALUES (" . (int) $userID . ", " . $this->db->qstr($iv_base64_name) . ")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -3270,15 +3429,16 @@ class SeedDMS_Core_DMS {
 		return $category;
 	} /* }}} */
 
-	public function getDocumentCategory($id) { /* {{{ */
+	public function getDocumentCategory($id)
+	{ /* {{{ */
 		if (!is_numeric($id) || $id < 1)
 			return false;
 
 		$queryStr = "SELECT * FROM `tblCategory` WHERE `id` = " . (int) $id;
 		$resArr = $this->db->getResultArray($queryStr);
-        if (is_bool($resArr) && !$resArr)
+		if (is_bool($resArr) && !$resArr)
 			return false;
-        if (count($resArr) != 1)
+		if (count($resArr) != 1)
 			return null;
 
 		$resArr = $resArr[0];
@@ -3287,7 +3447,8 @@ class SeedDMS_Core_DMS {
 		return $cat;
 	} /* }}} */
 
-	public function getDocumentCategories() { /* {{{ */
+	public function getDocumentCategories()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblCategory` order by `name`";
 
 		$resArr = $this->db->getResultArray($queryStr);
@@ -3312,11 +3473,13 @@ class SeedDMS_Core_DMS {
 	 * @param string $name human readable name of category
 	 * @return SeedDMS_Core_DocumentCategory|boolean instance of {@see SeedDMS_Core_DocumentCategory}
 	 */
-	public function getDocumentCategoryByName($name) { /* {{{ */
+	public function getDocumentCategoryByName($name)
+	{ /* {{{ */
 		$name = trim($name);
-		if (!$name) return false;
+		if (!$name)
+			return false;
 
-		$queryStr = "SELECT * FROM `tblCategory` WHERE `name`=".$this->db->qstr($name);
+		$queryStr = "SELECT * FROM `tblCategory` WHERE `name`=" . $this->db->qstr($name);
 		$resArr = $this->db->getResultArray($queryStr);
 		if (!$resArr)
 			return false;
@@ -3337,7 +3500,8 @@ class SeedDMS_Core_DMS {
 	 * @param string $name name of category
 	 * @return SeedDMS_Core_DocumentCategory|boolean instance of {@see SeedDMS_Core_DocumentCategory} or false if the category already exists or in case of an error.
 	 */
-	public function addDocumentCategory($name) { /* {{{ */
+	public function addDocumentCategory($name)
+	{ /* {{{ */
 		$name = trim($name);
 		if (!$name)
 			return false;
@@ -3353,7 +3517,7 @@ class SeedDMS_Core_DMS {
 		$combined_name = $encryption_iv_name . $encrypted_name;
 		$iv_base64_name = base64_encode($combined_name);
 
-		$queryStr = "INSERT INTO `tblCategory` (`name`) VALUES (".$this->db->qstr($iv_base64_name).")";
+		$queryStr = "INSERT INTO `tblCategory` (`name`) VALUES (" . $this->db->qstr($iv_base64_name) . ")";
 		if (!$this->db->getResult($queryStr))
 			return false;
 
@@ -3380,7 +3544,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $type type of item (T_DOCUMENT or T_FOLDER)
 	 * @return array array of notifications
 	 */
-	public function getNotificationsByGroup($group, $type = 0) { /* {{{ */
+	public function getNotificationsByGroup($group, $type = 0)
+	{ /* {{{ */
 		return $group->getNotifications($type);
 	} /* }}} */
 
@@ -3393,7 +3558,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $type type of item (T_DOCUMENT or T_FOLDER)
 	 * @return array array of notifications
 	 */
-	public function getNotificationsByUser($user, $type = 0) { /* {{{ */
+	public function getNotificationsByUser($user, $type = 0)
+	{ /* {{{ */
 		return $user->getNotifications($type);
 	} /* }}} */
 
@@ -3406,7 +3572,8 @@ class SeedDMS_Core_DMS {
 	 * @param SeedDMS_Core_User $user
 	 * @return string|boolean hash value of false in case of an error
 	 */
-	public function createPasswordRequest($user) { /* {{{ */
+	public function createPasswordRequest($user)
+	{ /* {{{ */
 		$lenght = 32;
 		if (function_exists("random_bytes")) {
 			$bytes = random_bytes((int) ceil($lenght / 2));
@@ -3425,9 +3592,10 @@ class SeedDMS_Core_DMS {
 		$combined_hash = $encryption_iv_hash . $encrypted_hash;
 		$iv_base64_hash = base64_encode($combined_hash);
 
-		$queryStr = "INSERT INTO `tblUserPasswordRequest` (`userID`, `hash`, `date`) VALUES (" . $user->getId() . ", " . $this->db->qstr($iv_base64_hash) .", ".$this->db->getCurrentDatetime().")";
+		$queryStr = "INSERT INTO `tblUserPasswordRequest` (`userID`, `hash`, `date`) VALUES (" . $user->getId() . ", " . $this->db->qstr($iv_base64_hash) . ", " . $this->db->getCurrentDatetime() . ")";
 		$resArr = $this->db->getResult($queryStr);
-		if (is_bool($resArr) && !$resArr) return false;
+		if (is_bool($resArr) && !$resArr)
+			return false;
 		return $hash;
 	} /* }}} */
 
@@ -3440,9 +3608,10 @@ class SeedDMS_Core_DMS {
 	 * @param string $hash
 	 * @return bool|SeedDMS_Core_User
 	 */
-	public function checkPasswordRequest($hash) { /* {{{ */
+	public function checkPasswordRequest($hash)
+	{ /* {{{ */
 		/* Get the password request from the database */
-		$queryStr = "SELECT * FROM `tblUserPasswordRequest` WHERE `hash`=".$this->db->qstr($hash);
+		$queryStr = "SELECT * FROM `tblUserPasswordRequest` WHERE `hash`=" . $this->db->qstr($hash);
 		$resArr = $this->db->getResultArray($queryStr);
 		if (is_bool($resArr) && !$resArr)
 			return false;
@@ -3461,9 +3630,10 @@ class SeedDMS_Core_DMS {
 	 * @param string $hash
 	 * @return bool
 	 */
-	public function deletePasswordRequest($hash) { /* {{{ */
+	public function deletePasswordRequest($hash)
+	{ /* {{{ */
 		/* Delete the request, so nobody can use it a second time */
-		$queryStr = "DELETE FROM `tblUserPasswordRequest` WHERE `hash`=".$this->db->qstr($hash);
+		$queryStr = "DELETE FROM `tblUserPasswordRequest` WHERE `hash`=" . $this->db->qstr($hash);
 		if (!$this->db->getResult($queryStr))
 			return false;
 		return true;
@@ -3478,7 +3648,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id internal id of attribute defintion
 	 * @return bool|SeedDMS_Core_AttributeDefinition or false
 	 */
-	public function getAttributeDefinition($id) { /* {{{ */
+	public function getAttributeDefinition($id)
+	{ /* {{{ */
 		if (!is_numeric($id) || $id < 1)
 			return false;
 
@@ -3505,9 +3676,11 @@ class SeedDMS_Core_DMS {
 	 * @param string $name internal name of attribute def.
 	 * @return SeedDMS_Core_AttributeDefinition|boolean instance of {@see SeedDMS_Core_AttributeDefinition} or false
 	 */
-	public function getAttributeDefinitionByName($name) { /* {{{ */
+	public function getAttributeDefinitionByName($name)
+	{ /* {{{ */
 		$name = trim($name);
-		if (!$name) return false;
+		if (!$name)
+			return false;
 
 		$queryStr = "SELECT * FROM `tblAttributeDefinitions` WHERE `name` = " . $this->db->qstr($name);
 		$resArr = $this->db->getResultArray($queryStr);
@@ -3532,24 +3705,25 @@ class SeedDMS_Core_DMS {
 	 * @return bool|SeedDMS_Core_AttributeDefinition[] of instances of {@see SeedDMS_Core_AttributeDefinition} or false
 	 * or false
 	 */
-	public function getAllAttributeDefinitions($objtype = 0, $type = 0) { /* {{{ */
+	public function getAllAttributeDefinitions($objtype = 0, $type = 0)
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblAttributeDefinitions`";
 		if ($objtype || $type) {
 			$queryStr .= ' WHERE ';
 			if ($objtype) {
 				if (is_array($objtype))
-					$queryStr .= '`objtype` in (\''.implode("','", $objtype).'\')';
+					$queryStr .= '`objtype` in (\'' . implode("','", $objtype) . '\')';
 				else
-					$queryStr .= '`objtype`='.intval($objtype);
+					$queryStr .= '`objtype`=' . intval($objtype);
 			}
 			if ($objtype && $type) {
 				$queryStr .= ' AND ';
 			}
 			if ($type) {
 				if (is_array($type))
-					$queryStr .= '`type` in (\''.implode("','", $type).'\')';
+					$queryStr .= '`type` in (\'' . implode("','", $type) . '\')';
 				else
-					$queryStr .= '`type`='.intval($type);
+					$queryStr .= '`type`=' . intval($type);
 			}
 		}
 		$queryStr .= ' ORDER BY `name`';
@@ -3583,7 +3757,8 @@ class SeedDMS_Core_DMS {
 	 * @param string $regex
 	 * @return bool|SeedDMS_Core_User
 	 */
-	public function addAttributeDefinition($name, $objtype, $type, $multiple = 0, $minvalues = 0, $maxvalues = 1, $valueset = '', $regex = '') { /* {{{ */
+	public function addAttributeDefinition($name, $objtype, $type, $multiple = 0, $minvalues = 0, $maxvalues = 1, $valueset = '', $regex = '')
+	{ /* {{{ */
 		$name = trim($name);
 		if (!$name)
 			return false;
@@ -3596,7 +3771,7 @@ class SeedDMS_Core_DMS {
 			return false;
 		if (trim($valueset)) {
 			$valuesetarr = array_map('trim', explode($valueset[0], substr($valueset, 1)));
-			$valueset = $valueset[0].implode($valueset[0], $valuesetarr);
+			$valueset = $valueset[0] . implode($valueset[0], $valuesetarr);
 		} else {
 			$valueset = '';
 		}
@@ -3621,7 +3796,7 @@ class SeedDMS_Core_DMS {
 		$combined_regex = $encryption_iv_regex . $encrypted_regex;
 		$iv_base64_regex = base64_encode($combined_regex);
 
-		$queryStr = "INSERT INTO `tblAttributeDefinitions` (`name`, `objtype`, `type`, `multiple`, `minvalues`, `maxvalues`, `valueset`, `regex`) VALUES (".$this->db->qstr($iv_base64_name).", ".intval($objtype).", ".intval($type).", ".intval($multiple).", ".intval($minvalues).", ".intval($maxvalues).", ".$this->db->qstr($iv_base64_valueset).", ".$this->db->qstr($iv_base64_regex).")";
+		$queryStr = "INSERT INTO `tblAttributeDefinitions` (`name`, `objtype`, `type`, `multiple`, `minvalues`, `maxvalues`, `valueset`, `regex`) VALUES (" . $this->db->qstr($iv_base64_name) . ", " . intval($objtype) . ", " . intval($type) . ", " . intval($multiple) . ", " . intval($minvalues) . ", " . intval($maxvalues) . ", " . $this->db->qstr($iv_base64_valueset) . ", " . $this->db->qstr($iv_base64_regex) . ")";
 		$res = $this->db->getResult($queryStr);
 		if (!$res)
 			return false;
@@ -3634,7 +3809,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return SeedDMS_Core_Workflow[]|bool of instances of {@see SeedDMS_Core_Workflow} or false
 	 */
-	public function getAllWorkflows() { /* {{{ */
+	public function getAllWorkflows()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblWorkflows` ORDER BY `name`";
 		$resArr = $this->db->getResultArray($queryStr);
 
@@ -3669,11 +3845,12 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id internal id of workflow
 	 * @return SeedDMS_Core_Workflow|bool of instances of {@see SeedDMS_Core_Workflow}, null if no workflow was found or false
 	 */
-	public function getWorkflow($id) { /* {{{ */
+	public function getWorkflow($id)
+	{ /* {{{ */
 		if (!is_numeric($id) || $id < 1)
 			return false;
 
-		$queryStr = "SELECT * FROM `tblWorkflows` WHERE `id`=".intval($id);
+		$queryStr = "SELECT * FROM `tblWorkflows` WHERE `id`=" . intval($id);
 		$resArr = $this->db->getResultArray($queryStr);
 
 		if (is_bool($resArr) && $resArr == false)
@@ -3696,11 +3873,13 @@ class SeedDMS_Core_DMS {
 	 * @param string $name name of workflow
 	 * @return SeedDMS_Core_Workflow|bool of instances of {@see SeedDMS_Core_Workflow} or null if no workflow was found or false
 	 */
-	public function getWorkflowByName($name) { /* {{{ */
+	public function getWorkflowByName($name)
+	{ /* {{{ */
 		$name = trim($name);
-		if (!$name) return false;
+		if (!$name)
+			return false;
 
-		$queryStr = "SELECT * FROM `tblWorkflows` WHERE `name`=".$this->db->qstr($name);
+		$queryStr = "SELECT * FROM `tblWorkflows` WHERE `name`=" . $this->db->qstr($name);
 		$resArr = $this->db->getResultArray($queryStr);
 
 		if (is_bool($resArr) && $resArr == false)
@@ -3724,7 +3903,8 @@ class SeedDMS_Core_DMS {
 	 * @param SeedDMS_Core_Workflow_State $initstate initial state of workflow
 	 * @return bool|SeedDMS_Core_Workflow
 	 */
-	public function addWorkflow($name, $initstate) { /* {{{ */
+	public function addWorkflow($name, $initstate)
+	{ /* {{{ */
 		$db = $this->db;
 		$name = trim($name);
 		if (!$name)
@@ -3741,7 +3921,7 @@ class SeedDMS_Core_DMS {
 		$combined_name = $encryption_iv_name . $encrypted_name;
 		$iv_base64_name = base64_encode($combined_name);
 
-		$queryStr = "INSERT INTO `tblWorkflows` (`name`, `initstate`) VALUES (".$db->qstr($iv_base64_name).", ".$initstate->getID().")";
+		$queryStr = "INSERT INTO `tblWorkflows` (`name`, `initstate`) VALUES (" . $db->qstr($iv_base64_name) . ", " . $initstate->getID() . ")";
 		$res = $db->getResult($queryStr);
 		if (!$res)
 			return false;
@@ -3757,7 +3937,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id internal id of workflow state
 	 * @return bool|SeedDMS_Core_Workflow_State or false
 	 */
-	public function getWorkflowState($id) { /* {{{ */
+	public function getWorkflowState($id)
+	{ /* {{{ */
 		if (!is_numeric($id) || $id < 1)
 			return false;
 
@@ -3768,7 +3949,7 @@ class SeedDMS_Core_DMS {
 			return false;
 
 		if (count($resArr) != 1)
-		 	return null;
+			return null;
 
 		$resArr = $resArr[0];
 
@@ -3783,11 +3964,13 @@ class SeedDMS_Core_DMS {
 	 * @param string $name name of workflow state
 	 * @return bool|SeedDMS_Core_Workflow_State or false
 	 */
-	public function getWorkflowStateByName($name) { /* {{{ */
+	public function getWorkflowStateByName($name)
+	{ /* {{{ */
 		$name = trim($name);
-		if (!$name) return false;
+		if (!$name)
+			return false;
 
-		$queryStr = "SELECT * FROM `tblWorkflowStates` WHERE `name`=".$this->db->qstr($name);
+		$queryStr = "SELECT * FROM `tblWorkflowStates` WHERE `name`=" . $this->db->qstr($name);
 		$resArr = $this->db->getResultArray($queryStr);
 
 		if (is_bool($resArr) && $resArr == false)
@@ -3809,7 +3992,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return SeedDMS_Core_Workflow_State[]|bool of instances of {@see SeedDMS_Core_Workflow_State} or false
 	 */
-	public function getAllWorkflowStates() { /* {{{ */
+	public function getAllWorkflowStates()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblWorkflowStates` ORDER BY `name`";
 		$ressArr = $this->db->getResultArray($queryStr);
 
@@ -3833,7 +4017,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $docstatus document status when this state is reached
 	 * @return bool|SeedDMS_Core_Workflow_State
 	 */
-	public function addWorkflowState($name, $docstatus) { /* {{{ */
+	public function addWorkflowState($name, $docstatus)
+	{ /* {{{ */
 		$db = $this->db;
 		$name = trim($name);
 		if (!$name)
@@ -3850,7 +4035,7 @@ class SeedDMS_Core_DMS {
 		$combined_name = $encryption_iv_name . $encrypted_name;
 		$iv_base64_name = base64_encode($combined_name);
 
-		$queryStr = "INSERT INTO `tblWorkflowStates` (`name`, `documentstatus`) VALUES (".$db->qstr($iv_base64_name).", ".(int) $docstatus.")";
+		$queryStr = "INSERT INTO `tblWorkflowStates` (`name`, `documentstatus`) VALUES (" . $db->qstr($iv_base64_name) . ", " . (int) $docstatus . ")";
 		$res = $db->getResult($queryStr);
 		if (!$res)
 			return false;
@@ -3866,7 +4051,8 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id internal id of workflow action
 	 * @return SeedDMS_Core_Workflow_Action|bool instance of {@see SeedDMS_Core_Workflow_Action} or false
 	 */
-	public function getWorkflowAction($id) { /* {{{ */
+	public function getWorkflowAction($id)
+	{ /* {{{ */
 		if (!is_numeric($id) || $id < 1)
 			return false;
 
@@ -3877,7 +4063,7 @@ class SeedDMS_Core_DMS {
 			return false;
 
 		if (count($resArr) != 1)
-		 	return null;
+			return null;
 
 		$resArr = $resArr[0];
 
@@ -3894,9 +4080,11 @@ class SeedDMS_Core_DMS {
 	 * @param string $name name of workflow action
 	 * @return SeedDMS_Core_Workflow_Action|bool instance of {@see SeedDMS_Core_Workflow_Action} or false
 	 */
-	public function getWorkflowActionByName($name) { /* {{{ */
+	public function getWorkflowActionByName($name)
+	{ /* {{{ */
 		$name = trim($name);
-		if (!$name) return false;
+		if (!$name)
+			return false;
 
 		$queryStr = "SELECT * FROM `tblWorkflowActions` WHERE `name` = " . $this->db->qstr($name);
 		$resArr = $this->db->getResultArray($queryStr);
@@ -3905,7 +4093,7 @@ class SeedDMS_Core_DMS {
 			return false;
 
 		if (count($resArr) != 1)
-		 	return null;
+			return null;
 
 		$resArr = $resArr[0];
 
@@ -3919,7 +4107,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return SeedDMS_Core_Workflow_Action[]|bool list of instances of {@see SeedDMS_Core_Workflow_Action} or false
 	 */
-	public function getAllWorkflowActions() { /* {{{ */
+	public function getAllWorkflowActions()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblWorkflowActions`";
 		$resArr = $this->db->getResultArray($queryStr);
 
@@ -3943,7 +4132,8 @@ class SeedDMS_Core_DMS {
 	 * @param string $name name of workflow action
 	 * @return SeedDMS_Core_Workflow_Action|bool
 	 */
-	public function addWorkflowAction($name) { /* {{{ */
+	public function addWorkflowAction($name)
+	{ /* {{{ */
 		$db = $this->db;
 		$name = trim($name);
 		if (!$name)
@@ -3960,7 +4150,7 @@ class SeedDMS_Core_DMS {
 		$combined_name = $encryption_iv_name . $encrypted_name;
 		$iv_base64_name = base64_encode($combined_name);
 
-		$queryStr = "INSERT INTO `tblWorkflowActions` (`name`) VALUES (".$db->qstr($iv_base64_name).")";
+		$queryStr = "INSERT INTO `tblWorkflowActions` (`name`) VALUES (" . $db->qstr($iv_base64_name) . ")";
 		$res = $db->getResult($queryStr);
 		if (!$res)
 			return false;
@@ -3976,15 +4166,18 @@ class SeedDMS_Core_DMS {
 	 * @param integer $id internal id of workflow transition
 	 * @return SeedDMS_Core_Workflow_Transition|bool instance of {@see SeedDMS_Core_Workflow_Transition} or false
 	 */
-	public function getWorkflowTransition($id) { /* {{{ */
+	public function getWorkflowTransition($id)
+	{ /* {{{ */
 		if (!is_numeric($id))
 			return false;
 
 		$queryStr = "SELECT * FROM `tblWorkflowTransitions` WHERE `id` = " . (int) $id;
 		$resArr = $this->db->getResultArray($queryStr);
 
-		if (is_bool($resArr) && $resArr == false) return false;
-		if (count($resArr) != 1) return false;
+		if (is_bool($resArr) && $resArr == false)
+			return false;
+		if (count($resArr) != 1)
+			return false;
 
 		$resArr = $resArr[0];
 
@@ -4003,7 +4196,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array list of receptions or false in case of an error
 	 */
-	public function getDocumentsInReception() { /* {{{ */
+	public function getDocumentsInReception()
+	{ /* {{{ */
 		if (!$this->db->createTemporaryTable("ttreceiptid") || !$this->db->createTemporaryTable("ttcontentid")) {
 			return false;
 		}
@@ -4026,12 +4220,13 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array list of revisors or false in case of an error
 	 */
-	public function getDocumentsInRevision() { /* {{{ */
+	public function getDocumentsInRevision()
+	{ /* {{{ */
 		if (!$this->db->createTemporaryTable("ttrevisionid") || !$this->db->createTemporaryTable("ttcontentid")) {
 			return false;
 		}
 		$queryStr =
-			"SELECT `tblDocumentRevisors`.*, `tblDocumentRevisionLog`.`status` FROM `tblDocumentRevisors` LEFT JOIN `ttrevisionid` ON `tblDocumentRevisors`.`revisionID` = `ttrevisionid`.`revisionID` LEFT JOIN `tblDocumentRevisionLog` ON `ttrevisionid`.`maxLogID` = `tblDocumentRevisionLog`.`revisionLogID` LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion`=`tblDocumentRevisors`.`version` AND `ttcontentid`.`document`=`tblDocumentRevisors`.`documentID` WHERE `tblDocumentRevisionLog`.`status` in (".S_LOG_WAITING.", ".S_LOG_SLEEPING.") AND `ttcontentid`.`maxVersion` IS NOT NULL";
+			"SELECT `tblDocumentRevisors`.*, `tblDocumentRevisionLog`.`status` FROM `tblDocumentRevisors` LEFT JOIN `ttrevisionid` ON `tblDocumentRevisors`.`revisionID` = `ttrevisionid`.`revisionID` LEFT JOIN `tblDocumentRevisionLog` ON `ttrevisionid`.`maxLogID` = `tblDocumentRevisionLog`.`revisionLogID` LEFT JOIN `ttcontentid` ON `ttcontentid`.`maxVersion`=`tblDocumentRevisors`.`version` AND `ttcontentid`.`document`=`tblDocumentRevisors`.`documentID` WHERE `tblDocumentRevisionLog`.`status` in (" . S_LOG_WAITING . ", " . S_LOG_SLEEPING . ") AND `ttcontentid`.`maxVersion` IS NOT NULL";
 		$resArr = $this->db->getResultArray($queryStr);
 
 		return $resArr;
@@ -4048,7 +4243,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array|bool
 	 */
-	public function getUnlinkedDocumentContent() { /* {{{ */
+	public function getUnlinkedDocumentContent()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblDocumentContent` WHERE `document` NOT IN (SELECT id FROM `tblDocuments`)";
 		$resArr = $this->db->getResultArray($queryStr);
 		if ($resArr === false)
@@ -4075,7 +4271,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return SeedDMS_Core_Document[]|bool
 	 */
-	public function getNoFileSizeDocumentContent() { /* {{{ */
+	public function getNoFileSizeDocumentContent()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblDocumentContent` WHERE `fileSize` = 0 OR `fileSize` is null";
 		$resArr = $this->db->getResultArray($queryStr);
 		if ($resArr === false)
@@ -4105,7 +4302,8 @@ class SeedDMS_Core_DMS {
 	 * in version 4.0.0 of SeedDMS for finding duplicates.
 	 * @return bool|SeedDMS_Core_Document[]
 	 */
-	public function getNoChecksumDocumentContent() { /* {{{ */
+	public function getNoChecksumDocumentContent()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblDocumentContent` WHERE `checksum` = '' OR `checksum` is null";
 		$resArr = $this->db->getResultArray($queryStr);
 		if ($resArr === false)
@@ -4135,7 +4333,8 @@ class SeedDMS_Core_DMS {
 	 * with a certain mime type.
 	 * @return bool|SeedDMS_Core_Document[]
 	 */
-	public function getWrongFiletypeDocumentContent() { /* {{{ */
+	public function getWrongFiletypeDocumentContent()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblDocumentContent` WHERE `mimeType` in ('application/zip', 'application/pdf', 'image/png', 'image/gif', 'image/jpg', 'audio/mp3', 'text/rtf')";
 		$resArr = $this->db->getResultArray($queryStr);
 		if ($resArr === false)
@@ -4146,18 +4345,18 @@ class SeedDMS_Core_DMS {
 		foreach ($resArr as $row) {
 			$expect = '';
 			switch ($row['mimeType']) {
-			case "application/zip":
-			case "application/pdf":
-			case "image/png":
-			case "image/gif":
-			case "image/jpg":
-			case "audio/mp3":
-			case "text/rtf":
-				$expect = substr($row['mimeType'], -3, 3);
-				break;
+				case "application/zip":
+				case "application/pdf":
+				case "image/png":
+				case "image/gif":
+				case "image/jpg":
+				case "audio/mp3":
+				case "text/rtf":
+					$expect = substr($row['mimeType'], -3, 3);
+					break;
 			}
 			if ($expect) {
-				if ($row['fileType'] != '.'.$expect) {
+				if ($row['fileType'] != '.' . $expect) {
 					/** @var SeedDMS_Core_Document $document */
 					$document = new $this->classnames['document']($row['document'], '', '', '', '', '', '', '', '', '', '', '');
 					$document->setDMS($this);
@@ -4178,7 +4377,8 @@ class SeedDMS_Core_DMS {
 	 * in version 4.0.0 of SeedDMS for finding duplicates.
 	 * @return array|bool
 	 */
-	public function getDuplicateDocumentContent() { /* {{{ */
+	public function getDuplicateDocumentContent()
+	{ /* {{{ */
 		$queryStr = "SELECT a.*, b.`id` as dupid FROM `tblDocumentContent` a LEFT JOIN `tblDocumentContent` b ON a.`checksum`=b.`checksum` WHERE a.`id`!=b.`id` ORDER BY a.`id` LIMIT 1000";
 		$resArr = $this->db->getResultArray($queryStr);
 		if ($resArr === false)
@@ -4223,7 +4423,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array|bool
 	 */
-	public function getDuplicateSequenceNo() { /* {{{ */
+	public function getDuplicateSequenceNo()
+	{ /* {{{ */
 		$queryStr = "SELECT DISTINCT `folder` FROM (SELECT `folder`, `sequence` FROM `tblDocuments` GROUP BY `folder`, `sequence` HAVING count(*) > 1) a";
 		$resArr = $this->db->getResultArray($queryStr);
 		if ($resArr === false)
@@ -4244,7 +4445,8 @@ class SeedDMS_Core_DMS {
 	 *
 	 * @return array|bool
 	 */
-	public function getLinksToItself() { /* {{{ */
+	public function getLinksToItself()
+	{ /* {{{ */
 		$queryStr = "SELECT * FROM `tblDocumentLinks` WHERE `document`=`target`";
 		$resArr = $this->db->getResultArray($queryStr);
 		if ($resArr === false)
@@ -4271,30 +4473,31 @@ class SeedDMS_Core_DMS {
 	 * @param string $usergroup
 	 * @return array
 	 */
-	public function getProcessWithoutUserGroup($process, $usergroup) { /* {{{ */
+	public function getProcessWithoutUserGroup($process, $usergroup)
+	{ /* {{{ */
 		switch ($process) {
-		case 'review':
-			$queryStr = "SELECT a.*, b.`name` FROM `tblDocumentReviewers`";
-			break;
-		case 'approval':
-			$queryStr = "SELECT a.*, b.`name` FROM `tblDocumentApprovers`";
-			break;
-		case 'receipt':
-			$queryStr = "SELECT a.*, b.`name` FROM `tblDocumentRecipients`";
-			break;
-		case 'revision':
-			$queryStr = "SELECT a.*, b.`name` FROM `tblDocumentRevisors`";
-			break;
+			case 'review':
+				$queryStr = "SELECT a.*, b.`name` FROM `tblDocumentReviewers`";
+				break;
+			case 'approval':
+				$queryStr = "SELECT a.*, b.`name` FROM `tblDocumentApprovers`";
+				break;
+			case 'receipt':
+				$queryStr = "SELECT a.*, b.`name` FROM `tblDocumentRecipients`";
+				break;
+			case 'revision':
+				$queryStr = "SELECT a.*, b.`name` FROM `tblDocumentRevisors`";
+				break;
 		}
 		/** @noinspection PhpUndefinedVariableInspection */
 		$queryStr .= " a LEFT JOIN `tblDocuments` b ON a.`documentID`=b.`id` WHERE";
 		switch ($usergroup) {
-		case 'user':
-			$queryStr .= " a.`type`=0 and a.`required` not in (SELECT `id` FROM `tblUsers`) ORDER BY b.`id`";
-			break;
-		case 'group':
-			$queryStr .= " a.`type`=1 and a.`required` not in (SELECT `id` FROM `tblGroups`) ORDER BY b.`id`";
-			break;
+			case 'user':
+				$queryStr .= " a.`type`=0 and a.`required` not in (SELECT `id` FROM `tblUsers`) ORDER BY b.`id`";
+				break;
+			case 'group':
+				$queryStr .= " a.`type`=1 and a.`required` not in (SELECT `id` FROM `tblGroups`) ORDER BY b.`id`";
+				break;
 		}
 		return $this->db->getResultArray($queryStr);
 	} /* }}} */
@@ -4311,39 +4514,40 @@ class SeedDMS_Core_DMS {
 	 * @param int $id
 	 * @return array
 	 */
-	public function removeProcessWithoutUserGroup($process, $usergroup, $id = 0) { /* {{{ */
+	public function removeProcessWithoutUserGroup($process, $usergroup, $id = 0)
+	{ /* {{{ */
 		/* Entries of tblDocumentReviewLog or tblDocumentApproveLog are deleted
 		 * because of CASCADE ON
 		 */
 		switch ($process) {
-		case 'review':
-			$queryStr = "DELETE FROM tblDocumentReviewers";
-			break;
-		case 'approval':
-			$queryStr = "DELETE FROM tblDocumentApprovers";
-			break;
-		case 'receipt':
-			$queryStr = "DELETE FROM tblDocumentRecipients";
-			break;
-		case 'revision':
-			$queryStr = "DELETE FROM tblDocumentRevisors";
-			break;
+			case 'review':
+				$queryStr = "DELETE FROM tblDocumentReviewers";
+				break;
+			case 'approval':
+				$queryStr = "DELETE FROM tblDocumentApprovers";
+				break;
+			case 'receipt':
+				$queryStr = "DELETE FROM tblDocumentRecipients";
+				break;
+			case 'revision':
+				$queryStr = "DELETE FROM tblDocumentRevisors";
+				break;
 		}
 		/** @noinspection PhpUndefinedVariableInspection */
 		$queryStr .= " WHERE";
 		switch ($usergroup) {
-		case 'user':
-			$queryStr .= " type=0 AND";
-			if ($id)
-				$queryStr .= " required=".((int) $id)." AND";
-			$queryStr .= " required NOT IN (SELECT id FROM tblUsers)";
-			break;
-		case 'group':
-			$queryStr .= " type=1 AND";
-			if ($id)
-				$queryStr .= " required=".((int) $id)." AND";
-			$queryStr .= " required NOT IN (SELECT id FROM tblGroups)";
-			break;
+			case 'user':
+				$queryStr .= " type=0 AND";
+				if ($id)
+					$queryStr .= " required=" . ((int) $id) . " AND";
+				$queryStr .= " required NOT IN (SELECT id FROM tblUsers)";
+				break;
+			case 'group':
+				$queryStr .= " type=1 AND";
+				if ($id)
+					$queryStr .= " required=" . ((int) $id) . " AND";
+				$queryStr .= " required NOT IN (SELECT id FROM tblGroups)";
+				break;
 		}
 		return $this->db->getResultArray($queryStr);
 	} /* }}} */
@@ -4359,17 +4563,18 @@ class SeedDMS_Core_DMS {
 	 * array if no documents or folder where found, otherwise returns a non empty
 	 * array with statistical data
 	 */
-	public function getStatisticalData($type = '') { /* {{{ */
+	public function getStatisticalData($type = '')
+	{ /* {{{ */
 		switch ($type) {
 			case 'docsperuser':
-				$queryStr = "SELECT ".$this->db->concat(array('b.`fullName`', "' ('", 'b.`login`', "')'"))." AS `key`, count(`owner`) AS total FROM `tblDocuments` a LEFT JOIN `tblUsers` b ON a.`owner`=b.`id` GROUP BY `owner`, `key`";
+				$queryStr = "SELECT " . $this->db->concat(array('b.`fullName`', "' ('", 'b.`login`', "')'")) . " AS `key`, count(`owner`) AS total FROM `tblDocuments` a LEFT JOIN `tblUsers` b ON a.`owner`=b.`id` GROUP BY `owner`, `key`";
 				$resArr = $this->db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;
 
 				return $resArr;
 			case 'foldersperuser':
-				$queryStr = "SELECT ".$this->db->concat(array('b.`fullName`', "' ('", 'b.`login`', "')'"))." AS `key`, count(`owner`) AS total FROM `tblFolders` a LEFT JOIN `tblUsers` b ON a.`owner`=b.`id` GROUP BY `owner`, `key`";
+				$queryStr = "SELECT " . $this->db->concat(array('b.`fullName`', "' ('", 'b.`login`', "')'")) . " AS `key`, count(`owner`) AS total FROM `tblFolders` a LEFT JOIN `tblUsers` b ON a.`owner`=b.`id` GROUP BY `owner`, `key`";
 				$resArr = $this->db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;
@@ -4399,14 +4604,14 @@ class SeedDMS_Core_DMS {
 
 				return $resArr;
 			case 'docspermonth':
-				$queryStr = "SELECT *, count(`key`) AS total FROM (SELECT ".$this->db->getDateExtract("date", '%Y-%m')." AS `key` FROM `tblDocuments`) a GROUP BY `key` ORDER BY `key`";
+				$queryStr = "SELECT *, count(`key`) AS total FROM (SELECT " . $this->db->getDateExtract("date", '%Y-%m') . " AS `key` FROM `tblDocuments`) a GROUP BY `key` ORDER BY `key`";
 				$resArr = $this->db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;
 
 				return $resArr;
 			case 'docsaccumulated':
-				$queryStr = "SELECT *, count(`key`) AS total FROM (SELECT ".$this->db->getDateExtract("date")." AS `key` FROM `tblDocuments`) a GROUP BY `key` ORDER BY `key`";
+				$queryStr = "SELECT *, count(`key`) AS total FROM (SELECT " . $this->db->getDateExtract("date") . " AS `key` FROM `tblDocuments`) a GROUP BY `key` ORDER BY `key`";
 				$resArr = $this->db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;
@@ -4440,14 +4645,14 @@ class SeedDMS_Core_DMS {
 					return false;
 				return (int) $resArr[0]['total'];
 			case 'sizeperuser':
-				$queryStr = "SELECT ".$this->db->concat(array('c.`fullName`', "' ('", 'c.`login`', "')'"))." AS `key`, sum(`fileSize`) AS total FROM `tblDocuments` a LEFT JOIN `tblDocumentContent` b ON a.id=b.`document` LEFT JOIN `tblUsers` c ON a.`owner`=c.`id` GROUP BY a.`owner`, `key`";
+				$queryStr = "SELECT " . $this->db->concat(array('c.`fullName`', "' ('", 'c.`login`', "')'")) . " AS `key`, sum(`fileSize`) AS total FROM `tblDocuments` a LEFT JOIN `tblDocumentContent` b ON a.id=b.`document` LEFT JOIN `tblUsers` c ON a.`owner`=c.`id` GROUP BY a.`owner`, `key`";
 				$resArr = $this->db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;
 
 				return $resArr;
 			case 'sizepermonth':
-				$queryStr = "SELECT *, sum(`fileSize`) AS total FROM (SELECT ".$this->db->getDateExtract("date", '%Y-%m')." AS `key`, `fileSize` FROM `tblDocumentContent`) a GROUP BY `key` ORDER BY `key`";
+				$queryStr = "SELECT *, sum(`fileSize`) AS total FROM (SELECT " . $this->db->getDateExtract("date", '%Y-%m') . " AS `key`, `fileSize` FROM `tblDocumentContent`) a GROUP BY `key` ORDER BY `key`";
 				$resArr = $this->db->getResultArray($queryStr);
 				if (is_bool($resArr) && $resArr == false)
 					return false;
@@ -4472,21 +4677,22 @@ class SeedDMS_Core_DMS {
 	 * @internal param string $start start date, defaults to start of current day
 	 * @internal param string $end end date, defaults to end of start day
 	 */
-	public function getTimeline($startts = '', $endts = '') { /* {{{ */
+	public function getTimeline($startts = '', $endts = '')
+	{ /* {{{ */
 		if (!$startts)
 			$startts = mktime(0, 0, 0);
 		if (!$endts)
-			$endts = $startts+86400;
+			$endts = $startts + 86400;
 
 		/** @var SeedDMS_Core_Document[] $timeline */
 		$timeline = array();
 
 		if (0) {
-		$queryStr = "SELECT DISTINCT `document` FROM `tblDocumentContent` WHERE `date` > ".$startts." AND `date` < ".$endts." OR `revisiondate` > '".date('Y-m-d H:i:s', $startts)."' AND `revisiondate` < '".date('Y-m-d H:i:s', $endts)."' UNION SELECT DISTINCT `document` FROM `tblDocumentFiles` WHERE `date` > ".$startts." AND `date` < ".$endts;
+			$queryStr = "SELECT DISTINCT `document` FROM `tblDocumentContent` WHERE `date` > " . $startts . " AND `date` < " . $endts . " OR `revisiondate` > '" . date('Y-m-d H:i:s', $startts) . "' AND `revisiondate` < '" . date('Y-m-d H:i:s', $endts) . "' UNION SELECT DISTINCT `document` FROM `tblDocumentFiles` WHERE `date` > " . $startts . " AND `date` < " . $endts;
 		} else {
-		$startdate = date('Y-m-d H:i:s', $startts);
-		$enddate = date('Y-m-d H:i:s', $endts);
-		$queryStr = "SELECT DISTINCT `documentID` AS `document` FROM `tblDocumentStatus` LEFT JOIN `tblDocumentStatusLog` ON `tblDocumentStatus`.`statusID`=`tblDocumentStatusLog`.`statusID` WHERE `date` > ".$this->db->qstr($startdate)." AND `date` < ".$this->db->qstr($enddate)." UNION SELECT DISTINCT document FROM `tblDocumentFiles` WHERE `date` > ".$this->db->qstr($startdate)." AND `date` < ".$this->db->qstr($enddate)." UNION SELECT DISTINCT `document` FROM `tblDocumentFiles` WHERE `date` > ".$startts." AND `date` < ".$endts;
+			$startdate = date('Y-m-d H:i:s', $startts);
+			$enddate = date('Y-m-d H:i:s', $endts);
+			$queryStr = "SELECT DISTINCT `documentID` AS `document` FROM `tblDocumentStatus` LEFT JOIN `tblDocumentStatusLog` ON `tblDocumentStatus`.`statusID`=`tblDocumentStatusLog`.`statusID` WHERE `date` > " . $this->db->qstr($startdate) . " AND `date` < " . $this->db->qstr($enddate) . " UNION SELECT DISTINCT document FROM `tblDocumentFiles` WHERE `date` > " . $this->db->qstr($startdate) . " AND `date` < " . $this->db->qstr($enddate) . " UNION SELECT DISTINCT `document` FROM `tblDocumentFiles` WHERE `date` > " . $startts . " AND `date` < " . $endts;
 		}
 		$resArr = $this->db->getResultArray($queryStr);
 		if ($resArr === false)
@@ -4512,69 +4718,70 @@ class SeedDMS_Core_DMS {
 	 * @internal param string $start start date, defaults to start of current day
 	 * @internal param string $end end date, defaults to end of start day
 	 */
-	public function getLatestChanges($mode, $startts = '', $endts = '') { /* {{{ */
+	public function getLatestChanges($mode, $startts = '', $endts = '')
+	{ /* {{{ */
 		if (!$startts)
 			$startts = mktime(0, 0, 0);
 		if (!$endts)
-			$endts = $startts+86400;
+			$endts = $startts + 86400;
 
 		$startdate = date('Y-m-d H:i:s', $startts);
 		$enddate = date('Y-m-d H:i:s', $endts);
 
 		$objects = [];
 		switch ($mode) {
-		case 'statuschange':
-			/* Count entries in tblDocumentStatusLog for each tblDocumentStatus and
-			 * take only those into account with at least 2 log entries. For the
-			 * document id do a left join with tblDocumentStatus
-			 * This is similar to ttstatid + the count + the join
-			 * c > 1 is required to find only those documents with a changed status
-			 * This sql statement appears to be much to complicated.
-			 */
-			//$queryStr = "SELECT `a`.*, `tblDocumentStatus`.`documentID` as `document` FROM (SELECT `tblDocumentStatusLog`.`statusID` AS `statusID`, MAX(`tblDocumentStatusLog`.`statusLogID`) AS `maxLogID`, COUNT(`tblDocumentStatusLog`.`statusLogID`) AS `c`, `tblDocumentStatusLog`.`date` FROM `tblDocumentStatusLog` GROUP BY `tblDocumentStatusLog`.`statusID` HAVING `c` > 1 ORDER BY `tblDocumentStatusLog`.`date` DESC) `a` LEFT JOIN `tblDocumentStatus` ON `a`.`statusID`=`tblDocumentStatus`.`statusID` WHERE `a`.`date` > ".$this->db->qstr($startdate)." AND `a`.`date` < ".$this->db->qstr($enddate)." ";
-			$queryStr = "SELECT DISTINCT `tblDocumentStatus`.`documentID` as	`document` FROM `tblDocumentStatusLog` LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatusLog`.`statusID` = `tblDocumentStatus`.`statusID` WHERE `tblDocumentStatusLog`.`date` > ".$this->db->qstr($startdate)." AND `tblDocumentStatusLog`.`date` < ".$this->db->qstr($enddate)." ORDER BY `tblDocumentStatusLog`.`date` DESC";
-			$resArr = $this->db->getResultArray($queryStr);
-			if ($resArr === false)
-				return false;
-			foreach ($resArr as $rec) {
-				if ($object = $this->getDocument($rec['document']))
-					$objects[] = $object;
-			}
-			break;
-		case 'newdocuments':
-			$queryStr = "SELECT `id` AS `document` FROM `tblDocuments` WHERE `date` > ".$startts." AND `date` < ".$endts." ORDER BY `date` DESC";
-			$resArr = $this->db->getResultArray($queryStr);
-			if ($resArr === false)
-				return false;
-			foreach ($resArr as $rec) {
-				if ($object = $this->getDocument($rec['document']))
-					$objects[] = $object;
-			}
-			break;
-		case 'updateddocuments':
-			/* DISTINCT is need if there is more than 1 update of the document in the
-			 * given period of time. Without it, the query will return the document
-			 * more than once.
-			 */
-			$queryStr = "SELECT DISTINCT `document` AS `document` FROM `tblDocumentContent` LEFT JOIN `tblDocuments` ON `tblDocumentContent`.`document`=`tblDocuments`.`id` WHERE `tblDocumentContent`.`date` > ".$startts." AND `tblDocumentContent`.`date` < ".$endts." AND `tblDocumentContent`.`date` > `tblDocuments`.`date` ORDER BY `tblDocumentContent`.`date` DESC";
-			$resArr = $this->db->getResultArray($queryStr);
-			if ($resArr === false)
-				return false;
-			foreach ($resArr as $rec) {
-				if ($object = $this->getDocument($rec['document']))
-					$objects[] = $object;
-			}
-			break;
-		case 'newfolders':
-			$queryStr = "SELECT `id` AS `folder` FROM `tblFolders` WHERE `date` > ".$startts." AND `date` < ".$endts." ORDER BY `date` DESC";
-			$resArr = $this->db->getResultArray($queryStr);
-			if ($resArr === false)
-				return false;
-			foreach ($resArr as $rec) {
-				if ($object = $this->getFolder($rec['folder']))
-					$objects[] = $object;
-			}
-			break;
+			case 'statuschange':
+				/* Count entries in tblDocumentStatusLog for each tblDocumentStatus and
+				 * take only those into account with at least 2 log entries. For the
+				 * document id do a left join with tblDocumentStatus
+				 * This is similar to ttstatid + the count + the join
+				 * c > 1 is required to find only those documents with a changed status
+				 * This sql statement appears to be much to complicated.
+				 */
+				//$queryStr = "SELECT `a`.*, `tblDocumentStatus`.`documentID` as `document` FROM (SELECT `tblDocumentStatusLog`.`statusID` AS `statusID`, MAX(`tblDocumentStatusLog`.`statusLogID`) AS `maxLogID`, COUNT(`tblDocumentStatusLog`.`statusLogID`) AS `c`, `tblDocumentStatusLog`.`date` FROM `tblDocumentStatusLog` GROUP BY `tblDocumentStatusLog`.`statusID` HAVING `c` > 1 ORDER BY `tblDocumentStatusLog`.`date` DESC) `a` LEFT JOIN `tblDocumentStatus` ON `a`.`statusID`=`tblDocumentStatus`.`statusID` WHERE `a`.`date` > ".$this->db->qstr($startdate)." AND `a`.`date` < ".$this->db->qstr($enddate)." ";
+				$queryStr = "SELECT DISTINCT `tblDocumentStatus`.`documentID` as	`document` FROM `tblDocumentStatusLog` LEFT JOIN `tblDocumentStatus` ON `tblDocumentStatusLog`.`statusID` = `tblDocumentStatus`.`statusID` WHERE `tblDocumentStatusLog`.`date` > " . $this->db->qstr($startdate) . " AND `tblDocumentStatusLog`.`date` < " . $this->db->qstr($enddate) . " ORDER BY `tblDocumentStatusLog`.`date` DESC";
+				$resArr = $this->db->getResultArray($queryStr);
+				if ($resArr === false)
+					return false;
+				foreach ($resArr as $rec) {
+					if ($object = $this->getDocument($rec['document']))
+						$objects[] = $object;
+				}
+				break;
+			case 'newdocuments':
+				$queryStr = "SELECT `id` AS `document` FROM `tblDocuments` WHERE `date` > " . $startts . " AND `date` < " . $endts . " ORDER BY `date` DESC";
+				$resArr = $this->db->getResultArray($queryStr);
+				if ($resArr === false)
+					return false;
+				foreach ($resArr as $rec) {
+					if ($object = $this->getDocument($rec['document']))
+						$objects[] = $object;
+				}
+				break;
+			case 'updateddocuments':
+				/* DISTINCT is need if there is more than 1 update of the document in the
+				 * given period of time. Without it, the query will return the document
+				 * more than once.
+				 */
+				$queryStr = "SELECT DISTINCT `document` AS `document` FROM `tblDocumentContent` LEFT JOIN `tblDocuments` ON `tblDocumentContent`.`document`=`tblDocuments`.`id` WHERE `tblDocumentContent`.`date` > " . $startts . " AND `tblDocumentContent`.`date` < " . $endts . " AND `tblDocumentContent`.`date` > `tblDocuments`.`date` ORDER BY `tblDocumentContent`.`date` DESC";
+				$resArr = $this->db->getResultArray($queryStr);
+				if ($resArr === false)
+					return false;
+				foreach ($resArr as $rec) {
+					if ($object = $this->getDocument($rec['document']))
+						$objects[] = $object;
+				}
+				break;
+			case 'newfolders':
+				$queryStr = "SELECT `id` AS `folder` FROM `tblFolders` WHERE `date` > " . $startts . " AND `date` < " . $endts . " ORDER BY `date` DESC";
+				$resArr = $this->db->getResultArray($queryStr);
+				if ($resArr === false)
+					return false;
+				foreach ($resArr as $rec) {
+					if ($object = $this->getFolder($rec['folder']))
+						$objects[] = $object;
+				}
+				break;
 		}
 		return $objects;
 	} /* }}} */
@@ -4595,7 +4802,8 @@ class SeedDMS_Core_DMS {
 	 *        callback
 	 * @return bool true if adding the callback succeeds otherwise false
 	 */
-	public function setCallback($name, $func, $params = null) { /* {{{ */
+	public function setCallback($name, $func, $params = null)
+	{ /* {{{ */
 		if ($name && $func && is_callable($func)) {
 			$this->callbacks[$name] = array(array($func, $params));
 			return true;
@@ -4616,7 +4824,8 @@ class SeedDMS_Core_DMS {
 	 *        callback
 	 * @return bool true if adding the callback succeeds otherwise false
 	 */
-	public function addCallback($name, $func, $params = null) { /* {{{ */
+	public function addCallback($name, $func, $params = null)
+	{ /* {{{ */
 		if ($name && $func && is_callable($func)) {
 			$this->callbacks[$name][] = array($func, $params);
 			return true;
@@ -4631,7 +4840,8 @@ class SeedDMS_Core_DMS {
 	 * @param string $name internal name of callback
 	 * @return bool true if callback exists otherwise false
 	 */
-	public function hasCallback($name) { /* {{{ */
+	public function hasCallback($name)
+	{ /* {{{ */
 		if ($name && !empty($this->callbacks[$name]))
 			return true;
 		return false;

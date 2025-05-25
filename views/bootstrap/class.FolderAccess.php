@@ -29,54 +29,71 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_View_FolderAccess extends SeedDMS_Theme_Style {
-	function printAccessModeSelection($defMode) { /* {{{ */
+class SeedDMS_View_FolderAccess extends SeedDMS_Theme_Style
+{
+	private function decrypt($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
+	function printAccessModeSelection($defMode)
+	{ /* {{{ */
 		echo self::getAccessModeSelection($defMode);
 	} /* }}} */
 
-	function getAccessModeSelection($defMode) { /* {{{ */
+	function getAccessModeSelection($defMode)
+	{ /* {{{ */
 		$content = "<select name=\"mode\" class=\"form-control\">\n";
-		$content .= "\t<option value=\"".M_NONE."\"" . (($defMode == M_NONE) ? " selected" : "") . ">" . getMLText("access_mode_none") . "\n";
-		$content .= "\t<option value=\"".M_READ."\"" . (($defMode == M_READ) ? " selected" : "") . ">" . getMLText("access_mode_read") . "\n";
-		$content .= "\t<option value=\"".M_READWRITE."\"" . (($defMode == M_READWRITE) ? " selected" : "") . ">" . getMLText("access_mode_readwrite") . "\n";
-		$content .= "\t<option value=\"".M_ALL."\"" . (($defMode == M_ALL) ? " selected" : "") . ">" . getMLText("access_mode_all") . "\n";
+		$content .= "\t<option value=\"" . M_NONE . "\"" . (($defMode == M_NONE) ? " selected" : "") . ">" . getMLText("access_mode_none") . "\n";
+		$content .= "\t<option value=\"" . M_READ . "\"" . (($defMode == M_READ) ? " selected" : "") . ">" . getMLText("access_mode_read") . "\n";
+		$content .= "\t<option value=\"" . M_READWRITE . "\"" . (($defMode == M_READWRITE) ? " selected" : "") . ">" . getMLText("access_mode_readwrite") . "\n";
+		$content .= "\t<option value=\"" . M_ALL . "\"" . (($defMode == M_ALL) ? " selected" : "") . ">" . getMLText("access_mode_all") . "\n";
 		$content .= "</select>\n";
 		return $content;
 	} /* }}} */
 
-	function js() { /* {{{ */
+	function js()
+	{ /* {{{ */
 		header('Content-Type: application/javascript; charset=UTF-8');
-?>
-function checkForm()
-{
-	msg = new Array()
-	if ((document.form1.userid.options[document.form1.userid.selectedIndex].value == -1) && 
+		?>
+		function checkForm()
+		{
+		msg = new Array()
+		if ((document.form1.userid.options[document.form1.userid.selectedIndex].value == -1) &&
 		(document.form1.groupid.options[document.form1.groupid.selectedIndex].value == -1))
-			msg.push("<?php printMLText("js_select_user_or_group");?>");
-	if (msg != "") {
-  	noty({
-  		text: msg.join('<br />'),
-  		type: 'error',
-      dismissQueue: true,
-  		layout: 'topRight',
-  		theme: 'defaultTheme',
-			_timeout: 1500,
-  	});
+		msg.push("<?php printMLText("js_select_user_or_group"); ?>");
+		if (msg != "") {
+		noty({
+		text: msg.join('<br />'),
+		type: 'error',
+		dismissQueue: true,
+		layout: 'topRight',
+		theme: 'defaultTheme',
+		_timeout: 1500,
+		});
 		return false;
-	}
-	else
+		}
+		else
 		return true;
-}
-$(document).ready(function() {
-	$('body').on('submit', '#form1', function(ev){
+		}
+		$(document).ready(function() {
+		$('body').on('submit', '#form1', function(ev){
 		if(checkForm()) return;
 		ev.preventDefault();
-	});
-});
-<?php
+		});
+		});
+		<?php
 	} /* }}} */
 
-	function show() { /* {{{ */
+	function show()
+	{ /* {{{ */
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$folder = $this->params['folder'];
@@ -95,143 +112,154 @@ $(document).ready(function() {
 
 		if ($user->isAdmin()) {
 
-?>
-	<form class="form-horizontal mb-4" action="../op/op.FolderAccess.php">
-	<?php echo createHiddenFieldWithKey('folderaccess'); ?>
-	<input type="hidden" name="action" value="setowner">
-	<input type="hidden" name="folderid" value="<?php print $folder->getID();?>">
-<?php
-		$this->contentContainerStart();
-		$owner = $folder->getOwner();
-		$options = array();
-		foreach ($allUsers as $currUser) {
-			if (!$currUser->isGuest())
-				$options[] = array($currUser->getID(), htmlspecialchars($currUser->getLogin()), ($currUser->getID()==$owner->getID()), array(array('data-subtitle', htmlspecialchars($currUser->getFullName()))));
-		}
-		$this->formField(
-			getMLText("set_owner"),
-			array(
-				'element'=>'select',
-				'name'=>'ownerid',
-				'class'=>'chzn-select',
-				'options'=>$options
-			)
-		);
-		$this->contentContainerEnd();
-		$this->formSubmit("<i class=\"fa fa-save\"></i> ".getMLText('save'));
-?>
-	</form>
-<?php
+			?>
+			<form class="form-horizontal mb-4" action="../op/op.FolderAccess.php">
+				<?php echo createHiddenFieldWithKey('folderaccess'); ?>
+				<input type="hidden" name="action" value="setowner">
+				<input type="hidden" name="folderid" value="<?php print $folder->getID(); ?>">
+				<?php
+				$this->contentContainerStart();
+				$owner = $folder->getOwner();
+				$options = array();
+				foreach ($allUsers as $currUser) {
+					$decrypted = $this->decrypt($currUser->getFullName(), $encryption_key);
+					$fullname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $currUser->getFullName() : $decrypted;
+					$decryptedlogin = $this->decrypt($currUser->getLogin(), $encryption_key);
+					$login = ($decryptedlogin === '[DECRYPTION FAILED]' || $decryptedlogin === '[INVALID NAME]') ? $currUser->getLogin() : $decryptedlogin;
+					$decryptedemail = $this->decrypt($currUser->getEmail(), $encryption_key);
+					$email = ($decryptedemail === '[DECRYPTION FAILED]' || $decryptedemail === '[INVALID NAME]') ? $currUser->getEmail() : $decryptedemail;
+
+
+					if (!$currUser->isGuest())
+						$options[] = array($currUser->getID(), htmlspecialchars($currUser->getLogin()), ($currUser->getID() == $owner->getID()), array(array('data-subtitle', htmlspecialchars($fullname))));
+				}
+				$this->formField(
+					getMLText("set_owner"),
+					array(
+						'element' => 'select',
+						'name' => 'ownerid',
+						'class' => 'chzn-select',
+						'options' => $options
+					)
+				);
+				$this->contentContainerEnd();
+				$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('save'));
+				?>
+			</form>
+			<?php
 		}
 
-		if ($folder->getID() != $rootfolderid && $folder->getParent()){
+		if ($folder->getID() != $rootfolderid && $folder->getParent()) {
 
 			$this->contentHeading(getMLText("access_inheritance"));
-			
+
 			if ($folder->inheritsAccess()) {
 				$this->infoMsg(getMLText("inherits_access_msg"));
-?>
-  <p>
-	<form action="../op/op.FolderAccess.php" style="display: inline-block;">
-  <?php echo createHiddenFieldWithKey('folderaccess'); ?>
-	<input type="hidden" name="folderid" value="<?php print $folder->getID();?>">
-	<input type="hidden" name="action" value="notinherit">
-	<input type="hidden" name="mode" value="copy">
-	<input type="submit" class="btn btn-primary" value="<?php printMLText("inherits_access_copy_msg")?>">
-	</form>
-	<form action="../op/op.FolderAccess.php" style="display: inline-block;">
-  <?php echo createHiddenFieldWithKey('folderaccess'); ?>
-	<input type="hidden" name="folderid" value="<?php print $folder->getID();?>">
-	<input type="hidden" name="action" value="notinherit">
-	<input type="hidden" name="mode" value="empty">
-	<input type="submit" class="btn btn-primary" value="<?php printMLText("inherits_access_empty_msg")?>">
-	</form>
-	</p>
-<?php
+				?>
+				<p>
+				<form action="../op/op.FolderAccess.php" style="display: inline-block;">
+					<?php echo createHiddenFieldWithKey('folderaccess'); ?>
+					<input type="hidden" name="folderid" value="<?php print $folder->getID(); ?>">
+					<input type="hidden" name="action" value="notinherit">
+					<input type="hidden" name="mode" value="copy">
+					<input type="submit" class="btn btn-primary" value="<?php printMLText("inherits_access_copy_msg") ?>">
+				</form>
+				<form action="../op/op.FolderAccess.php" style="display: inline-block;">
+					<?php echo createHiddenFieldWithKey('folderaccess'); ?>
+					<input type="hidden" name="folderid" value="<?php print $folder->getID(); ?>">
+					<input type="hidden" name="action" value="notinherit">
+					<input type="hidden" name="mode" value="empty">
+					<input type="submit" class="btn btn-primary" value="<?php printMLText("inherits_access_empty_msg") ?>">
+				</form>
+				</p>
+				<?php
 				$this->columnEnd();
 				$this->rowEnd();
 				$this->contentEnd();
 				$this->htmlEndPage();
 				return;
 			}
-?>
-	<form action="../op/op.FolderAccess.php">
-  <?php echo createHiddenFieldWithKey('folderaccess'); ?>
-	<input type="hidden" name="folderid" value="<?php print $folder->getID();?>">
-	<input type="hidden" name="action" value="inherit">
-	<input type="submit" class="btn btn-primary" value="<?php printMLText("does_not_inherit_access_msg")?>">
-	</form>
-<?php
+			?>
+			<form action="../op/op.FolderAccess.php">
+				<?php echo createHiddenFieldWithKey('folderaccess'); ?>
+				<input type="hidden" name="folderid" value="<?php print $folder->getID(); ?>">
+				<input type="hidden" name="action" value="inherit">
+				<input type="submit" class="btn btn-primary" value="<?php printMLText("does_not_inherit_access_msg") ?>">
+			</form>
+			<?php
 		}
 		$this->columnEnd();
 		$this->columnStart(4);
 
 		$accessList = $folder->getAccessList();
 
-?>
-<form class="form-horizontal mb-4" action="../op/op.FolderAccess.php">
-  <?php echo createHiddenFieldWithKey('folderaccess'); ?>
-	<input type="hidden" name="folderid" value="<?php print $folder->getID();?>">
-	<input type="hidden" name="action" value="setdefault">
-<?php
-		$this->contentContainerStart();
-		$this->formField(
-			getMLText("default_access"),
-			$this->getAccessModeSelection($folder->getDefaultAccess())
-		);
-		$this->contentContainerEnd();
-		$this->formSubmit("<i class=\"fa fa-save\"></i> ".getMLText('save'));
-?>
-</form>
-<?php
-?>
-<form class="form-horizontal" action="../op/op.FolderAccess.php" id="form1" name="form1">
-<?php echo createHiddenFieldWithKey('folderaccess'); ?>
-<input type="hidden" name="folderid" value="<?php print $folder->getID()?>">
-<input type="hidden" name="action" value="addaccess">
-<?php
-		$this->contentContainerStart();
-		$options = array();
-		$options[] = array(-1, getMLText('select_one'));
-		foreach ($allUsers as $currUser) {
-			if (!$currUser->isGuest())
-				$options[] = array($currUser->getID(), htmlspecialchars($currUser->getLogin()), false, array(array('data-subtitle', htmlspecialchars($currUser->getFullName()))));
-		}
-		$this->formField(
-			getMLText("user"),
-			array(
-				'element'=>'select',
-				'name'=>'userid',
-				'id'=>'userid',
-				'class'=>'chzn-select',
-				'attributes'=>array(array('data-allow-clear', 'true'), array('data-placeholder',getMLText('select_user'))),
-				'options'=>$options
-			)
-		);
-		$options = array();
-		$options[] = array(-1, getMLText('select_one'));
-		foreach ($allGroups as $groupObj) {
-			$options[] = array($groupObj->getID(), htmlspecialchars($groupObj->getName()));
-		}
-		$this->formField(
-			getMLText("group"),
-			array(
-				'element'=>'select',
-				'name'=>'groupid',
-				'class'=>'chzn-select',
-				'attributes'=>array(array('data-allow-clear', 'true'), array('data-placeholder', getMLText('select_group'))),
-				'options'=>$options
-			)
-		);
-		$this->formField(
-			getMLText("access_mode"),
-			$this->getAccessModeSelection(M_READ)
-		);
-		$this->contentContainerEnd();
-		$this->formSubmit("<i class=\"fa fa-plus\"></i> ".getMLText('add'));
-?>
-</form>
-<?php
+		?>
+		<form class="form-horizontal mb-4" action="../op/op.FolderAccess.php">
+			<?php echo createHiddenFieldWithKey('folderaccess'); ?>
+			<input type="hidden" name="folderid" value="<?php print $folder->getID(); ?>">
+			<input type="hidden" name="action" value="setdefault">
+			<?php
+			$this->contentContainerStart();
+			$this->formField(
+				getMLText("default_access"),
+				$this->getAccessModeSelection($folder->getDefaultAccess())
+			);
+			$this->contentContainerEnd();
+			$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('save'));
+			?>
+		</form>
+		<?php
+		?>
+		<form class="form-horizontal" action="../op/op.FolderAccess.php" id="form1" name="form1">
+			<?php echo createHiddenFieldWithKey('folderaccess'); ?>
+			<input type="hidden" name="folderid" value="<?php print $folder->getID() ?>">
+			<input type="hidden" name="action" value="addaccess">
+			<?php
+			$this->contentContainerStart();
+			$options = array();
+			$options[] = array(-1, getMLText('select_one'));
+			foreach ($allUsers as $currUser) {
+				$decrypted = $this->decrypt($currUser->getFullName(), $encryption_key);
+				$fullname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $currUser->getFullName() : $decrypted;
+
+				if (!$currUser->isGuest())
+					$options[] = array($currUser->getID(), htmlspecialchars($currUser->getLogin()), false, array(array('data-subtitle', htmlspecialchars($fullname))));
+			}
+			$this->formField(
+				getMLText("user"),
+				array(
+					'element' => 'select',
+					'name' => 'userid',
+					'id' => 'userid',
+					'class' => 'chzn-select',
+					'attributes' => array(array('data-allow-clear', 'true'), array('data-placeholder', getMLText('select_user'))),
+					'options' => $options
+				)
+			);
+			$options = array();
+			$options[] = array(-1, getMLText('select_one'));
+			foreach ($allGroups as $groupObj) {
+				$options[] = array($groupObj->getID(), htmlspecialchars($groupObj->getName()));
+			}
+			$this->formField(
+				getMLText("group"),
+				array(
+					'element' => 'select',
+					'name' => 'groupid',
+					'class' => 'chzn-select',
+					'attributes' => array(array('data-allow-clear', 'true'), array('data-placeholder', getMLText('select_group'))),
+					'options' => $options
+				)
+			);
+			$this->formField(
+				getMLText("access_mode"),
+				$this->getAccessModeSelection(M_READ)
+			);
+			$this->contentContainerEnd();
+			$this->formSubmit("<i class=\"fa fa-plus\"></i> " . getMLText('add'));
+			?>
+		</form>
+		<?php
 		$this->columnEnd();
 		$this->columnStart(4);
 
@@ -241,28 +269,36 @@ $(document).ready(function() {
 
 			foreach ($accessList["users"] as $userAccess) {
 				$userObj = $userAccess->getUser();
+				$fullNameRaw = $userObj->getFullName(); // raw value (might be encrypted)
+				$decrypted = $this->decrypt($fullNameRaw, $encryption_key);
+
+				// If decryption failed or is invalid, fall back to the raw value (assumed to be already readable)
+				$fullname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
+					? $fullNameRaw
+					: $decrypted;
+
 				print "<tr>\n";
 				print "<td><i class=\"fa fa-user\"></i></td>\n";
-				print "<td>". htmlspecialchars($userObj->getFullName()) . "</td>\n";
+				print "<td>" . htmlspecialchars($fullname) . "</td>\n";
 				print "<form action=\"../op/op.FolderAccess.php\">\n";
-				echo createHiddenFieldWithKey('folderaccess')."\n";
-				print "<input type=\"hidden\" name=\"folderid\" value=\"".$folder->getID()."\">\n";
+				echo createHiddenFieldWithKey('folderaccess') . "\n";
+				print "<input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\">\n";
 				print "<input type=\"hidden\" name=\"action\" value=\"editaccess\">\n";
-				print "<input type=\"hidden\" name=\"userid\" value=\"".$userObj->getID()."\">\n";
+				print "<input type=\"hidden\" name=\"userid\" value=\"" . $userObj->getID() . "\">\n";
 				print "<td>\n";
 				$this->printAccessModeSelection($userAccess->getMode());
 				print "</td>\n";
 				print "<td>\n";
-				print "<button type=\"submit\" class=\"btn btn-primary btn-mini btn-sm\"><i class=\"fa fa-save\"></i> ".getMLText("save")."</button>";
+				print "<button type=\"submit\" class=\"btn btn-primary btn-mini btn-sm\"><i class=\"fa fa-save\"></i> " . getMLText("save") . "</button>";
 				print "</td>\n";
 				print "</form>\n";
 				print "<form action=\"../op/op.FolderAccess.php\">\n";
-				echo createHiddenFieldWithKey('folderaccess')."\n";
-				print "<input type=\"hidden\" name=\"folderid\" value=\"".$folder->getID()."\">\n";
+				echo createHiddenFieldWithKey('folderaccess') . "\n";
+				print "<input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\">\n";
 				print "<input type=\"hidden\" name=\"action\" value=\"delaccess\">\n";
-				print "<input type=\"hidden\" name=\"userid\" value=\"".$userObj->getID()."\">\n";
+				print "<input type=\"hidden\" name=\"userid\" value=\"" . $userObj->getID() . "\">\n";
 				print "<td>\n";
-				print "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> ".getMLText("delete")."</button>";
+				print "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button>";
 				print "</td>\n";
 				print "</form>\n";
 				print "</tr>\n";
@@ -271,33 +307,41 @@ $(document).ready(function() {
 			foreach ($accessList["groups"] as $groupAccess) {
 				$groupObj = $groupAccess->getGroup();
 				$mode = $groupAccess->getMode();
+				$fullNameRaw = $groupObj->getName(); // raw value (might be encrypted)
+				$decrypted = $this->decrypt($fullNameRaw, $encryption_key);
+
+				// If decryption failed or is invalid, fall back to the raw value (assumed to be already readable)
+				$fullname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
+					? $fullNameRaw
+					: $decrypted;
+
 				print "<tr>";
 				print "<td><i class=\"fa fa-group\"></i></td>";
-				print "<td>". htmlspecialchars($groupObj->getName()) . "</td>";
+				print "<td>" . htmlspecialchars($fullname) . "</td>";
 				print "<form action=\"../op/op.FolderAccess.php\">";
-				echo createHiddenFieldWithKey('folderaccess')."\n";
-				print "<input type=\"hidden\" name=\"folderid\" value=\"".$folder->getID()."\">";
+				echo createHiddenFieldWithKey('folderaccess') . "\n";
+				print "<input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\">";
 				print "<input type=\"hidden\" name=\"action\" value=\"editaccess\">";
-				print "<input type=\"hidden\" name=\"groupid\" value=\"".$groupObj->getID()."\">";
+				print "<input type=\"hidden\" name=\"groupid\" value=\"" . $groupObj->getID() . "\">";
 				print "<td>";
 				$this->printAccessModeSelection($groupAccess->getMode());
 				print "</td>\n";
 				print "<td><span class=\"actions\">\n";
-				print "<button type=\"submit\" class=\"btn btn-primary btn-mini btn-sm\"><i class=\"fa fa-save\"></i> ".getMLText("save")."</button>";
+				print "<button type=\"submit\" class=\"btn btn-primary btn-mini btn-sm\"><i class=\"fa fa-save\"></i> " . getMLText("save") . "</button>";
 				print "</span></td>\n";
 				print "</form>";
 				print "<form action=\"../op/op.FolderAccess.php\">\n";
-				echo createHiddenFieldWithKey('folderaccess')."\n";
-				print "<input type=\"hidden\" name=\"folderid\" value=\"".$folder->getID()."\">\n";
+				echo createHiddenFieldWithKey('folderaccess') . "\n";
+				print "<input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\">\n";
 				print "<input type=\"hidden\" name=\"action\" value=\"delaccess\">\n";
-				print "<input type=\"hidden\" name=\"groupid\" value=\"".$groupObj->getID()."\">\n";
+				print "<input type=\"hidden\" name=\"groupid\" value=\"" . $groupObj->getID() . "\">\n";
 				print "<td>";
-				print "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> ".getMLText("delete")."</button>";
+				print "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button>";
 				print "</td>\n";
 				print "</form>";
 				print "</tr>\n";
 			}
-			
+
 			print "</table><br>";
 		}
 		$this->columnEnd();

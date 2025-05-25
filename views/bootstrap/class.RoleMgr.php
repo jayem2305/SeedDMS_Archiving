@@ -131,7 +131,7 @@ class SeedDMS_View_RoleMgr extends SeedDMS_Theme_Style
 				<form style="display: inline-block;" method="post" action="../op/op.RoleMgr.php">
 					<?php echo createHiddenFieldWithKey('removerole'); ?>
 					<input type="hidden" name="roleid" value="<?php echo $selrole->getID() ?>">
-					<input type="text" name="action" value="removerole">
+					<input type="hidden" name="action" value="removerole">
 					<?php $this->formSubmit('<i class="fa fa-remove"></i> ' . getMLText('rm_role'), '', '', 'secondary'); ?>
 				</form>
 				<?php
@@ -172,7 +172,14 @@ class SeedDMS_View_RoleMgr extends SeedDMS_Theme_Style
 			$decrypted_name = '';
 
 			if ($currRole) {
-				$decrypted_name = $this->decryptName($currRole->getName(), $encryption_key);
+				$nameRaw = $currRole->getName();
+				$maybeDecrypted = $this->decryptName($nameRaw, $encryption_key);
+
+				// Only use decrypted value if it succeeded, otherwise keep original
+				$decrypted_name = ($maybeDecrypted === '[DECRYPTION FAILED]' || $maybeDecrypted === '[INVALID NAME]')
+					? $nameRaw
+					: $maybeDecrypted;
+
 			}
 
 			$this->contentContainerStart();
@@ -249,7 +256,14 @@ class SeedDMS_View_RoleMgr extends SeedDMS_Theme_Style
 			}
 			foreach ($roles as $currRole) {
 				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-				$decrypted_name = htmlspecialchars($this->decryptName($currRole->getName(), $encryption_key));
+				$nameRaw = $currRole->getName();
+				$maybeDecrypted = $this->decryptName($nameRaw, $encryption_key);
+
+				// If decryption fails or returns an error message, assume it's already decrypted
+				$decrypted_name = ($maybeDecrypted === '[DECRYPTION FAILED]' || $maybeDecrypted === '[INVALID NAME]')
+					? htmlspecialchars($nameRaw)
+					: htmlspecialchars($maybeDecrypted);
+
 				$options[] = array($currRole->getID(), htmlspecialchars($decrypted_name), $selrole && $currRole->getID() == $selrole->getID());
 			}
 			$this->formField(
