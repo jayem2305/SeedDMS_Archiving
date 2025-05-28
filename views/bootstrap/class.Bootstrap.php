@@ -783,14 +783,133 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 <div class="main-sidebar">
     <ul>
 	    <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Dashboard.php">
-        <i class="fa fa-tachometer fa-lg"></i> ' . getMLText('dashboard') . '
-      </a></li>
+            <i class="fa fa-tachometer fa-lg"></i> ' . getMLText('dashboard') . '
+          </a>
+        </li>
         <li>
-    <a href="' . $this->params['settings']->_httpRoot . 'out/out.viewFolder.php">
-        <i class="fa fa-folder-open fa-lg"></i> My Folders
-    </a>
-</li>
-		</ul>
+            <a href="' . $this->params['settings']->_httpRoot . 'out/out.ViewFolder.php">
+                <i class="fa fa-folder-open fa-lg"></i> ' . getMLText('menu_documents') . ' <!-- Or use plain "My Folders" if "menu_documents" key has bolding -->
+            </a>
+        </li>
+
+        <hr class="sidebar-divider my-2">
+
+        <!-- User Management Section -->
+        <li> 
+          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-UserManagement" role="button" aria-expanded="false" aria-controls="collapse-UserManagement">
+            <span><i class="fa fa-users fa-lg"></i> ' . getMLText('user_management') . '</span> <!-- Using standard "user_management" key -->
+            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
+          </a>
+          <ul class="collapse list-unstyled" id="collapse-UserManagement">
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.UsrMgr.php"><i class="fa fa-user-plus fa-lg"></i> ' . getMLText('user_management') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.RoleMgr.php"><i class="fa fa-id-badge fa-lg"></i> ' . getMLText('role_management') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.GroupMgr.php"><i class="fa fa-object-group fa-lg"></i> ' . getMLText('group_management') . '</a></li>
+          </ul>
+        </li>
+
+        <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.UserList.php"><i class="fa fa-list fa-lg"></i> ' . getMLText('user_list') . '</a></li>
+        <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Acl.php"><i class="fa fa-shield fa-lg"></i> ' . getMLText('access_control') . '</a></li>
+
+        <hr class="sidebar-divider my-2">
+
+        <!-- Definitions Section -->
+        <li> 
+          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-Definitions" role="button" aria-expanded="false" aria-controls="collapse-Definitions">
+            <span><i class="fa fa-book fa-lg"></i> ' . getMLText('definitions') . '</span>
+            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
+          </a>
+          <ul class="collapse list-unstyled" id="collapse-Definitions">
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.DefaultKeywords.php"><i class="fa fa-tags fa-lg"></i> ' . getMLText('global_default_keywords') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Categories.php"><i class="fa fa-columns fa-lg"></i> ' . getMLText('global_document_categories') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.AttributeMgr.php"><i class="fa fa-cogs fa-lg"></i> ' . getMLText('global_attributedefinitions') . '</a></li>';
+            
+        if (($this->params['workflowmode'] ?? '') == 'advanced') {
+            echo '<li><a href="' . $this->params['settings']->_httpRoot . 'out/out.WorkflowMgr.php"><i class="fa fa-sitemap fa-lg"></i> ' . getMLText('global_workflows') . '</a></li>
+                  <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.WorkflowStatesMgr.php"><i class="fa fa-star fa-lg"></i> ' . getMLText('global_workflow_states') . '</a></li>
+                  <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.WorkflowActionsMgr.php"><i class="fa fa-bolt fa-lg"></i> ' . getMLText('global_workflow_actions') . '</a></li>';
+        }
+        echo '    </ul>
+        </li>
+
+        <hr class="sidebar-divider my-2">
+        
+        <!-- Backup/Logging Section -->
+        <li>
+          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-BackupLogging" role="button" aria-expanded="false" aria-controls="collapse-BackupLogging">
+            <span><i class="fa fa-database fa-lg"></i> ' . getMLText('backup_log_management') . '</span>
+            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
+          </a>
+          <ul class="collapse list-unstyled" id="collapse-BackupLogging">
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.BackupTools.php"><i class="fa fa-life-saver fa-lg"></i> ' . getMLText('backup_tools') . '</a></li>';
+        if ($this->params['logfileenable'] ?? false) {
+            echo '<li><a href="' . $this->params['settings']->_httpRoot . 'out/out.LogManagement.php"><i class="fa fa-list-alt fa-lg"></i> ' . getMLText('log_management') . '</a></li>';
+        }
+        echo '    </ul>
+        </li>
+        
+        <hr class="sidebar-divider my-2">
+
+        <!-- Misc Section -->
+        <li>
+          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-Misc" role="button" aria-expanded="false" aria-controls="collapse-Misc">
+            <span><i class="fa fa-cogs fa-lg"></i> ' . getMLText('misc') . '</span>
+            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
+          </a>
+          <ul class="collapse list-unstyled" id="collapse-Misc">
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ImportFS.php"><i class="fa fa-folder-upload fa-lg"></i> ' . getMLText('import_fs') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ImportUsers.php"><i class="fa fa-user-plus fa-lg"></i> ' . getMLText('import_users') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Statistic.php"><i class="fa fa-pie-chart fa-lg"></i> ' . getMLText('folders_and_documents_statistic') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Charts.php"><i class="fa fa-bar-chart fa-lg"></i> ' . getMLText('charts') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Timeline.php"><i class="fa fa-signal fa-lg"></i> ' . getMLText('timeline') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.SchedulerTaskMgr.php"><i class="fa fa-clock-o fa-lg"></i> ' . getMLText('scheduler_task_mgr') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ObjectCheck.php"><i class="fa fa-check-square-o fa-lg"></i> ' . getMLText('objectcheck') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ExpiredDocuments.php"><i class="fa fa-calendar-times-o fa-lg"></i> ' . getMLText('documents_expired') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ExtensionMgr.php"><i class="fa fa-puzzle-piece fa-lg"></i> ' . getMLText('extension_manager') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ClearCache.php"><i class="fa fa-eraser fa-lg"></i> ' . getMLText('clear_cache') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Info.php"><i class="fa fa-info-circle fa-lg"></i> ' . getMLText('version_info') . '</a></li>
+          </ul>
+        </li>
+	</ul>
+
+        <hr class="sidebar-divider my-2">
+        
+        <!-- Backup/Logging Section -->
+        <li>
+          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-BackupLogging" role="button" aria-expanded="false" aria-controls="collapse-BackupLogging">
+            <span><i class="fa fa-database fa-lg"></i> ' . getMLText('backup_log_management') . '</span>
+            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
+          </a>
+          <ul class="collapse list-unstyled" id="collapse-BackupLogging">
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.BackupTools.php"><i class="fa fa-life-saver fa-lg"></i> ' . getMLText('backup_tools') . '</a></li>';
+        if ($this->params['logfileenable'] ?? false) {
+            echo '<li><a href="' . $this->params['settings']->_httpRoot . 'out/out.LogManagement.php"><i class="fa fa-list-alt fa-lg"></i> ' . getMLText('log_management') . '</a></li>';
+        }
+        echo '    </ul>
+        </li>
+        
+        <hr class="sidebar-divider my-2">
+
+        <!-- Misc Section -->
+        <li>
+          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-Misc" role="button" aria-expanded="false" aria-controls="collapse-Misc">
+            <span><i class="fa fa-cogs fa-lg"></i> ' . getMLText('misc') . '</span>
+            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
+          </a>
+          <ul class="collapse list-unstyled" id="collapse-Misc">
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ImportFS.php"><i class="fa fa-folder-upload fa-lg"></i> ' . getMLText('import_fs') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ImportUsers.php"><i class="fa fa-user-plus fa-lg"></i> ' . getMLText('import_users') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Statistic.php"><i class="fa fa-pie-chart fa-lg"></i> ' . getMLText('folders_and_documents_statistic') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Charts.php"><i class="fa fa-bar-chart fa-lg"></i> ' . getMLText('charts') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Timeline.php"><i class="fa fa-signal fa-lg"></i> ' . getMLText('timeline') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.SchedulerTaskMgr.php"><i class="fa fa-clock-o fa-lg"></i> ' . getMLText('scheduler_task_mgr') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ObjectCheck.php"><i class="fa fa-check-square-o fa-lg"></i> ' . getMLText('objectcheck') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ExpiredDocuments.php"><i class="fa fa-calendar-times-o fa-lg"></i> ' . getMLText('documents_expired') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ExtensionMgr.php"><i class="fa fa-puzzle-piece fa-lg"></i> ' . getMLText('extension_manager') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ClearCache.php"><i class="fa fa-eraser fa-lg"></i> ' . getMLText('clear_cache') . '</a></li>
+            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Info.php"><i class="fa fa-info-circle fa-lg"></i> ' . getMLText('version_info') . '</a></li>
+          </ul>
+        </li>
+	</ul>
 		
 </div>
 
