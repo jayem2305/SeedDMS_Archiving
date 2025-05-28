@@ -2198,9 +2198,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$content .= "<input type=\"text\" id=\"" . $attr_id . "\" name=\"" . $attr_name . "\" value=\"" . htmlspecialchars($objvalue) . "\"" . ((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '') . ' data-rule-email="true"' . " />";
 				break;
 			/* case SeedDMS_Core_AttributeDefinition::type_float:
-												 $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
-												 $content .= "<input type=\"text\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
-												 break; */
+																																		   $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
+																																		   $content .= "<input type=\"text\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
+																																		   break; */
 			case SeedDMS_Core_AttributeDefinition::type_folder:
 				$target = $attribute ? $attribute->getValue() : null;
 				$content .= $this->getFolderChooserHtml("attr" . $attrdef->getId(), M_READWRITE, -1, $target, $attr_name, false);
@@ -2720,14 +2720,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$this->contentHeading("<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=0\"><i class=\"fa fa-minus-circle\"></i></a>", true);
 			$this->contentContainerStart();
 			?>
-			<script language="JavaScript">
-				function folderSelected(id, name) {
-					window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + id;
-				}
-			</script>
-			<?php
-			$this->printNewTreeNavigation($folderid, M_READ, 0, '');
-			$this->contentContainerEnd();
+						<script language="JavaScript">
+							function folderSelected(id, name) {
+								window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + id;
+							}
+						</script>
+						<?php
+						$this->printNewTreeNavigation($folderid, M_READ, 0, '');
+						$this->contentContainerEnd();
 		} else {
 			$this->contentHeading("<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=1\"><i class=\"fa fa-plus-circle\"></i></a>", true);
 		}
@@ -2744,10 +2744,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$this->contentHeading(getMLText("clipboard") . '<span id="clipboard-float"><i class="fa fa-sort"></i></span>', true);
 		echo "<div id=\"main-clipboard\">\n";
 		?>
-		<div class="ajax" data-view="Clipboard" data-action="mainClipboard"></div>
-		<?php
-		echo "</div>\n";
-		echo "</div>\n";
+				<div class="ajax" data-view="Clipboard" data-action="mainClipboard"></div>
+				<?php
+				echo "</div>\n";
+				echo "</div>\n";
 	} /* }}} */
 
 	/**
@@ -3007,23 +3007,23 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printSelectPresetButtonJs()
 	{ /* {{{ */
 		?>
-		$(document).ready( function() {
-		$('.selectpreset_btn').click(function(ev){
-		ev.preventDefault();
-		if (typeof $(ev.currentTarget).data('ids') != 'undefined') {
-		target = $(ev.currentTarget).data('ref');
-		// Use attr() instead of data() because data() converts to int which cannot be split
-		items = $(ev.currentTarget).attr('data-ids');
-		arr = items.split(",");
-		for(var i in arr) {
-		$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
-		}
-		// $("#"+target).trigger("chosen:updated");
-		$("#"+target).trigger("change");
-		}
-		});
-		});
-		<?php
+				$(document).ready( function() {
+				$('.selectpreset_btn').click(function(ev){
+				ev.preventDefault();
+				if (typeof $(ev.currentTarget).data('ids') != 'undefined') {
+				target = $(ev.currentTarget).data('ref');
+				// Use attr() instead of data() because data() converts to int which cannot be split
+				items = $(ev.currentTarget).attr('data-ids');
+				arr = items.split(",");
+				for(var i in arr) {
+				$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
+				}
+				// $("#"+target).trigger("chosen:updated");
+				$("#"+target).trigger("change");
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	/**
@@ -3063,26 +3063,26 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printInputPresetButtonJs()
 	{ /* {{{ */
 		?>
-		$(document).ready( function() {
-		$('.inputpreset_btn').click(function(ev){
-		ev.preventDefault();
-		if (typeof $(ev.currentTarget).data('text') != 'undefined') {
-		target = $(ev.currentTarget).data('ref');
-		value = $(ev.currentTarget).data('text');
-		sep = $(ev.currentTarget).data('sep');
-		if(sep) {
-		// Use attr() instead of data() because data() converts to int which cannot be split
-		arr = value.split(sep);
-		for(var i in arr) {
-		$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
-		}
-		} else {
-		$("#"+target).val(value);
-		}
-		}
-		});
-		});
-		<?php
+				$(document).ready( function() {
+				$('.inputpreset_btn').click(function(ev){
+				ev.preventDefault();
+				if (typeof $(ev.currentTarget).data('text') != 'undefined') {
+				target = $(ev.currentTarget).data('ref');
+				value = $(ev.currentTarget).data('text');
+				sep = $(ev.currentTarget).data('sep');
+				if(sep) {
+				// Use attr() instead of data() because data() converts to int which cannot be split
+				arr = value.split(sep);
+				for(var i in arr) {
+				$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
+				}
+				} else {
+				$("#"+target).val(value);
+				}
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	/**
@@ -3098,11 +3098,11 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function getCheckboxPresetButtonHtml($name, $text)
 	{ /* {{{ */
 		?>
-		return '<span id="'.$name.'_btn" class="checkboxpreset_btn" style="cursor: pointer;" title="'.getMLText("
-			takeOverAttributeValue").'" data-ref="'.$name.'"
-			data-text="'.(is_array($text) ? implode($sep, $text) : htmlspecialchars($text)).'"'.($sep ? " data-sep=\"".$sep."\"" : "").'><i
-				class="fa fa-arrow-left"></i></span>';
-		<?php
+				return '<span id="'.$name.'_btn" class="checkboxpreset_btn" style="cursor: pointer;" title="'.getMLText("
+					takeOverAttributeValue").'" data-ref="'.$name.'"
+					data-text="'.(is_array($text) ? implode($sep, $text) : htmlspecialchars($text)).'"'.($sep ? " data-sep=\"".$sep."\"" : "").'><i
+						class="fa fa-arrow-left"></i></span>';
+				<?php
 	} /* }}} */
 
 	/**
@@ -3127,21 +3127,21 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printCheckboxPresetButtonJs()
 	{ /* {{{ */
 		?>
-		$(document).ready( function() {
-		$('.checkboxpreset_btn').click(function(ev){
-		ev.preventDefault();
-		if (typeof $(ev.currentTarget).data('text') != 'undefined') {
-		target = $(ev.currentTarget).data('ref');
-		value = $(ev.currentTarget).data('text');
-		if(value) {
-		$("#"+target).attr('checked', '');
-		} else {
-		$("#"+target).removeAttribute('checked');
-		}
-		}
-		});
-		});
-		<?php
+				$(document).ready( function() {
+				$('.checkboxpreset_btn').click(function(ev){
+				ev.preventDefault();
+				if (typeof $(ev.currentTarget).data('text') != 'undefined') {
+				target = $(ev.currentTarget).data('ref');
+				value = $(ev.currentTarget).data('text');
+				if(value) {
+				$("#"+target).attr('checked', '');
+				} else {
+				$("#"+target).removeAttribute('checked');
+				}
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	/**
@@ -3231,16 +3231,16 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$onepage = $this->params['onepage'];
 		if ($onepage) {
 			?>
-			/* catch click on a document row in the list folders and documents */
-			$('body').on('click', '[id^=\"table-row-document\"] td:nth-child(2)', function(ev) {
-			if(ev.shiftKey) {
-			$(ev.currentTarget).parent().toggleClass('selected');
-			} else {
-			attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
-			window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewDocument.php?documentid=' + attr_id;
-			}
-			});
-			<?php
+						/* catch click on a document row in the list folders and documents */
+						$('body').on('click', '[id^=\"table-row-document\"] td:nth-child(2)', function(ev) {
+						if(ev.shiftKey) {
+						$(ev.currentTarget).parent().toggleClass('selected');
+						} else {
+						attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
+						window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewDocument.php?documentid=' + attr_id;
+						}
+						});
+						<?php
 		}
 	} /* }}} */
 
@@ -3257,18 +3257,18 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$onepage = $this->params['onepage'];
 		if ($onepage) {
 			?>
-			/* catch click on a document row in the list folders and documents */
-			$('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev) {
-			if(ev.shiftKey) {
-			$(ev.currentTarget).parent().toggleClass('selected');
-			} else {
-			attr_id = $(ev.currentTarget).parent().data('target-id');
-			if(typeof attr_id == 'undefined')
-			attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
-			window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + attr_id;
-			}
-			});
-			<?php
+						/* catch click on a document row in the list folders and documents */
+						$('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev) {
+						if(ev.shiftKey) {
+						$(ev.currentTarget).parent().toggleClass('selected');
+						} else {
+						attr_id = $(ev.currentTarget).parent().data('target-id');
+						if(typeof attr_id == 'undefined')
+						attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
+						window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + attr_id;
+						}
+						});
+						<?php
 		}
 	} /* }}} */
 
@@ -3951,56 +3951,56 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printFineUploaderJs($uploadurl, $partsize = 0, $maxuploadsize = 0, $multiple = true, $prefix = 'userfile', $formname = 'form1')
 	{ /* {{{ */
 		?>
-		$(document).ready(function() {
-		<?php echo $prefix; ?>uploader = new qq.FineUploader({
-		debug: false,
-		autoUpload: false,
-		multiple: <?php echo ($multiple ? 'true' : 'false'); ?>,
-		element: $('#<?php echo $prefix; ?>-fine-uploader')[0],
-		template: 'qq-template',
-		request: {
-		endpoint: '<?php echo $uploadurl . "?formkey=" . md5($this->params['settings']->_encryptionKey . 'uploadchunks'); ?>'
-		},
-		<?php echo ($maxuploadsize > 0 ? '
+				$(document).ready(function() {
+				<?php echo $prefix; ?>uploader = new qq.FineUploader({
+				debug: false,
+				autoUpload: false,
+				multiple: <?php echo ($multiple ? 'true' : 'false'); ?>,
+				element: $('#<?php echo $prefix; ?>-fine-uploader')[0],
+				template: 'qq-template',
+				request: {
+				endpoint: '<?php echo $uploadurl . "?formkey=" . md5($this->params['settings']->_encryptionKey . 'uploadchunks'); ?>'
+				},
+				<?php echo ($maxuploadsize > 0 ? '
 		validation: {
 			sizeLimit: ' . $maxuploadsize . '
 		},
 ' : ''); ?>
-		chunking: {
-		enabled: true,
-		<?php echo $partsize ? 'partSize: ' . (int) $partsize . ",\n" : ''; ?>
-		mandatory: true
-		},
-		messages: {
-		sizeError: '{file} is too large, maximum file size is {sizeLimit}.'
-		},
-		callbacks: {
-		onComplete: function(id, name, json, xhr) {
-		},
-		onAllComplete: function(succeeded, failed) {
-		var uuids = Array();
-		var names = Array();
-		for (var i = 0; i < succeeded.length; i++) { uuids.push(this.getUuid(succeeded[i]))
-			names.push(this.getName(succeeded[i])) } $('#<?php echo $prefix; ?>-fine-uploader-uuids').val(uuids.join(';'));
-			$('#<?php echo $prefix; ?>-fine-uploader-names').val(names.join(';'));
-			/* Run upload only if all files could be uploaded */
-			if(succeeded.length > 0 && failed.length == 0)
-			document.getElementById('<?= $formname ?>').submit();
-			},
-			onError: function(id, name, reason, xhr) {
-			noty({
-			text: reason,
-			type: 'error',
-			dismissQueue: true,
-			layout: 'topRight',
-			theme: 'defaultTheme',
-			timeout: 3500,
-			});
-			}
-			}
-			});
-			});
-			<?php
+				chunking: {
+				enabled: true,
+				<?php echo $partsize ? 'partSize: ' . (int) $partsize . ",\n" : ''; ?>
+				mandatory: true
+				},
+				messages: {
+				sizeError: '{file} is too large, maximum file size is {sizeLimit}.'
+				},
+				callbacks: {
+				onComplete: function(id, name, json, xhr) {
+				},
+				onAllComplete: function(succeeded, failed) {
+				var uuids = Array();
+				var names = Array();
+				for (var i = 0; i < succeeded.length; i++) { uuids.push(this.getUuid(succeeded[i]))
+					names.push(this.getName(succeeded[i])) } $('#<?php echo $prefix; ?>-fine-uploader-uuids').val(uuids.join(';'));
+					$('#<?php echo $prefix; ?>-fine-uploader-names').val(names.join(';'));
+					/* Run upload only if all files could be uploaded */
+					if(succeeded.length > 0 && failed.length == 0)
+					document.getElementById('<?= $formname ?>').submit();
+					},
+					onError: function(id, name, reason, xhr) {
+					noty({
+					text: reason,
+					type: 'error',
+					dismissQueue: true,
+					layout: 'topRight',
+					theme: 'defaultTheme',
+					timeout: 3500,
+					});
+					}
+					}
+					});
+					});
+					<?php
 	} /* }}} */
 
 	/**
@@ -4014,102 +4014,102 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$document = $latestContent->getDocument();
 		$accessop = $this->params['accessobject'];
 		?>
-			<legend><?php printMLText($type . '_log'); ?></legend>
-			<table class="table table-condensed">
-				<tr>
-					<th><?php printMLText('name'); ?></th>
-					<th><?php printMLText('last_update'); ?>, <?php printMLText('comment'); ?></th>
-					<th><?php printMLText('status'); ?></th>
-				</tr>
-				<?php
-				switch ($type) {
-					case "review":
-						$statusList = $latestContent->getReviewStatus(10);
-						break;
-					case "approval":
-						$statusList = $latestContent->getApprovalStatus(10);
-						break;
-					case "revision":
-						$statusList = $latestContent->getRevisionStatus(10);
-						break;
-					case "receipt":
-						$statusList = $latestContent->getReceiptStatus(10);
-						break;
-					default:
-						$statusList = array();
-				}
-				foreach ($statusList as $rec) {
-					echo "<tr>";
-					echo "<td>";
-					switch ($rec["type"]) {
-						case 0: // individual.
-							$required = $dms->getUser($rec["required"]);
-							if (!is_object($required)) {
-								$reqName = getMLText("unknown_user") . " '" . $rec["required"] . "'";
-							} else {
-								$reqName = htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
+					<legend><?php printMLText($type . '_log'); ?></legend>
+					<table class="table table-condensed">
+						<tr>
+							<th><?php printMLText('name'); ?></th>
+							<th><?php printMLText('last_update'); ?>, <?php printMLText('comment'); ?></th>
+							<th><?php printMLText('status'); ?></th>
+						</tr>
+						<?php
+						switch ($type) {
+							case "review":
+								$statusList = $latestContent->getReviewStatus(10);
+								break;
+							case "approval":
+								$statusList = $latestContent->getApprovalStatus(10);
+								break;
+							case "revision":
+								$statusList = $latestContent->getRevisionStatus(10);
+								break;
+							case "receipt":
+								$statusList = $latestContent->getReceiptStatus(10);
+								break;
+							default:
+								$statusList = array();
+						}
+						foreach ($statusList as $rec) {
+							echo "<tr>";
+							echo "<td>";
+							switch ($rec["type"]) {
+								case 0: // individual.
+									$required = $dms->getUser($rec["required"]);
+									if (!is_object($required)) {
+										$reqName = getMLText("unknown_user") . " '" . $rec["required"] . "'";
+									} else {
+										$reqName = htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
+									}
+									break;
+								case 1: // Approver is a group.
+									$required = $dms->getGroup($rec["required"]);
+									if (!is_object($required)) {
+										$reqName = getMLText("unknown_group") . " '" . $rec["required"] . "'";
+									} else {
+										$reqName = "<i>" . htmlspecialchars($required->getName()) . "</i>";
+									}
+									break;
 							}
-							break;
-						case 1: // Approver is a group.
-							$required = $dms->getGroup($rec["required"]);
-							if (!is_object($required)) {
-								$reqName = getMLText("unknown_group") . " '" . $rec["required"] . "'";
-							} else {
-								$reqName = "<i>" . htmlspecialchars($required->getName()) . "</i>";
+							echo $reqName;
+							echo "</td>";
+							echo "<td>";
+							echo "<i style=\"font-size: 80%;\">" . getLongReadableDate($rec['date']) . " - ";
+							$updateuser = $dms->getUser($rec["userID"]);
+							if (!is_object($updateuser))
+								echo getMLText("unknown_user");
+							else
+								echo htmlspecialchars($updateuser->getFullName() . " (" . $updateuser->getLogin() . ")");
+							echo "</i>";
+							if ($rec['comment'])
+								echo "<br />" . htmlspecialchars($rec['comment']);
+							switch ($type) {
+								case "review":
+									if ($accessop->check_controller_access('Download', array('action' => 'review')))
+										if ($rec['file']) {
+											echo "<br />";
+											echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&reviewlogid=" . $rec['reviewLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
+										}
+									break;
+								case "approval":
+									if ($accessop->check_controller_access('Download', array('action' => 'approval')))
+										if ($rec['file']) {
+											echo "<br />";
+											echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&approvelogid=" . $rec['approveLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
+										}
+									break;
 							}
-							break;
-					}
-					echo $reqName;
-					echo "</td>";
-					echo "<td>";
-					echo "<i style=\"font-size: 80%;\">" . getLongReadableDate($rec['date']) . " - ";
-					$updateuser = $dms->getUser($rec["userID"]);
-					if (!is_object($updateuser))
-						echo getMLText("unknown_user");
-					else
-						echo htmlspecialchars($updateuser->getFullName() . " (" . $updateuser->getLogin() . ")");
-					echo "</i>";
-					if ($rec['comment'])
-						echo "<br />" . htmlspecialchars($rec['comment']);
-					switch ($type) {
-						case "review":
-							if ($accessop->check_controller_access('Download', array('action' => 'review')))
-								if ($rec['file']) {
-									echo "<br />";
-									echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&reviewlogid=" . $rec['reviewLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
-								}
-							break;
-						case "approval":
-							if ($accessop->check_controller_access('Download', array('action' => 'approval')))
-								if ($rec['file']) {
-									echo "<br />";
-									echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&approvelogid=" . $rec['approveLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
-								}
-							break;
-					}
-					echo "</td>";
-					echo "<td>";
-					switch ($type) {
-						case "review":
-							echo getReviewStatusText($rec["status"]);
-							break;
-						case "approval":
-							echo getApprovalStatusText($rec["status"]);
-							break;
-						case "revision":
-							echo getRevisionStatusText($rec["status"]);
-							break;
-						case "receipt":
-							echo getReceiptStatusText($rec["status"]);
-							break;
-						default:
-					}
-					echo "</td>";
-					echo "</tr>";
-				}
-				?>
-			</table>
-			<?php
+							echo "</td>";
+							echo "<td>";
+							switch ($type) {
+								case "review":
+									echo getReviewStatusText($rec["status"]);
+									break;
+								case "approval":
+									echo getApprovalStatusText($rec["status"]);
+									break;
+								case "revision":
+									echo getRevisionStatusText($rec["status"]);
+									break;
+								case "receipt":
+									echo getReceiptStatusText($rec["status"]);
+									break;
+								default:
+							}
+							echo "</td>";
+							echo "</tr>";
+						}
+						?>
+					</table>
+					<?php
 	} /* }}} */
 
 	protected function printWorkflowLog($wkflogs)
@@ -4163,57 +4163,57 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		if (!$timelineurl)
 			return;
 		?>
-			var timeline;
-			var data;
+					var timeline;
+					var data;
 
-			// specify options
-			var options = {
-			'width': '100%',
-			'height': '100%',
-			<?php
-			if ($start) {
-				$tmp = explode('-', $start);
-				echo "\t\t\t'min': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
-			}
-			if ($end) {
-				$tmp = explode('-', $end);
-				echo "'\t\t\tmax': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
-			}
-			?>
-			'editable': false,
-			'selectable': true,
-			'style': 'box',
-			'locale': '<?php echo $this->params['session']->getLanguage() ?>'
-			};
+					// specify options
+					var options = {
+					'width': '100%',
+					'height': '100%',
+					<?php
+					if ($start) {
+						$tmp = explode('-', $start);
+						echo "\t\t\t'min': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
+					}
+					if ($end) {
+						$tmp = explode('-', $end);
+						echo "'\t\t\tmax': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
+					}
+					?>
+					'editable': false,
+					'selectable': true,
+					'style': 'box',
+					'locale': '<?php echo $this->params['session']->getLanguage() ?>'
+					};
 
-			$(document).ready(function () {
-			// Instantiate our timeline object.
-			timeline = new links.Timeline(document.getElementById('timeline'), options);
-			<?php
-			if ($onselect):
-				?>
-				links.events.addListener(timeline, 'select', <?= $onselect ?>);
-				<?php
-			endif;
-			?>
-			$.getJSON(
-			'<?php echo $timelineurl ?>',
-			function(data) {
-			$.each( data, function( key, val ) {
-			val.start = new Date(val.start);
-			});
-			timeline.draw(data);
-			}
-			);
-			});
-			<?php
+					$(document).ready(function () {
+					// Instantiate our timeline object.
+					timeline = new links.Timeline(document.getElementById('timeline'), options);
+					<?php
+					if ($onselect):
+						?>
+							links.events.addListener(timeline, 'select', <?= $onselect ?>);
+							<?php
+					endif;
+					?>
+					$.getJSON(
+					'<?php echo $timelineurl ?>',
+					function(data) {
+					$.each( data, function( key, val ) {
+					val.start = new Date(val.start);
+					});
+					timeline.draw(data);
+					}
+					);
+					});
+					<?php
 	} /* }}} */
 
 	protected function printTimelineHtml($height)
 	{ /* {{{ */
 		?>
-			<div id="timeline" style="height: <?php echo $height ?>px;"></div>
-			<?php
+					<div id="timeline" style="height: <?php echo $height ?>px;"></div>
+					<?php
 	} /* }}} */
 
 	protected function printTimeline($timelineurl, $height = 300, $start = '', $end = '', $skip = array())
@@ -4228,13 +4228,13 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = md5(uniqid());
 		/*
-								$this->addFooterJS('
-						$("body").on("click", "span.openpopupbox", function(e) {
-							$(""+$(e.target).data("href")).toggle();
-						//	$("div.popupbox").toggle();
-						});
-						');
-								 */
+																							$this->addFooterJS('
+																					$("body").on("click", "span.openpopupbox", function(e) {
+																						$(""+$(e.target).data("href")).toggle();
+																					//	$("div.popupbox").toggle();
+																					});
+																					');
+																							 */
 		$html = '
 		<span class="openpopupbox" data-href="#' . $id . '">' . $title . '</span>
 		<div id="' . $id . '" class="popupbox" style="display: none;">
@@ -4251,44 +4251,44 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = substr(md5(uniqid()), 0, 4);
 		?>
-			<div class="accordion" id="accordion<?php echo $id; ?>">
-				<div class="accordion-group">
-					<div class="accordion-heading">
-						<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
-							href="#collapse<?php echo $id; ?>">
-							<?php echo $title; ?>
-						</a>
-					</div>
-					<div id="collapse<?php echo $id; ?>" class="accordion-body collapse<?= $open ? " in" : "" ?>">
-						<div class="accordion-inner">
-							<?php
-							echo $content;
-							?>
+					<div class="accordion" id="accordion<?php echo $id; ?>">
+						<div class="accordion-group">
+							<div class="accordion-heading">
+								<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
+									href="#collapse<?php echo $id; ?>">
+									<?php echo $title; ?>
+								</a>
+							</div>
+							<div id="collapse<?php echo $id; ?>" class="accordion-body collapse<?= $open ? " in" : "" ?>">
+								<div class="accordion-inner">
+									<?php
+									echo $content;
+									?>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-			<?php
+					<?php
 	} /* }}} */
 
 	public function printAccordion2($title, $content)
 	{ /* {{{ */
 		$id = substr(md5(uniqid()), 0, 4);
 		?>
-			<div class="accordion2" id="accordion<?php echo $id; ?>">
-				<a class="accordion2-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
-					href="#collapse<?php echo $id; ?>">
+					<div class="accordion2" id="accordion<?php echo $id; ?>">
+						<a class="accordion2-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
+							href="#collapse<?php echo $id; ?>">
+							<?php
+							$this->contentHeading($title);
+							?>
+						</a>
+						<div id="collapse<?php echo $id; ?>" class="collapse" style="height: 0px;">
+							<?php
+							echo $content;
+							?>
+						</div>
+					</div>
 					<?php
-					$this->contentHeading($title);
-					?>
-				</a>
-				<div id="collapse<?php echo $id; ?>" class="collapse" style="height: 0px;">
-					<?php
-					echo $content;
-					?>
-				</div>
-			</div>
-			<?php
 	} /* }}} */
 }
 

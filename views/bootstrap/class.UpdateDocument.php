@@ -42,6 +42,17 @@ class SeedDMS_View_UpdateDocument extends SeedDMS_Theme_Style
 		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
 		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
 	}
+	private function decrypt($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	function js()
 	{ /* {{{ */
 		$strictformcheck = $this->params['strictformcheck'];
@@ -294,14 +305,18 @@ class SeedDMS_View_UpdateDocument extends SeedDMS_Theme_Style
 			}
 			$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_documentcontent, SeedDMS_Core_AttributeDefinition::objtype_all));
 			if ($attrdefs) {
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
 				foreach ($attrdefs as $attrdef) {
 					$arr = $this->callHook('editDocumentContentAttribute', $document, $attrdef);
 					if (is_array($arr)) {
 						if ($arr)
 							$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
 					} elseif (is_string($arr)) {
-						echo $arr;
+						$arr;
 					} else {
+						$decrypted = $this->decrypt($document->getName(), $encryption_key);
+						$fullname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $document->getAttribute() : $decrypted;
 						$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, $document->getAttribute($attrdef), 'attributes_version'));
 					}
 				}
