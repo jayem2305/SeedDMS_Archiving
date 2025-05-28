@@ -31,7 +31,17 @@
  */
 class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 {
-
+	private function decrypt($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	private function decryptName($encrypted_combined_base64, $key)
 	{
 		$data = base64_decode($encrypted_combined_base64);
@@ -69,10 +79,14 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 			return;
 
 		$content = '';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		for ($i = 0; $i < count($accessList["groups"]); $i++) {
 			$group = $accessList["groups"][$i]->getGroup();
+			$encrypted_name = $group->getName();
+			$decrypted = $this->decryptName($group->getName(), $encryption_key);
+			$keyword = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $group->getName() : $decrypted;
 			$accesstext = $this->getAccessModeText($accessList["groups"][$i]->getMode());
-			$content .= $accesstext . ": " . htmlspecialchars($group->getName());
+			$content .= $accesstext . ": " . htmlspecialchars($keyword);
 			if ($i + 1 < count($accessList["groups"]) || count($accessList["users"]) > 0)
 				$content .= "<br />";
 		}
@@ -317,7 +331,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$timeout = $this->params['timeout'];
 		$xsendfile = $this->params['xsendfile'];
 		$documentid = $document->getId();
-
 		$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidthdetail, $timeout, $xsendfile);
 		if ($conversionmgr)
 			$previewer->setConversionMgr($conversionmgr);
@@ -372,6 +385,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 
 				print "<td>";
 				print "<ul class=\"actions unstyled\">\n";
+
 				print "<li>" . htmlspecialchars($file->getName()) . "</li>\n";
 				if ($file->getName() != $file->getOriginalFileName())
 					print "<li>" . htmlspecialchars($file->getOriginalFileName()) . "</li>\n";
@@ -380,8 +394,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					print "<li>" . SeedDMS_Core_File::format_filesize(filesize($dms->contentDir . $file->getPath())) . " bytes, " . htmlspecialchars($file->getMimeType()) . "</li>";
 				} else
 					print "<li>" . htmlspecialchars($file->getMimeType()) . " - <span class=\"warning\">" . getMLText("document_deleted") . "</span></li>";
-
-				print "<li>" . getMLText("uploaded_by") . " <a href=\"mailto:" . htmlspecialchars($responsibleUser->getEmail()) . "\">" . htmlspecialchars($responsibleUser->getFullName()) . "</a></li>";
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+				$decrypted = $this->decrypt($responsibleUser->getEmail(), $encryption_key);
+				$email = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $responsibleUser->getEmail() : $decrypted;
+				$decrypted_name = $this->decrypt($responsibleUser->getFullName(), $encryption_key);
+				$fullname = ($decrypted_name === '[DECRYPTION FAILED]' || $decrypted_name === '[INVALID NAME]') ? $responsibleUser->getFullName() : $decrypted;
+				print "<li>" . getMLText("uploaded_by") . " <a href=\"mailto:" . htmlspecialchars($email) . "\">" . htmlspecialchars($fullname) . "</a></li>";
 				print "<li>" . getLongReadableDate($file->getDate()) . "</li>";
 				if ($file->getVersion())
 					print "<li>" . getMLText('linked_to_current_version') . "</li>";
@@ -474,7 +492,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					<td>
 						<?php
 						$owner = $document->getOwner();
-						print "<a class=\"infos\" href=\"mailto:" . htmlspecialchars($owner->getEmail()) . "\">" . htmlspecialchars($owner->getFullName()) . "</a>";
+						$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+						$decrypted = $this->decrypt($owner->getEmail(), $encryption_key);
+						$email = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $owner->getEmail() : $decrypted;
+						$decrypted_name = $this->decrypt($owner->getFullName(), $encryption_key);
+						$fullname = ($decrypted_name === '[DECRYPTION FAILED]' || $decrypted_name === '[INVALID NAME]') ? $owner->getFullName() : $decrypted;
+						print "<a class=\"infos\" href=\"mailto:" . htmlspecialchars($email) . "\">" . htmlspecialchars($fullname) . "</a>";
 						?>
 					</td>
 				</tr>
@@ -512,7 +535,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						echo "<td>";
 						echo getMLText("inherited") . "<br />";
 						$this->printAccessList($document);
-						echo "</tr>";
+						echo "</td></tr>";
 					} else {
 						echo "<tr>";
 						echo "<td>" . getMLText('access_mode') . ":</td>";
