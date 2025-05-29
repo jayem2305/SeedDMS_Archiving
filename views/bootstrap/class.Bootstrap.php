@@ -1,6 +1,4 @@
 <?php
-
-
 //    MyDMS. Document Management System
 //    Copyright (C) 2002-2005  Markus Westphal
 //    Copyright (C) 2006-2008 Malcolm Cowe
@@ -113,7 +111,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo substr($this->params['settings']->_language, 0, 2);
 			//			echo str_replace('_', '-', $this->params['settings']->_language);
 		}
-
 		echo "\">\n<head>\n";
 		echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
 		echo '<meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n";
@@ -126,18 +123,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo '<link rel="search" type="application/opensearchdescription+xml" href="' . $this->params['settings']->_httpRoot . 'out/out.OpensearchDesc.php" title="' . (strlen($sitename) > 0 ? $sitename : "") . '"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/bootstrap/css/bootstrap.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"/>' . "\n";
-
-
-
-		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/css_override/override.css" rel="stylesheet"/>' . "\n";
-
-
-
-		echo '<script href="' . $this->params['settings']->_httpRoot . 'styles/js_override/search.js"></script>' . "\n";
-
-
-		echo '<script type="text/javascript" src="' . $this->params['settings']->_httpRoot . 'styles/js_override/search.js"></script>' . "\n";
-
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/vendors/bootstrap-datepicker/css/bootstrap-datepicker.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/chosen/css/chosen.css" rel="stylesheet"/>' . "\n";
@@ -151,8 +136,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo '<link href="' . $this->params['absbaseprefix'] . 'out/out.' . $this->params['class'] . '.php?action=css' . (!empty($_SERVER['QUERY_STRING']) ? '&' . $_SERVER['QUERY_STRING'] : '') . '" rel="stylesheet"/>' . "\n";
 
 		echo '<script type="text/javascript" src="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/vendors/jquery/jquery.min.js"></script>' . "\n";
-
-
 		if ($this->extraheader['js'])
 			echo $this->extraheader['js'];
 		echo '<script type="text/javascript" src="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/passwordstrength/jquery.passwordstrength.js"></script>' . "\n";
@@ -443,148 +426,30 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo "   </a>\n";
 		echo "   <a href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\">" . (!empty($this->extraheader['logo']) ? '<img id="navbar-logo" src="' . $this->extraheader['logo'] . '">' : '<img id="navbar-logo" src="' . $this->params['settings']->_httpRoot . 'views/bootstrap/images/seeddms-logo.svg">') . "</a>";
 		echo "   <a class=\"brand\" href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\"><span class=\"hidden-phone\">" . (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "") . "</span></a>\n";
-		// Include the modal file
-		include __DIR__ . '/overrides/modal/search-modal.php';
+
 		/* user profile menu {{{ */
 		if (isset($this->params['session']) && isset($this->params['user']) && $this->params['user']) {
 			/* search form {{{ */
-
-			//--- Header search modification
-			echo '<div id="search-container" tabindex="0">';
-			echo '<form id="search-form" action="' . $this->params['settings']->_httpRoot . 'out/out.Search.php" class="form-inline navbar-search pull-left" autocomplete="on">';
+			echo "     <form action=\"" . $this->params['settings']->_httpRoot . "out/out.Search.php\" class=\"form-inline navbar-search pull-left\" autocomplete=\"off\">";
 			if ($folder != null && is_object($folder) && $folder->isType('folder')) {
-				echo '  <input type="hidden" name="folderid" value="' . $folder->getID() . '" />';
+				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
 			}
-			echo '<div id="head-con">';
-			echo '  <input type="hidden" name="navBar" value="1" />';
-			echo '  <input name="query" class="search-query" ' . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "" : 'id="searchfield"') . ' 
-        data-provide="typeahead" type="search"  placeholder="Search Files and Folders	"/>';
-			if ($this->params['defaultsearchmethod'] == 'fulltext') {
-				echo '  <input type="hidden" name="fullsearch" value="1" />';
-			}
-			echo '<div class="searchicon">';
-			echo '<i class="fa fa-search fa-lg"></i>';
-			echo '</div>';
+			echo "      <input type=\"hidden\" name=\"navBar\" value=\"1\" />";
+			echo "      <input name=\"query\" class=\"search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" style=\"width: 150px;\" placeholder=\"" . getMLText("search") . "\"/>";
+			if ($this->params['defaultsearchmethod'] == 'fulltext')
+				echo "      <input type=\"hidden\" name=\"fullsearch\" value=\"1\" />";
+			//			if($this->params['enablefullsearch']) {
+//				echo "      <label class=\"checkbox\" style=\"color: #999999;\"><input type=\"checkbox\" name=\"fullsearch\" value=\"1\" title=\"".getMLText('fullsearch_hint')."\"/> ".getMLText('fullsearch')."</label>";
+//			}
+			//		echo "      <input type=\"submit\" value=\"".getMLText("search")."\" id=\"searchButton\" class=\"btn\"/>";
+			echo "</form>\n";
+			/* }}} End of search form */
 
-
-			// --header original
-			// echo "   <ul id=\"header-nav\" class=\"nav\">\n";
-			// $menuitems = array();
-			// /* calendar {{{ */
-			// if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
-			// 	$menuitems['calendar'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'], 'label' => getMLText("calendar"));
-			// if ($accessobject->check_view_access('AdminTools'))
-			// 	$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
-			// if ($this->params['enablehelp']) {
-			// 	$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-			// 	$menuitems['help'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Help.php?context=' . $tmp[1], 'label' => getMLText("help"));
-			// }
-			// /* }}} End of calendar */
-
-			// /* Check if hook exists because otherwise callHook() will override $menuitems */
-			// if ($this->hasHook('globalNavigationBar'))
-			// 	$menuitems = $this->callHook('globalNavigationBar', $menuitems);
-			// foreach ($menuitems as $menuitem) {
-			// 	if (!empty($menuitem['children'])) {
-			// 		echo "    <li class=\"dropdown\">\n";
-			// 		echo "     <a class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . $menuitem['label'] . " <i class=\"fa fa-caret-down\"></i></a>\n";
-			// 		echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
-			// 		foreach ($menuitem['children'] as $submenuitem) {
-			// 			echo "      <li><a href=\"" . $submenuitem['link'] . "\"" . (isset($submenuitem['target']) ? ' target="' . $submenuitem['target'] . '"' : '') . ">" . $submenuitem['label'] . "</a></li>\n";
-			// 		}
-			// 		echo "     </ul>\n";
-			// 	} else {
-			// 		echo "<li><a href=\"" . $menuitem['link'] . "\"" . (isset($menuitem['target']) ? ' target="' . $menuitem['target'] . '"' : '') . ">" . $menuitem['label'] . "</a></li>";
-			// 	}
-			// }
-			// echo "   </ul>\n";
-
-
-
-
-			echo '</div>';
-
-
-			// echo '<section id="search-filter-section">';
-
-			// echo '<div id="filter-container">';
-
-			// // Category Filter
-			// echo '<label for="category-filter">Category:</label>';
-			// echo '<select id="category-filter" name="category">
-			// 	<option value="">sample</option>
-			// 	<option value="Contracts">sample</option>
-			// 	<option value="sample">sample</option>
-			// 	<option value="Policies">sample</option>
-			// </select>';
-
-			// Author Filter
-			// echo '<label for="author-filter">Author:</label>';
-			// echo '<input type="text" id="author-filter" name="author" placeholder="Enter author name">';
-
-			// Tags Filter
-			// echo '<label for="tags-filter">Tags:</label>';
-			// echo '<input type="text" id="tags-filter" name="tags" placeholder="Enter tags">';
-
-			// Date Range Filter
-			// echo '<label for="date-range-filter">Date Range:</label>';
-			// echo '<input type="date" id="start-date" name="start_date"> - ';
-			// echo '<input type="date" id="end-date" name="end_date">';
-
-			// echo '</div>'; // End filter-container
-
-			// echo '<div id="recent-search-container">';
-			// echo '<h1>Recent Searches</h1>';
-			// echo '</div>'; // End recent-search-container
-
-			// echo '</section>'; // End search-filter-section
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			echo '</form>';
-
-
-
-
-			echo '</div>';
-			// echo '<div id="search-backdrop"></div>';
 			echo "   <div class=\"nav-collapse nav-col1\">\n";
 			echo "   <ul id=\"main-menu-admin\" class=\"nav pull-right\">\n";
 			echo "    <li class=\"dropdown\">\n";
-
-			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">\n";
-			echo "       <i class=\"fa fa-user-circle fa-lg\" style=\"color: #333;\"></i>\n";
-			echo "       <i class=\"fa fa-caret-down\" style=\"margin-left: 5px;\"></i>\n";
-			echo "     </a>\n";
-
+			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . htmlspecialchars($this->params['user']->getFullName()) . "' <i class=\"fa fa-caret-down\"></i></a>\n";
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
-
-
-
-
-
-
-			// header-orig
-			// echo "   <div class=\"nav-collapse nav-col1\">\n";
-			// echo "   <ul id=\"main-menu-admin\" class=\"nav pull-right\">\n";
-			// echo "    <li class=\"dropdown\">\n";
-			// echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . htmlspecialchars($this->params['user']->getFullName()) . "' <i class=\"fa fa-caret-down\"></i></a>\n";
-			// echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
 			//			if (!$this->params['user']->isGuest()) {
 			$menuitems = array();
 			if ($accessobject->check_view_access('Dashboard'))
@@ -616,7 +481,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 						echo "<li class=\"active\">";
 					else
 						echo "<li>";
-					echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.SetLanguage.php?lang=" . $currLang . "&referer=" . urlencode(encryptData($this->params['settings']->_encryptionKey, $_SERVER["REQUEST_URI"])) . "\">";
+					echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.SetLanguage.php?lang=" . $currLang . "&referer=" . $_SERVER["REQUEST_URI"] . "\">";
 					echo getMLText($currLang) . "</a></li>\n";
 				}
 				echo "     </ul>\n";
@@ -695,22 +560,16 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			}
 			/* }}} End of clipboard */
 
-
-
-
-
-			// --- Header search modification (for other nav)
-			echo "   <ul id=\"header-nav-main\" class=\"nav pull-right\">\n";
+			echo "   <ul class=\"nav\">\n";
 			$menuitems = array();
 			/* calendar {{{ */
 			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
-				$menuitems['calendar'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'], 'label' => '<i class="fa fa-calendar fa-lg"></i>');
-
+				$menuitems['calendar'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'], 'label' => getMLText("calendar"));
 			if ($accessobject->check_view_access('AdminTools'))
 				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
 			if ($this->params['enablehelp']) {
 				$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-				$menuitems['help'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Help.php?context=' . $tmp[1], 'label' => getMLText("admin_tools"));
+				$menuitems['help'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Help.php?context=' . $tmp[1], 'label' => getMLText("help"));
 			}
 			/* }}} End of calendar */
 
@@ -731,7 +590,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				}
 			}
 			echo "   </ul>\n";
-
 			echo "    </div>\n";
 		}
 		echo "  </div>\n";
@@ -742,6 +600,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 	function getFolderPathHTML($folder, $tagAll = false, $document = null)
 	{ /* {{{ */
+
 		$path = $folder->getPath();
 		$txtpath = "";
 		for ($i = 0; $i < count($path); $i++) {
@@ -759,141 +618,329 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 		return '<ul class="breadcrumb">' . $txtpath . '</ul>';
 	} /* }}} */
-
-	function pageSidebar()
+function pageSidebar()
 	{ /* {{{ */
+		$httpRoot = $this->params['settings']->_httpRoot;
+		$outputHtml = ''; 
 
-		echo "<div class=\"sidebar\">\n";
-		echo " <div class=\"sidebar-inner\">\n";
-		echo "  <div class=\"sidebar-container\">\n";
-		// echo "   <a class=\"btn btn-sidebar\" data-toggle=\"collapse\" data-target=\".col2\">\n";
-		// echo " 		<span class=\"fa fa-bars\"></span>\n";
-		// echo "   </a>\n";
+		$outputHtml .= '<button class="sidebar-mobile-toggle-btn" type="button" aria-label="Toggle sidebar">
+                <i class="fa fa-bars"></i>
+              </button>';
+        $outputHtml .= "<div class=\"sidebar-overlay\"></div>\n";
 
-		echo '
+		$outputHtml .= <<<HTML_CSS
+<style type="text/css">
+    /* Main Sidebar Container */
+    .page-sidebar-custom {
+        width: 240px; 
+        background-color: #20242c !important; 
+        border-right: 1px solid #1a1d23; 
+        height: 100vh; 
+        position: fixed; 
+        top: 0px; /* CRITICAL: Adjust to your fixed navbar height */
+        left: 0;
+        overflow-y: auto; 
+        overflow-x: hidden !important; /* Prevent horizontal scroll */
+        z-index: 1030; 
+        transform: translateX(0); 
+        transition: transform 0.3s ease-in-out;
+        box-sizing: border-box !important; /* Ensure padding doesn't add to width */
+        padding: 0 !important; /* Remove all padding from the main container */
+    }
+
+    .page-sidebar-custom .sidebar-inner {
+       padding: 0; /* Remove padding if any was here */
+       width: 100%;
+       height: 100%;
+    }
+
+    /* LOGO ALIGNMENT & STYLING */
+    .page-sidebar-custom .sidebar-logo {
+        padding: 15px 15px; /* Keep some padding for the logo section */
+        margin-bottom: 0; /* Remove margin if border is enough */
+        border-bottom: 1px solid #30353e; 
+        display: flex !important; 
+        align-items: center !important; 
+        cursor: default;
+        width: 100%; 
+        overflow: hidden; 
+    }
+    .page-sidebar-custom .sidebar-logo:hover {
+        background-color: transparent !important; 
+    }
+    .page-sidebar-custom .sidebar-logo .img-sidebar-logo {
+        margin-right: 10px; 
+        flex-shrink: 0; 
+        display: flex;
+        align-items: center;
+    }
+    .page-sidebar-custom .sidebar-logo img {
+        max-width: 40px; height: auto; display: block; pointer-events: none;
+    }
+    .page-sidebar-custom .sidebar-logo .logo-text {
+        display: flex; align-items: center; overflow: hidden; flex-shrink: 1;
+    }
+    .page-sidebar-custom .sidebar-logo .logo-text h3 { 
+        font-size: 1.05rem; margin: 0; color: #e9ecef !important; font-weight: 600;
+        line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* Sidebar Navigation List */
+    .page-sidebar-custom .main-sidebar-nav {
+        width: 100%;
+        padding-top: 10px; /* Add some space above the first nav item */
+    }
+    .page-sidebar-custom .main-sidebar-nav ul {
+        list-style: none !important;
+        padding-left: 0 !important; /* CRITICAL: Remove default UL padding */
+        margin-left: 0 !important;  /* CRITICAL: Remove default UL margin */
+        margin-bottom: 0;
+        width: 100%;
+    }
+    .page-sidebar-custom .main-sidebar-nav ul li {
+         width: 100%;
+         margin-left: 0 !important; /* CRITICAL: Ensure li has no left margin */
+         padding-left: 0 !important;/* CRITICAL: Ensure li has no left padding */
+         position: relative;
+    }
+    .page-sidebar-custom .main-sidebar-nav ul li a {
+        display: flex !important; 
+        align-items: center !important; 
+        width: 100% !important; 
+        padding: 10px 15px !important; /* Padding inside the link */
+        color: #adb5bd !important; 
+        text-decoration: none !important;
+        font-size: 14px !important; 
+        border-left: 3px solid transparent; 
+        outline: none !important; 
+        cursor: pointer;
+        overflow: hidden; 
+        line-height: 1.4; 
+        box-sizing: border-box !important; /* Ensure padding doesn't make 'a' wider */
+        margin-bottom: 0; /* Removed bottom margin, use padding for separation or li margin */
+    }
+	
+	/* Text span within the link */
+    .page-sidebar-custom .main-sidebar-nav ul li a span:not(.rotate-icon) { 
+        flex-grow: 1; 
+        white-space: normal !important; 
+        overflow-wrap: break-word !important;
+        word-wrap: break-word !important; 
+        text-align: left; 
+        min-width: 0; 
+        overflow: visible; 
+    }
+    
+    /* Icons within main links */
+     .page-sidebar-custom .main-sidebar-nav ul li a .fa:not(.rotate-icon) { 
+        margin-right: 10px; 
+        width: 20px; 
+        text-align: center;
+        color: #6c757d !important; 
+        flex-shrink: 0; 
+    }
+
+    /* Rotate icon for collapsible sections */
+    .page-sidebar-custom .rotate-icon {
+        margin-left: auto; 
+        padding-left: 8px; 
+        font-size: 0.9em; 
+        color: #6c757d !important; 
+        flex-shrink: 0;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    /* Collapsible Sub-menu */
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse {
+        padding-left: 0 !important; /* CRITICAL: No extra indent on the UL itself */
+        list-style: none !important;
+        background-color: #1c1f26 !important; 
+        margin-top: 0;
+        margin-bottom: 5px; 
+    }
+     .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a {
+        /* Indentation is now controlled by padding-left on the 'a' tag */
+        padding: 9px 15px 9px 35px !important; /* 15px base + 20px indent */
+        font-size: 13px; 
+        color: #9fa6ad !important; 
+        border-left-color: transparent !important; /* Reset from parent */
+    }
+    /* Text span in sub-menu */
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a span {
+        min-width: 0; 
+        overflow: visible;
+        white-space: normal !important; 
+        overflow-wrap: break-word !important;
+        word-wrap: break-word !important; 
+    }
+
+
+    /* Keep other styles (hover, active, colors, media queries for mobile toggle) */
+    /* ... (Make sure to include all the hover, active, and media query styles from the previous version) ... */
+    .page-sidebar-custom .main-sidebar-nav ul li a:hover,
+    .page-sidebar-custom .main-sidebar-nav ul li a:focus { background-color: #2a2f38 !important; color: #ffffff !important; border-left-color: #007bff; }
+    .page-sidebar-custom .main-sidebar-nav ul li a.active { background-color: #007bff !important; color: #ffffff !important; font-weight: 500; border-left-color: #ffffff; }
+    .page-sidebar-custom .main-sidebar-nav ul li a.active .fa:not(.rotate-icon) { color: #ffffff !important; }
+    .page-sidebar-custom .main-sidebar-nav ul li a:hover .fa:not(.rotate-icon) { color: #ffffff !important;}
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:hover,
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:focus { background-color: #262a32 !important; color: #f8f9fa !important;}
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a.active { color: #ffffff !important; background-color: #0069d9 !important; font-weight: normal; }
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a .fa { margin-right: 8px; flex-shrink: 0; color: #6c757d !important;}
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:hover .fa,
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a.active .fa { color: #f8f9fa !important;}
+    .page-sidebar-custom a[data-toggle="collapse"][aria-expanded="true"] .rotate-icon { transform: rotate(90deg); color: #e0f5ff !important; }
+    .page-sidebar-custom a[data-toggle="collapse"]:hover .rotate-icon { color: #ffffff !important; }
+    body > main.container-fluid { transition: margin-left 0.3s ease-in-out; }
+    @media (min-width: 980px) { 
+        body > main.container-fluid { 
+             margin-left: 240px !important; 
+        }
+    }
+    .sidebar-mobile-toggle-btn { display: none; position: fixed; top: 7px; left: 8px; z-index: 1031; padding: 4px 10px; font-size: 18px; color: #ffffff; text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25); background-color: #222222; background-image: linear-gradient(to bottom, #333333, #111111); border: 1px solid #111111; border-radius: 4px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.075); }
+    .sidebar-mobile-toggle-btn:hover { background-color: #111111; color: #ffffff; }
+    @media (max-width: 979px) { 
+        .page-sidebar-custom { transform: translateX(-100%); top: 0 !important; height: 100% !important; box-shadow: 3px 0 10px rgba(0,0,0,0.2); padding-top: 15px; }
+        .page-sidebar-custom.open-mobile { transform: translateX(0) !important; }
+        body > main.container-fluid { margin-left: 0 !important; }
+        .sidebar-mobile-toggle-btn { display: inline-block !important; }
+        body.sidebar-open-overlay-active { overflow: hidden !important; }
+    }
+
+</style>
+HTML_CSS;
+
+		// --- HTML for Sidebar (ensure labels are wrapped in <span>) ---
+		// (PHP for HTML generation remains the same)
+		$outputHtml .= "<div class=\"page-sidebar-custom\">\n";
+		$outputHtml .= " <div class=\"sidebar-inner\">\n"; // sidebar-inner might be redundant now
+        // ... (The rest of your HTML generation for the sidebar logo and nav items)
+        // Make sure all link text is wrapped in <span> like: <a><i...></i><span>Text</span>...</a>
+		$outputHtml .= '
 <div class="sidebar-logo">
     <div class="img-sidebar-logo">
-        <img src="https://ortadeltech.com/assets/images/ORTADEL_logo.png" width="55" alt="logo">
+        <img src="https://ortadeltech.com/assets/images/ORTADEL_logo.png" alt="logo">
     </div>
     <div class="logo-text">
         <h3>ORTADEL DMS</h3>
     </div>
-</div>
-
-<div class="main-sidebar">
-    <ul>
-	    <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Dashboard.php">
-            <i class="fa fa-tachometer fa-lg"></i> ' . getMLText('dashboard') . '
+</div>';
+        $outputHtml .= '<div class="main-sidebar-nav">';
+        $outputHtml .= '<ul>
+	    <li><a href="' . $httpRoot . 'out/out.Dashboard.php">
+            <i class="fa fa-tachometer fa-lg"></i><span>' . getMLText('dashboard') . '</span>
           </a>
         </li>
         <li>
-            <a href="' . $this->params['settings']->_httpRoot . 'out/out.ViewFolder.php">
-                <i class="fa fa-folder-open fa-lg"></i> ' . getMLText('folders') . ' <!-- Or use plain "My Folders" if "folders" key has bolding -->
+            <a href="' . $httpRoot . 'out/out.ViewFolder.php">
+                <i class="fa fa-folder-open fa-lg"></i><span>' . getMLText('folders') . '</span>
             </a>
         </li>
-
-        
-
-        <!-- User Management Section -->
         <li> 
-          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-UserManagement" role="button" aria-expanded="false" aria-controls="collapse-UserManagement">
-            <span><i class="fa fa-users fa-lg"></i> ' . getMLText('user_management') . '</span> <!-- Using standard "user_management" key -->
+          <a data-toggle="collapse" href="#collapse-UserManagement" role="button" aria-expanded="false" aria-controls="collapse-UserManagement">
+            <i class="fa fa-users fa-lg"></i><span>' . getMLText('user_management') . '</span>
             <i class="fa fa-angle-right fa-lg rotate-icon"></i>
           </a>
           <ul class="collapse list-unstyled" id="collapse-UserManagement">
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.UsrMgr.php"><i class="fa fa-user-plus fa-lg"></i> ' . getMLText('user_management') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.RoleMgr.php"><i class="fa fa-id-badge fa-lg"></i> ' . getMLText('role_management') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.GroupMgr.php"><i class="fa fa-object-group fa-lg"></i> ' . getMLText('group_management') . '</a></li>
+            <li><a href="' . $httpRoot . 'out/out.UsrMgr.php"><i class="fa fa-user-plus fa-lg"></i><span>' . getMLText('user_management') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.RoleMgr.php"><i class="fa fa-id-badge fa-lg"></i><span>' . getMLText('role_management') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.GroupMgr.php"><i class="fa fa-object-group fa-lg"></i><span>' . getMLText('group_management') . '</span></a></li>
           </ul>
         </li>
-
-        <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.UserList.php"><i class="fa fa-list fa-lg"></i> ' . getMLText('user_list') . '</a></li>
-        <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Acl.php"><i class="fa fa-shield fa-lg"></i> ' . getMLText('access_control') . '</a></li>
-
-        
-
-        <!-- Definitions Section -->
+        <li><a href="' . $httpRoot . 'out/out.UserList.php"><i class="fa fa-list fa-lg"></i><span>' . getMLText('user_list') . '</span></a></li>
+        <li><a href="' . $httpRoot . 'out/out.Acl.php"><i class="fa fa-shield fa-lg"></i><span>' . getMLText('access_control') . '</span></a></li>
         <li> 
-          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-Definitions" role="button" aria-expanded="false" aria-controls="collapse-Definitions">
-            <span><i class="fa fa-book fa-lg"></i> ' . getMLText('definitions') . '</span>
+          <a data-toggle="collapse" href="#collapse-Definitions" role="button" aria-expanded="false" aria-controls="collapse-Definitions">
+            <i class="fa fa-book fa-lg"></i><span>' . getMLText('definitions') . '</span>
             <i class="fa fa-angle-right fa-lg rotate-icon"></i>
           </a>
           <ul class="collapse list-unstyled" id="collapse-Definitions">
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.DefaultKeywords.php"><i class="fa fa-tags fa-lg"></i> ' . getMLText('global_default_keywords') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Categories.php"><i class="fa fa-columns fa-lg"></i> ' . getMLText('global_document_categories') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.AttributeMgr.php"><i class="fa fa-cogs fa-lg"></i> ' . getMLText('global_attributedefinitions') . '</a></li>';
-            
+            <li><a href="' . $httpRoot . 'out/out.DefaultKeywords.php"><i class="fa fa-tags fa-lg"></i><span>' . getMLText('global_default_keywords') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.Categories.php"><i class="fa fa-columns fa-lg"></i><span>' . getMLText('global_document_categories') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.AttributeMgr.php"><i class="fa fa-cogs fa-lg"></i><span>' . getMLText('global_attributedefinitions') . '</span></a></li>';
         if (($this->params['workflowmode'] ?? '') == 'advanced') {
-            echo '<li><a href="' . $this->params['settings']->_httpRoot . 'out/out.WorkflowMgr.php"><i class="fa fa-sitemap fa-lg"></i> ' . getMLText('global_workflows') . '</a></li>
-                  <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.WorkflowStatesMgr.php"><i class="fa fa-star fa-lg"></i> ' . getMLText('global_workflow_states') . '</a></li>
-                  <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.WorkflowActionsMgr.php"><i class="fa fa-bolt fa-lg"></i> ' . getMLText('global_workflow_actions') . '</a></li>';
+            $outputHtml .= '<li><a href="' . $httpRoot . 'out/out.WorkflowMgr.php"><i class="fa fa-sitemap fa-lg"></i><span>' . getMLText('global_workflows') . '</span></a></li>
+                  <li><a href="' . $httpRoot . 'out/out.WorkflowStatesMgr.php"><i class="fa fa-star fa-lg"></i><span>' . getMLText('global_workflow_states') . '</span></a></li>
+                  <li><a href="' . $httpRoot . 'out/out.WorkflowActionsMgr.php"><i class="fa fa-bolt fa-lg"></i><span>' . getMLText('global_workflow_actions') . '</span></a></li>';
         }
-        echo '    </ul>
+        $outputHtml .= '    </ul>
         </li>
-
-        
-        
-        <!-- Backup/Logging Section -->
         <li>
-          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-BackupLogging" role="button" aria-expanded="false" aria-controls="collapse-BackupLogging">
-            <span><i class="fa fa-database fa-lg"></i> ' . getMLText('backup_log_management') . '</span>
+          <a data-toggle="collapse" href="#collapse-BackupLogging" role="button" aria-expanded="false" aria-controls="collapse-BackupLogging">
+            <i class="fa fa-database fa-lg"></i><span>' . getMLText('backup_log_management') . '</span>
             <i class="fa fa-angle-right fa-lg rotate-icon"></i>
           </a>
           <ul class="collapse list-unstyled" id="collapse-BackupLogging">
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.BackupTools.php"><i class="fa fa-life-saver fa-lg"></i> ' . getMLText('backup_tools') . '</a></li>';
+            <li><a href="' . $httpRoot . 'out/out.BackupTools.php"><i class="fa fa-life-saver fa-lg"></i><span>' . getMLText('backup_tools') . '</span></a></li>';
         if ($this->params['logfileenable'] ?? false) {
-            echo '<li><a href="' . $this->params['settings']->_httpRoot . 'out/out.LogManagement.php"><i class="fa fa-list-alt fa-lg"></i> ' . getMLText('log_management') . '</a></li>';
+            $outputHtml .= '<li><a href="' . $httpRoot . 'out/out.LogManagement.php"><i class="fa fa-list-alt fa-lg"></i><span>' . getMLText('log_management') . '</span></a></li>';
         }
-        echo '    </ul>
+        $outputHtml .= '    </ul>
         </li>
-        
-        
-
-
-	</ul>
-
-        
-        
-
-        
-        
-
-        <!-- Misc Section -->
         <li>
-          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-Misc" role="button" aria-expanded="false" aria-controls="collapse-Misc">
-            <span><i class="fa fa-cogs fa-lg"></i> ' . getMLText('misc') . '</span>
+          <a data-toggle="collapse" href="#collapse-Misc" role="button" aria-expanded="false" aria-controls="collapse-Misc">
+            <i class="fa fa-cogs fa-lg"></i><span>' . getMLText('misc') . '</span>
             <i class="fa fa-angle-right fa-lg rotate-icon"></i>
           </a>
           <ul class="collapse list-unstyled" id="collapse-Misc">
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ImportFS.php"><i class="fa fa-folder-upload fa-lg"></i> ' . getMLText('import_fs') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ImportUsers.php"><i class="fa fa-user-plus fa-lg"></i> ' . getMLText('import_users') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Statistic.php"><i class="fa fa-pie-chart fa-lg"></i> ' . getMLText('folders_and_documents_statistic') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Charts.php"><i class="fa fa-bar-chart fa-lg"></i> ' . getMLText('charts') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Timeline.php"><i class="fa fa-signal fa-lg"></i> ' . getMLText('timeline') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.SchedulerTaskMgr.php"><i class="fa fa-clock-o fa-lg"></i> ' . getMLText('scheduler_task_mgr') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ObjectCheck.php"><i class="fa fa-check-square-o fa-lg"></i> ' . getMLText('objectcheck') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ExpiredDocuments.php"><i class="fa fa-calendar-times-o fa-lg"></i> ' . getMLText('documents_expired') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ExtensionMgr.php"><i class="fa fa-puzzle-piece fa-lg"></i> ' . getMLText('extension_manager') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ClearCache.php"><i class="fa fa-eraser fa-lg"></i> ' . getMLText('clear_cache') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Info.php"><i class="fa fa-info-circle fa-lg"></i> ' . getMLText('version_info') . '</a></li>
+            <li><a href="' . $httpRoot . 'out/out.ImportFS.php"><i class="fa fa-folder-upload fa-lg"></i><span>' . getMLText('import_fs') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.ImportUsers.php"><i class="fa fa-user-plus fa-lg"></i><span>' . getMLText('import_users') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.Statistic.php"><i class="fa fa-pie-chart fa-lg"></i><span>' . getMLText('folders_and_documents_statistic') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.Charts.php"><i class="fa fa-bar-chart fa-lg"></i><span>' . getMLText('charts') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.Timeline.php"><i class="fa fa-signal fa-lg"></i><span>' . getMLText('timeline') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.SchedulerTaskMgr.php"><i class="fa fa-clock-o fa-lg"></i><span>' . getMLText('scheduler_task_mgr') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.ObjectCheck.php"><i class="fa fa-check-square-o fa-lg"></i><span>' . getMLText('objectcheck') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.ExpiredDocuments.php"><i class="fa fa-calendar-times-o fa-lg"></i><span>' . getMLText('documents_expired') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.ExtensionMgr.php"><i class="fa fa-puzzle-piece fa-lg"></i><span>' . getMLText('extension_manager') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.ClearCache.php"><i class="fa fa-eraser fa-lg"></i><span>' . getMLText('clear_cache') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.Info.php"><i class="fa fa-info-circle fa-lg"></i><span>' . getMLText('version_info') . '</span></a></li>
           </ul>
         </li>
 	</ul>
-		
-</div>
+</div>';
 
+		$outputHtml .= " </div>\n"; 
+		$outputHtml .= "</div>\n"; 
 
+        echo $outputHtml;
 
-
-';
-
-
-
-		echo " 	</div>\n";
-		echo " </div>\n";
-		echo "</div>\n";
-
-
+		// --- JavaScript (remains the same) ---
+		$this->addFooterJS("
+			jQuery(document).ready(function($) {
+                // For sub-menu collapse (Bootstrap 2)
+				$('.page-sidebar-custom .main-sidebar-nav a[data-toggle=\"collapse\"]').on('click', function(e) {
+				});
+                $('.page-sidebar-custom .main-sidebar-nav ul.collapse').on('show.bs.collapse shown.bs.collapse', function () {
+                    $(this).prev('a').attr('aria-expanded', 'true').find('.rotate-icon').addClass('rotated');
+                }).on('hide.bs.collapse hidden.bs.collapse', function () {
+                    $(this).prev('a').attr('aria-expanded', 'false').find('.rotate-icon').removeClass('rotated');
+                });
+                 $('.page-sidebar-custom .main-sidebar-nav ul.collapse.in').each(function(){
+                    var triggerLink = $(this).prev('a');
+                    triggerLink.find('.rotate-icon').addClass('rotated');
+                    triggerLink.attr('aria-expanded', 'true');
+                 });
+                 $('.page-sidebar-custom .main-sidebar-nav ul.collapse:not(.in)').each(function(){
+                    var triggerLink = $(this).prev('a');
+                     triggerLink.attr('aria-expanded', 'false'); 
+                    triggerLink.find('.rotate-icon').removeClass('rotated');
+                 });
+                var \$sidebar = $('.page-sidebar-custom');
+                var \$overlay = $('.sidebar-overlay'); 
+                var \$mobileToggleButton = $('.sidebar-mobile-toggle-btn'); 
+                var \$body = $('body');
+                \$mobileToggleButton.on('click', function(e) {
+                    e.stopPropagation(); 
+                    \$sidebar.toggleClass('open-mobile');
+                    \$overlay.toggleClass('active');
+                    \$body.toggleClass('sidebar-open-overlay-active'); 
+                });
+                \$overlay.on('click', function() {
+                    \$sidebar.removeClass('open-mobile');
+                    \$overlay.removeClass('active');
+                    \$body.removeClass('sidebar-open-overlay-active');
+                });
+			});
+		");
 		return;
 	} /* }}} */
 
@@ -953,8 +1000,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 		return;
 	}
-
-
 	function pageNavigation($pageTitle, $pageType = null, $extra = null)
 	{ /* {{{ */
 
@@ -965,7 +1010,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo "   <a class=\"btn btn-navbar\" data-toggle=\"collapse\" data-target=\".col2\">\n";
 			echo " 		<span class=\"fa fa-bars\"></span>\n";
 			echo "   </a>\n";
-
 			switch ($pageType) {
 				case "view_folder":
 					$this->folderNavigationBar($extra);
@@ -1133,7 +1177,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	private function folderNavigationBar($folder)
 	{ /* {{{ */
 		$dms = $this->params['dms'];
-		$session = $this->params['session'];
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessobject = $this->params['accessobject'];
 		if (!is_object($folder) || !$folder->isType('folder')) {
@@ -1175,14 +1218,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			}
 			if ($accessobject->check_view_access('FolderNotify'))
 				$menuitems['edit_folder_notify'] = array('link' => $this->params['settings']->_httpRoot . "out/out.FolderNotify.php?folderid=" . $folderID . "&showtree=" . showtree(), 'label' => getMLText('edit_folder_notify'));
-
-
 		}
 		if ($enableClipboard) {
-			if ($session->isOnClipboard($folder))
-				$menuitems['remove_from_clipboard'] = array('class' => 'removefromclipboard', 'attributes' => array(['rel', 'F' . $folder->getId()], ['msg', getMLText('splash_removed_from_clipboard')], ['title', getMLText("remove_from_clipboard")]), 'label' => getMLText("remove_from_clipboard"));
-			else
-				$menuitems['add_to_clipboard'] = array('class' => 'addtoclipboard', 'attributes' => array(['rel', 'F' . $folder->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label' => getMLText("add_to_clipboard"));
+			$menuitems['add_to_clipboard'] = array('class' => 'addtoclipboard', 'attributes' => array(['rel', 'F' . $folder->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label' => getMLText("add_to_clipboard"));
 		}
 		if ($accessobject->check_view_access('Indexer') && $this->params['enablefullsearch']) {
 			$menuitems['index_folder'] = array('link' => $this->params['settings']->_httpRoot . "out/out.Indexer.php?folderid=" . $folderID . "&showtree=" . showtree(), 'label' => getMLText('index_folder'));
@@ -1202,12 +1240,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		self::showNavigationBar($menuitems);
 
 		echo "</div>\n";
-
 	} /* }}} */
 
 	private function documentNavigationBar($document)
 	{ /* {{{ */
-		$session = $this->params['session'];
 		$accessobject = $this->params['accessobject'];
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessMode = $document->getAccessMode($this->params['user']);
@@ -1268,10 +1304,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$menuitems['edit_document_notify'] = array('link' => $this->params['settings']->_httpRoot . "out/out.DocumentNotify" . $docid, 'label' => getMLText('edit_document_notify'));
 		}
 		if ($enableClipboard) {
-			if ($session->isOnClipboard($document))
-				$menuitems['remove_from_clipboard'] = array('class' => 'removefromclipboard', 'attributes' => array(['rel', 'D' . $document->getId()], ['msg', getMLText('splash_removed_from_clipboard')], ['title', getMLText("remove_from_clipboard")]), 'label' => getMLText("remove_from_clipboard"));
-			else
-				$menuitems['add_to_clipboard'] = array('class' => 'addtoclipboard', 'attributes' => array(['rel', 'D' . $document->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label' => getMLText("add_to_clipboard"));
+			$menuitems['add_to_clipboard'] = array('class' => 'addtoclipboard', 'attributes' => array(['rel', 'D' . $document->getId()], ['msg', getMLText('splash_added_to_clipboard')], ['title', getMLText("add_to_clipboard")]), 'label' => getMLText("add_to_clipboard"));
 		}
 		if ($accessobject->check_view_access('TransferDocument')) {
 			$menuitems['transfer_document'] = array('link' => $this->params['settings']->_httpRoot . "out/out.TransferDocument" . $docid, 'label' => getMLText('transfer_document'));
@@ -1632,33 +1665,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	} /* }}} */
 
 	function contentHeading($heading, $noescape = false)
-	{
-		$icon = '';
+	{ /* {{{ */
 
-		if (htmlspecialchars($heading) === 'Edit document') {
-			// $icon = " <i class='fa fa-gear header-icon'></i>";
-			$icon = '
-
-<a class="dropdown-toggle text-secondary edit-dropdown" href="#" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-  <i class="fa fa-gear fa-lg"></i>
-</a>'
-
-
-
-				// $this->documentNavigationBar($extra);
-
-			;
-		}
-
-		if ($noescape) {
-			echo "<legend style='display:flex;'>" . $heading . '<div class="dropdown">' . $icon . "</div></legend>\n";
-		} else {
-			echo "<legend style='display:flex;'>" . htmlspecialchars($heading) . '<div class="dropdown">' . $icon . "</div></legend>\n";
-		}
-
+		if ($noescape)
+			echo "<legend>" . $heading . "</legend>\n";
+		else
+			echo "<legend>" . htmlspecialchars($heading) . "</legend>\n";
 		return;
-	}
-
+	} /* }}} */
 
 	function contentSubHeading($heading, $first = false)
 	{ /* {{{ */
@@ -1858,7 +1872,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$icons["pot"] = "office-presentation.svg";
 		$icons["pptx"] = "office-presentation.svg";
 		$icons["potx"] = "office-presentation.svg";
-		$icons["exe"] = "executable.svg";
+		//$icons["exe"]  = "executable.svg";
 		$icons["html"] = "web.svg";
 		$icons["htm"] = "web.svg";
 		$icons["gif"] = "image.svg";
@@ -2540,15 +2554,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo self::getAttributeEditField($attrdef, $attribute, $fieldname, $norequire, $namepostfix, $alwaysmultiple);
 	} /* }}} */
 
-	/**
-	 * Return html code for an input/select field of an attribute
-	 *
-	 * The passed attribute ($attribute) can either be an object of type
-	 * SeedDMS_Core_Attribute, scalar or an array. A scalar or array is
-	 * passed when the method is called to create the search form. In that
-	 * case $attribute has the value from the post data after submitting the
-	 * search form.
-	 */
 	function getAttributeEditField($attrdef, $attribute, $fieldname = 'attributes', $norequire = false, $namepostfix = '', $alwaysmultiple = false)
 	{ /* {{{ */
 		$dms = $this->params['dms'];
@@ -2574,9 +2579,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$content .= "<input type=\"text\" id=\"" . $attr_id . "\" name=\"" . $attr_name . "\" value=\"" . htmlspecialchars($objvalue) . "\"" . ((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '') . ' data-rule-email="true"' . " />";
 				break;
 			/* case SeedDMS_Core_AttributeDefinition::type_float:
-																																																																																																																																																																																																																																																																																																					  $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
-																																																																																																																																																																																																																																																																																																					  $content .= "<input type=\"text\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
-																																																																																																																																																																																																																																																																																																					  break; */
+																																		   $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
+																																		   $content .= "<input type=\"text\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
+																																		   break; */
 			case SeedDMS_Core_AttributeDefinition::type_folder:
 				$target = $attribute ? $attribute->getValue() : null;
 				$content .= $this->getFolderChooserHtml("attr" . $attrdef->getId(), M_READWRITE, -1, $target, $attr_name, false);
@@ -2586,19 +2591,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				$content .= $this->getDocumentChooserHtml("attr" . $attrdef->getId(), M_READ, -1, $target, $attr_name);
 				break;
 			case SeedDMS_Core_AttributeDefinition::type_user:
+				$target = $attribute ? $attribute->getValueAsArray() : [];
 				$objvalue = [];
-				if ($attribute) {
-					if (is_object($attribute)) {
-						$target = $attribute->getValueAsArray();
-						foreach ($target as $t)
-							$objvalue[] = $t->getId();
-					} elseif (is_array($attribute)) {
-						foreach ($attribute as $t)
-							$objvalue[] = $t;
-					} else {
-						$objvalue[] = $attribute;
-					}
-				}
+				foreach ($target as $t)
+					$objvalue[] = $t->getId();
 				$users = $dms->getAllUsers();
 				if ($users) {
 					$allowempty = $attrdef->getMinValues() == 0;
@@ -2618,19 +2614,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				}
 				break;
 			case SeedDMS_Core_AttributeDefinition::type_group:
+				$target = $attribute ? $attribute->getValueAsArray() : [];
 				$objvalue = [];
-				if ($attribute) {
-					if (is_object($attribute)) {
-						$target = $attribute->getValueAsArray();
-						foreach ($target as $t)
-							$objvalue[] = $t->getId();
-					} elseif (is_array($attribute)) {
-						foreach ($attribute as $t)
-							$objvalue[] = $t;
-					} else {
-						$objvalue[] = $attribute;
-					}
-				}
+				foreach ($target as $t)
+					$objvalue[] = $t->getId();
 				$groups = $dms->getAllGroups();
 				if ($groups) {
 					$allowempty = $attrdef->getMinValues() == 0;
@@ -3114,14 +3101,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$this->contentHeading("<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=0\"><i class=\"fa fa-minus-circle\"></i></a>", true);
 			$this->contentContainerStart();
 			?>
-			<script language="JavaScript">
-				function folderSelected(id, name) {
-					window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + id;
-				}
-			</script>
-			<?php
-			$this->printNewTreeNavigation($folderid, M_READ, 0, '');
-			$this->contentContainerEnd();
+						<script language="JavaScript">
+							function folderSelected(id, name) {
+								window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + id;
+							}
+						</script>
+						<?php
+						$this->printNewTreeNavigation($folderid, M_READ, 0, '');
+						$this->contentContainerEnd();
 		} else {
 			$this->contentHeading("<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=1\"><i class=\"fa fa-plus-circle\"></i></a>", true);
 		}
@@ -3138,10 +3125,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$this->contentHeading(getMLText("clipboard") . '<span id="clipboard-float"><i class="fa fa-sort"></i></span>', true);
 		echo "<div id=\"main-clipboard\">\n";
 		?>
-		<div class="ajax" data-view="Clipboard" data-action="mainClipboard"></div>
-		<?php
-		echo "</div>\n";
-		echo "</div>\n";
+				<div class="ajax" data-view="Clipboard" data-action="mainClipboard"></div>
+				<?php
+				echo "</div>\n";
+				echo "</div>\n";
 	} /* }}} */
 
 	/**
@@ -3401,23 +3388,23 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printSelectPresetButtonJs()
 	{ /* {{{ */
 		?>
-		$(document).ready( function() {
-		$('.selectpreset_btn').click(function(ev){
-		ev.preventDefault();
-		if (typeof $(ev.currentTarget).data('ids') != 'undefined') {
-		target = $(ev.currentTarget).data('ref');
-		// Use attr() instead of data() because data() converts to int which cannot be split
-		items = $(ev.currentTarget).attr('data-ids');
-		arr = items.split(",");
-		for(var i in arr) {
-		$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
-		}
-		// $("#"+target).trigger("chosen:updated");
-		$("#"+target).trigger("change");
-		}
-		});
-		});
-		<?php
+				$(document).ready( function() {
+				$('.selectpreset_btn').click(function(ev){
+				ev.preventDefault();
+				if (typeof $(ev.currentTarget).data('ids') != 'undefined') {
+				target = $(ev.currentTarget).data('ref');
+				// Use attr() instead of data() because data() converts to int which cannot be split
+				items = $(ev.currentTarget).attr('data-ids');
+				arr = items.split(",");
+				for(var i in arr) {
+				$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
+				}
+				// $("#"+target).trigger("chosen:updated");
+				$("#"+target).trigger("change");
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	/**
@@ -3457,26 +3444,26 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printInputPresetButtonJs()
 	{ /* {{{ */
 		?>
-		$(document).ready( function() {
-		$('.inputpreset_btn').click(function(ev){
-		ev.preventDefault();
-		if (typeof $(ev.currentTarget).data('text') != 'undefined') {
-		target = $(ev.currentTarget).data('ref');
-		value = $(ev.currentTarget).data('text');
-		sep = $(ev.currentTarget).data('sep');
-		if(sep) {
-		// Use attr() instead of data() because data() converts to int which cannot be split
-		arr = value.split(sep);
-		for(var i in arr) {
-		$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
-		}
-		} else {
-		$("#"+target).val(value);
-		}
-		}
-		});
-		});
-		<?php
+				$(document).ready( function() {
+				$('.inputpreset_btn').click(function(ev){
+				ev.preventDefault();
+				if (typeof $(ev.currentTarget).data('text') != 'undefined') {
+				target = $(ev.currentTarget).data('ref');
+				value = $(ev.currentTarget).data('text');
+				sep = $(ev.currentTarget).data('sep');
+				if(sep) {
+				// Use attr() instead of data() because data() converts to int which cannot be split
+				arr = value.split(sep);
+				for(var i in arr) {
+				$("#"+target+" option[value='"+arr[i]+"']").attr("selected", "selected");
+				}
+				} else {
+				$("#"+target).val(value);
+				}
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	/**
@@ -3492,11 +3479,11 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function getCheckboxPresetButtonHtml($name, $text)
 	{ /* {{{ */
 		?>
-		return '<span id="'.$name.'_btn" class="checkboxpreset_btn" style="cursor: pointer;" title="'.getMLText("
-			takeOverAttributeValue").'" data-ref="'.$name.'"
-			data-text="'.(is_array($text) ? implode($sep, $text) : htmlspecialchars($text)).'"'.($sep ? " data-sep=\"".$sep."\"" : "").'><i
-				class="fa fa-arrow-left"></i></span>';
-		<?php
+				return '<span id="'.$name.'_btn" class="checkboxpreset_btn" style="cursor: pointer;" title="'.getMLText("
+					takeOverAttributeValue").'" data-ref="'.$name.'"
+					data-text="'.(is_array($text) ? implode($sep, $text) : htmlspecialchars($text)).'"'.($sep ? " data-sep=\"".$sep."\"" : "").'><i
+						class="fa fa-arrow-left"></i></span>';
+				<?php
 	} /* }}} */
 
 	/**
@@ -3521,21 +3508,21 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printCheckboxPresetButtonJs()
 	{ /* {{{ */
 		?>
-		$(document).ready( function() {
-		$('.checkboxpreset_btn').click(function(ev){
-		ev.preventDefault();
-		if (typeof $(ev.currentTarget).data('text') != 'undefined') {
-		target = $(ev.currentTarget).data('ref');
-		value = $(ev.currentTarget).data('text');
-		if(value) {
-		$("#"+target).attr('checked', '');
-		} else {
-		$("#"+target).removeAttribute('checked');
-		}
-		}
-		});
-		});
-		<?php
+				$(document).ready( function() {
+				$('.checkboxpreset_btn').click(function(ev){
+				ev.preventDefault();
+				if (typeof $(ev.currentTarget).data('text') != 'undefined') {
+				target = $(ev.currentTarget).data('ref');
+				value = $(ev.currentTarget).data('text');
+				if(value) {
+				$("#"+target).attr('checked', '');
+				} else {
+				$("#"+target).removeAttribute('checked');
+				}
+				}
+				});
+				});
+				<?php
 	} /* }}} */
 
 	/**
@@ -3559,7 +3546,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printDeleteAttributeValueButton($attrdef, $value, $msg, $return = false)
 	{ /* {{{ */
 		$content = '';
-		$content .= '<a class="delete-attribute-value-btn" rel="' . $attrdef->getID() . '" msg="' . getMLText($msg) . '" attrvalue="' . htmlspecialchars($value, ENT_QUOTES) . '" confirmmsg="' . htmlspecialchars(getMLText("confirm_rm_attr_value", array("attrdefname" => $attrdef->getName())), ENT_QUOTES) . '"><i class="fa fa-remove"></i></a>';
+		$content .= '<a class="delete-attribute-value-btn" rel="' . $attrdef->getID() . '" msg="' . getMLText($msg) . '" attrvalue="' . htmlspecialchars($value, ENT_QUOTES) . '" confirmmsg="' . htmlspecialchars(getMLText("confirm_rm_attr_value", array("attrdefname" => $attrdef)), ENT_QUOTES) . '"><i class="fa fa-remove"></i></a>';
 		if ($return)
 			return $content;
 		else
@@ -3625,16 +3612,16 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$onepage = $this->params['onepage'];
 		if ($onepage) {
 			?>
-			/* catch click on a document row in the list folders and documents */
-			$('body').on('click', '[id^=\"table-row-document\"] td:nth-child(2)', function(ev) {
-			if(ev.shiftKey) {
-			$(ev.currentTarget).parent().toggleClass('selected');
-			} else {
-			attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
-			window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewDocument.php?documentid=' + attr_id;
-			}
-			});
-			<?php
+						/* catch click on a document row in the list folders and documents */
+						$('body').on('click', '[id^=\"table-row-document\"] td:nth-child(2)', function(ev) {
+						if(ev.shiftKey) {
+						$(ev.currentTarget).parent().toggleClass('selected');
+						} else {
+						attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
+						window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewDocument.php?documentid=' + attr_id;
+						}
+						});
+						<?php
 		}
 	} /* }}} */
 
@@ -3651,18 +3638,18 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$onepage = $this->params['onepage'];
 		if ($onepage) {
 			?>
-			/* catch click on a document row in the list folders and documents */
-			$('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev) {
-			if(ev.shiftKey) {
-			$(ev.currentTarget).parent().toggleClass('selected');
-			} else {
-			attr_id = $(ev.currentTarget).parent().data('target-id');
-			if(typeof attr_id == 'undefined')
-			attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
-			window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + attr_id;
-			}
-			});
-			<?php
+						/* catch click on a document row in the list folders and documents */
+						$('body').on('click', '[id^=\"table-row-folder\"] td:nth-child(2)', function(ev) {
+						if(ev.shiftKey) {
+						$(ev.currentTarget).parent().toggleClass('selected');
+						} else {
+						attr_id = $(ev.currentTarget).parent().data('target-id');
+						if(typeof attr_id == 'undefined')
+						attr_id = $(ev.currentTarget).parent().attr('id').split('-')[3];
+						window.location = '<?= $this->params['settings']->_httpRoot ?>out/out.ViewFolder.php?folderid=' + attr_id;
+						}
+						});
+						<?php
 		}
 	} /* }}} */
 
@@ -3801,7 +3788,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function documentListRowAction($document, $previewer, $skipcont = false, $version = 0, $extracontent = array())
 	{ /* {{{ */
 		$user = $this->params['user'];
-		$session = $this->params['session'];
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessop = $this->params['accessobject'];
 		$onepage = $this->params['onepage'];
@@ -3831,10 +3817,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$actions['document_access'] = $this->printAccessButton($document, true);
 		}
 		if ($enableClipboard) {
-			if ($session->isOnClipboard($document))
-				$actions['remove_from_clipboard'] = '<a class="removefromclipboard" rel="D' . $docID . '" msg="' . getMLText('splash_removed_from_clipboard') . '" title="' . getMLText("remove_from_clipboard") . '"><i class="fa fa-copy"></i></a>';
-			else
-				$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="D' . $docID . '" msg="' . getMLText('splash_added_to_clipboard') . '" title="' . getMLText("add_to_clipboard") . '"><i class="fa fa-copy"></i></a>';
+			$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="D' . $docID . '" msg="' . getMLText('splash_added_to_clipboard') . '" title="' . getMLText("add_to_clipboard") . '"><i class="fa fa-copy"></i></a>';
 		}
 		if ($onepage)
 			$actions['view_document'] = '<a href="' . $this->params['settings']->_httpRoot . 'out/out.ViewDocument.php?documentid=' . $docID . '" title="' . getMLText("view_document") . '"><i class="fa fa-eye"></i></a>';
@@ -4046,7 +4029,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
-		$session = $this->params['session'];
 		//		$folder = $this->params['folder'];
 		$showtree = $this->params['showtree'];
 		$enableRecursiveCount = $this->params['enableRecursiveCount'];
@@ -4079,10 +4061,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$actions['folder_access'] = $this->printAccessButton($subFolder, true);
 		}
 		if ($enableClipboard) {
-			if ($session->isOnClipboard($subFolder))
-				$actions['add_to_clipboard'] = '<a class="removefromclipboard" rel="F' . $subFolder->getID() . '" msg="' . getMLText('splash_removed_from_clipboard') . '" title="' . getMLText("remove_from_clipboard") . '"><i class="fa fa-copy"></i></a>';
-			else
-				$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="F' . $subFolder->getID() . '" msg="' . getMLText('splash_added_to_clipboard') . '" title="' . getMLText("add_to_clipboard") . '"><i class="fa fa-copy"></i></a>';
+			$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="F' . $subFolder->getID() . '" msg="' . getMLText('splash_added_to_clipboard') . '" title="' . getMLText("add_to_clipboard") . '"><i class="fa fa-copy"></i></a>';
 		}
 		if ($onepage)
 			$actions['view_folder'] = '<a href="' . $this->params['settings']->_httpRoot . 'out/out.ViewFolder.php?folderid=' . $subFolder->getID() . '" title="' . getMLText("view_folder") . '"><i class="fa fa-eye"></i></a>';
@@ -4353,56 +4332,56 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printFineUploaderJs($uploadurl, $partsize = 0, $maxuploadsize = 0, $multiple = true, $prefix = 'userfile', $formname = 'form1')
 	{ /* {{{ */
 		?>
-		$(document).ready(function() {
-		<?php echo $prefix; ?>uploader = new qq.FineUploader({
-		debug: false,
-		autoUpload: false,
-		multiple: <?php echo ($multiple ? 'true' : 'false'); ?>,
-		element: $('#<?php echo $prefix; ?>-fine-uploader')[0],
-		template: 'qq-template',
-		request: {
-		endpoint: '<?php echo $uploadurl . "?formkey=" . md5($this->params['settings']->_encryptionKey . 'uploadchunks'); ?>'
-		},
-		<?php echo ($maxuploadsize > 0 ? '
+				$(document).ready(function() {
+				<?php echo $prefix; ?>uploader = new qq.FineUploader({
+				debug: false,
+				autoUpload: false,
+				multiple: <?php echo ($multiple ? 'true' : 'false'); ?>,
+				element: $('#<?php echo $prefix; ?>-fine-uploader')[0],
+				template: 'qq-template',
+				request: {
+				endpoint: '<?php echo $uploadurl . "?formkey=" . md5($this->params['settings']->_encryptionKey . 'uploadchunks'); ?>'
+				},
+				<?php echo ($maxuploadsize > 0 ? '
 		validation: {
 			sizeLimit: ' . $maxuploadsize . '
 		},
 ' : ''); ?>
-		chunking: {
-		enabled: true,
-		<?php echo $partsize ? 'partSize: ' . (int) $partsize . ",\n" : ''; ?>
-		mandatory: true
-		},
-		messages: {
-		sizeError: '{file} is too large, maximum file size is {sizeLimit}.'
-		},
-		callbacks: {
-		onComplete: function(id, name, json, xhr) {
-		},
-		onAllComplete: function(succeeded, failed) {
-		var uuids = Array();
-		var names = Array();
-		for (var i = 0; i < succeeded.length; i++) { uuids.push(this.getUuid(succeeded[i]))
-			names.push(this.getName(succeeded[i])) } $('#<?php echo $prefix; ?>-fine-uploader-uuids').val(uuids.join(';'));
-			$('#<?php echo $prefix; ?>-fine-uploader-names').val(names.join(';'));
-			/* Run upload only if all files could be uploaded */
-			if(succeeded.length > 0 && failed.length == 0)
-			document.getElementById('<?= $formname ?>').submit();
-			},
-			onError: function(id, name, reason, xhr) {
-			noty({
-			text: reason,
-			type: 'error',
-			dismissQueue: true,
-			layout: 'topRight',
-			theme: 'defaultTheme',
-			timeout: 3500,
-			});
-			}
-			}
-			});
-			});
-			<?php
+				chunking: {
+				enabled: true,
+				<?php echo $partsize ? 'partSize: ' . (int) $partsize . ",\n" : ''; ?>
+				mandatory: true
+				},
+				messages: {
+				sizeError: '{file} is too large, maximum file size is {sizeLimit}.'
+				},
+				callbacks: {
+				onComplete: function(id, name, json, xhr) {
+				},
+				onAllComplete: function(succeeded, failed) {
+				var uuids = Array();
+				var names = Array();
+				for (var i = 0; i < succeeded.length; i++) { uuids.push(this.getUuid(succeeded[i]))
+					names.push(this.getName(succeeded[i])) } $('#<?php echo $prefix; ?>-fine-uploader-uuids').val(uuids.join(';'));
+					$('#<?php echo $prefix; ?>-fine-uploader-names').val(names.join(';'));
+					/* Run upload only if all files could be uploaded */
+					if(succeeded.length > 0 && failed.length == 0)
+					document.getElementById('<?= $formname ?>').submit();
+					},
+					onError: function(id, name, reason, xhr) {
+					noty({
+					text: reason,
+					type: 'error',
+					dismissQueue: true,
+					layout: 'topRight',
+					theme: 'defaultTheme',
+					timeout: 3500,
+					});
+					}
+					}
+					});
+					});
+					<?php
 	} /* }}} */
 
 	/**
@@ -4416,102 +4395,102 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$document = $latestContent->getDocument();
 		$accessop = $this->params['accessobject'];
 		?>
-			<legend><?php printMLText($type . '_log'); ?></legend>
-			<table class="table table-condensed">
-				<tr>
-					<th><?php printMLText('name'); ?></th>
-					<th><?php printMLText('last_update'); ?>, <?php printMLText('comment'); ?></th>
-					<th><?php printMLText('status'); ?></th>
-				</tr>
-				<?php
-				switch ($type) {
-					case "review":
-						$statusList = $latestContent->getReviewStatus(10);
-						break;
-					case "approval":
-						$statusList = $latestContent->getApprovalStatus(10);
-						break;
-					case "revision":
-						$statusList = $latestContent->getRevisionStatus(10);
-						break;
-					case "receipt":
-						$statusList = $latestContent->getReceiptStatus(10);
-						break;
-					default:
-						$statusList = array();
-				}
-				foreach ($statusList as $rec) {
-					echo "<tr>";
-					echo "<td>";
-					switch ($rec["type"]) {
-						case 0: // individual.
-							$required = $dms->getUser($rec["required"]);
-							if (!is_object($required)) {
-								$reqName = getMLText("unknown_user") . " '" . $rec["required"] . "'";
-							} else {
-								$reqName = htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
+					<legend><?php printMLText($type . '_log'); ?></legend>
+					<table class="table table-condensed">
+						<tr>
+							<th><?php printMLText('name'); ?></th>
+							<th><?php printMLText('last_update'); ?>, <?php printMLText('comment'); ?></th>
+							<th><?php printMLText('status'); ?></th>
+						</tr>
+						<?php
+						switch ($type) {
+							case "review":
+								$statusList = $latestContent->getReviewStatus(10);
+								break;
+							case "approval":
+								$statusList = $latestContent->getApprovalStatus(10);
+								break;
+							case "revision":
+								$statusList = $latestContent->getRevisionStatus(10);
+								break;
+							case "receipt":
+								$statusList = $latestContent->getReceiptStatus(10);
+								break;
+							default:
+								$statusList = array();
+						}
+						foreach ($statusList as $rec) {
+							echo "<tr>";
+							echo "<td>";
+							switch ($rec["type"]) {
+								case 0: // individual.
+									$required = $dms->getUser($rec["required"]);
+									if (!is_object($required)) {
+										$reqName = getMLText("unknown_user") . " '" . $rec["required"] . "'";
+									} else {
+										$reqName = htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
+									}
+									break;
+								case 1: // Approver is a group.
+									$required = $dms->getGroup($rec["required"]);
+									if (!is_object($required)) {
+										$reqName = getMLText("unknown_group") . " '" . $rec["required"] . "'";
+									} else {
+										$reqName = "<i>" . htmlspecialchars($required->getName()) . "</i>";
+									}
+									break;
 							}
-							break;
-						case 1: // Approver is a group.
-							$required = $dms->getGroup($rec["required"]);
-							if (!is_object($required)) {
-								$reqName = getMLText("unknown_group") . " '" . $rec["required"] . "'";
-							} else {
-								$reqName = "<i>" . htmlspecialchars($required->getName()) . "</i>";
+							echo $reqName;
+							echo "</td>";
+							echo "<td>";
+							echo "<i style=\"font-size: 80%;\">" . getLongReadableDate($rec['date']) . " - ";
+							$updateuser = $dms->getUser($rec["userID"]);
+							if (!is_object($updateuser))
+								echo getMLText("unknown_user");
+							else
+								echo htmlspecialchars($updateuser->getFullName() . " (" . $updateuser->getLogin() . ")");
+							echo "</i>";
+							if ($rec['comment'])
+								echo "<br />" . htmlspecialchars($rec['comment']);
+							switch ($type) {
+								case "review":
+									if ($accessop->check_controller_access('Download', array('action' => 'review')))
+										if ($rec['file']) {
+											echo "<br />";
+											echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&reviewlogid=" . $rec['reviewLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
+										}
+									break;
+								case "approval":
+									if ($accessop->check_controller_access('Download', array('action' => 'approval')))
+										if ($rec['file']) {
+											echo "<br />";
+											echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&approvelogid=" . $rec['approveLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
+										}
+									break;
 							}
-							break;
-					}
-					echo $reqName;
-					echo "</td>";
-					echo "<td>";
-					echo "<i style=\"font-size: 80%;\">" . getLongReadableDate($rec['date']) . " - ";
-					$updateuser = $dms->getUser($rec["userID"]);
-					if (!is_object($updateuser))
-						echo getMLText("unknown_user");
-					else
-						echo htmlspecialchars($updateuser->getFullName() . " (" . $updateuser->getLogin() . ")");
-					echo "</i>";
-					if ($rec['comment'])
-						echo "<br />" . htmlspecialchars($rec['comment']);
-					switch ($type) {
-						case "review":
-							if ($accessop->check_controller_access('Download', array('action' => 'review')))
-								if ($rec['file']) {
-									echo "<br />";
-									echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&reviewlogid=" . $rec['reviewLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
-								}
-							break;
-						case "approval":
-							if ($accessop->check_controller_access('Download', array('action' => 'approval')))
-								if ($rec['file']) {
-									echo "<br />";
-									echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&approvelogid=" . $rec['approveLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
-								}
-							break;
-					}
-					echo "</td>";
-					echo "<td>";
-					switch ($type) {
-						case "review":
-							echo getReviewStatusText($rec["status"]);
-							break;
-						case "approval":
-							echo getApprovalStatusText($rec["status"]);
-							break;
-						case "revision":
-							echo getRevisionStatusText($rec["status"]);
-							break;
-						case "receipt":
-							echo getReceiptStatusText($rec["status"]);
-							break;
-						default:
-					}
-					echo "</td>";
-					echo "</tr>";
-				}
-				?>
-			</table>
-			<?php
+							echo "</td>";
+							echo "<td>";
+							switch ($type) {
+								case "review":
+									echo getReviewStatusText($rec["status"]);
+									break;
+								case "approval":
+									echo getApprovalStatusText($rec["status"]);
+									break;
+								case "revision":
+									echo getRevisionStatusText($rec["status"]);
+									break;
+								case "receipt":
+									echo getReceiptStatusText($rec["status"]);
+									break;
+								default:
+							}
+							echo "</td>";
+							echo "</tr>";
+						}
+						?>
+					</table>
+					<?php
 	} /* }}} */
 
 	protected function printWorkflowLog($wkflogs)
@@ -4565,57 +4544,57 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		if (!$timelineurl)
 			return;
 		?>
-			var timeline;
-			var data;
+					var timeline;
+					var data;
 
-			// specify options
-			var options = {
-			'width': '100%',
-			'height': '100%',
-			<?php
-			if ($start) {
-				$tmp = explode('-', $start);
-				echo "\t\t\t'min': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
-			}
-			if ($end) {
-				$tmp = explode('-', $end);
-				echo "'\t\t\tmax': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
-			}
-			?>
-			'editable': false,
-			'selectable': true,
-			'style': 'box',
-			'locale': '<?php echo $this->params['session']->getLanguage() ?>'
-			};
+					// specify options
+					var options = {
+					'width': '100%',
+					'height': '100%',
+					<?php
+					if ($start) {
+						$tmp = explode('-', $start);
+						echo "\t\t\t'min': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
+					}
+					if ($end) {
+						$tmp = explode('-', $end);
+						echo "'\t\t\tmax': new Date(" . $tmp[0] . ", " . ($tmp[1] - 1) . ", " . $tmp[2] . "),\n";
+					}
+					?>
+					'editable': false,
+					'selectable': true,
+					'style': 'box',
+					'locale': '<?php echo $this->params['session']->getLanguage() ?>'
+					};
 
-			$(document).ready(function () {
-			// Instantiate our timeline object.
-			timeline = new links.Timeline(document.getElementById('timeline'), options);
-			<?php
-			if ($onselect):
-				?>
-				links.events.addListener(timeline, 'select', <?= $onselect ?>);
-				<?php
-			endif;
-			?>
-			$.getJSON(
-			'<?php echo $timelineurl ?>',
-			function(data) {
-			$.each( data, function( key, val ) {
-			val.start = new Date(val.start);
-			});
-			timeline.draw(data);
-			}
-			);
-			});
-			<?php
+					$(document).ready(function () {
+					// Instantiate our timeline object.
+					timeline = new links.Timeline(document.getElementById('timeline'), options);
+					<?php
+					if ($onselect):
+						?>
+							links.events.addListener(timeline, 'select', <?= $onselect ?>);
+							<?php
+					endif;
+					?>
+					$.getJSON(
+					'<?php echo $timelineurl ?>',
+					function(data) {
+					$.each( data, function( key, val ) {
+					val.start = new Date(val.start);
+					});
+					timeline.draw(data);
+					}
+					);
+					});
+					<?php
 	} /* }}} */
 
 	protected function printTimelineHtml($height)
 	{ /* {{{ */
 		?>
-			<div id="timeline" style="height: <?php echo $height ?>px;"></div>
-			<?php
+					<div id="timeline" style="height: <?php echo $height ?>px;"></div>
+					<?php
 	} /* }}} */
 
 	protected function printTimeline($timelineurl, $height = 300, $start = '', $end = '', $skip = array())
@@ -4630,13 +4609,13 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = md5(uniqid());
 		/*
-																																																																																																																																																																																																			  $this->addFooterJS('
-																																																																																																																																																																																																	  $("body").on("click", "span.openpopupbox", function(e) {
-																																																																																																																																																																																																		  $(""+$(e.target).data("href")).toggle();
-																																																																																																																																																																																																	  //	$("div.popupbox").toggle();
-																																																																																																																																																																																																	  });
-																																																																																																																																																																																																	  ');
-																																																																																																																																																																																																			   */
+																							$this->addFooterJS('
+																					$("body").on("click", "span.openpopupbox", function(e) {
+																						$(""+$(e.target).data("href")).toggle();
+																					//	$("div.popupbox").toggle();
+																					});
+																					');
+																							 */
 		$html = '
 		<span class="openpopupbox" data-href="#' . $id . '">' . $title . '</span>
 		<div id="' . $id . '" class="popupbox" style="display: none;">
@@ -4653,44 +4632,44 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	{ /* {{{ */
 		$id = substr(md5(uniqid()), 0, 4);
 		?>
-			<div class="accordion" id="accordion<?php echo $id; ?>">
-				<div class="accordion-group">
-					<div class="accordion-heading">
-						<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
-							href="#collapse<?php echo $id; ?>">
-							<?php echo $title; ?>
-						</a>
-					</div>
-					<div id="collapse<?php echo $id; ?>" class="accordion-body collapse<?= $open ? " in" : "" ?>">
-						<div class="accordion-inner">
-							<?php
-							echo $content;
-							?>
+					<div class="accordion" id="accordion<?php echo $id; ?>">
+						<div class="accordion-group">
+							<div class="accordion-heading">
+								<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
+									href="#collapse<?php echo $id; ?>">
+									<?php echo $title; ?>
+								</a>
+							</div>
+							<div id="collapse<?php echo $id; ?>" class="accordion-body collapse<?= $open ? " in" : "" ?>">
+								<div class="accordion-inner">
+									<?php
+									echo $content;
+									?>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-			<?php
+					<?php
 	} /* }}} */
 
 	public function printAccordion2($title, $content)
 	{ /* {{{ */
 		$id = substr(md5(uniqid()), 0, 4);
 		?>
-			<div class="accordion2" id="accordion<?php echo $id; ?>">
-				<a class="accordion2-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
-					href="#collapse<?php echo $id; ?>">
+					<div class="accordion2" id="accordion<?php echo $id; ?>">
+						<a class="accordion2-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $id; ?>"
+							href="#collapse<?php echo $id; ?>">
+							<?php
+							$this->contentHeading($title);
+							?>
+						</a>
+						<div id="collapse<?php echo $id; ?>" class="collapse" style="height: 0px;">
+							<?php
+							echo $content;
+							?>
+						</div>
+					</div>
 					<?php
-					$this->contentHeading($title);
-					?>
-				</a>
-				<div id="collapse<?php echo $id; ?>" class="collapse" style="height: 0px;">
-					<?php
-					echo $content;
-					?>
-				</div>
-			</div>
-			<?php
 	} /* }}} */
 }
 
