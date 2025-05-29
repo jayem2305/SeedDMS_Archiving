@@ -89,6 +89,7 @@ class SeedDMS_View_AdminTools extends SeedDMS_Theme_Style {
 		$this->globalNavigation();
 		$this->contentStart();
 		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
+		$this->pageSidebar();
 ?>
 	<!-- 
         EMBEDDED CSS FOR ADMIN TOOLS - HIGHLY SPECIFIC
