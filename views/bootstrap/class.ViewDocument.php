@@ -2196,6 +2196,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		<?php
 		if ($user->isAdmin()) {
 			$this->contentHeading(getMLText("timeline"));
+			$this->pageSidebar();
 			$this->printTimelineHtml(300);
 		}
 

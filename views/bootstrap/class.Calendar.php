@@ -511,6 +511,7 @@ class SeedDMS_View_Calendar extends SeedDMS_Theme_Style
 		</div>
 		<?php
 		$this->columnEnd();
+		$this->pageSidebar();
 		$this->rowEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
