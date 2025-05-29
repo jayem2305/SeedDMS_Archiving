@@ -788,11 +788,11 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
         </li>
         <li>
             <a href="' . $this->params['settings']->_httpRoot . 'out/out.ViewFolder.php">
-                <i class="fa fa-folder-open fa-lg"></i> ' . getMLText('menu_documents') . ' <!-- Or use plain "My Folders" if "menu_documents" key has bolding -->
+                <i class="fa fa-folder-open fa-lg"></i> ' . getMLText('folders') . ' <!-- Or use plain "My Folders" if "folders" key has bolding -->
             </a>
         </li>
 
-        <hr class="sidebar-divider my-2">
+        
 
         <!-- User Management Section -->
         <li> 
@@ -810,7 +810,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
         <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.UserList.php"><i class="fa fa-list fa-lg"></i> ' . getMLText('user_list') . '</a></li>
         <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Acl.php"><i class="fa fa-shield fa-lg"></i> ' . getMLText('access_control') . '</a></li>
 
-        <hr class="sidebar-divider my-2">
+        
 
         <!-- Definitions Section -->
         <li> 
@@ -831,7 +831,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
         echo '    </ul>
         </li>
 
-        <hr class="sidebar-divider my-2">
+        
         
         <!-- Backup/Logging Section -->
         <li>
@@ -847,47 +847,16 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
         echo '    </ul>
         </li>
         
-        <hr class="sidebar-divider my-2">
+        
 
-        <!-- Misc Section -->
-        <li>
-          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-Misc" role="button" aria-expanded="false" aria-controls="collapse-Misc">
-            <span><i class="fa fa-cogs fa-lg"></i> ' . getMLText('misc') . '</span>
-            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
-          </a>
-          <ul class="collapse list-unstyled" id="collapse-Misc">
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ImportFS.php"><i class="fa fa-folder-upload fa-lg"></i> ' . getMLText('import_fs') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ImportUsers.php"><i class="fa fa-user-plus fa-lg"></i> ' . getMLText('import_users') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Statistic.php"><i class="fa fa-pie-chart fa-lg"></i> ' . getMLText('folders_and_documents_statistic') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Charts.php"><i class="fa fa-bar-chart fa-lg"></i> ' . getMLText('charts') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Timeline.php"><i class="fa fa-signal fa-lg"></i> ' . getMLText('timeline') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.SchedulerTaskMgr.php"><i class="fa fa-clock-o fa-lg"></i> ' . getMLText('scheduler_task_mgr') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ObjectCheck.php"><i class="fa fa-check-square-o fa-lg"></i> ' . getMLText('objectcheck') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ExpiredDocuments.php"><i class="fa fa-calendar-times-o fa-lg"></i> ' . getMLText('documents_expired') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ExtensionMgr.php"><i class="fa fa-puzzle-piece fa-lg"></i> ' . getMLText('extension_manager') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.ClearCache.php"><i class="fa fa-eraser fa-lg"></i> ' . getMLText('clear_cache') . '</a></li>
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.Info.php"><i class="fa fa-info-circle fa-lg"></i> ' . getMLText('version_info') . '</a></li>
-          </ul>
-        </li>
+
 	</ul>
 
-        <hr class="sidebar-divider my-2">
         
-        <!-- Backup/Logging Section -->
-        <li>
-          <a class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-BackupLogging" role="button" aria-expanded="false" aria-controls="collapse-BackupLogging">
-            <span><i class="fa fa-database fa-lg"></i> ' . getMLText('backup_log_management') . '</span>
-            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
-          </a>
-          <ul class="collapse list-unstyled" id="collapse-BackupLogging">
-            <li><a href="' . $this->params['settings']->_httpRoot . 'out/out.BackupTools.php"><i class="fa fa-life-saver fa-lg"></i> ' . getMLText('backup_tools') . '</a></li>';
-        if ($this->params['logfileenable'] ?? false) {
-            echo '<li><a href="' . $this->params['settings']->_httpRoot . 'out/out.LogManagement.php"><i class="fa fa-list-alt fa-lg"></i> ' . getMLText('log_management') . '</a></li>';
-        }
-        echo '    </ul>
-        </li>
         
-        <hr class="sidebar-divider my-2">
+
+        
+        
 
         <!-- Misc Section -->
         <li>
@@ -913,46 +882,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		
 </div>
 
-<div class="opt-sidebar">
-  <ul>
-    <li>
-      <a id="selection" class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-UserManagement" role="button" aria-expanded="false" aria-controls="collapse-UserManagement">
-        <span><i class="fa fa-users fa-lg"></i> User Management</span>
-        <i class="fa fa-angle-right fa-lg"></i>
-      </a>
-      <ul class="collapse" id="collapse-UserManagement">
-        <li><a><i class="fa fa-id-badge fa-lg"></i> Role Management</a></li>
-        <li><a><i class="fa fa-object-group fa-lg"></i> Groups Management</a></li>
-      </ul>
-    </li>
 
-    <li><a><i class="fa fa-list fa-lg"></i> List of Users</a></li>
-    <li><a><i class="fa fa-shield fa-lg"></i> Access Control</a></li>
-
-    <li>
-      <a id="selection" class="d-flex align-items-center justify-content-between" data-toggle="collapse" href="#collapse-Definition" role="button" aria-expanded="false" aria-controls="collapse-Definition">
-        <span><i class="fa fa-book fa-lg"></i> Definitions</span>
-        <i class="fa fa-angle-right fa-lg"></i>
-      </a>
-      <ul class="collapse" id="collapse-Definition">
-        <li><a>Global Keywords</a></li>
-      </ul>
-    </li>
-
-    <li>
-      <a id="selection" class="d-flex align-items-center justify-content-between">
-        <span><i class="fa fa-database fa-lg"></i> Backup/Logging</span>
-        <i class="fa fa-angle-right fa-lg"></i>
-      </a>
-    </li>
-    <li>
-      <a id="selection" class="d-flex align-items-center justify-content-between">
-        <span><i class="fa fa-cogs fa-lg"></i> Misc</span>
-        <i class="fa fa-angle-right fa-lg"></i>
-      </a>
-    </li>
-  </ul>
-</div>
 
 
 ';
