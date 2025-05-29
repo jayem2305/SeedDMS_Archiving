@@ -31,6 +31,17 @@
  */
 class SeedDMS_View_Statistic extends SeedDMS_Theme_Style
 {
+	private function decryptName($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	var $dms;
 	var $folder_count;
 	var $document_count;
@@ -54,11 +65,12 @@ class SeedDMS_View_Statistic extends SeedDMS_Theme_Style
 		$this->folder_count++;
 		$folder_size = 0;
 		$doc_count = 0;
-
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		$color = $folder->inheritsAccess() ? "black" : $this->getAccessColor($folder->getDefaultAccess());
-
+		$decrypted = $this->decryptName($folder->getName(), $encryption_key);
+		$folder_name = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $folder->getName() : $decrypted;
 		print "<li class=\"folderClass\">";
-		print "<a style=\"color: $color\" href=\"out.ViewFolder.php?folderid=" . $folder->getID() . "\">" . htmlspecialchars($folder->getName()) . "</a>";
+		print "<a style=\"color: $color\" href=\"out.ViewFolder.php?folderid=" . $folder->getID() . "\">" . htmlspecialchars($folder_name) . "</a>";
 
 		$owner = $folder->getOwner();
 		$color = $this->getAccessColor(M_ALL);
@@ -109,10 +121,12 @@ class SeedDMS_View_Statistic extends SeedDMS_Theme_Style
 			closedir($handle);
 		}
 		$this->storage_size += $folder_size;
-
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+		$decrypted = $this->decryptName($document->getName(), $encryption_key);
+		$document_name = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $document->getName() : $decrypted;
 		$color = $document->inheritsAccess() ? "black" : $this->getAccessColor($document->getDefaultAccess());
 		print "<li class=\"documentClass\">";
-		print "<a style=\"color: $color\" href=\"out.ViewDocument.php?documentid=" . $document->getID() . "\">" . htmlspecialchars($document->getName()) . "</a>";
+		print "<a style=\"color: $color\" href=\"out.ViewDocument.php?documentid=" . $document->getID() . "\">" . htmlspecialchars($document_name) . "</a>";
 
 		$owner = $document->getOwner();
 		$color = $this->getAccessColor(M_ALL);
