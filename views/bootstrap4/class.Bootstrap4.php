@@ -354,17 +354,25 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$dms = $this->params['dms'];
 		$accessobject = $this->params['accessobject'];
 
-		echo "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark border-bottom fixed-top\">\n";
+		echo "<nav class=\"navbar navbar-expand-lg navbar-light bg-light border-bottom fixed-top\" style=\"background-color: #ffffff !important;\">\n";
 		echo " <a class=\"navbar-brand\" href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\">" . (!empty($this->extraheader['logo']) ? '<img id="navbar-logo" src="' . $this->extraheader['logo'] . '">' : '<img id="navbar-logo" src="' . $this->params['settings']->_httpRoot . 'views/bootstrap4/images/favicon.svg">') . " <span class=\"d-none d-md-inline-block ml-4\">" . (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "") . "</span></a>\n";
 
 		if (isset($this->params['user']) && $this->params['user']) {
 			/* search form {{{ */
-			echo "     <form action=\"" . $this->params['settings']->_httpRoot . "out/out.Search.php\" class=\"form-inline ml-4 mr-auto\" autocomplete=\"off\">";
+			echo "     <form action=\"" . $this->params['settings']->_httpRoot . "out/out.Search.php\" class=\"form-inline ml-4 mr-auto my-2 my-lg-0\" autocomplete=\"off\">";
 			if ($folder != null && is_object($folder) && !strcasecmp(get_class($folder), $dms->getClassname('folder'))) {
 				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
 			}
 			echo "      <input type=\"hidden\" name=\"navBar\" value=\"1\" />";
-			echo "      <input name=\"query\" class=\"form-control mr-sm-2 search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" style=\"width: 150px;\" placeholder=\"" . getMLText("search") . "\" aria-label=\"" . getMLText("search") . "\"/>";
+			
+			// MODIFIED PLACEHOLDER AND BUTTON CLASS
+			echo "      <div class=\"input-group search-bar-modern\">"; // Added class for potential custom styling
+			echo "        <input name=\"query\" class=\"form-control search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" placeholder=\"Search Files and Folders\" aria-label=\"Search Files and Folders\" style=\"width: 220px;\">";
+			echo "        <div class=\"input-group-append\">";
+			echo "          <button class=\"btn btn-dark\" type=\"submit\" title=\"" . getMLText("search") . "\"><i class=\"fa fa-search\"></i></button>"; // Changed to btn-dark for black button
+			echo "        </div>";
+			echo "      </div>"; // End Input Group
+
 			if ($this->params['defaultsearchmethod'] == 'fulltext')
 				echo "      <input type=\"hidden\" name=\"fullsearch\" value=\"1\" />";
 			echo "</form>\n";
@@ -379,7 +387,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$menuitems = array();
 			/* calendar {{{ */
 			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
-				$menuitems['calendar'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'], 'label' => getMLText("calendar"));
+				$menuitems['calendar'] = array(
+					'link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'],
+					'label' => '<i class="fa fa-calendar-times-o fa-lg" title="' . getMLText("calendar") . '"></i><span class="d-lg-none ml-2">' . getMLText("calendar") . '</span>' // Show text on small screens
+				);
 			if ($accessobject->check_view_access('AdminTools'))
 				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
 			if ($this->params['enablehelp']) {
@@ -458,7 +469,16 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			/* user profile menu {{{ */
 			echo "  <ul class=\"navbar-nav ml-auto\">\n";
 			echo "   <li class=\"nav-item dropdown\">\n";
-			echo "    <a href=\"#\" class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\" id=\"navbarMainUser\" aria-haspopup=\"true\" aria-expanded=\"false\">" . ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . htmlspecialchars($this->params['user']->getFullName()) . "'</a>\n";
+			$userFullName = htmlspecialchars($this->params['user']->getFullName());
+			$tooltipText = ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . $userFullName . "'";
+
+			echo "    <a href=\"#\" class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\" id=\"navbarMainUser\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\" title=\"" . $tooltipText . "\">";
+			echo "       <i class=\"fa fa-user-circle fa-lg\"></i>"; // User head icon
+			echo "       <span style=\"margin-left: 5px;\" class=\"d-none d-lg-inline-block\">" . $userFullName . "</span>"; // Display name, hide on screens smaller than lg
+			// Bootstrap 4 dropdown-toggle usually adds its own caret via CSS pseudo-elements.
+			// If you need an explicit Font Awesome caret, you can add it:
+			// echo " <i class=\"fa fa-caret-down ml-1\"></i>"; 
+			echo "    </a>\n";
 			echo "    <div class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"navbarMainUser\">\n";
 			if (!$this->params['user']->isGuest()) {
 				$menuitems = array();
@@ -601,6 +621,76 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
         box-sizing: border-box !important; /* Ensure padding doesn't add to width */
         padding: 0 !important; /* Remove all padding from the main container */
     }
+
+		 @media (min-width: 992px) { /* Bootstrap 4 'lg' breakpoint - adjust if your sidebar shows at a different size */
+        body > main.container-fluid { 
+             margin-left: 240px !important; /* Push main content to the right of the sidebar */
+        }
+nav.navbar.fixed-top form.form-inline.ml-4.mr-auto {
+            margin-left: 100px !important; /* Sidebar width (240px) + 5px gap. Adjust as needed. */
+                                         /* Using !important to override the existing 'ml-4' if necessary. */
+        }
+    }
+		 @media (max-width: 991.98px) { /* Screen sizes smaller than the sidebar breakpoint */
+        /* ... (your existing mobile sidebar styles) ... */
+        
+        /* Reset the search bar's margin-left on smaller screens if it was changed above */
+        nav.navbar.fixed-top form.form-inline.ml-4.mr-auto {
+            margin-left: 1.5rem; /* This is the typical value for Bootstrap's 'ml-4'. Adjust if your theme uses a different value. */
+                                 /* Or use 'initial' or 'unset' if 'ml-4' is not always desired on mobile. */
+        }
+    }
+
+.search-bar-modern.input-group {
+    /* You can adjust this value for more or less rounding */
+    /* Bootstrap's default is often 0.25rem. Increase for more noticeable rounding. */
+    border-radius: 0.35rem; 
+}
+
+/* Ensure child elements also look rounded if the parent has a border */
+/* This is often needed if the input-group itself has a border and overflow:hidden */
+.search-bar-modern.input-group > .form-control {
+    border-top-left-radius: 0.35rem;    /* Match parent */
+    border-bottom-left-radius: 0.35rem; /* Match parent */
+    border-right: 0; /* Remove right border if button is directly attached */
+}
+
+.search-bar-modern.input-group > .input-group-append > .btn {
+    border-top-right-radius: 0.35rem;   /* Match parent */
+    border-bottom-right-radius: 0.35rem;/* Match parent */
+}
+
+/* Adjust focus glow if needed */
+.search-bar-modern.input-group > .form-control:focus {
+    z-index: 3; /* Ensure it's above other elements on focus if using box-shadow */
+    border-color: #80bdff; 
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Ensure search icon on dark button is light */
+.btn-dark .fa-search {
+    color: #fff; /* Or another light color that contrasts well with btn-dark */
+}
+
+nav.navbar .input-group .btn-dark {
+    background-color: #000000 !important; /* Or #000000 for pure black */
+    border-color: #000000 !important;   /* Or #000000 */
+    color: #ffffff !important;          /* For the icon/text */
+}
+
+/* Ensure the icon itself within this specific button is white */
+nav.navbar .input-group .btn-dark .fa-search {
+    color: #ffffff !important;
+}
+
+/* Optional: Hover/Focus states if they also get overridden */
+nav.navbar .input-group .btn-dark:hover,
+nav.navbar .input-group .btn-dark:focus {
+    background-color: #1a1e21 !important; /* A slightly darker shade for hover/focus */
+    border-color: #1a1e21 !important;
+    color: #ffffff !important;
+}
+
 
     .page-sidebar-custom .sidebar-inner {
        padding: 0; /* Remove padding if any was here */

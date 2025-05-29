@@ -448,7 +448,17 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo "   <div class=\"nav-collapse nav-col1\">\n";
 			echo "   <ul id=\"main-menu-admin\" class=\"nav pull-right\">\n";
 			echo "    <li class=\"dropdown\">\n";
-			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . htmlspecialchars($this->params['user']->getFullName()) . "' <i class=\"fa fa-caret-down\"></i></a>\n";
+			$userFullName = htmlspecialchars($this->params['user']->getFullName());
+			// Tooltip will still show the full "Signed in as 'User Name'"
+			$tooltipText = ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . $userFullName . "'";
+
+			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" title=\"" . $tooltipText . "\">";
+			echo "       <i class=\"fa fa-user-circle fa-lg\"></i>"; // User head icon
+			echo "       <span style=\"margin-left: 5px;\">" . $userFullName . "</span>"; // Display only the user's full name
+			echo "       <i class=\"fa fa-caret-down\" style=\"margin-left: 5px;\"></i>"; // Dropdown caret
+			echo "     </a>\n";
+			// --- END OF MODIFIED SECTION FOR USER ICON ---
+
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
 			//			if (!$this->params['user']->isGuest()) {
 			$menuitems = array();
@@ -564,7 +574,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$menuitems = array();
 			/* calendar {{{ */
 			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
-				$menuitems['calendar'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'], 'label' => getMLText("calendar"));
+				$menuitems['calendar'] = array(
+					'link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'],
+					'label' => '<i class="fa fa-calendar-times-o fa-lg" title="' . getMLText("calendar") . '"></i>'
+				);
 			if ($accessobject->check_view_access('AdminTools'))
 				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
 			if ($this->params['enablehelp']) {
@@ -646,6 +659,16 @@ function pageSidebar()
         transition: transform 0.3s ease-in-out;
         box-sizing: border-box !important; /* Ensure padding doesn't add to width */
         padding: 0 !important; /* Remove all padding from the main container */
+    }
+ @media (min-width: 980px) { 
+        body > main.container-fluid { 
+             margin-left: 100px !important; 
+        }
+
+        /* Adjust the search bar's left margin */
+        .navbar-fixed-top .navbar-inner .container-fluid > form.navbar-search.pull-left {
+		 margin-left: 100px;
+		 }
     }
 
     .page-sidebar-custom .sidebar-inner {
