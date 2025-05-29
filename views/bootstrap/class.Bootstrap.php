@@ -3165,7 +3165,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function printDeleteAttributeValueButton($attrdef, $value, $msg, $return = false)
 	{ /* {{{ */
 		$content = '';
-		$content .= '<a class="delete-attribute-value-btn" rel="' . $attrdef->getID() . '" msg="' . getMLText($msg) . '" attrvalue="' . htmlspecialchars($value, ENT_QUOTES) . '" confirmmsg="' . htmlspecialchars(getMLText("confirm_rm_attr_value", array("attrdefname" => $attrdef->getName())), ENT_QUOTES) . '"><i class="fa fa-remove"></i></a>';
+		$content .= '<a class="delete-attribute-value-btn" rel="' . $attrdef->getID() . '" msg="' . getMLText($msg) . '" attrvalue="' . htmlspecialchars($value, ENT_QUOTES) . '" confirmmsg="' . htmlspecialchars(getMLText("confirm_rm_attr_value", array("attrdefname" => $attrdef)), ENT_QUOTES) . '"><i class="fa fa-remove"></i></a>';
 		if ($return)
 			return $content;
 		else

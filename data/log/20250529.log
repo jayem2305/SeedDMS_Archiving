@@ -33,3 +33,15 @@ May 29 08:27:25  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=7QgfHr
 May 29 08:27:52  [info] admin (::1) op.DefaultKeywords.php .php&action=addcategory&categoryid=1
 May 29 08:28:05  [info] admin (::1) op.Categories.php .php&action=addcategory&categoryid=1
 May 29 08:28:24  [info] admin (::1) op.AttributeMgr.php &action=addattrdef&name=Sample Attributes
+May 29 09:20:45  [info] admin (::1) op.AddSubFolder.php ?name=Sample folder V2&folderid=1
+May 29 09:22:27  [info] admin (::1) op.AddDocument.php add document 3 in folder 3
+May 29 09:22:28  [info] Conversion from image/jpeg to image/png with gd image service took 0.085819005966187 sec.
+May 29 09:22:34  [info] Conversion from image/jpeg to image/png with gd image service took 0.093962907791138 sec.
+May 29 09:27:30  [info] Conversion from image/jpeg to image/png with gd image service took 0.063600063323975 sec.
+May 29 09:48:17  [info] admin (::1) op.EditFolder.php ?folderid=3
+May 29 09:48:18  [info] Conversion from image/jpeg to image/png with gd image service took 0.10328698158264 sec.
+May 29 09:59:21  [error] admin (::1) op.AddDocument.php  UI::exitError error=Error when creating the document. The document has a reviewer, but no approver. pagetitle=Folder 'DMS'
+May 29 09:59:54  [error] Notification service 'email': Sending notification 'new_document_email_subject' to user 'info@seeddms.org' (1) failed.
+May 29 09:59:54  [info] admin (::1) op.AddDocument.php add document 4 in folder 1
+May 29 09:59:55  [info] Conversion from image/jpeg to image/png with gd image service took 0.074554920196533 sec.
+May 29 10:04:47  [info] Conversion from image/jpeg to image/png with gd image service took 0.10260486602783 sec.
