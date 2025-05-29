@@ -214,7 +214,11 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
         <?php
         $this->contentContainerEnd(); 
         $this->columnEnd();
-        
+
+
+
+
+										    
         if ($isPieChart) {
             $this->columnStart('col-md-4');
             $legendTitle = "Legend";
