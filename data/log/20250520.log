@@ -1,7 +1,0 @@
-May 20 11:32:04  [info] admin (::1) op.AddDocument.php add document 24 in folder 1
-May 20 11:32:17  [info] admin (::1) op.AddSubFolder.php ?name=qweqweqwe&folderid=1
-May 20 11:32:38  [info] admin (::1) op.AddSubFolder.php ?name=sssss&folderid=4
-May 20 11:38:08  [info] admin (::1) op.EditFolder.php ?folderid=4
-May 20 11:39:16  [info] admin (::1) op.EditFolder.php ?folderid=4
-May 20 11:49:40  [info] admin (::1) op.EditFolder.php ?folderid=4
-May 20 12:05:51  [info] admin (::1) op.AddSubFolder.php ?name=sample folder&folderid=1
