@@ -1,6 +1,0 @@
-May 30 00:23:53  [info] -- (::1) op.Login.php 
-May 30 00:23:53  [info] Authentication service 'db'
-May 30 00:23:53  [info] Authentication service 'db': Authentication of user 'admin' successful.
-May 30 05:59:48  [info] -- (::1) op.Login.php 
-May 30 05:59:48  [info] Authentication service 'db'
-May 30 05:59:48  [info] Authentication service 'db': Authentication of user 'admin' successful.

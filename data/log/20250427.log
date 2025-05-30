@@ -1,3 +1,0 @@
-Apr 27 15:26:27  [info] admin (::1) op.EditDocument.php ?documentid=4
-Apr 27 15:26:47  [info] admin (::1) op.LockDocument.php?documentid=4&formtoken=c90f9ff44b0a08b4fae0ec8b3477149c 
-Apr 27 15:26:51  [info] admin (::1) op.UnlockDocument.php?documentid=4&formtoken=bd4d36a255ebd7c7b26467201fd52516 
