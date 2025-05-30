@@ -214,10 +214,7 @@ class SeedDMS_View_Statistic extends SeedDMS_Theme_Style
 		$this->contentContainerEnd();
 		$this->columnEnd();
 		$this->columnStart(4);
-<<<<<<< HEAD
-=======
 		$this->pageSidebar();
->>>>>>> grinnel-sidebar
 		$this->contentContainerStart();
 		print "<legend>" . getMLText("legend") . "</legend>\n";
 		print "<ul class=\"unstyled\">\n";
@@ -244,10 +241,7 @@ class SeedDMS_View_Statistic extends SeedDMS_Theme_Style
 		$this->contentContainerEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
-<<<<<<< HEAD
-=======
-		
->>>>>>> grinnel-sidebar
+
 	} /* }}} */
 }
 ?>

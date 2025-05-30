@@ -29,13 +29,16 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_View_ClearCache extends SeedDMS_Theme_Style {
+class SeedDMS_View_ClearCache extends SeedDMS_Theme_Style
+{
 
-	protected function output($name, $title, $space, $c) {
-		echo '<p><input type="checkbox" name="'.$name.'" value="1" checked> '.$title.($space !== NULL || $c != NULL ? '<br />' : '').($space !== NULL ? SeedDMS_Core_File::format_filesize($space) : '').($c !== NULL ? ' in '.$c.' Files' : '').'</p>';
+	protected function output($name, $title, $space, $c)
+	{
+		echo '<p><input type="checkbox" name="' . $name . '" value="1" checked> ' . $title . ($space !== NULL || $c != NULL ? '<br />' : '') . ($space !== NULL ? SeedDMS_Core_File::format_filesize($space) : '') . ($c !== NULL ? ' in ' . $c . ' Files' : '') . '</p>';
 	}
 
-	function show() { /* {{{ */
+	function show()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$cachedir = $this->params['cachedir'];
@@ -45,63 +48,60 @@ class SeedDMS_View_ClearCache extends SeedDMS_Theme_Style {
 		$this->contentStart();
 		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
 		$this->contentHeading(getMLText("clear_cache"));
-		$this->warningMsg(getMLText("confirm_clear_cache", array('cache_dir'=>$cachedir)));
-<<<<<<< HEAD
-=======
+		$this->warningMsg(getMLText("confirm_clear_cache", array('cache_dir' => $cachedir)));
 		$this->pageSidebar();
->>>>>>> grinnel-sidebar
-?>
-<form action="../op/op.ClearCache.php" name="form1" method="post">
-<?php echo createHiddenFieldWithKey('clearcache'); ?>
-<?php
-		$this->contentContainerStart('warning');
-?>
-<?php
-		$totalc = 0;
-		$totalspace = 0;
-		// Preview for png, pdf, and txt */
-		foreach(['png', 'pdf', 'txt'] as $t) {
-			$path = addDirSep($cachedir).$t;
-			if(file_exists($path)) {
+		?>
+		<form action="../op/op.ClearCache.php" name="form1" method="post">
+			<?php echo createHiddenFieldWithKey('clearcache'); ?>
+			<?php
+			$this->contentContainerStart('warning');
+			?>
+			<?php
+			$totalc = 0;
+			$totalspace = 0;
+			// Preview for png, pdf, and txt */
+			foreach (['png', 'pdf', 'txt'] as $t) {
+				$path = addDirSep($cachedir) . $t;
+				if (file_exists($path)) {
+					$space = dskspace($path);
+					$fi = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
+					$c = iterator_count($fi);
+				} else {
+					$space = $c = 0;
+				}
+				$totalc += $c;
+				$totalspace += $space;
+				$this->output('preview' . $t, getMLText('preview_' . $t), $space, $c);
+			}
+
+			/* Javascript */
+			$path = addDirSep($cachedir) . 'js';
+			if (file_exists($path)) {
 				$space = dskspace($path);
 				$fi = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
 				$c = iterator_count($fi);
-			} else {                                                           
-				$space = $c = 0;                                                 
-			} 
+			} else {
+				$space = $c = 0;
+			}
 			$totalc += $c;
 			$totalspace += $space;
-			$this->output('preview'.$t, getMLText('preview_'.$t), $space, $c);
-		}
+			$this->output('js', getMLText('temp_jscode'), $space, $c);
 
-		/* Javascript */
-		$path = addDirSep($cachedir).'js';
-		if(file_exists($path)) {
-			$space = dskspace($path);
-			$fi = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
-			$c = iterator_count($fi);
-		} else {                                                           
-			$space = $c = 0;                                                 
-		} 
-		$totalc += $c;
-		$totalspace += $space;
-		$this->output('js', getMLText('temp_jscode'), $space, $c);
-
-		/* Cache dirѕ added by extensions */
-		$addcache = array();
-		if($addcache = $this->callHook('additionalCache')) {
-			foreach($addcache as $c) {
-				$this->output($c[0], $c[1], isset($c[2]) ? $c[2] : NULL, isset($c[3]) ? $c[3] : NULL);
-				$totalc += $c[3];
-				$totalspace += $c[2];
+			/* Cache dirѕ added by extensions */
+			$addcache = array();
+			if ($addcache = $this->callHook('additionalCache')) {
+				foreach ($addcache as $c) {
+					$this->output($c[0], $c[1], isset($c[2]) ? $c[2] : NULL, isset($c[3]) ? $c[3] : NULL);
+					$totalc += $c[3];
+					$totalspace += $c[2];
+				}
 			}
-		}
-		$this->contentContainerEnd();
-		$this->infoMsg(SeedDMS_Core_File::format_filesize($totalspace).' in '.$totalc.' Files');
-		$this->formSubmit("<i class=\"fa fa-remove\"></i> ".getMLText('clear_cache'), '', '', 'danger');
-?>
-</form>
-<?php
+			$this->contentContainerEnd();
+			$this->infoMsg(SeedDMS_Core_File::format_filesize($totalspace) . ' in ' . $totalc . ' Files');
+			$this->formSubmit("<i class=\"fa fa-remove\"></i> " . getMLText('clear_cache'), '', '', 'danger');
+			?>
+		</form>
+		<?php
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */

@@ -319,15 +319,15 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function contentStart()
 	{ /* {{{ */
 		/*
-																																																																																																																																																																						echo "<div class=\"container-fluid\">\n";
-																																																																																																																																																																						echo "<div class=\"row\">\n";
-																																																																																																																																																																						echo "<nav class=\"_col-md-2 d-none d-md-block bg-light sidebar\">\n";
-																																																																																																																																																																						echo "<div class=\"sidebar-sticky\">\n";
-																																																																																																																																																																						echo "lsajdlf";
-																																																																																																																																																																						echo "</div>\n";
-																																																																																																																																																																						echo "</nav>\n";
-																																																																																																																																																																						echo "<main role=\"main\" class=\"_col-md-10 _ml-sm-auto pb-3 px-4\">\n";
-																																																																																																																																																																				*/
+																																																																																																																																																																							  echo "<div class=\"container-fluid\">\n";
+																																																																																																																																																																							  echo "<div class=\"row\">\n";
+																																																																																																																																																																							  echo "<nav class=\"_col-md-2 d-none d-md-block bg-light sidebar\">\n";
+																																																																																																																																																																							  echo "<div class=\"sidebar-sticky\">\n";
+																																																																																																																																																																							  echo "lsajdlf";
+																																																																																																																																																																							  echo "</div>\n";
+																																																																																																																																																																							  echo "</nav>\n";
+																																																																																																																																																																							  echo "<main role=\"main\" class=\"_col-md-10 _ml-sm-auto pb-3 px-4\">\n";
+																																																																																																																																																																					  */
 		echo "<main role=\"main\" class=\"container-fluid mt-3 pb-3\">\n";
 		echo " <div class=\"row-fluid\">\n";
 	} /* }}} */
@@ -337,9 +337,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo " </div>\n";
 		echo "</main>\n";
 		/*
-																																																																																																																																																																						echo "</div>\n";
-																																																																																																																																																																						echo "</div>\n";
-																																																																																																																																																																				*/
+																																																																																																																																																																							  echo "</div>\n";
+																																																																																																																																																																							  echo "</div>\n";
+																																																																																																																																																																					  */
 	} /* }}} */
 
 	function globalBanner()
@@ -354,28 +354,17 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$dms = $this->params['dms'];
 		$accessobject = $this->params['accessobject'];
 
-<<<<<<< HEAD
-		echo "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark border-bottom fixed-top\">\n";
-=======
 		echo "<nav class=\"navbar navbar-expand-lg navbar-light bg-light border-bottom fixed-top\" style=\"background-color: #ffffff !important;\">\n";
->>>>>>> grinnel-sidebar
 		echo " <a class=\"navbar-brand\" href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\">" . (!empty($this->extraheader['logo']) ? '<img id="navbar-logo" src="' . $this->extraheader['logo'] . '">' : '<img id="navbar-logo" src="' . $this->params['settings']->_httpRoot . 'views/bootstrap4/images/favicon.svg">') . " <span class=\"d-none d-md-inline-block ml-4\">" . (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "") . "</span></a>\n";
 
 		if (isset($this->params['user']) && $this->params['user']) {
 			/* search form {{{ */
-<<<<<<< HEAD
-			echo "     <form action=\"" . $this->params['settings']->_httpRoot . "out/out.Search.php\" class=\"form-inline ml-4 mr-auto\" autocomplete=\"off\">";
-=======
 			echo "     <form action=\"" . $this->params['settings']->_httpRoot . "out/out.Search.php\" class=\"form-inline ml-4 mr-auto my-2 my-lg-0\" autocomplete=\"off\">";
->>>>>>> grinnel-sidebar
 			if ($folder != null && is_object($folder) && !strcasecmp(get_class($folder), $dms->getClassname('folder'))) {
 				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
 			}
 			echo "      <input type=\"hidden\" name=\"navBar\" value=\"1\" />";
-<<<<<<< HEAD
-			echo "      <input name=\"query\" class=\"form-control mr-sm-2 search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" style=\"width: 150px;\" placeholder=\"" . getMLText("search") . "\" aria-label=\"" . getMLText("search") . "\"/>";
-=======
-			
+
 			// MODIFIED PLACEHOLDER AND BUTTON CLASS
 			echo "      <div class=\"input-group search-bar-modern\">"; // Added class for potential custom styling
 			echo "        <input name=\"query\" class=\"form-control search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" placeholder=\"Search Files and Folders\" aria-label=\"Search Files and Folders\" style=\"width: 220px;\">";
@@ -384,7 +373,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo "        </div>";
 			echo "      </div>"; // End Input Group
 
->>>>>>> grinnel-sidebar
 			if ($this->params['defaultsearchmethod'] == 'fulltext')
 				echo "      <input type=\"hidden\" name=\"fullsearch\" value=\"1\" />";
 			echo "</form>\n";
@@ -399,14 +387,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$menuitems = array();
 			/* calendar {{{ */
 			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
-<<<<<<< HEAD
-				$menuitems['calendar'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'], 'label' => getMLText("calendar"));
-=======
 				$menuitems['calendar'] = array(
 					'link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'],
 					'label' => '<i class="fa fa-calendar-times-o fa-lg" title="' . getMLText("calendar") . '"></i><span class="d-lg-none ml-2">' . getMLText("calendar") . '</span>' // Show text on small screens
 				);
->>>>>>> grinnel-sidebar
 			if ($accessobject->check_view_access('AdminTools'))
 				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
 			if ($this->params['enablehelp']) {
@@ -485,9 +469,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			/* user profile menu {{{ */
 			echo "  <ul class=\"navbar-nav ml-auto\">\n";
 			echo "   <li class=\"nav-item dropdown\">\n";
-<<<<<<< HEAD
-			echo "    <a href=\"#\" class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\" id=\"navbarMainUser\" aria-haspopup=\"true\" aria-expanded=\"false\">" . ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . htmlspecialchars($this->params['user']->getFullName()) . "'</a>\n";
-=======
 			$userFullName = htmlspecialchars($this->params['user']->getFullName());
 			$tooltipText = ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . $userFullName . "'";
 
@@ -498,7 +479,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			// If you need an explicit Font Awesome caret, you can add it:
 			// echo " <i class=\"fa fa-caret-down ml-1\"></i>"; 
 			echo "    </a>\n";
->>>>>>> grinnel-sidebar
 			echo "    <div class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"navbarMainUser\">\n";
 			if (!$this->params['user']->isGuest()) {
 				$menuitems = array();
@@ -612,17 +592,15 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		return '<nav aria-label="breadcrumb"><ol class="breadcrumb">' . $txtpath . '</ol></nav>';
 	} /* }}} */
 
-<<<<<<< HEAD
-=======
 	function pageSidebar()
 	{ /* {{{ */
 		$httpRoot = $this->params['settings']->_httpRoot;
-		$outputHtml = ''; 
+		$outputHtml = '';
 
 		$outputHtml .= '<button class="sidebar-mobile-toggle-btn" type="button" aria-label="Toggle sidebar">
                 <i class="fa fa-bars"></i>
               </button>';
-        $outputHtml .= "<div class=\"sidebar-overlay\"></div>\n";
+		$outputHtml .= "<div class=\"sidebar-overlay\"></div>\n";
 
 		$outputHtml .= <<<HTML_CSS
 <style type="text/css">
@@ -879,8 +857,8 @@ HTML_CSS;
 		// (PHP for HTML generation remains the same)
 		$outputHtml .= "<div class=\"page-sidebar-custom\">\n";
 		$outputHtml .= " <div class=\"sidebar-inner\">\n"; // sidebar-inner might be redundant now
-        // ... (The rest of your HTML generation for the sidebar logo and nav items)
-        // Make sure all link text is wrapped in <span> like: <a><i...></i><span>Text</span>...</a>
+		// ... (The rest of your HTML generation for the sidebar logo and nav items)
+		// Make sure all link text is wrapped in <span> like: <a><i...></i><span>Text</span>...</a>
 		$outputHtml .= '
 <div class="sidebar-logo">
     <div class="img-sidebar-logo">
@@ -890,8 +868,8 @@ HTML_CSS;
         <h3>ORTADEL DMS</h3>
     </div>
 </div>';
-        $outputHtml .= '<div class="main-sidebar-nav">';
-        $outputHtml .= '<ul>
+		$outputHtml .= '<div class="main-sidebar-nav">';
+		$outputHtml .= '<ul>
 	    <li><a href="' . $httpRoot . 'out/out.Dashboard.php">
             <i class="fa fa-tachometer fa-lg"></i><span>' . getMLText('dashboard') . '</span>
           </a>
@@ -923,12 +901,12 @@ HTML_CSS;
             <li><a href="' . $httpRoot . 'out/out.DefaultKeywords.php"><i class="fa fa-tags fa-lg"></i><span>' . getMLText('global_default_keywords') . '</span></a></li>
             <li><a href="' . $httpRoot . 'out/out.Categories.php"><i class="fa fa-columns fa-lg"></i><span>' . getMLText('global_document_categories') . '</span></a></li>
             <li><a href="' . $httpRoot . 'out/out.AttributeMgr.php"><i class="fa fa-cogs fa-lg"></i><span>' . getMLText('global_attributedefinitions') . '</span></a></li>';
-        if (($this->params['workflowmode'] ?? '') == 'advanced') {
-            $outputHtml .= '<li><a href="' . $httpRoot . 'out/out.WorkflowMgr.php"><i class="fa fa-sitemap fa-lg"></i><span>' . getMLText('global_workflows') . '</span></a></li>
+		if (($this->params['workflowmode'] ?? '') == 'advanced') {
+			$outputHtml .= '<li><a href="' . $httpRoot . 'out/out.WorkflowMgr.php"><i class="fa fa-sitemap fa-lg"></i><span>' . getMLText('global_workflows') . '</span></a></li>
                   <li><a href="' . $httpRoot . 'out/out.WorkflowStatesMgr.php"><i class="fa fa-star fa-lg"></i><span>' . getMLText('global_workflow_states') . '</span></a></li>
                   <li><a href="' . $httpRoot . 'out/out.WorkflowActionsMgr.php"><i class="fa fa-bolt fa-lg"></i><span>' . getMLText('global_workflow_actions') . '</span></a></li>';
-        }
-        $outputHtml .= '    </ul>
+		}
+		$outputHtml .= '    </ul>
         </li>
         <li>
           <a data-toggle="collapse" href="#collapse-BackupLogging" role="button" aria-expanded="false" aria-controls="collapse-BackupLogging">
@@ -937,10 +915,10 @@ HTML_CSS;
           </a>
           <ul class="collapse list-unstyled" id="collapse-BackupLogging">
             <li><a href="' . $httpRoot . 'out/out.BackupTools.php"><i class="fa fa-life-saver fa-lg"></i><span>' . getMLText('backup_tools') . '</span></a></li>';
-        if ($this->params['logfileenable'] ?? false) {
-            $outputHtml .= '<li><a href="' . $httpRoot . 'out/out.LogManagement.php"><i class="fa fa-list-alt fa-lg"></i><span>' . getMLText('log_management') . '</span></a></li>';
-        }
-        $outputHtml .= '    </ul>
+		if ($this->params['logfileenable'] ?? false) {
+			$outputHtml .= '<li><a href="' . $httpRoot . 'out/out.LogManagement.php"><i class="fa fa-list-alt fa-lg"></i><span>' . getMLText('log_management') . '</span></a></li>';
+		}
+		$outputHtml .= '    </ul>
         </li>
         <li>
           <a data-toggle="collapse" href="#collapse-Misc" role="button" aria-expanded="false" aria-controls="collapse-Misc">
@@ -964,10 +942,10 @@ HTML_CSS;
 	</ul>
 </div>';
 
-		$outputHtml .= " </div>\n"; 
-		$outputHtml .= "</div>\n"; 
+		$outputHtml .= " </div>\n";
+		$outputHtml .= "</div>\n";
 
-        echo $outputHtml;
+		echo $outputHtml;
 
 		// --- JavaScript (remains the same) ---
 		$this->addFooterJS("
@@ -1067,7 +1045,6 @@ HTML_CSS;
 		return;
 	}
 
->>>>>>> grinnel-sidebar
 	function pageNavigation($pageTitle, $pageType = null, $extra = null)
 	{ /* {{{ */
 
@@ -2251,14 +2228,14 @@ HTML_CSS;
 	{ /* {{{ */
 		$id = preg_replace('/[^A-Za-z]/', '', $varname);
 		/* do not use bootstrap4 custom form element because it is difficult to localize
-																																																																																																																																																																						$html = '
-																																																																																																																																																																				<div class="custom-file">
-																																																																																																																																																																				  <input type="file" class="custom-file-input" id="'.$id.'" name="'.$varname.'">
-																																																																																																																																																																				  <label class="custom-file-label" for="'.$id.'">'.getMLText("browse").'&hellip;'.'</label>
-																																																																																																																																																																				</div>
-																																																																																																																																																																				';
-																																																																																																																																																																						return $html;
-																																																																																																																																																																				 */
+																																																																																																																																																																							  $html = '
+																																																																																																																																																																					  <div class="custom-file">
+																																																																																																																																																																						<input type="file" class="custom-file-input" id="'.$id.'" name="'.$varname.'">
+																																																																																																																																																																						<label class="custom-file-label" for="'.$id.'">'.getMLText("browse").'&hellip;'.'</label>
+																																																																																																																																																																					  </div>
+																																																																																																																																																																					  ';
+																																																																																																																																																																							  return $html;
+																																																																																																																																																																					   */
 		$html = '
 	<div id="' . $id . '-upload-files">
 		<div id="' . $id . '-upload-file" class="upload-file">
@@ -2735,9 +2712,9 @@ HTML_CSS;
 				$content .= "<input type=\"text\" class=\"form-control\" id=\"" . $attr_id . "\" name=\"" . $attr_name . "\" value=\"" . htmlspecialchars($objvalue) . "\"" . ((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '') . ' data-rule-email="true"' . " />";
 				break;
 			/* case SeedDMS_Core_AttributeDefinition::type_float:
-																																																																																																																																																																																																																																																								  $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
-																																																																																																																																																																																																																																																								  $content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
-																																																																																																																																																																																																																																																								  break; */
+																																																																																																																																																																																																																																																										   $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
+																																																																																																																																																																																																																																																										   $content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
+																																																																																																																																																																																																																																																										   break; */
 			case SeedDMS_Core_AttributeDefinition::type_folder:
 				$target = $attribute ? $attribute->getValue() : null;
 				$content .= $this->getFolderChooserHtml("attr" . $attrdef->getId(), M_READWRITE, -1, $target, $attr_name, false);
@@ -4878,13 +4855,13 @@ HTML_CSS;
 	{ /* {{{ */
 		$id = md5(uniqid());
 		/*
-																																																																																																																																																																					  $this->addFooterJS('
-																																																																																																																																																																			  $("body").on("click", "span.openpopupbox", function(e) {
-																																																																																																																																																																				  $(""+$(e.target).data("href")).toggle();
-																																																																																																																																																																			  //	$("div.popupbox").toggle();
-																																																																																																																																																																			  });
-																																																																																																																																																																			  ');
-																																																																																																																																																																					   */
+																																																																																																																																																																							$this->addFooterJS('
+																																																																																																																																																																					$("body").on("click", "span.openpopupbox", function(e) {
+																																																																																																																																																																						$(""+$(e.target).data("href")).toggle();
+																																																																																																																																																																					//	$("div.popupbox").toggle();
+																																																																																																																																																																					});
+																																																																																																																																																																					');
+																																																																																																																																																																							 */
 		$html = '
 		<span class="openpopupbox" data-href="#' . $id . '">' . $title . '</span>
 		<div id="' . $id . '" class="popupbox" style="display: none;">' . $content . '<span class="closepopupbox"><i class="fa fa-remove"></i></span>

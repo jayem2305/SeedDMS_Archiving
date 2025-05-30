@@ -4,3 +4,10 @@ May 30 00:23:53  [info] Authentication service 'db': Authentication of user 'adm
 May 30 05:59:48  [info] -- (::1) op.Login.php 
 May 30 05:59:48  [info] Authentication service 'db'
 May 30 05:59:48  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 30 09:23:29  [info] admin (::1) op.Ajax.php?command=deletedocument&id=1&formtoken=a8565e01616036ad5f5f036946f5a45f delete document 1
+May 30 09:23:42  [info] admin (::1) op.Ajax.php add document 22 in folder 1
+May 30 09:23:42  [info] admin (::1) op.Ajax.php add document 20 in folder 1
+May 30 09:23:42  [info] admin (::1) op.Ajax.php add document 21 in folder 1
+May 30 09:23:42  [info] admin (::1) op.Ajax.php add document 23 in folder 1
+May 30 09:24:11  [info] admin (::1) op.UpdateDocument.php update document 23 with version 2
+May 30 09:28:00  [info] admin (::1) op.AddSubFolder.php ?name=PPTX&folderid=1
