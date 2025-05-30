@@ -73,4 +73,8 @@ class SeedDMS_View_DocumentChooser extends SeedDMS_Theme_Style
 //		$this->htmlEndPage(true);
 	} /* }}} */
 }
+<<<<<<< HEAD
 ?>
+=======
+?>
+>>>>>>> refs/remotes/origin/main

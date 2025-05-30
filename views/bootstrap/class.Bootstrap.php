@@ -448,6 +448,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo "   <div class=\"nav-collapse nav-col1\">\n";
 			echo "   <ul id=\"main-menu-admin\" class=\"nav pull-right\">\n";
 			echo "    <li class=\"dropdown\">\n";
+<<<<<<< HEAD
+			echo "     <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" . ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . htmlspecialchars($this->params['user']->getFullName()) . "' <i class=\"fa fa-caret-down\"></i></a>\n";
+=======
 			$userFullName = htmlspecialchars($this->params['user']->getFullName());
 			// Tooltip will still show the full "Signed in as 'User Name'"
 			$tooltipText = ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . $userFullName . "'";
@@ -459,6 +462,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo "     </a>\n";
 			// --- END OF MODIFIED SECTION FOR USER ICON ---
 
+>>>>>>> grinnel-sidebar
 			echo "     <ul class=\"dropdown-menu\" role=\"menu\">\n";
 			//			if (!$this->params['user']->isGuest()) {
 			$menuitems = array();
@@ -574,10 +578,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$menuitems = array();
 			/* calendar {{{ */
 			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
+<<<<<<< HEAD
+				$menuitems['calendar'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'], 'label' => getMLText("calendar"));
+=======
 				$menuitems['calendar'] = array(
 					'link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'],
 					'label' => '<i class="fa fa-calendar-times-o fa-lg" title="' . getMLText("calendar") . '"></i>'
 				);
+>>>>>>> grinnel-sidebar
 			if ($accessobject->check_view_access('AdminTools'))
 				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
 			if ($this->params['enablehelp']) {
@@ -631,6 +639,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 		return '<ul class="breadcrumb">' . $txtpath . '</ul>';
 	} /* }}} */
+<<<<<<< HEAD
+
+=======
 function pageSidebar()
 	{ /* {{{ */
 		$httpRoot = $this->params['settings']->_httpRoot;
@@ -1023,6 +1034,7 @@ HTML_CSS;
 
 		return;
 	}
+>>>>>>> grinnel-sidebar
 	function pageNavigation($pageTitle, $pageType = null, $extra = null)
 	{ /* {{{ */
 
@@ -4355,17 +4367,6 @@ HTML_CSS;
 	function printFineUploaderJs($uploadurl, $partsize = 0, $maxuploadsize = 0, $multiple = true, $prefix = 'userfile', $formname = 'form1')
 	{ /* {{{ */
 		?>
-		$(document).ready(function() {
-		<?php echo $prefix; ?>uploader = new qq.FineUploader({
-		debug: false,
-		autoUpload: false,
-		multiple: <?php echo ($multiple ? 'true' : 'false'); ?>,
-		element: $('#<?php echo $prefix; ?>-fine-uploader')[0],
-		template: 'qq-template',
-		request: {
-		endpoint: '<?php echo $uploadurl . "?formkey=" . md5($this->params['settings']->_encryptionKey . 'uploadchunks'); ?>'
-		},
-		<?php echo ($maxuploadsize > 0 ? '
 				$(document).ready(function() {
 				<?php echo $prefix; ?>uploader = new qq.FineUploader({
 				debug: false,

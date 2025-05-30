@@ -1,4 +1,3 @@
-
 <?php
 //    MyDMS. Document Management System
 //    Copyright (C) 2002-2005  Markus Westphal
@@ -34,11 +33,9 @@ include("../inc/inc.ClassController.php");
 $tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
 $controller = Controller::factory($tmp[1], array('dms' => $dms, 'user' => $user));
 
-
 /* if post_max_size is to small, then $_POST will not be set and the content
  * lenght will exceed post_max_size
  */
-
 if (empty($_POST) && $_SERVER['CONTENT_LENGTH'] > SeedDMS_Core_File::parse_filesize(ini_get('post_max_size'))) {
 	UI::exitError(getMLText("folder_title", array("foldername" => '')), getMLText("uploading_postmaxsize"));
 }
@@ -56,14 +53,12 @@ $folderid = $_POST["folderid"];
 $folder = $dms->getFolder($folderid);
 
 if (!is_object($folder)) {
-
 	UI::exitError(getMLText("folder_title", array("foldername" => getMLText("invalid_folder_id"))), getMLText("invalid_folder_id"));
-
+}
 
 $folderPathHTML = getFolderPathHTML($folder, true);
 
 if ($folder->getAccessMode($user, 'addDocument') < M_READWRITE) {
-
 	UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())), getMLText("access_denied"));
 }
 
@@ -87,7 +82,6 @@ if ($accessop->check_controller_access($controller, array('action' => 'setOwner'
 } else {
 	$owner = $user;
 }
-
 $comment = isset($_POST["comment"]) ? trim($_POST["comment"]) : '';
 $version_comment = !empty($_POST["version_comment"]) ? trim($_POST["version_comment"]) : '';
 if ($version_comment == "" && isset($_POST["use_comment"]))
@@ -122,7 +116,6 @@ foreach($attributes as $attrdefid=>$attribute) {
 }
  */
 
-
 if (isset($_POST["attributes_version"]))
 	$attributes_version = $_POST["attributes_version"];
 else
@@ -138,7 +131,6 @@ foreach($attributes_version as $attrdefid=>$attribute) {
 	}
 }
  */
-
 
 $reqversion = !empty($_POST['reqversion']) ? (int) $_POST["reqversion"] : 0;
 if ($reqversion < 1)
@@ -192,7 +184,6 @@ $recipients["i"] = array();
 $recipients["g"] = array();
 $workflow = null;
 
-
 if ($settings->_workflowMode == 'traditional' || $settings->_workflowMode == 'traditional_only_approval') {
 	if ($settings->_workflowMode == 'traditional') {
 		// Retrieve the list of individual reviewers from the form.
@@ -210,7 +201,6 @@ if ($settings->_workflowMode == 'traditional' || $settings->_workflowMode == 'tr
 		// Retrieve the list of reviewer groups whose members become individual reviewers
 		if (isset($_POST["grpIndReviewers"])) {
 			foreach ($_POST["grpIndReviewers"] as $grp) {
-
 				if ($group = $dms->getGroup($grp)) {
 					$members = $group->getUsers();
 					foreach ($members as $member)
@@ -275,7 +265,6 @@ if ($settings->_workflowMode == 'traditional' || $settings->_workflowMode == 'tr
 		 * list of mandatory workflows. If not, then take the first one.
 		 */
 		$workflow = array_shift($workflows);
-
 		foreach ($workflows as $mw)
 			if ($mw->getID() == $_POST['workflow']) {
 				$workflow = $mw;
@@ -301,7 +290,6 @@ if (isset($_POST["grpRecipients"])) {
 // Retrieve the list of recipient groups whose members become individual recipients
 if (isset($_POST["grpIndRecipients"])) {
 	foreach ($_POST["grpIndRecipients"] as $grp) {
-
 		if ($group = $dms->getGroup($grp)) {
 			$members = $group->getUsers();
 			foreach ($members as $member) {
@@ -332,19 +320,16 @@ function reArrayFiles(&$file_post)
 	return $file_ary;
 }
 
-
 if (!empty($_FILES['userfile'])) {
 	$file_ary = reArrayFiles($_FILES['userfile']);
 } else {
 	$file_ary = array();
 }
 
-
 if ($settings->_dropFolderDir) {
 	if (isset($_POST["dropfolderfileadddocform"]) && $_POST["dropfolderfileadddocform"]) {
 		$fullfile = $settings->_dropFolderDir . '/' . $user->getLogin() . '/' . $_POST["dropfolderfileadddocform"];
 		if (file_exists($fullfile)) {
-
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			$mimetype = finfo_file($finfo, $fullfile);
 			$file_ary[] = array(
@@ -360,7 +345,6 @@ if ($settings->_dropFolderDir) {
 }
 
 $prefix = 'userfile';
-
 if (isset($_POST[$prefix . '-fine-uploader-uuids']) && $_POST[$prefix . '-fine-uploader-uuids']) {
 	$uuids = explode(';', $_POST[$prefix . '-fine-uploader-uuids']);
 	$names = explode(';', $_POST[$prefix . '-fine-uploader-names']);
@@ -380,7 +364,6 @@ if (isset($_POST[$prefix . '-fine-uploader-uuids']) && $_POST[$prefix . '-fine-u
 		}
 	}
 }
-
 
 if ($settings->_libraryFolder) {
 	if (isset($_POST["librarydoc"]) && $_POST["librarydoc"]) {

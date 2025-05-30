@@ -135,13 +135,13 @@ class SeedDMS_View_AttributeMgr extends SeedDMS_Theme_Style
 							}
 							/* Check if value is in value set */
 							/*
-																																																	if($selattrdef->getValueSet()) {
-																																																		foreach($value as $v) {
-																																																			if(!in_array($v, $selattrdef->getValueSetAsArray()))
-																																																				$content .= getMLText("attribute_value_not_in_valueset");
-																																																		}
-																																																	}
-																																																	 */
+																																																						 if($selattrdef->getValueSet()) {
+																																																							 foreach($value as $v) {
+																																																								 if(!in_array($v, $selattrdef->getValueSetAsArray()))
+																																																									 $content .= getMLText("attribute_value_not_in_valueset");
+																																																							 }
+																																																						 }
+																																																						  */
 							$content .= "</td>";
 							$content .= "<td>";
 							$content .= "<div class=\"list-action\">";

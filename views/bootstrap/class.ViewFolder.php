@@ -627,9 +627,13 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		$this->globalNavigation($folder);
 		$this->contentStart();
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		$this->pageSidebar();
 >>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
+=======
+		$this->pageSidebar();
+>>>>>>> refs/remotes/origin/main
 		?>
 			<div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
 			<?php

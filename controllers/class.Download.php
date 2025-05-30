@@ -171,11 +171,7 @@ class SeedDMS_Controller_Download extends SeedDMS_Controller_Common {
 
 			header("Content-Type: ".$mimetype);
 			header("Content-Transfer-Encoding: binary");
-<<<<<<< HEAD
-			header("Content-Disposition: attachment; filename=\"approval-" . $document->getID(). "-".(int) $_GET['approvelogid'] . get_extension($mimetype) . "\"");
-=======
 			header("Content-Disposition: attachment; filename=\"approval-" . $document->getID()."-".(int) $_GET['approvelogid'] . get_extension($mimetype) . "\"");
->>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
 			header("Cache-Control: must-revalidate");
 			sendFile($filename);
 		}
@@ -200,11 +196,7 @@ class SeedDMS_Controller_Download extends SeedDMS_Controller_Common {
 			header("Content-Type: ".$mimetype);
 			header("Content-Transfer-Encoding: binary");
 			header("Content-Length: " . filesize($filename ));
-<<<<<<< HEAD
-			header("Content-Disposition: attachment; filename=\"review-" . $document->getID(). "-".(int) $_GET['reviewlogid'] . get_extension($mimetype) . "\"");
-=======
 			header("Content-Disposition: attachment; filename=\"review-" . $document->getID()."-".(int) $_GET['reviewlogid'] . get_extension($mimetype) . "\"");
->>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
 			header("Cache-Control: must-revalidate");
 			sendFile($filename);
 		}

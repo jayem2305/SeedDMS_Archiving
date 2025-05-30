@@ -325,7 +325,7 @@ class SeedDMS_View_Timeline extends SeedDMS_Theme_Style
 
 		$this->contentEnd();
 		$this->htmlEndPage();
-		
+
 	} /* }}} */
 }
 ?>

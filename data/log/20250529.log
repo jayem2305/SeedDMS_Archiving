@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 May 29 06:47:19  [info] admin (::1) op.LockDocument.php?documentid=5&formtoken=a7a79e79f3663e1edf9e01d54b37643b 
 May 29 22:00:30  [info] admin (::1) op.Ajax.php?command=deletefolder&id=4&formtoken=f15e3f77f8df3052ac1c7dcda7eb7101 delete folder 4
 May 29 22:00:32  [info] admin (::1) op.Ajax.php?command=deletefolder&id=6&formtoken=f15e3f77f8df3052ac1c7dcda7eb7101 delete folder 6
@@ -33,3 +34,86 @@ May 29 22:25:43  [info] admin (::1) op.EditDocument.php ?documentid=3
 May 29 22:29:42  [info] admin (::1) op.Ajax.php add file 'BET-22-ACTIVITY-7-2025-Single-Phase-Electric-Motor-Rewinding.docx' to document 3
 May 29 22:30:05  [info] admin (::1) op.Ajax.php add file 'BET 22 ACTIVITY 7 ESPARTINEZ.pdf' to document 18
 May 29 22:30:36  [info] admin (::1) op.Ajax.php add document 19 in folder 7
+=======
+May 29 07:48:30  [info] -- (::1) op.Login.php 
+May 29 07:48:30  [info] Authentication service 'db'
+May 29 07:48:30  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 07:48:30  [error] admin (::1) out.AddDocument.php?folderid=1&showtree=1  UI::exitError error=Invalid Folder ID pagetitle=Folder 'Invalid Folder ID'
+May 29 07:48:34  [error] admin (::1) out.ViewFolder.php  UI::exitError error=Invalid Folder ID pagetitle=Folder 'Invalid Folder ID'
+May 29 07:48:44  [error] admin (::1) out.ViewFolder.php  UI::exitError error=Invalid Folder ID pagetitle=Folder 'Invalid Folder ID'
+May 29 07:49:07  [info] -- (::1) op.Login.php 
+May 29 07:49:07  [info] Authentication service 'db'
+May 29 07:49:07  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 07:49:07  [error] admin (::1) out.AddDocument.php?folderid=1&showtree=1  UI::exitError error=Invalid Folder ID pagetitle=Folder 'Invalid Folder ID'
+May 29 07:49:11  [error] admin (::1) out.ViewFolder.php  UI::exitError error=Invalid Folder ID pagetitle=Folder 'Invalid Folder ID'
+May 29 07:57:42  [error] admin (::1) out.ViewFolder.php  UI::exitError error=Invalid Folder ID pagetitle=Folder 'Invalid Folder ID'
+May 29 07:59:17  [error] admin (::1) out.ViewFolder.php  UI::exitError error=Invalid Folder ID pagetitle=Folder 'Invalid Folder ID'
+May 29 08:02:10  [info] -- (::1) op.Login.php 
+May 29 08:02:10  [info] Authentication service 'db'
+May 29 08:02:10  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 08:02:16  [info] admin (::1) op.Settings.php .php&action=savesettings
+May 29 08:02:35  [info] admin (::1) op.Ajax.php add document 1 in folder 1
+May 29 08:06:15  [info] admin (::1) op.AddSubFolder.php ?name=Sample Subfolder&folderid=1
+May 29 08:06:54  [info] admin (::1) op.AddDocument.php add document 2 in folder 2
+May 29 08:07:04  [info] admin (::1) op.Ajax.php?command=setmimetype&contentid=2&formtoken=1248ab63fb4033e0ae5586cd53a772a0 set mimetype 'text/plain' of document 2:1
+May 29 08:07:23  [info] admin (::1) op.Ajax.php add file 'userlist-20250527-121108.csv' to document 2
+May 29 08:07:59  [info] admin (::1) op.EditFolder.php ?folderid=2
+May 29 08:08:25  [info] admin (::1) op.FolderAccess.php?formtoken=c216aae7e0484db3bf786b7e14fc0167&action=setowner&folderid=2&ownerid=1 
+May 29 08:08:30  [info] admin (::1) op.FolderAccess.php?formtoken=c216aae7e0484db3bf786b7e14fc0167&folderid=2&action=notinherit&mode=empty 
+May 29 08:11:41  [info] admin (::1) op.UpdateDocument.php update document 1 with version 2
+May 29 08:11:41  [info] Conversion from image/jpeg to image/png with gd image service took 0.1287989616394 sec.
+May 29 08:14:53  [info] Conversion from image/jpeg to image/png with gd image service took 0.07990288734436 sec.
+May 29 08:17:15  [info] admin (::1) op.UsrMgr.php .php&action=adduser&login=A12138658
+May 29 08:26:55  [info] admin (::1) op.RoleMgr.php .php&action=addrole&name=Student
+May 29 08:27:05  [info] admin (::1) op.RoleMgr.php .php&action=editrole&roleid=4
+May 29 08:27:25  [info] admin (::1) op.GroupMgr.php &action=addgroup&name=7QgfHrLYhfYXUHO8UyN6RQiIshl5yiAMoO8tQqxCUZo=
+May 29 08:27:52  [info] admin (::1) op.DefaultKeywords.php .php&action=addcategory&categoryid=1
+May 29 08:28:05  [info] admin (::1) op.Categories.php .php&action=addcategory&categoryid=1
+May 29 08:28:24  [info] admin (::1) op.AttributeMgr.php &action=addattrdef&name=Sample Attributes
+May 29 09:20:45  [info] admin (::1) op.AddSubFolder.php ?name=Sample folder V2&folderid=1
+May 29 09:22:27  [info] admin (::1) op.AddDocument.php add document 3 in folder 3
+May 29 09:22:28  [info] Conversion from image/jpeg to image/png with gd image service took 0.085819005966187 sec.
+May 29 09:22:34  [info] Conversion from image/jpeg to image/png with gd image service took 0.093962907791138 sec.
+May 29 09:27:30  [info] Conversion from image/jpeg to image/png with gd image service took 0.063600063323975 sec.
+May 29 09:48:17  [info] admin (::1) op.EditFolder.php ?folderid=3
+May 29 09:48:18  [info] Conversion from image/jpeg to image/png with gd image service took 0.10328698158264 sec.
+May 29 09:59:21  [error] admin (::1) op.AddDocument.php  UI::exitError error=Error when creating the document. The document has a reviewer, but no approver. pagetitle=Folder 'DMS'
+May 29 09:59:54  [error] Notification service 'email': Sending notification 'new_document_email_subject' to user 'info@seeddms.org' (1) failed.
+May 29 09:59:54  [info] admin (::1) op.AddDocument.php add document 4 in folder 1
+May 29 09:59:55  [info] Conversion from image/jpeg to image/png with gd image service took 0.074554920196533 sec.
+May 29 10:04:47  [info] Conversion from image/jpeg to image/png with gd image service took 0.10260486602783 sec.
+<<<<<<< HEAD
+=======
+May 29 19:07:58  [info] admin (::1) op.Settings.php .php&action=savesettings
+May 29 19:08:12  [info] -- (::1) op.Login.php 
+May 29 19:08:12  [info] Authentication service 'db'
+May 29 19:08:12  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 20:09:35  [info] admin (::1) op.Settings.php .php&action=savesettings
+May 29 20:09:43  [info] -- (::1) op.Login.php 
+May 29 20:09:43  [info] Authentication service 'db'
+May 29 20:09:43  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 20:09:48  [info] -- (::1) op.Login.php 
+May 29 20:09:48  [info] Authentication service 'db'
+May 29 20:09:48  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 20:10:00  [info] -- (::1) op.Login.php 
+May 29 20:10:00  [info] Authentication service 'db'
+May 29 20:10:00  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 20:35:35  [info] admin (::1) op.Settings.php .php&action=savesettings
+May 29 20:35:45  [info] -- (::1) op.Login.php 
+May 29 20:35:45  [info] Authentication service 'db'
+May 29 20:35:45  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 21:15:38  [info] -- (::1) op.Login.php 
+May 29 21:15:38  [info] Authentication service 'db'
+May 29 21:15:38  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 21:16:05  [info] -- (::1) op.Login.php 
+May 29 21:16:05  [info] Authentication service 'db'
+May 29 21:16:05  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 22:30:36  [info] -- (::1) op.Login.php 
+May 29 22:30:36  [info] Authentication service 'db'
+May 29 22:30:36  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 23:06:34  [info] admin (::1) op.Settings.php .php&action=savesettings
+May 29 23:06:43  [info] -- (::1) op.Login.php 
+May 29 23:06:43  [info] Authentication service 'db'
+May 29 23:06:43  [info] Authentication service 'db': Authentication of user 'admin' successful.
+>>>>>>> grinnel-sidebar
+>>>>>>> refs/remotes/origin/main

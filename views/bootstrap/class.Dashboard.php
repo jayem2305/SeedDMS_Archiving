@@ -20,47 +20,50 @@
  * @copyright  Copyright (C) 2010-2023 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style {
+class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
+{
 
-	protected function printList($documents, $previewer) { /* {{{ */
-			$txt = $this->callHook('folderListPreContent', null, [], $documents);
-			if(is_string($txt))
+	protected function printList($documents, $previewer)
+	{ /* {{{ */
+		$txt = $this->callHook('folderListPreContent', null, [], $documents);
+		if (is_string($txt))
+			echo $txt;
+		$i = 0;
+		$txt = $this->callHook('folderListHeader', null, '', '');
+		if (is_string($txt)) {
+			echo $txt;
+		} elseif (is_array($txt)) {
+			print "<table id=\"viewfolder-table\" class=\"table table-condensed table-sm table-hover\">";
+			print "<thead>\n<tr>\n";
+			foreach ($txt as $headcol)
+				echo "<th>" . $headcol . "</th>\n";
+			print "</tr>\n</thead>\n";
+		} else {
+			echo $this->folderListHeader();
+		}
+		print "<tbody>\n";
+
+		foreach ($documents as $document) {
+			$document->verifyLastestContentExpriry();
+			$txt = $this->callHook('documentListItem', $document, $previewer, false, 'dashboard');
+			if (is_string($txt))
 				echo $txt;
-			$i = 0;
-			$txt = $this->callHook('folderListHeader', null, '', '');
-			if(is_string($txt)) {
-				echo $txt;
-			} elseif(is_array($txt)) {
-				print "<table id=\"viewfolder-table\" class=\"table table-condensed table-sm table-hover\">";
-				print "<thead>\n<tr>\n";
-				foreach($txt as $headcol)
-					echo "<th>".$headcol."</th>\n";
-				print "</tr>\n</thead>\n";
-			} else {
-				echo $this->folderListHeader();
+			else {
+				$extracontent = array();
+				$extracontent['below_title'] = $this->getListRowPath($document);
+				echo $this->documentListRow($document, $previewer, false, 0, $extracontent);
 			}
-			print "<tbody>\n";
+		}
 
-			foreach($documents as $document) {
-				$document->verifyLastestContentExpriry();
-				$txt = $this->callHook('documentListItem', $document, $previewer, false, 'dashboard');
-				if(is_string($txt))
-					echo $txt;
-				else {
-					$extracontent = array();
-					$extracontent['below_title'] = $this->getListRowPath($document);
-					echo $this->documentListRow($document, $previewer, false, 0, $extracontent);
-				}
-			}
-
-			$txt = $this->callHook('folderListFooter', null);
-			if(is_string($txt))
-				echo $txt;
-			else
-				echo "</tbody>\n</table>\n";
+		$txt = $this->callHook('folderListFooter', null);
+		if (is_string($txt))
+			echo $txt;
+		else
+			echo "</tbody>\n</table>\n";
 	} /* }}} */
 
-	public function newdocuments() { /* {{{ */
+	public function newdocuments()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$cachedir = $this->params['cachedir'];
@@ -73,17 +76,17 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style {
 		$xsendfile = $this->params['xsendfile'];
 
 		$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidth, $timeout, $xsendfile);
-		if($conversionmgr)
+		if ($conversionmgr)
 			$previewer->setConversionMgr($conversionmgr);
 		else
 			$previewer->setConverters($previewconverters);
 
 		echo $this->contentHeading(getMLText('new_documents'));
-		$documents = $dms->getLatestChanges('newdocuments', mktime(0, 0, 0)-$dayspastdashboard*86400, time());
+		$documents = $dms->getLatestChanges('newdocuments', mktime(0, 0, 0) - $dayspastdashboard * 86400, time());
 		$documents = SeedDMS_Core_DMS::filterAccess($documents, $user, M_READ);
-		foreach($documents as $i=>$doc) {
+		foreach ($documents as $i => $doc) {
 			$fl = explode(':', $doc->getFolderList());
-			if(array_intersect($fl, $excludedfolders))
+			if (array_intersect($fl, $excludedfolders))
 				unset($documents[$i]);
 		}
 		if (count($documents) > 0) {
@@ -91,7 +94,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style {
 		}
 	} /* }}} */
 
-	public function updateddocuments() { /* {{{ */
+	public function updateddocuments()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$cachedir = $this->params['cachedir'];
@@ -104,17 +108,17 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style {
 		$xsendfile = $this->params['xsendfile'];
 
 		$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidth, $timeout, $xsendfile);
-		if($conversionmgr)
+		if ($conversionmgr)
 			$previewer->setConversionMgr($conversionmgr);
 		else
 			$previewer->setConverters($previewconverters);
 
 		echo $this->contentHeading(getMLText('updated_documents'));
-		$documents = $dms->getLatestChanges('updateddocuments', mktime(0, 0, 0)-$dayspastdashboard*86400, time());
+		$documents = $dms->getLatestChanges('updateddocuments', mktime(0, 0, 0) - $dayspastdashboard * 86400, time());
 		$documents = SeedDMS_Core_DMS::filterAccess($documents, $user, M_READ);
-		foreach($documents as $i=>$doc) {
+		foreach ($documents as $i => $doc) {
 			$fl = explode(':', $doc->getFolderList());
-			if(array_intersect($fl, $excludedfolders))
+			if (array_intersect($fl, $excludedfolders))
 				unset($documents[$i]);
 		}
 		if (count($documents) > 0) {
@@ -122,7 +126,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style {
 		}
 	} /* }}} */
 
-	public function status() { /* {{{ */
+	public function status()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$cachedir = $this->params['cachedir'];
@@ -135,17 +140,17 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style {
 		$xsendfile = $this->params['xsendfile'];
 
 		$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidth, $timeout, $xsendfile);
-		if($conversionmgr)
+		if ($conversionmgr)
 			$previewer->setConversionMgr($conversionmgr);
 		else
 			$previewer->setConverters($previewconverters);
 
 		echo $this->contentHeading(getMLText('status_change'));
-		$documents = $dms->getLatestChanges('statuschange', mktime(0, 0, 0)-$dayspastdashboard*86400, time());
+		$documents = $dms->getLatestChanges('statuschange', mktime(0, 0, 0) - $dayspastdashboard * 86400, time());
 		$documents = SeedDMS_Core_DMS::filterAccess($documents, $user, M_READ);
-		foreach($documents as $i=>$doc) {
+		foreach ($documents as $i => $doc) {
 			$fl = explode(':', $doc->getFolderList());
-			if(array_intersect($fl, $excludedfolders))
+			if (array_intersect($fl, $excludedfolders))
 				unset($documents[$i]);
 		}
 		if (count($documents) > 0) {
@@ -153,7 +158,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style {
 		}
 	} /* }}} */
 
-	function js() { /* {{{ */
+	function js()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 
@@ -164,7 +170,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style {
 		$this->printClickDocumentJs();
 	} /* }}} */
 
-	function show() { /* {{{ */
+	function show()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$cachedir = $this->params['cachedir'];
@@ -181,19 +188,23 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style {
 		$this->rowStart();
 		$this->columnStart(4);
 		$this->pageSidebar();
+<<<<<<< HEAD
 ?>
+=======
+		?>
+>>>>>>> refs/remotes/origin/main
 		<div class="ajax" data-view="Dashboard" data-action="newdocuments"></div>
-<?php
+		<?php
 		$this->columnEnd();
 		$this->columnStart(4);
-?>
+		?>
 		<div class="ajax" data-view="Dashboard" data-action="updateddocuments"></div>
-<?php
+		<?php
 		$this->columnEnd();
 		$this->columnStart(4);
-?>
+		?>
 		<div class="ajax" data-view="Dashboard" data-action="status"></div>
-<?php
+		<?php
 		$this->columnEnd();
 		$this->rowEnd();
 		$this->contentEnd();

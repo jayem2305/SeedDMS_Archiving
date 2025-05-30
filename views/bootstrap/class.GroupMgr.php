@@ -398,9 +398,13 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 		$this->columnStart(4);
 		$encryption_key = "b8c75fa53c0c7a18a84adb6ca815bd94"; // This will be 16 bytes, perfect for AES-128-CBC
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		$this->pageSidebar();
 >>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
+=======
+		$this->pageSidebar();
+>>>>>>> refs/remotes/origin/main
 		?>
 		<form class="form-horizontal">
 			<?php

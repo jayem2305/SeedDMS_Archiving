@@ -30,20 +30,27 @@
  * @version    Release: @package_version@
  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 class SeedDMS_View_EditDocument extends SeedDMS_Theme_Style {
 
 	function js() { /* {{{ */
 =======
+=======
+>>>>>>> refs/remotes/origin/main
 class SeedDMS_View_EditDocument extends SeedDMS_Theme_Style
 {
 
 	function js()
 	{ /* {{{ */
+<<<<<<< HEAD
 >>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
+=======
+>>>>>>> refs/remotes/origin/main
 		$strictformcheck = $this->params['strictformcheck'];
 		header('Content-Type: application/javascript; charset=UTF-8');
 		parent::jsTranslations(array('js_form_error', 'js_form_errors'));
 		$this->printKeywordChooserJs('form1');
+<<<<<<< HEAD
 <<<<<<< HEAD
 ?>
 $(document).ready( function() {
@@ -66,6 +73,8 @@ $(document).ready( function() {
 
 	function show() { /* {{{ */
 =======
+=======
+>>>>>>> refs/remotes/origin/main
 		?>
 		$(document).ready( function() {
 		$("#form1").validate({
@@ -87,7 +96,10 @@ $(document).ready( function() {
 
 	function show()
 	{ /* {{{ */
+<<<<<<< HEAD
 >>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
+=======
+>>>>>>> refs/remotes/origin/main
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$folder = $this->params['folder'];
@@ -98,12 +110,17 @@ $(document).ready( function() {
 		$orderby = $this->params['orderby'];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		$this->htmlAddHeader('<script type="text/javascript" src="../views/'.$this->theme.'/vendors/jquery-validation/jquery.validate.js"></script>'."\n", 'js');
 		$this->htmlAddHeader('<script type="text/javascript" src="../views/'.$this->theme.'/styles/validation-default.js"></script>'."\n", 'js');
 =======
 		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/vendors/jquery-validation/jquery.validate.js"></script>' . "\n", 'js');
 		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/styles/validation-default.js"></script>' . "\n", 'js');
 >>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
+=======
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/vendors/jquery-validation/jquery.validate.js"></script>' . "\n", 'js');
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/styles/validation-default.js"></script>' . "\n", 'js');
+>>>>>>> refs/remotes/origin/main
 
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
@@ -112,6 +129,7 @@ $(document).ready( function() {
 
 		$this->contentHeading(getMLText("edit_document_props"));
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 		if($document->expires())
 			$expdate = getReadableDate($document->getExpires());
@@ -270,6 +288,8 @@ $(document).ready( function() {
 </form>
 <?php
 =======
+=======
+>>>>>>> refs/remotes/origin/main
 		if ($document->expires())
 			$expdate = getReadableDate($document->getExpires());
 		else
@@ -426,13 +446,20 @@ $(document).ready( function() {
 			?>
 		</form>
 		<?php
+<<<<<<< HEAD
 >>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
+=======
+>>>>>>> refs/remotes/origin/main
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 ?>
 =======
 ?>
 >>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
+=======
+?>
+>>>>>>> refs/remotes/origin/main

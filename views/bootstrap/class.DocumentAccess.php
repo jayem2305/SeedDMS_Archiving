@@ -341,6 +341,10 @@ class SeedDMS_View_DocumentAccess extends SeedDMS_Theme_Style
 				print "</span></td>\n";
 				print "</tr>\n";
 			}
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/main
 			print "</table><br>";
 		}
 		$this->columnEnd();
@@ -349,4 +353,8 @@ class SeedDMS_View_DocumentAccess extends SeedDMS_Theme_Style
 		$this->htmlEndPage();
 	} /* }}} */
 }
+<<<<<<< HEAD
 ?>
+=======
+?>
+>>>>>>> refs/remotes/origin/main

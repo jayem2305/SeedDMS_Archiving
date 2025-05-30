@@ -385,6 +385,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 
 				print "<td>";
 				print "<ul class=\"actions unstyled\">\n";
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/main
 				print "<li>" . htmlspecialchars($file->getName()) . "</li>\n";
 				if ($file->getName() != $file->getOriginalFileName())
 					print "<li>" . htmlspecialchars($file->getOriginalFileName()) . "</li>\n";
@@ -491,7 +495,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					<td>
 						<?php
 						$owner = $document->getOwner();
-						print "<a class=\"infos\" href=\"mailto:" . htmlspecialchars($owner->getEmail()) . "\">" . htmlspecialchars($owner->getFullName()) . "</a>";
 						$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 						$decrypted = $this->decrypt($owner->getEmail(), $encryption_key);
 						$email = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $owner->getEmail() : $decrypted;

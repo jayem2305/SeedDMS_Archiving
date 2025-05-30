@@ -241,7 +241,7 @@ class SeedDMS_View_Statistic extends SeedDMS_Theme_Style
 		$this->contentContainerEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
-		
+
 	} /* }}} */
 }
 ?>
