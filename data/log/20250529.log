@@ -45,3 +45,20 @@ May 29 09:59:54  [error] Notification service 'email': Sending notification 'new
 May 29 09:59:54  [info] admin (::1) op.AddDocument.php add document 4 in folder 1
 May 29 09:59:55  [info] Conversion from image/jpeg to image/png with gd image service took 0.074554920196533 sec.
 May 29 10:04:47  [info] Conversion from image/jpeg to image/png with gd image service took 0.10260486602783 sec.
+May 29 17:56:58  [info] admin (::1) op.Ajax.php add document 5 in folder 1
+May 29 17:56:58  [info] admin (::1) op.Ajax.php add document 6 in folder 1
+May 29 17:56:58  [info] admin (::1) op.Ajax.php add document 7 in folder 1
+May 29 17:56:58  [info] admin (::1) op.Ajax.php add document 8 in folder 1
+May 29 17:56:58  [info] admin (::1) op.Ajax.php add document 9 in folder 1
+May 29 17:57:34  [info] admin (::1) op.AddDocument.php add document 10 in folder 1
+May 29 17:58:02  [info] Conversion from image/jpeg to image/png with gd image service took 0.09322714805603 sec.
+May 29 18:06:38  [info] Conversion from image/jpeg to image/png with gd image service took 0.063928842544556 sec.
+May 29 18:37:45  [info] admin (::1) op.EditFolder.php ?folderid=2
+May 29 18:38:14  [info] admin (::1) op.MoveFolder.php?formtoken=1a15e09e8225de76388d82611a871be6&folderid=2&showtree=1&targetid=3&targetname3f0d3ca8e81787497acc8c0e731ab0c8=Sample+folder_V2 
+May 29 18:38:27  [info] admin (::1) op.MoveFolder.php?formtoken=1a15e09e8225de76388d82611a871be6&folderid=2&showtree=1&targetid=1&targetname3f0d3ca8e81787497acc8c0e731ab0c8=DMS 
+May 29 18:38:42  [info] Conversion from image/jpeg to image/png with gd image service took 0.067981958389282 sec.
+May 29 18:39:21  [info] admin (::1) op.AddDocument.php add document 11 in folder 2
+May 29 18:39:21  [info] Conversion from image/png to image/png with gd image service took 0.011699914932251 sec.
+May 29 18:40:37  [info] Conversion from image/png to image/png with gd image service took 0.0053770542144775 sec.
+May 29 18:40:53  [info] admin (::1) op.UpdateDocument.php update document 11 with version 2
+May 29 18:40:53  [info] Conversion from image/png to image/png with gd image service took 0.017439126968384 sec.
