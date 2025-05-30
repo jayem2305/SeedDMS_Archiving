@@ -55,6 +55,26 @@ class SeedDMS_Controller_Download extends SeedDMS_Controller_Common {
 				sendFile($dms->contentDir . $content->getPath());
 			}
 		}
+		// --- Audit log: log document download ---
+        try {
+            $db = $dms->getDB();
+            $username = isset($this->params['user']) ? $this->params['user']->getLogin() : 'unknown';
+            $documentId = $document ? $document->getId() : 0;
+            $now = date('Y-m-d H:i:s');
+            $action = 'Document Downloaded';
+            $details = $username . ' downloaded the document.';
+            $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+            $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+            $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+            $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+            $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+            $result = $db->getResult($query);
+            if (!$result) {
+                error_log('Audit log insert failed (download document): ' . $db->getErrorMsg());
+            }
+        } catch (Exception $e) {
+            error_log('Audit log exception (download document): ' . $e->getMessage());
+        }
 		return true;
 	} /* }}} */
 
@@ -150,7 +170,7 @@ class SeedDMS_Controller_Download extends SeedDMS_Controller_Common {
 
 			header("Content-Type: ".$mimetype);
 			header("Content-Transfer-Encoding: binary");
-			header("Content-Disposition: attachment; filename=\"approval-" . $document->getID()."-".(int) $_GET['approvelogid'] . get_extension($mimetype) . "\"");
+			header("Content-Disposition: attachment; filename=\"approval-" . $document->getID(). "-".(int) $_GET['approvelogid'] . get_extension($mimetype) . "\"");
 			header("Cache-Control: must-revalidate");
 			sendFile($filename);
 		}
@@ -175,7 +195,7 @@ class SeedDMS_Controller_Download extends SeedDMS_Controller_Common {
 			header("Content-Type: ".$mimetype);
 			header("Content-Transfer-Encoding: binary");
 			header("Content-Length: " . filesize($filename ));
-			header("Content-Disposition: attachment; filename=\"review-" . $document->getID()."-".(int) $_GET['reviewlogid'] . get_extension($mimetype) . "\"");
+			header("Content-Disposition: attachment; filename=\"review-" . $document->getID(). "-".(int) $_GET['reviewlogid'] . get_extension($mimetype) . "\"");
 			header("Cache-Control: must-revalidate");
 			sendFile($filename);
 		}

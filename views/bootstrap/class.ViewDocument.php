@@ -1016,6 +1016,32 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$timeout = $this->params['timeout'];
 		$xsendfile = $this->params['xsendfile'];
 
+		// Audit log insertion
+		try {
+			$db = $dms->getDB();
+			$documentId = $document->getId();
+			$username = $user->getLogin();
+			$now = date('Y-m-d H:i:s');
+			$action = 'Document Viewed';
+			$details = 'User "' . $username . '" viewed the document.';
+
+			// Use qstr() for proper escaping if available, otherwise fallback
+			$username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+			$action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+			$details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+			$now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+
+			$query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" .
+				intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+			$result = $db->getResult($query);
+
+			if (!$result) {
+				echo '<div class="alert alert-danger">Audit log insert failed: ' . htmlspecialchars($db->getErrorMsg()) . '</div>';
+			}
+		} catch (Exception $e) {
+			echo '<div class="alert alert-danger">Audit log exception: ' . htmlspecialchars($e->getMessage()) . '</div>';
+		}
+
 		$versions = $this->callHook('documentVersions', $document);
 		if ($versions === null)
 			$versions = $document->getContent();
@@ -1166,8 +1192,19 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						role="button"><?php printMLText('linked_documents');
 						echo (count($links) || count($reverselinks)) ? " (" . count($links) . "/" . count($reverselinks) . ")" : ""; ?></a>
 				</li>
+				
 				<?php
 			}
+
+			// Always show Audit Log tab
+			?>
+			<li class="nav-item <?php if ($currenttab == 'auditlog') echo 'active'; ?>">
+				<a class="nav-link <?php if ($currenttab == 'auditlog') echo 'active'; ?>" data-target="#auditlog" data-toggle="tab" role="button">
+					Audit Log
+				</a>
+			</li>
+			<?php
+
 			$tabs = $this->callHook('extraTabs', $document);
 			if ($tabs) {
 				foreach ($tabs as $tabid => $tab) {
@@ -1176,6 +1213,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 			}
 			?>
 		</ul>
+		
 		<div class="tab-content">
 			<div class="tab-pane <?php if (!$currenttab || $currenttab == 'docinfo')
 				echo 'active'; ?>" id="docinfo" role="tabpanel">
@@ -1671,8 +1709,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 									/* If the init state has not been left, return is always possible */
 									if ($workflow->getInitState()->getID() == $latestContent->getWorkflowState()->getID()) {
 										echo "Initial state of sub workflow has not been left. Return to parent workflow is possible<br />";
-										echo "<form action=\"" . $this->html_url("ReturnFromSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" />";
-										echo "<input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('return_from_subworkflow') . "\" />";
+										echo "<form action=\"" . $this->html_url("ReturnFromSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('return_from_subworkflow') . "\" />";
 										echo "</form>";
 									} else {
 										/* Get a transition from the last state in the parent workflow
@@ -1925,8 +1962,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 									if ($user->isAdmin()) {
 										if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
 											$accesserr = getMLText("access_denied");
-										elseif (is_object($required) && $required->isDisabled())
-											$accesserr = getMLText("login_disabled_title");
 									}
 								}
 								if ($r["required"] == $user->getId()/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
@@ -1938,6 +1973,11 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 									$reqName = getMLText("unknown_group") . " '" . $r["required"] . "'";
 								} else {
 									$reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
+									if ($user->isAdmin()) {
+										$grpusers = $required->getUsers();
+										if (!$grpusers)
+											$accesserr = getMLText("no_group_members");
+									}
 									if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
 										$is_recipient = true;
 								}
@@ -2079,7 +2119,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 							print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
 							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL)) {
 								print "<br />" . getMLText("document_link_public") . ": " . (($link->isPublic()) ? getMLText("yes") : getMLText("no"));
-								print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $documentid . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
+								print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
 							}
 							print "</span></td>";
 							echo $this->documentListRowEnd($targetDoc);
@@ -2145,9 +2185,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 								echo $this->documentListRow($sourceDoc, $previewer, true, 0, $extracontent);
 							}
 							print "<td><span class=\"actions\">";
-							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL))
-								print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
 							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL)) {
+								print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
 								print "<br />" . getMLText("document_link_public") . ": " . (($link->isPublic()) ? getMLText("yes") : getMLText("no"));
 								print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $sourceDoc->getId() . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
 							}
@@ -2161,6 +2200,110 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 				</div>
 				<?php
 			}
+			if ($accessobject->check_view_access($this, ['action' => 'auditlog'])) {
+				echo '<div class="tab-pane ' . ($currenttab == 'auditlog' ? 'active' : '') . '" id="auditlog" role="tabpanel">';
+				try {
+					// Fetch audit logs from the database for the current document
+					$db = $dms->getDB();
+					$documentId = $document->getId();
+					$query = "SELECT created_at, user, action, details FROM audit_logs WHERE document_id = " . intval($documentId) . " ORDER BY created_at DESC";
+					$auditLogs = $db->getResultArray($query);
+
+					echo '<div id="auditlog-controls" class="d-flex justify-content-between align-items-center mb-2">';
+					// Search box (top left)
+					echo '<div><input type="text" id="auditlog-search" class="form-control form-control-sm d-inline-block" style="width:200px;" placeholder="Search view, edit, comment..."> <button id="auditlog-search-btn" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button></div>';
+					echo '</div>';
+
+					if ($auditLogs && count($auditLogs) > 0) {
+						// Table
+						echo '<div class="table-responsive"><table id="auditlog-table" class="table table-condensed table-sm table-hover">';
+						echo '<thead><tr>';
+						echo '<th>Date/Time</th>';
+						echo '<th>' . getMLText('user') . '</th>';
+						echo '<th>' . getMLText('action') . '</th>';
+						echo '<th>' . getMLText('details') . '</th>';
+						echo '</tr></thead><tbody>';
+						foreach ($auditLogs as $log) {
+							echo '<tr>';
+							echo '<td>' . htmlspecialchars($log['created_at']) . '</td>';
+							echo '<td>' . htmlspecialchars($log['user']) . '</td>';
+							echo '<td>' . htmlspecialchars($log['action']) . '</td>';
+							echo '<td>' . $log['details'] . '</td>';
+							echo '</tr>';
+						}
+						echo '</tbody></table></div>';
+						// Pagination and controls
+						echo '<div class="d-flex justify-content-between align-items-center mt-2">';
+						// Previous/Next icons (bottom left)
+						echo '<div>';
+						echo '<button id="auditlog-prev" class="btn btn-sm btn-secondary" title="Previous"><i class="fa fa-chevron-left"></i></button> ';
+						echo '<button id="auditlog-next" class="btn btn-sm btn-secondary" title="Next"><i class="fa fa-chevron-right"></i></button>';
+						echo '</div>';
+						// Page size input (bottom right)
+						echo '<div class="ml-auto">Rows per page: <input type="number" min="1" max="100" id="auditlog-pagesize" value="5" style="width:60px;" class="form-control form-control-sm d-inline-block"></div>';
+						echo '</div>';
+					} else {
+						$this->infoMsg('No Audit Logs Available');
+					}
+				} catch (Exception $e) {
+					echo "<div class='alert alert-danger'>Error fetching audit logs: " . htmlspecialchars($e->getMessage()) . "</div>";
+				}
+				// JS for pagination, search, and page size
+				echo '<script>
+(function() {
+    var table = document.getElementById("auditlog-table");
+    if (!table) return;
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+    var pageSizeInput = document.getElementById("auditlog-pagesize");
+    var searchInput = document.getElementById("auditlog-search");
+    var searchBtn = document.getElementById("auditlog-search-btn");
+    var prevBtn = document.getElementById("auditlog-prev");
+    var nextBtn = document.getElementById("auditlog-next");
+    var currentPage = 1;
+    var pageSize = parseInt(pageSizeInput.value, 10) || 5;
+    var filteredRows = rows.slice();
+
+    function renderTable() {
+        var start = (currentPage - 1) * pageSize;
+        var end = start + pageSize;
+        rows.forEach(function(row) { row.style.display = "none"; });
+        filteredRows.slice(start, end).forEach(function(row) { row.style.display = ""; });
+        prevBtn.disabled = (currentPage === 1);
+        nextBtn.disabled = (end >= filteredRows.length);
+    }
+    function updatePageSize() {
+        pageSize = parseInt(pageSizeInput.value, 10) || 5;
+        currentPage = 1;
+        renderTable();
+    }
+    function searchTable() {
+        var q = searchInput.value.trim().toLowerCase();
+        filteredRows = rows.filter(function(row) {
+            var action = row.cells[2].textContent.toLowerCase();
+            var details = row.cells[3].textContent.toLowerCase();
+            return (
+                (!q) ||
+                action.indexOf(q) !== -1 ||
+                details.indexOf(q) !== -1
+            );
+        });
+        currentPage = 1;
+        renderTable();
+    }
+    pageSizeInput.addEventListener("change", updatePageSize);
+    searchBtn.addEventListener("click", searchTable);
+    searchInput.addEventListener("keydown", function(e) { if (e.key === "Enter") { searchTable(); e.preventDefault(); } });
+    prevBtn.addEventListener("click", function() { if (currentPage > 1) { currentPage--; renderTable(); } });
+    nextBtn.addEventListener("click", function() { if ((currentPage * pageSize) < filteredRows.length) { currentPage++; renderTable(); } });
+    // Initial render
+    renderTable();
+})();
+</script>';
+				echo '</div>';
+			} else {
+				$this->warnMsg(getMLText('no_access_to_auditlog'));
+			}
+			
 			if ($tabs) {
 				foreach ($tabs as $tabid => $tab) {
 					echo '<div class="tab-pane ' . ($currenttab == $tabid ? 'active' : '') . '" id="' . $tabid . '" role="tabpanel">';

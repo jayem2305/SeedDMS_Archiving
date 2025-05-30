@@ -109,6 +109,30 @@ class SeedDMS_Controller_ApproveDocument extends SeedDMS_Controller_Common {
 		if(!$this->callHook('postApproveDocument', $content)) {
 		}
 
+		// --- Audit log: log document approval ---
+        try {
+            $db = $dms->getDB();
+            $document = $content->getDocument();
+            if ($document) {
+                $documentId = $document->getId();
+                $username = $user->getLogin();
+                $now = date('Y-m-d H:i:s');
+                $action = 'Document Approved';
+                $details = 'User approved the document.';
+                $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+                $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+                $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+                $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+                $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+                $result = $db->getResult($query);
+                if (!$result) {
+                    error_log('Audit log insert failed (approve document): ' . $db->getErrorMsg());
+                }
+            }
+        } catch (Exception $e) {
+            error_log('Audit log exception (approve document): ' . $e->getMessage());
+        }
+
 		return true;
 	} /* }}} */
 }

@@ -119,6 +119,26 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 			}
 		}
 		add_log_line("?name=".$name."&documentid=".$documentid);
+        // --- Audit log: log file upload (chunked) ---
+        try {
+            $db = $dms->getDB();
+            $documentId = $document->getId();
+            $username = $user->getLogin();
+            $now = date('Y-m-d H:i:s');
+            $action = 'File Uploaded (Chunked)';
+            $details = '<b>' . htmlspecialchars($username) . '</b> uploaded file (chunked): ' . htmlspecialchars($name);
+            $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+            $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+            $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+            $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+            $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+            $result = $db->getResult($query);
+            if (!$result) {
+                error_log('Audit log insert failed (add file2): ' . $db->getErrorMsg());
+            }
+        } catch (Exception $e) {
+            error_log('Audit log exception (add file2): ' . $e->getMessage());
+        }
 	}
 }
 
