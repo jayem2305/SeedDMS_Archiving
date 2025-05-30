@@ -7,4 +7,3 @@ User: admin
 Password: admin
 =======
 Added sidebar in all pages bootstrap & 4
->>>>>>> grinnel-sidebar
