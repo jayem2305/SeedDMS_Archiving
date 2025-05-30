@@ -283,6 +283,10 @@ class SeedDMS_View_ExtensionMgr extends SeedDMS_Theme_Style {
 		$this->contentHeading(getMLText("extension_manager"));
 		$this->rowStart();
 		$this->columnStart(4);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 		if($settings->_enableExtensionImport && $extmgr->isWritableExtDir()) {
 ?>
 		<form class="form-horizontal" method="post" enctype="multipart/form-data" action="../op/op.ExtensionMgr.php">

@@ -113,9 +113,16 @@ class SeedDMS_View_ImportFS extends SeedDMS_Theme_Style {
 		} else {
 			$this->warningMsg(getMLText("dropfolderdir_missing"));
 		}
+<<<<<<< HEAD
 
 		$this->contentEnd();
 		$this->htmlEndPage();
+=======
+		$this->pageSidebar();
+		$this->contentEnd();
+		$this->htmlEndPage();
+		
+>>>>>>> grinnel-sidebar
 	} /* }}} */
 }
 

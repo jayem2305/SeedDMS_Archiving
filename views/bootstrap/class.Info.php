@@ -59,6 +59,10 @@ class SeedDMS_View_Info extends SeedDMS_Theme_Style {
 
 		$this->rowStart();
 		$this->columnStart(6);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 		$this->contentHeading(getMLText("seeddms_info"));
 		$seedextensions = $extmgr->getExtensionConfiguration();
 		echo "<table class=\"table table-condensed table-sm\">\n";

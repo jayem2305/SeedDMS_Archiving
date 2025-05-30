@@ -46,6 +46,10 @@ class SeedDMS_View_ClearCache extends SeedDMS_Theme_Style {
 		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
 		$this->contentHeading(getMLText("clear_cache"));
 		$this->warningMsg(getMLText("confirm_clear_cache", array('cache_dir'=>$cachedir)));
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 ?>
 <form action="../op/op.ClearCache.php" name="form1" method="post">
 <?php echo createHiddenFieldWithKey('clearcache'); ?>

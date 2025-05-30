@@ -354,17 +354,37 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		$dms = $this->params['dms'];
 		$accessobject = $this->params['accessobject'];
 
+<<<<<<< HEAD
 		echo "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark border-bottom fixed-top\">\n";
+=======
+		echo "<nav class=\"navbar navbar-expand-lg navbar-light bg-light border-bottom fixed-top\" style=\"background-color: #ffffff !important;\">\n";
+>>>>>>> grinnel-sidebar
 		echo " <a class=\"navbar-brand\" href=\"" . (!empty($this->extraheader['logolink']) ? $this->extraheader['logolink'] : $this->params['settings']->_httpRoot . "out/out.ViewFolder.php") . "\">" . (!empty($this->extraheader['logo']) ? '<img id="navbar-logo" src="' . $this->extraheader['logo'] . '">' : '<img id="navbar-logo" src="' . $this->params['settings']->_httpRoot . 'views/bootstrap4/images/favicon.svg">') . " <span class=\"d-none d-md-inline-block ml-4\">" . (strlen($this->params['sitename']) > 0 ? $this->params['sitename'] : "") . "</span></a>\n";
 
 		if (isset($this->params['user']) && $this->params['user']) {
 			/* search form {{{ */
+<<<<<<< HEAD
 			echo "     <form action=\"" . $this->params['settings']->_httpRoot . "out/out.Search.php\" class=\"form-inline ml-4 mr-auto\" autocomplete=\"off\">";
+=======
+			echo "     <form action=\"" . $this->params['settings']->_httpRoot . "out/out.Search.php\" class=\"form-inline ml-4 mr-auto my-2 my-lg-0\" autocomplete=\"off\">";
+>>>>>>> grinnel-sidebar
 			if ($folder != null && is_object($folder) && !strcasecmp(get_class($folder), $dms->getClassname('folder'))) {
 				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
 			}
 			echo "      <input type=\"hidden\" name=\"navBar\" value=\"1\" />";
+<<<<<<< HEAD
 			echo "      <input name=\"query\" class=\"form-control mr-sm-2 search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" style=\"width: 150px;\" placeholder=\"" . getMLText("search") . "\" aria-label=\"" . getMLText("search") . "\"/>";
+=======
+			
+			// MODIFIED PLACEHOLDER AND BUTTON CLASS
+			echo "      <div class=\"input-group search-bar-modern\">"; // Added class for potential custom styling
+			echo "        <input name=\"query\" class=\"form-control search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" placeholder=\"Search Files and Folders\" aria-label=\"Search Files and Folders\" style=\"width: 220px;\">";
+			echo "        <div class=\"input-group-append\">";
+			echo "          <button class=\"btn btn-dark\" type=\"submit\" title=\"" . getMLText("search") . "\"><i class=\"fa fa-search\"></i></button>"; // Changed to btn-dark for black button
+			echo "        </div>";
+			echo "      </div>"; // End Input Group
+
+>>>>>>> grinnel-sidebar
 			if ($this->params['defaultsearchmethod'] == 'fulltext')
 				echo "      <input type=\"hidden\" name=\"fullsearch\" value=\"1\" />";
 			echo "</form>\n";
@@ -379,7 +399,14 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			$menuitems = array();
 			/* calendar {{{ */
 			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
+<<<<<<< HEAD
 				$menuitems['calendar'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'], 'label' => getMLText("calendar"));
+=======
+				$menuitems['calendar'] = array(
+					'link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'],
+					'label' => '<i class="fa fa-calendar-times-o fa-lg" title="' . getMLText("calendar") . '"></i><span class="d-lg-none ml-2">' . getMLText("calendar") . '</span>' // Show text on small screens
+				);
+>>>>>>> grinnel-sidebar
 			if ($accessobject->check_view_access('AdminTools'))
 				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
 			if ($this->params['enablehelp']) {
@@ -458,7 +485,20 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			/* user profile menu {{{ */
 			echo "  <ul class=\"navbar-nav ml-auto\">\n";
 			echo "   <li class=\"nav-item dropdown\">\n";
+<<<<<<< HEAD
 			echo "    <a href=\"#\" class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\" id=\"navbarMainUser\" aria-haspopup=\"true\" aria-expanded=\"false\">" . ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . htmlspecialchars($this->params['user']->getFullName()) . "'</a>\n";
+=======
+			$userFullName = htmlspecialchars($this->params['user']->getFullName());
+			$tooltipText = ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . $userFullName . "'";
+
+			echo "    <a href=\"#\" class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\" id=\"navbarMainUser\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\" title=\"" . $tooltipText . "\">";
+			echo "       <i class=\"fa fa-user-circle fa-lg\"></i>"; // User head icon
+			echo "       <span style=\"margin-left: 5px;\" class=\"d-none d-lg-inline-block\">" . $userFullName . "</span>"; // Display name, hide on screens smaller than lg
+			// Bootstrap 4 dropdown-toggle usually adds its own caret via CSS pseudo-elements.
+			// If you need an explicit Font Awesome caret, you can add it:
+			// echo " <i class=\"fa fa-caret-down ml-1\"></i>"; 
+			echo "    </a>\n";
+>>>>>>> grinnel-sidebar
 			echo "    <div class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"navbarMainUser\">\n";
 			if (!$this->params['user']->isGuest()) {
 				$menuitems = array();
@@ -572,6 +612,462 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		return '<nav aria-label="breadcrumb"><ol class="breadcrumb">' . $txtpath . '</ol></nav>';
 	} /* }}} */
 
+<<<<<<< HEAD
+=======
+	function pageSidebar()
+	{ /* {{{ */
+		$httpRoot = $this->params['settings']->_httpRoot;
+		$outputHtml = ''; 
+
+		$outputHtml .= '<button class="sidebar-mobile-toggle-btn" type="button" aria-label="Toggle sidebar">
+                <i class="fa fa-bars"></i>
+              </button>';
+        $outputHtml .= "<div class=\"sidebar-overlay\"></div>\n";
+
+		$outputHtml .= <<<HTML_CSS
+<style type="text/css">
+    /* Main Sidebar Container */
+    .page-sidebar-custom {
+        width: 240px; 
+        background-color: #20242c !important; 
+        border-right: 1px solid #1a1d23; 
+        height: 100vh; 
+        position: fixed; 
+        top: 0px; /* CRITICAL: Adjust to your fixed navbar height */
+        left: 0;
+        overflow-y: auto; 
+        overflow-x: hidden !important; /* Prevent horizontal scroll */
+        z-index: 1030; 
+        transform: translateX(0); 
+        transition: transform 0.3s ease-in-out;
+        box-sizing: border-box !important; /* Ensure padding doesn't add to width */
+        padding: 0 !important; /* Remove all padding from the main container */
+    }
+
+		 @media (min-width: 992px) { /* Bootstrap 4 'lg' breakpoint - adjust if your sidebar shows at a different size */
+        body > main.container-fluid { 
+             margin-left: 240px !important; /* Push main content to the right of the sidebar */
+        }
+nav.navbar.fixed-top form.form-inline.ml-4.mr-auto {
+            margin-left: 100px !important; /* Sidebar width (240px) + 5px gap. Adjust as needed. */
+                                         /* Using !important to override the existing 'ml-4' if necessary. */
+        }
+    }
+		 @media (max-width: 991.98px) { /* Screen sizes smaller than the sidebar breakpoint */
+        /* ... (your existing mobile sidebar styles) ... */
+        
+        /* Reset the search bar's margin-left on smaller screens if it was changed above */
+        nav.navbar.fixed-top form.form-inline.ml-4.mr-auto {
+            margin-left: 1.5rem; /* This is the typical value for Bootstrap's 'ml-4'. Adjust if your theme uses a different value. */
+                                 /* Or use 'initial' or 'unset' if 'ml-4' is not always desired on mobile. */
+        }
+    }
+
+.search-bar-modern.input-group {
+    /* You can adjust this value for more or less rounding */
+    /* Bootstrap's default is often 0.25rem. Increase for more noticeable rounding. */
+    border-radius: 0.35rem; 
+}
+
+/* Ensure child elements also look rounded if the parent has a border */
+/* This is often needed if the input-group itself has a border and overflow:hidden */
+.search-bar-modern.input-group > .form-control {
+    border-top-left-radius: 0.35rem;    /* Match parent */
+    border-bottom-left-radius: 0.35rem; /* Match parent */
+    border-right: 0; /* Remove right border if button is directly attached */
+}
+
+.search-bar-modern.input-group > .input-group-append > .btn {
+    border-top-right-radius: 0.35rem;   /* Match parent */
+    border-bottom-right-radius: 0.35rem;/* Match parent */
+}
+
+/* Adjust focus glow if needed */
+.search-bar-modern.input-group > .form-control:focus {
+    z-index: 3; /* Ensure it's above other elements on focus if using box-shadow */
+    border-color: #80bdff; 
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Ensure search icon on dark button is light */
+.btn-dark .fa-search {
+    color: #fff; /* Or another light color that contrasts well with btn-dark */
+}
+
+nav.navbar .input-group .btn-dark {
+    background-color: #000000 !important; /* Or #000000 for pure black */
+    border-color: #000000 !important;   /* Or #000000 */
+    color: #ffffff !important;          /* For the icon/text */
+}
+
+/* Ensure the icon itself within this specific button is white */
+nav.navbar .input-group .btn-dark .fa-search {
+    color: #ffffff !important;
+}
+
+/* Optional: Hover/Focus states if they also get overridden */
+nav.navbar .input-group .btn-dark:hover,
+nav.navbar .input-group .btn-dark:focus {
+    background-color: #1a1e21 !important; /* A slightly darker shade for hover/focus */
+    border-color: #1a1e21 !important;
+    color: #ffffff !important;
+}
+
+
+    .page-sidebar-custom .sidebar-inner {
+       padding: 0; /* Remove padding if any was here */
+       width: 100%;
+       height: 100%;
+    }
+
+    /* LOGO ALIGNMENT & STYLING */
+    .page-sidebar-custom .sidebar-logo {
+        padding: 15px 15px; /* Keep some padding for the logo section */
+        margin-bottom: 0; /* Remove margin if border is enough */
+        border-bottom: 1px solid #30353e; 
+        display: flex !important; 
+        align-items: center !important; 
+        cursor: default;
+        width: 100%; 
+        overflow: hidden; 
+    }
+    .page-sidebar-custom .sidebar-logo:hover {
+        background-color: transparent !important; 
+    }
+    .page-sidebar-custom .sidebar-logo .img-sidebar-logo {
+        margin-right: 10px; 
+        flex-shrink: 0; 
+        display: flex;
+        align-items: center;
+    }
+    .page-sidebar-custom .sidebar-logo img {
+        max-width: 40px; height: auto; display: block; pointer-events: none;
+    }
+    .page-sidebar-custom .sidebar-logo .logo-text {
+        display: flex; align-items: center; overflow: hidden; flex-shrink: 1;
+    }
+    .page-sidebar-custom .sidebar-logo .logo-text h3 { 
+        font-size: 1.05rem; margin: 0; color: #e9ecef !important; font-weight: 600;
+        line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* Sidebar Navigation List */
+    .page-sidebar-custom .main-sidebar-nav {
+        width: 100%;
+        padding-top: 10px; /* Add some space above the first nav item */
+    }
+    .page-sidebar-custom .main-sidebar-nav ul {
+        list-style: none !important;
+        padding-left: 0 !important; /* CRITICAL: Remove default UL padding */
+        margin-left: 0 !important;  /* CRITICAL: Remove default UL margin */
+        margin-bottom: 0;
+        width: 100%;
+    }
+    .page-sidebar-custom .main-sidebar-nav ul li {
+         width: 100%;
+         margin-left: 0 !important; /* CRITICAL: Ensure li has no left margin */
+         padding-left: 0 !important;/* CRITICAL: Ensure li has no left padding */
+         position: relative;
+    }
+    .page-sidebar-custom .main-sidebar-nav ul li a {
+        display: flex !important; 
+        align-items: center !important; 
+        width: 100% !important; 
+        padding: 10px 15px !important; /* Padding inside the link */
+        color: #adb5bd !important; 
+        text-decoration: none !important;
+        font-size: 14px !important; 
+        border-left: 3px solid transparent; 
+        outline: none !important; 
+        cursor: pointer;
+        overflow: hidden; 
+        line-height: 1.4; 
+        box-sizing: border-box !important; /* Ensure padding doesn't make 'a' wider */
+        margin-bottom: 0; /* Removed bottom margin, use padding for separation or li margin */
+    }
+	
+	/* Text span within the link */
+    .page-sidebar-custom .main-sidebar-nav ul li a span:not(.rotate-icon) { 
+        flex-grow: 1; 
+        white-space: normal !important; 
+        overflow-wrap: break-word !important;
+        word-wrap: break-word !important; 
+        text-align: left; 
+        min-width: 0; 
+        overflow: visible; 
+    }
+    
+    /* Icons within main links */
+     .page-sidebar-custom .main-sidebar-nav ul li a .fa:not(.rotate-icon) { 
+        margin-right: 10px; 
+        width: 20px; 
+        text-align: center;
+        color: #6c757d !important; 
+        flex-shrink: 0; 
+    }
+
+    /* Rotate icon for collapsible sections */
+    .page-sidebar-custom .rotate-icon {
+        margin-left: auto; 
+        padding-left: 8px; 
+        font-size: 0.9em; 
+        color: #6c757d !important; 
+        flex-shrink: 0;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    /* Collapsible Sub-menu */
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse {
+        padding-left: 0 !important; /* CRITICAL: No extra indent on the UL itself */
+        list-style: none !important;
+        background-color: #1c1f26 !important; 
+        margin-top: 0;
+        margin-bottom: 5px; 
+    }
+     .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a {
+        /* Indentation is now controlled by padding-left on the 'a' tag */
+        padding: 9px 15px 9px 35px !important; /* 15px base + 20px indent */
+        font-size: 13px; 
+        color: #9fa6ad !important; 
+        border-left-color: transparent !important; /* Reset from parent */
+    }
+    /* Text span in sub-menu */
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a span {
+        min-width: 0; 
+        overflow: visible;
+        white-space: normal !important; 
+        overflow-wrap: break-word !important;
+        word-wrap: break-word !important; 
+    }
+
+
+    /* Keep other styles (hover, active, colors, media queries for mobile toggle) */
+    /* ... (Make sure to include all the hover, active, and media query styles from the previous version) ... */
+    .page-sidebar-custom .main-sidebar-nav ul li a:hover,
+    .page-sidebar-custom .main-sidebar-nav ul li a:focus { background-color: #2a2f38 !important; color: #ffffff !important; border-left-color: #007bff; }
+    .page-sidebar-custom .main-sidebar-nav ul li a.active { background-color: #007bff !important; color: #ffffff !important; font-weight: 500; border-left-color: #ffffff; }
+    .page-sidebar-custom .main-sidebar-nav ul li a.active .fa:not(.rotate-icon) { color: #ffffff !important; }
+    .page-sidebar-custom .main-sidebar-nav ul li a:hover .fa:not(.rotate-icon) { color: #ffffff !important;}
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:hover,
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:focus { background-color: #262a32 !important; color: #f8f9fa !important;}
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a.active { color: #ffffff !important; background-color: #0069d9 !important; font-weight: normal; }
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a .fa { margin-right: 8px; flex-shrink: 0; color: #6c757d !important;}
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:hover .fa,
+    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a.active .fa { color: #f8f9fa !important;}
+    .page-sidebar-custom a[data-toggle="collapse"][aria-expanded="true"] .rotate-icon { transform: rotate(90deg); color: #e0f5ff !important; }
+    .page-sidebar-custom a[data-toggle="collapse"]:hover .rotate-icon { color: #ffffff !important; }
+    body > main.container-fluid { transition: margin-left 0.3s ease-in-out; }
+    @media (min-width: 980px) { 
+        body > main.container-fluid { 
+             margin-left: 240px !important; 
+        }
+    }
+    .sidebar-mobile-toggle-btn { display: none; position: fixed; top: 7px; left: 8px; z-index: 1031; padding: 4px 10px; font-size: 18px; color: #ffffff; text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25); background-color: #222222; background-image: linear-gradient(to bottom, #333333, #111111); border: 1px solid #111111; border-radius: 4px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.075); }
+    .sidebar-mobile-toggle-btn:hover { background-color: #111111; color: #ffffff; }
+    @media (max-width: 979px) { 
+        .page-sidebar-custom { transform: translateX(-100%); top: 0 !important; height: 100% !important; box-shadow: 3px 0 10px rgba(0,0,0,0.2); padding-top: 15px; }
+        .page-sidebar-custom.open-mobile { transform: translateX(0) !important; }
+        body > main.container-fluid { margin-left: 0 !important; }
+        .sidebar-mobile-toggle-btn { display: inline-block !important; }
+        body.sidebar-open-overlay-active { overflow: hidden !important; }
+    }
+
+</style>
+HTML_CSS;
+
+		// --- HTML for Sidebar (ensure labels are wrapped in <span>) ---
+		// (PHP for HTML generation remains the same)
+		$outputHtml .= "<div class=\"page-sidebar-custom\">\n";
+		$outputHtml .= " <div class=\"sidebar-inner\">\n"; // sidebar-inner might be redundant now
+        // ... (The rest of your HTML generation for the sidebar logo and nav items)
+        // Make sure all link text is wrapped in <span> like: <a><i...></i><span>Text</span>...</a>
+		$outputHtml .= '
+<div class="sidebar-logo">
+    <div class="img-sidebar-logo">
+        <img src="https://ortadeltech.com/assets/images/ORTADEL_logo.png" alt="logo">
+    </div>
+    <div class="logo-text">
+        <h3>ORTADEL DMS</h3>
+    </div>
+</div>';
+        $outputHtml .= '<div class="main-sidebar-nav">';
+        $outputHtml .= '<ul>
+	    <li><a href="' . $httpRoot . 'out/out.Dashboard.php">
+            <i class="fa fa-tachometer fa-lg"></i><span>' . getMLText('dashboard') . '</span>
+          </a>
+        </li>
+        <li>
+            <a href="' . $httpRoot . 'out/out.ViewFolder.php">
+                <i class="fa fa-folder-open fa-lg"></i><span>' . getMLText('folders') . '</span>
+            </a>
+        </li>
+        <li> 
+          <a data-toggle="collapse" href="#collapse-UserManagement" role="button" aria-expanded="false" aria-controls="collapse-UserManagement">
+            <i class="fa fa-users fa-lg"></i><span>' . getMLText('user_management') . '</span>
+            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
+          </a>
+          <ul class="collapse list-unstyled" id="collapse-UserManagement">
+            <li><a href="' . $httpRoot . 'out/out.UsrMgr.php"><i class="fa fa-user-plus fa-lg"></i><span>' . getMLText('user_management') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.RoleMgr.php"><i class="fa fa-id-badge fa-lg"></i><span>' . getMLText('role_management') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.GroupMgr.php"><i class="fa fa-object-group fa-lg"></i><span>' . getMLText('group_management') . '</span></a></li>
+          </ul>
+        </li>
+        <li><a href="' . $httpRoot . 'out/out.UserList.php"><i class="fa fa-list fa-lg"></i><span>' . getMLText('user_list') . '</span></a></li>
+        <li><a href="' . $httpRoot . 'out/out.Acl.php"><i class="fa fa-shield fa-lg"></i><span>' . getMLText('access_control') . '</span></a></li>
+        <li> 
+          <a data-toggle="collapse" href="#collapse-Definitions" role="button" aria-expanded="false" aria-controls="collapse-Definitions">
+            <i class="fa fa-book fa-lg"></i><span>' . getMLText('definitions') . '</span>
+            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
+          </a>
+          <ul class="collapse list-unstyled" id="collapse-Definitions">
+            <li><a href="' . $httpRoot . 'out/out.DefaultKeywords.php"><i class="fa fa-tags fa-lg"></i><span>' . getMLText('global_default_keywords') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.Categories.php"><i class="fa fa-columns fa-lg"></i><span>' . getMLText('global_document_categories') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.AttributeMgr.php"><i class="fa fa-cogs fa-lg"></i><span>' . getMLText('global_attributedefinitions') . '</span></a></li>';
+        if (($this->params['workflowmode'] ?? '') == 'advanced') {
+            $outputHtml .= '<li><a href="' . $httpRoot . 'out/out.WorkflowMgr.php"><i class="fa fa-sitemap fa-lg"></i><span>' . getMLText('global_workflows') . '</span></a></li>
+                  <li><a href="' . $httpRoot . 'out/out.WorkflowStatesMgr.php"><i class="fa fa-star fa-lg"></i><span>' . getMLText('global_workflow_states') . '</span></a></li>
+                  <li><a href="' . $httpRoot . 'out/out.WorkflowActionsMgr.php"><i class="fa fa-bolt fa-lg"></i><span>' . getMLText('global_workflow_actions') . '</span></a></li>';
+        }
+        $outputHtml .= '    </ul>
+        </li>
+        <li>
+          <a data-toggle="collapse" href="#collapse-BackupLogging" role="button" aria-expanded="false" aria-controls="collapse-BackupLogging">
+            <i class="fa fa-database fa-lg"></i><span>' . getMLText('backup_log_management') . '</span>
+            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
+          </a>
+          <ul class="collapse list-unstyled" id="collapse-BackupLogging">
+            <li><a href="' . $httpRoot . 'out/out.BackupTools.php"><i class="fa fa-life-saver fa-lg"></i><span>' . getMLText('backup_tools') . '</span></a></li>';
+        if ($this->params['logfileenable'] ?? false) {
+            $outputHtml .= '<li><a href="' . $httpRoot . 'out/out.LogManagement.php"><i class="fa fa-list-alt fa-lg"></i><span>' . getMLText('log_management') . '</span></a></li>';
+        }
+        $outputHtml .= '    </ul>
+        </li>
+        <li>
+          <a data-toggle="collapse" href="#collapse-Misc" role="button" aria-expanded="false" aria-controls="collapse-Misc">
+            <i class="fa fa-cogs fa-lg"></i><span>' . getMLText('misc') . '</span>
+            <i class="fa fa-angle-right fa-lg rotate-icon"></i>
+          </a>
+          <ul class="collapse list-unstyled" id="collapse-Misc">
+            <li><a href="' . $httpRoot . 'out/out.ImportFS.php"><i class="fa fa-folder-upload fa-lg"></i><span>' . getMLText('import_fs') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.ImportUsers.php"><i class="fa fa-user-plus fa-lg"></i><span>' . getMLText('import_users') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.Statistic.php"><i class="fa fa-pie-chart fa-lg"></i><span>' . getMLText('folders_and_documents_statistic') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.Charts.php"><i class="fa fa-bar-chart fa-lg"></i><span>' . getMLText('charts') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.Timeline.php"><i class="fa fa-signal fa-lg"></i><span>' . getMLText('timeline') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.SchedulerTaskMgr.php"><i class="fa fa-clock-o fa-lg"></i><span>' . getMLText('scheduler_task_mgr') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.ObjectCheck.php"><i class="fa fa-check-square-o fa-lg"></i><span>' . getMLText('objectcheck') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.ExpiredDocuments.php"><i class="fa fa-calendar-times-o fa-lg"></i><span>' . getMLText('documents_expired') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.ExtensionMgr.php"><i class="fa fa-puzzle-piece fa-lg"></i><span>' . getMLText('extension_manager') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.ClearCache.php"><i class="fa fa-eraser fa-lg"></i><span>' . getMLText('clear_cache') . '</span></a></li>
+            <li><a href="' . $httpRoot . 'out/out.Info.php"><i class="fa fa-info-circle fa-lg"></i><span>' . getMLText('version_info') . '</span></a></li>
+          </ul>
+        </li>
+	</ul>
+</div>';
+
+		$outputHtml .= " </div>\n"; 
+		$outputHtml .= "</div>\n"; 
+
+        echo $outputHtml;
+
+		// --- JavaScript (remains the same) ---
+		$this->addFooterJS("
+			jQuery(document).ready(function($) {
+                // For sub-menu collapse (Bootstrap 2)
+				$('.page-sidebar-custom .main-sidebar-nav a[data-toggle=\"collapse\"]').on('click', function(e) {
+				});
+                $('.page-sidebar-custom .main-sidebar-nav ul.collapse').on('show.bs.collapse shown.bs.collapse', function () {
+                    $(this).prev('a').attr('aria-expanded', 'true').find('.rotate-icon').addClass('rotated');
+                }).on('hide.bs.collapse hidden.bs.collapse', function () {
+                    $(this).prev('a').attr('aria-expanded', 'false').find('.rotate-icon').removeClass('rotated');
+                });
+                 $('.page-sidebar-custom .main-sidebar-nav ul.collapse.in').each(function(){
+                    var triggerLink = $(this).prev('a');
+                    triggerLink.find('.rotate-icon').addClass('rotated');
+                    triggerLink.attr('aria-expanded', 'true');
+                 });
+                 $('.page-sidebar-custom .main-sidebar-nav ul.collapse:not(.in)').each(function(){
+                    var triggerLink = $(this).prev('a');
+                     triggerLink.attr('aria-expanded', 'false'); 
+                    triggerLink.find('.rotate-icon').removeClass('rotated');
+                 });
+                var \$sidebar = $('.page-sidebar-custom');
+                var \$overlay = $('.sidebar-overlay'); 
+                var \$mobileToggleButton = $('.sidebar-mobile-toggle-btn'); 
+                var \$body = $('body');
+                \$mobileToggleButton.on('click', function(e) {
+                    e.stopPropagation(); 
+                    \$sidebar.toggleClass('open-mobile');
+                    \$overlay.toggleClass('active');
+                    \$body.toggleClass('sidebar-open-overlay-active'); 
+                });
+                \$overlay.on('click', function() {
+                    \$sidebar.removeClass('open-mobile');
+                    \$overlay.removeClass('active');
+                    \$body.removeClass('sidebar-open-overlay-active');
+                });
+			});
+		");
+		return;
+	} /* }}} */
+
+	function dropDownNavigations($pageTitle, $pageType = null, $extra = null)
+	{
+		$menuItems = '';
+
+		switch ($pageType) {
+			case "view_folder":
+				ob_start();
+				$this->folderNavigationBar($extra);
+				$menuItems = ob_get_clean();
+				break;
+			case "view_document":
+				ob_start();
+				$this->documentNavigationBar($extra);
+				$menuItems = ob_get_clean();
+				break;
+			case "my_documents":
+				ob_start();
+				$this->myDocumentsNavigationBar();
+				$menuItems = ob_get_clean();
+				break;
+			case "my_account":
+				ob_start();
+				$this->accountNavigationBar();
+				$menuItems = ob_get_clean();
+				break;
+			case "admin_tools":
+				ob_start();
+				$this->adminToolsNavigationBar();
+				$menuItems = ob_get_clean();
+				break;
+			case "calendarold":
+				ob_start();
+				$this->calendarOldNavigationBar($extra);
+				$menuItems = ob_get_clean();
+				break;
+			case "calendar":
+				ob_start();
+				$this->calendarNavigationBar($extra);
+				$menuItems = ob_get_clean();
+				break;
+			default:
+				if ($this->hasHook('pageNavigationBar')) {
+					$hookResult = $this->callHook('pageNavigationBar', $pageType, $extra);
+					if (is_string($hookResult)) {
+						$menuItems = $hookResult;
+					}
+				}
+		}
+
+		// Wrap the output inside a Bootstrap dropdown-menu container
+		echo '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+		echo $menuItems ?: '<span class="dropdown-item text-muted">No actions available</span>';
+		echo '</div>';
+
+		return;
+	}
+
+>>>>>>> grinnel-sidebar
 	function pageNavigation($pageTitle, $pageType = null, $extra = null)
 	{ /* {{{ */
 

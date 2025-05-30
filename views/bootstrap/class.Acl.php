@@ -244,6 +244,10 @@ $(document).ready( function() {
 		$this->rowStart();
 		$this->columnStart(4);
 		$this->contentHeading(getMLText("role"));
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 ?>
 <form class="form-horizontal">
 <?php

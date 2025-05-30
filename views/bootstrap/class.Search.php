@@ -1646,6 +1646,10 @@ $(document).ready(function() {
 <?php
 		$this->columnEnd();
 		$this->columnStart(8);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 		if($batchmsg = $this->getParam('batchmsg')) {
 			$this->contentHeading(getMLText('batch_operation_result'));
 			echo $this->infoMsg($batchmsg);

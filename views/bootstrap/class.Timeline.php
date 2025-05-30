@@ -317,6 +317,10 @@ class SeedDMS_View_Timeline extends SeedDMS_Theme_Style
 		echo "<div class=\"ajax\" data-view=\"Timeline\" data-action=\"iteminfo\" ></div>";
 		$this->columnEnd();
 		$this->columnStart(8);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 		$this->contentHeading(getMLText("timeline"));
 		$this->printTimelineHtml(550);
 		$this->columnEnd();
@@ -324,6 +328,10 @@ class SeedDMS_View_Timeline extends SeedDMS_Theme_Style
 
 		$this->contentEnd();
 		$this->htmlEndPage();
+<<<<<<< HEAD
+=======
+		
+>>>>>>> grinnel-sidebar
 	} /* }}} */
 }
 ?>

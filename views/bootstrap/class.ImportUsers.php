@@ -83,6 +83,11 @@ class SeedDMS_View_ImportUsers extends SeedDMS_Theme_Style {
 
 		$this->columnEnd();
 		$this->columnStart(8);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+		
+>>>>>>> grinnel-sidebar
 		if($newusers) {
 			echo "<table class=\"table table-condensed\">\n";
 			echo "<tr>";
@@ -126,10 +131,18 @@ class SeedDMS_View_ImportUsers extends SeedDMS_Theme_Style {
 			else
 				$this->warningMsg(getMLText('import_users_no_column_mapping'));
 		}
+<<<<<<< HEAD
+=======
+		
+>>>>>>> grinnel-sidebar
 		$this->columnEnd();
 		$this->rowEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
+<<<<<<< HEAD
+=======
+		
+>>>>>>> grinnel-sidebar
 	} /* }}} */
 }
 

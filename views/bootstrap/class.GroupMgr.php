@@ -397,6 +397,10 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 		$this->rowStart();
 		$this->columnStart(4);
 		$encryption_key = "b8c75fa53c0c7a18a84adb6ca815bd94"; // This will be 16 bytes, perfect for AES-128-CBC
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 		?>
 		<form class="form-horizontal">
 			<?php

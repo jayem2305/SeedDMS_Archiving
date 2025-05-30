@@ -377,6 +377,10 @@ class SeedDMS_View_AttributeMgr extends SeedDMS_Theme_Style
 		$this->contentHeading(getMLText("attrdef_management"));
 		$this->rowStart();
 		$this->columnStart(6);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 		?>
 		<form class="form-horizontal">
 			<select class="form-control chzn-select" id="selector" class="input-xlarge">

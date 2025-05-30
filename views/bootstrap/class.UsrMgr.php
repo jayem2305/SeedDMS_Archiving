@@ -688,6 +688,10 @@ class SeedDMS_View_UsrMgr extends SeedDMS_Theme_Style
 		$this->contentHeading(getMLText("user_management"));
 		$this->rowStart();
 		$this->columnStart(4);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 		?>
 		<form class="form-horizontal">
 			<?php

@@ -511,6 +511,10 @@ class SeedDMS_View_Calendar extends SeedDMS_Theme_Style
 		</div>
 		<?php
 		$this->columnEnd();
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 		$this->rowEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();

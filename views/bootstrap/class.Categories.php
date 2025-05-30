@@ -148,6 +148,10 @@ $(document).ready( function() {
 		$this->contentHeading(getMLText("global_document_categories"));
 		$this->rowStart();
 		$this->columnStart(6);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 ?>
 <form class="form-horizontal">
 <?php

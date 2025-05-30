@@ -45,3 +45,37 @@ May 29 09:59:54  [error] Notification service 'email': Sending notification 'new
 May 29 09:59:54  [info] admin (::1) op.AddDocument.php add document 4 in folder 1
 May 29 09:59:55  [info] Conversion from image/jpeg to image/png with gd image service took 0.074554920196533 sec.
 May 29 10:04:47  [info] Conversion from image/jpeg to image/png with gd image service took 0.10260486602783 sec.
+<<<<<<< HEAD
+=======
+May 29 19:07:58  [info] admin (::1) op.Settings.php .php&action=savesettings
+May 29 19:08:12  [info] -- (::1) op.Login.php 
+May 29 19:08:12  [info] Authentication service 'db'
+May 29 19:08:12  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 20:09:35  [info] admin (::1) op.Settings.php .php&action=savesettings
+May 29 20:09:43  [info] -- (::1) op.Login.php 
+May 29 20:09:43  [info] Authentication service 'db'
+May 29 20:09:43  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 20:09:48  [info] -- (::1) op.Login.php 
+May 29 20:09:48  [info] Authentication service 'db'
+May 29 20:09:48  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 20:10:00  [info] -- (::1) op.Login.php 
+May 29 20:10:00  [info] Authentication service 'db'
+May 29 20:10:00  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 20:35:35  [info] admin (::1) op.Settings.php .php&action=savesettings
+May 29 20:35:45  [info] -- (::1) op.Login.php 
+May 29 20:35:45  [info] Authentication service 'db'
+May 29 20:35:45  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 21:15:38  [info] -- (::1) op.Login.php 
+May 29 21:15:38  [info] Authentication service 'db'
+May 29 21:15:38  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 21:16:05  [info] -- (::1) op.Login.php 
+May 29 21:16:05  [info] Authentication service 'db'
+May 29 21:16:05  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 22:30:36  [info] -- (::1) op.Login.php 
+May 29 22:30:36  [info] Authentication service 'db'
+May 29 22:30:36  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 29 23:06:34  [info] admin (::1) op.Settings.php .php&action=savesettings
+May 29 23:06:43  [info] -- (::1) op.Login.php 
+May 29 23:06:43  [info] Authentication service 'db'
+May 29 23:06:43  [info] Authentication service 'db': Authentication of user 'admin' successful.
+>>>>>>> grinnel-sidebar

@@ -636,6 +636,10 @@ $(document).ready( function() {
 <?php
 		$this->columnEnd();
 		$this->columnStart(6);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 ?>
 		<div id="editaddtask" class="ajax" data-view="SchedulerTaskMgr" data-action="form"></div>
 <?php
@@ -643,6 +647,10 @@ $(document).ready( function() {
 		$this->rowEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
+<<<<<<< HEAD
+=======
+		
+>>>>>>> grinnel-sidebar
 	} /* }}} */
 }
 ?>

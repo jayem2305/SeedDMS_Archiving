@@ -180,6 +180,10 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style {
 
 		$this->rowStart();
 		$this->columnStart(4);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 ?>
 		<div class="ajax" data-view="Dashboard" data-action="newdocuments"></div>
 <?php

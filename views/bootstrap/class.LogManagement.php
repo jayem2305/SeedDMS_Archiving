@@ -104,8 +104,15 @@ $("input[type=checkbox]").each(function () { this.checked = !this.checked; });
 		$this->globalNavigation();
 		$this->contentStart();
 		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
+<<<<<<< HEAD
 
 		$this->contentHeading(getMLText("log_management"));
+=======
+		
+
+		$this->contentHeading(getMLText("log_management"));
+		
+>>>>>>> grinnel-sidebar
 
 		$sections = array(
 			array('default', 'Web'),
@@ -151,6 +158,10 @@ $("input[type=checkbox]").each(function () { this.checked = !this.checked; });
 			$this->showStartPaneContent($section[0], (!$mode || $mode == $section[0]));
 			$this->filelist($entries[$section[0]], $section[0]);
 			$this->showEndPaneContent($section[0], $mode);
+<<<<<<< HEAD
+=======
+			$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 		}
 ?>
 	</div>

@@ -69,6 +69,10 @@ class SeedDMS_View_ExpiredDocuments extends SeedDMS_Theme_Style {
 
 		$this->rowStart();
 		$this->columnStart(4);
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 		$this->contentHeading(getMLText("expired_documents"));
 ?>
 <form class="form-horizontal">

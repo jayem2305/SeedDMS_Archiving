@@ -2196,6 +2196,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		<?php
 		if ($user->isAdmin()) {
 			$this->contentHeading(getMLText("timeline"));
+<<<<<<< HEAD
+=======
+			$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 			$this->printTimelineHtml(300);
 		}
 

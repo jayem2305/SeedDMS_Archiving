@@ -49,6 +49,10 @@ class SeedDMS_View_BackupTools extends SeedDMS_Theme_Style {
 		$this->globalNavigation();
 		$this->contentStart();
 		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> grinnel-sidebar
 
 		/* Calculating the size of the backup dir is only reasonable if
 		 * it is not part of the content dir. Otherwise the content will
