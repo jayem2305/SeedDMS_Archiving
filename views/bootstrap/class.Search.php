@@ -1646,6 +1646,7 @@ $(document).ready(function() {
 <?php
 		$this->columnEnd();
 		$this->columnStart(8);
+		$this->pageSidebar();
 		if($batchmsg = $this->getParam('batchmsg')) {
 			$this->contentHeading(getMLText('batch_operation_result'));
 			echo $this->infoMsg($batchmsg);
