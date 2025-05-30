@@ -769,6 +769,7 @@ $(document).ready( function() {
 
 		$this->rowStart();
 		$this->columnStart(3);
+		$this->pageSidebar();
 		$this->contentHeading(getMLText("object_check_critical"));
 		$menuitems = [];
 		$menuitems[] = array('label'=>getMLText('objectcheck'), 'badge'=>count($repairobjects), 'attributes'=>array(array('data-href', "#all_documents"), array('data-action', "listRepair")));

@@ -29,56 +29,71 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_View_DocumentAccess extends SeedDMS_Theme_Style {
-	function printAccessModeSelection($defMode) { /* {{{ */
+class SeedDMS_View_DocumentAccess extends SeedDMS_Theme_Style
+{
+	function printAccessModeSelection($defMode)
+	{ /* {{{ */
 		echo self::getAccessModeSelection($defMode);
 	} /* }}} */
 
-	function getAccessModeSelection($defMode) { /* {{{ */
+	function getAccessModeSelection($defMode)
+	{ /* {{{ */
 		$content = "<select name=\"mode\" class=\"form-control\">\n";
-		$content .= "\t<option value=\"".M_NONE."\"" . (($defMode == M_NONE) ? " selected" : "") . ">" . getMLText("access_mode_none") . "</option>\n";
-		$content .= "\t<option value=\"".M_READ."\"" . (($defMode == M_READ) ? " selected" : "") . ">" . getMLText("access_mode_read") . "</option>\n";
-		$content .= "\t<option value=\"".M_READWRITE."\"" . (($defMode == M_READWRITE) ? " selected" : "") . ">" . getMLText("access_mode_readwrite") . "</option>\n";
-		$content .= "\t<option value=\"".M_ALL."\"" . (($defMode == M_ALL) ? " selected" : "") . ">" . getMLText("access_mode_all") . "</option>\n";
+		$content .= "\t<option value=\"" . M_NONE . "\"" . (($defMode == M_NONE) ? " selected" : "") . ">" . getMLText("access_mode_none") . "</option>\n";
+		$content .= "\t<option value=\"" . M_READ . "\"" . (($defMode == M_READ) ? " selected" : "") . ">" . getMLText("access_mode_read") . "</option>\n";
+		$content .= "\t<option value=\"" . M_READWRITE . "\"" . (($defMode == M_READWRITE) ? " selected" : "") . ">" . getMLText("access_mode_readwrite") . "</option>\n";
+		$content .= "\t<option value=\"" . M_ALL . "\"" . (($defMode == M_ALL) ? " selected" : "") . ">" . getMLText("access_mode_all") . "</option>\n";
 		$content .= "</select>\n";
 		return $content;
 	} /* }}} */
 
-	function js() { /* {{{ */
+	function js()
+	{ /* {{{ */
 		header('Content-Type: application/javascript; charset=UTF-8');
-?>
-function checkForm()
-{
-	msg = new Array();
-	if ((document.form1.userid.options[document.form1.userid.selectedIndex].value == -1) && 
+		?>
+		function checkForm()
+		{
+		msg = new Array();
+		if ((document.form1.userid.options[document.form1.userid.selectedIndex].value == -1) &&
 		(document.form1.groupid.options[document.form1.groupid.selectedIndex].value == -1))
-			msg.push("<?php printMLText("js_select_user_or_group");?>");
-	if (msg != "")
-	{
-  	noty({
-  		text: msg.join('<br />'),
-  		type: 'error',
-      dismissQueue: true,
-  		layout: 'topRight',
-  		theme: 'defaultTheme',
-			_timeout: 1500,
-  	});
+		msg.push("<?php printMLText("js_select_user_or_group"); ?>");
+		if (msg != "")
+		{
+		noty({
+		text: msg.join('<br />'),
+		type: 'error',
+		dismissQueue: true,
+		layout: 'topRight',
+		theme: 'defaultTheme',
+		_timeout: 1500,
+		});
 		return false;
-	}
-	else
+		}
+		else
 		return true;
-}
+		}
 
-$(document).ready( function() {
-	$('body').on('submit', '#form1', function(ev){
+		$(document).ready( function() {
+		$('body').on('submit', '#form1', function(ev){
 		if(checkForm()) return;
 		ev.preventDefault();
-	});
-});
-<?php
+		});
+		});
+		<?php
 	} /* }}} */
-
-	function show() { /* {{{ */
+	private function decryptName($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
+	function show()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$document = $this->params['document'];
@@ -98,148 +113,159 @@ $(document).ready( function() {
 
 		if ($user->isAdmin()) {
 
-?>
-	<form class="form-horizontal mb-4" action="../op/op.DocumentAccess.php">
-  <?php echo createHiddenFieldWithKey('documentaccess'); ?>
-	<input type="Hidden" name="action" value="setowner">
-	<input type="Hidden" name="documentid" value="<?php print $document->getId();?>">
-<?php
-		$this->contentContainerStart();
-		$owner = $document->getOwner();
-		$options = array();
-		foreach ($allUsers as $currUser) {
-			if (!$currUser->isGuest())
-				$options[] = array($currUser->getID(), htmlspecialchars($currUser->getLogin()), ($currUser->getID()==$owner->getID()), array(array('data-subtitle', htmlspecialchars($currUser->getFullName()))));
-		}
-		$this->formField(
-			getMLText("set_owner"),
-			array(
-				'element'=>'select',
-				'name'=>'ownerid',
-				'class'=>'chzn-select',
-				'options'=>$options
-			)
-		);
-		$this->contentContainerEnd();
-		$this->formSubmit("<i class=\"fa fa-save\"></i> ".getMLText('save'));
-?>
-	</form>
-<?php
+			?>
+			<form class="form-horizontal mb-4" action="../op/op.DocumentAccess.php">
+				<?php echo createHiddenFieldWithKey('documentaccess'); ?>
+				<input type="Hidden" name="action" value="setowner">
+				<input type="Hidden" name="documentid" value="<?php print $document->getId(); ?>">
+				<?php
+				$this->contentContainerStart();
+				$owner = $document->getOwner();
+				$options = array();
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+				foreach ($allUsers as $currUser) {
+					$decrypted = $this->decryptName($currUser->getFullName(), $encryption_key);
+					$decryptname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
+						? htmlspecialchars($currUser->getFullName())
+						: htmlspecialchars($decrypted);
+					if (!$currUser->isGuest())
+						$options[] = array($currUser->getID(), htmlspecialchars($currUser->getLogin()), ($currUser->getID() == $owner->getID()), array(array('data-subtitle', htmlspecialchars($decryptname))));
+				}
+				$this->formField(
+					getMLText("set_owner"),
+					array(
+						'element' => 'select',
+						'name' => 'ownerid',
+						'class' => 'chzn-select',
+						'options' => $options
+					)
+				);
+				$this->contentContainerEnd();
+				$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('save'));
+				?>
+			</form>
+			<?php
 		}
 
 		$this->contentHeading(getMLText("access_inheritance"));
 
 		if ($document->inheritsAccess()) {
 			$this->infoMsg(getMLText("inherits_access_msg"));
-?>
-  <p>
-	<form action="../op/op.DocumentAccess.php" style="display: inline-block;">
-  <?php echo createHiddenFieldWithKey('documentaccess'); ?>
-	<input type="hidden" name="documentid" value="<?php print $document->getId();?>">
-	<input type="hidden" name="action" value="notinherit">
-	<input type="hidden" name="mode" value="copy">
-	<input type="submit" class="btn btn-primary" value="<?php printMLText("inherits_access_copy_msg")?>">
-	</form>
-	<form action="../op/op.DocumentAccess.php" style="display: inline-block;">
-  <?php echo createHiddenFieldWithKey('documentaccess'); ?>
-	<input type="hidden" name="documentid" value="<?php print $document->getId();?>">
-	<input type="hidden" name="action" value="notinherit">
-	<input type="hidden" name="mode" value="empty">
-	<input type="submit" class="btn btn-primary" value="<?php printMLText("inherits_access_empty_msg")?>">
-	</form>
-	</p>
-<?php
+			?>
+			<p>
+			<form action="../op/op.DocumentAccess.php" style="display: inline-block;">
+				<?php echo createHiddenFieldWithKey('documentaccess'); ?>
+				<input type="hidden" name="documentid" value="<?php print $document->getId(); ?>">
+				<input type="hidden" name="action" value="notinherit">
+				<input type="hidden" name="mode" value="copy">
+				<input type="submit" class="btn btn-primary" value="<?php printMLText("inherits_access_copy_msg") ?>">
+			</form>
+			<form action="../op/op.DocumentAccess.php" style="display: inline-block;">
+				<?php echo createHiddenFieldWithKey('documentaccess'); ?>
+				<input type="hidden" name="documentid" value="<?php print $document->getId(); ?>">
+				<input type="hidden" name="action" value="notinherit">
+				<input type="hidden" name="mode" value="empty">
+				<input type="submit" class="btn btn-primary" value="<?php printMLText("inherits_access_empty_msg") ?>">
+			</form>
+			</p>
+			<?php
 			$this->columnEnd();
 			$this->rowEnd();
 			$this->contentEnd();
 			$this->htmlEndPage();
 			return;
 		}
-?>
-	<form action="../op/op.DocumentAccess.php">
-  <?php echo createHiddenFieldWithKey('documentaccess'); ?>
-	<input type="hidden" name="documentid" value="<?php print $document->getId();?>">
-	<input type="hidden" name="action" value="inherit">
-	<input type="submit" class="btn btn-primary" value="<?php printMLText("does_not_inherit_access_msg")?>">
-	</form>
-<?php
+		?>
+		<form action="../op/op.DocumentAccess.php">
+			<?php echo createHiddenFieldWithKey('documentaccess'); ?>
+			<input type="hidden" name="documentid" value="<?php print $document->getId(); ?>">
+			<input type="hidden" name="action" value="inherit">
+			<input type="submit" class="btn btn-primary" value="<?php printMLText("does_not_inherit_access_msg") ?>">
+		</form>
+		<?php
 		$this->columnEnd();
 		$this->columnStart(4);
 
 		$accessList = $document->getAccessList();
 
-?>
-<form class="form-horizontal mb-4" action="../op/op.DocumentAccess.php">
-  <?php echo createHiddenFieldWithKey('documentaccess'); ?>
-	<input type="Hidden" name="documentid" value="<?php print $document->getId();?>">
-	<input type="Hidden" name="action" value="setdefault">
-<?php
-		$this->contentContainerStart();
-		$this->formField(
-			getMLText("default_access"),
-			$this->getAccessModeSelection($document->getDefaultAccess())
-		);
-		$this->contentContainerEnd();
-		$this->formSubmit("<i class=\"fa fa-save\"></i> ".getMLText('save'));
-?>
-</form>
+		?>
+		<form class="form-horizontal mb-4" action="../op/op.DocumentAccess.php">
+			<?php echo createHiddenFieldWithKey('documentaccess'); ?>
+			<input type="Hidden" name="documentid" value="<?php print $document->getId(); ?>">
+			<input type="Hidden" name="action" value="setdefault">
+			<?php
+			$this->contentContainerStart();
+			$this->formField(
+				getMLText("default_access"),
+				$this->getAccessModeSelection($document->getDefaultAccess())
+			);
+			$this->contentContainerEnd();
+			$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('save'));
+			?>
+		</form>
 
-<form class="form-horizontal" action="../op/op.DocumentAccess.php" name="form1" id="form1">
-<?php echo createHiddenFieldWithKey('documentaccess'); ?>
-<input type="Hidden" name="documentid" value="<?php print $document->getId()?>">
-<input type="Hidden" name="action" value="addaccess">
-<?php
-		$this->contentContainerStart();
-		$memusers = array();
-		foreach ($accessList["users"] as $userAccess) {
-			$userObj = $userAccess->getUser();
-			$memusers[] = $userObj->getID();
-		}
-		$options = array();
-		$options[] = array(-1, getMLText('select_one'));
-		foreach ($allUsers as $currUser) {
-			if (!$currUser->isGuest() && !in_array($currUser->getID(), $memusers))
-				$options[] = array($currUser->getID(), htmlspecialchars($currUser->getLogin()), false, array(array('data-subtitle', htmlspecialchars($currUser->getFullName()))));
-		}
-		$this->formField(
-			getMLText("user"),
-			array(
-				'element'=>'select',
-				'name'=>'userid',
-				'class'=>'chzn-select',
-				'options'=>$options
-			)
-		);
-		$memgroups = array();
-		foreach ($accessList["groups"] as $groupAccess) {
-			$groupObj = $groupAccess->getGroup();
-			$memgroups[] = $groupObj->getID();
-		}
-		$options = array();
-		$options[] = array(-1, getMLText('select_one'));
-		foreach ($allGroups as $groupObj) {
-			if(!in_array($groupObj->getID(), $memgroups))
-				$options[] = array($groupObj->getID(), htmlspecialchars($groupObj->getName()));
-		}
-		$this->formField(
-			getMLText("group"),
-			array(
-				'element'=>'select',
-				'name'=>'groupid',
-				'class'=>'chzn-select',
-				'attributes'=>array(array('data-placeholder', getMLText('select_group'))),
-				'options'=>$options
-			)
-		);
-		$this->formField(
-			getMLText("access_mode"),
-			$this->getAccessModeSelection(M_READ)
-		);
-		$this->contentContainerEnd();
-		$this->formSubmit("<i class=\"fa fa-plus\"></i> ".getMLText('add'));
-?>
-</form>
-<?php
+		<form class="form-horizontal" action="../op/op.DocumentAccess.php" name="form1" id="form1">
+			<?php echo createHiddenFieldWithKey('documentaccess'); ?>
+			<input type="Hidden" name="documentid" value="<?php print $document->getId() ?>">
+			<input type="Hidden" name="action" value="addaccess">
+			<?php
+			$this->contentContainerStart();
+			$memusers = array();
+			foreach ($accessList["users"] as $userAccess) {
+				$userObj = $userAccess->getUser();
+				$memusers[] = $userObj->getID();
+			}
+			$options = array();
+			$options[] = array(-1, getMLText('select_one'));
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+			foreach ($allUsers as $currUser) {
+				$decrypted = $this->decryptName($currUser->getFullName(), $encryption_key);
+				$decryptname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
+					? htmlspecialchars($currUser->getFullName())
+					: htmlspecialchars($decrypted);
+				if (!$currUser->isGuest() && !in_array($currUser->getID(), $memusers))
+					$options[] = array($currUser->getID(), htmlspecialchars($currUser->getLogin()), false, array(array('data-subtitle', htmlspecialchars($decryptname))));
+			}
+			$this->formField(
+				getMLText("user"),
+				array(
+					'element' => 'select',
+					'name' => 'userid',
+					'class' => 'chzn-select',
+					'options' => $options
+				)
+			);
+			$memgroups = array();
+			foreach ($accessList["groups"] as $groupAccess) {
+				$groupObj = $groupAccess->getGroup();
+				$memgroups[] = $groupObj->getID();
+			}
+			$options = array();
+			$options[] = array(-1, getMLText('select_one'));
+			foreach ($allGroups as $groupObj) {
+				if (!in_array($groupObj->getID(), $memgroups))
+					$options[] = array($groupObj->getID(), htmlspecialchars($groupObj->getName()));
+			}
+			$this->formField(
+				getMLText("group"),
+				array(
+					'element' => 'select',
+					'name' => 'groupid',
+					'class' => 'chzn-select',
+					'attributes' => array(array('data-placeholder', getMLText('select_group'))),
+					'options' => $options
+				)
+			);
+			$this->formField(
+				getMLText("access_mode"),
+				$this->getAccessModeSelection(M_READ)
+			);
+			$this->contentContainerEnd();
+			$this->formSubmit("<i class=\"fa fa-plus\"></i> " . getMLText('add'));
+			?>
+		</form>
+		<?php
 		$this->columnEnd();
 		$this->columnStart(4);
 		/* memorize users with access rights */
@@ -255,26 +281,26 @@ $(document).ready( function() {
 				$memusers[] = $userObj->getID();
 				print "<tr>\n";
 				print "<td><i class=\"fa fa-user\"></i></td>\n";
-				print "<td>". htmlspecialchars($userObj->getFullName()) . "</td>\n";
+				print "<td>" . htmlspecialchars($userObj->getFullName()) . "</td>\n";
 				print "<form action=\"../op/op.DocumentAccess.php\">\n";
 				print "<td>\n";
 				$this->printAccessModeSelection($userAccess->getMode());
 				print "</td>\n";
 				print "<td>\n";
-				echo createHiddenFieldWithKey('documentaccess')."\n";
-				print "<input type=\"Hidden\" name=\"documentid\" value=\"".$document->getId()."\">\n";
+				echo createHiddenFieldWithKey('documentaccess') . "\n";
+				print "<input type=\"Hidden\" name=\"documentid\" value=\"" . $document->getId() . "\">\n";
 				print "<input type=\"hidden\" name=\"action\" value=\"editaccess\">\n";
-				print "<input type=\"hidden\" name=\"userid\" value=\"".$userObj->getID()."\">\n";
-				print "<button type=\"submit\" class=\"btn btn-primary btn-mini btn-sm\"><i class=\"fa fa-save\"></i> ".getMLText("save")."</button>";
+				print "<input type=\"hidden\" name=\"userid\" value=\"" . $userObj->getID() . "\">\n";
+				print "<button type=\"submit\" class=\"btn btn-primary btn-mini btn-sm\"><i class=\"fa fa-save\"></i> " . getMLText("save") . "</button>";
 				print "</td>\n";
 				print "</form>\n";
 				print "<form action=\"../op/op.DocumentAccess.php\">\n";
 				print "<td><span class=\"actions\">\n";
-				echo createHiddenFieldWithKey('documentaccess')."\n";
-				print "<input type=\"Hidden\" name=\"documentid\" value=\"".$document->getId()."\">\n";
+				echo createHiddenFieldWithKey('documentaccess') . "\n";
+				print "<input type=\"Hidden\" name=\"documentid\" value=\"" . $document->getId() . "\">\n";
 				print "<input type=\"hidden\" name=\"action\" value=\"delaccess\">\n";
-				print "<input type=\"hidden\" name=\"userid\" value=\"".$userObj->getID()."\">\n";
-				print "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> ".getMLText("delete")."</button>";
+				print "<input type=\"hidden\" name=\"userid\" value=\"" . $userObj->getID() . "\">\n";
+				print "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button>";
 				print "<span></td>\n";
 				print "</form>\n";
 				print "</tr>\n";
@@ -284,33 +310,37 @@ $(document).ready( function() {
 				$groupObj = $groupAccess->getGroup();
 				$memgroups[] = $groupObj->getID();
 				$mode = $groupAccess->getMode();
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+				$decrypted = $this->decryptName($groupObj->getName(), $encryption_key);
+				$decryptname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
+					? htmlspecialchars($groupObj->getName())
+					: htmlspecialchars($decrypted);
 				print "<tr>";
 				print "<td><i class=\"fa fa-group\"></i></td>";
-				print "<td>". htmlspecialchars($groupObj->getName()) . "</td>";
+				print "<td>" . htmlspecialchars($decryptname) . "</td>";
 				print "<form action=\"../op/op.DocumentAccess.php\">";
 				print "<td>";
 				$this->printAccessModeSelection($groupAccess->getMode());
 				print "</td>\n";
 				print "<td><span class=\"actions\">\n";
-				echo createHiddenFieldWithKey('documentaccess')."\n";
-				print "<input type=\"hidden\" name=\"documentid\" value=\"".$document->getId()."\">";
+				echo createHiddenFieldWithKey('documentaccess') . "\n";
+				print "<input type=\"hidden\" name=\"documentid\" value=\"" . $document->getId() . "\">";
 				print "<input type=\"hidden\" name=\"action\" value=\"editaccess\">";
-				print "<input type=\"hidden\" name=\"groupid\" value=\"".$groupObj->getID()."\">";
-				print "<button type=\"submit\" class=\"btn btn-primary btn-mini btn-sm\"><i class=\"fa fa-save\"></i> ".getMLText("save")."</button>";
+				print "<input type=\"hidden\" name=\"groupid\" value=\"" . $groupObj->getID() . "\">";
+				print "<button type=\"submit\" class=\"btn btn-primary btn-mini btn-sm\"><i class=\"fa fa-save\"></i> " . getMLText("save") . "</button>";
 				print "</span></td>\n";
 				print "</form>";
 				print "<form action=\"../op/op.DocumentAccess.php\">\n";
 				print "<td><span class=\"actions\">\n";
-				echo createHiddenFieldWithKey('documentaccess')."\n";
-				print "<input type=\"hidden\" name=\"documentid\" value=\"".$document->getId()."\">\n";
+				echo createHiddenFieldWithKey('documentaccess') . "\n";
+				print "<input type=\"hidden\" name=\"documentid\" value=\"" . $document->getId() . "\">\n";
 				print "<input type=\"hidden\" name=\"action\" value=\"delaccess\">\n";
-				print "<input type=\"hidden\" name=\"groupid\" value=\"".$groupObj->getID()."\">\n";
-				print "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"\"><i class=\"fa fa-remove\"></i> ".getMLText("delete")."</button>";
+				print "<input type=\"hidden\" name=\"groupid\" value=\"" . $groupObj->getID() . "\">\n";
+				print "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button>";
 				print "</form>";
 				print "</span></td>\n";
 				print "</tr>\n";
 			}
-			
 			print "</table><br>";
 		}
 		$this->columnEnd();

@@ -66,10 +66,10 @@ class SeedDMS_View_AddSubFolder extends SeedDMS_Theme_Style
 		$this->contentStart();
 		$this->pageNavigation($this->getFolderPathHTML($folder, true), "view_folder", $folder);
 		/*
-			?>
-				<div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=".$folder->getID()."\"" : "") ?>></div>
-			<?php
-					 */
+																						  ?>
+																							  <div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=".$folder->getID()."\"" : "") ?>></div>
+																						  <?php
+																								   */
 		$this->contentHeading(getMLText("add_subfolder"));
 		?>
 

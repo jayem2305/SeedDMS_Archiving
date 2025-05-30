@@ -29,14 +29,27 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_View_Statistic extends SeedDMS_Theme_Style {
-		var $dms;
-		var $folder_count;
-		var $document_count;
-		var $file_count;
-		var $storage_size;
+class SeedDMS_View_Statistic extends SeedDMS_Theme_Style
+{
+	private function decryptName($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
+	var $dms;
+	var $folder_count;
+	var $document_count;
+	var $file_count;
+	var $storage_size;
 
-	function getAccessColor($mode) { /* {{{ */
+	function getAccessColor($mode)
+	{ /* {{{ */
 		if ($mode == M_NONE)
 			return "gray";
 		else if ($mode == M_READ)
@@ -47,21 +60,23 @@ class SeedDMS_View_Statistic extends SeedDMS_Theme_Style {
 			return "red";
 	} /* }}} */
 
-	function printFolder($folder) { /* {{{ */
+	function printFolder($folder)
+	{ /* {{{ */
 		$this->folder_count++;
-		$folder_size=0;
-		$doc_count=0;
-
+		$folder_size = 0;
+		$doc_count = 0;
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		$color = $folder->inheritsAccess() ? "black" : $this->getAccessColor($folder->getDefaultAccess());
-
+		$decrypted = $this->decryptName($folder->getName(), $encryption_key);
+		$folder_name = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $folder->getName() : $decrypted;
 		print "<li class=\"folderClass\">";
-		print "<a style=\"color: $color\" href=\"out.ViewFolder.php?folderid=".$folder->getID()."\">".htmlspecialchars($folder->getName()) ."</a>";
+		print "<a style=\"color: $color\" href=\"out.ViewFolder.php?folderid=" . $folder->getID() . "\">" . htmlspecialchars($folder_name) . "</a>";
 
 		$owner = $folder->getOwner();
 		$color = $this->getAccessColor(M_ALL);
-		print " [<span style=\"color: $color\">".htmlspecialchars($owner->getFullName())."</span>] ";
+		print " [<span style=\"color: $color\">" . htmlspecialchars($owner->getFullName()) . "</span>] ";
 
-		if (! $folder->inheritsAccess())
+		if (!$folder->inheritsAccess())
 			$this->printAccessList($folder);
 
 		$subFolders = $folder->getSubFolders();
@@ -69,52 +84,58 @@ class SeedDMS_View_Statistic extends SeedDMS_Theme_Style {
 
 		print "<ul>";
 
-		foreach ($subFolders as $sub) $folder_size += $this->printFolder($sub);
-		foreach ($documents as $document){
+		foreach ($subFolders as $sub)
+			$folder_size += $this->printFolder($sub);
+		foreach ($documents as $document) {
 			$doc_count++;
 			$folder_size += $this->printDocument($document);
 		}
 
 		print "</ul>";
 
-		print "<small>".SeedDMS_Core_File::format_filesize($folder_size).", ".$doc_count." ".getMLText("documents")."</small>\n";
+		print "<small>" . SeedDMS_Core_File::format_filesize($folder_size) . ", " . $doc_count . " " . getMLText("documents") . "</small>\n";
 
 		print "</li>";
 
 		return $folder_size;
 	} /* }}} */
 
-	function printDocument($document) { /* {{{ */
+	function printDocument($document)
+	{ /* {{{ */
 		$this->document_count++;
 
-		$local_file_count=0;
-		$folder_size=0;
+		$local_file_count = 0;
+		$folder_size = 0;
 
-		if (file_exists($this->dms->contentDir.$document->getDir())) {
-			$handle = opendir($this->dms->contentDir.$document->getDir());
-			while ($entry = readdir($handle) ) {
-				if (is_dir($this->dms->contentDir.$document->getDir().$entry)) continue;
-				else{
+		if (file_exists($this->dms->contentDir . $document->getDir())) {
+			$handle = opendir($this->dms->contentDir . $document->getDir());
+			while ($entry = readdir($handle)) {
+				if (is_dir($this->dms->contentDir . $document->getDir() . $entry))
+					continue;
+				else {
 					$local_file_count++;
-					$folder_size += filesize($this->dms->contentDir.$document->getDir().$entry);
+					$folder_size += filesize($this->dms->contentDir . $document->getDir() . $entry);
 				}
 
 			}
 			closedir($handle);
 		}
 		$this->storage_size += $folder_size;
-
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+		$decrypted = $this->decryptName($document->getName(), $encryption_key);
+		$document_name = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $document->getName() : $decrypted;
 		$color = $document->inheritsAccess() ? "black" : $this->getAccessColor($document->getDefaultAccess());
 		print "<li class=\"documentClass\">";
-		print "<a style=\"color: $color\" href=\"out.ViewDocument.php?documentid=".$document->getID()."\">".htmlspecialchars($document->getName())."</a>";
+		print "<a style=\"color: $color\" href=\"out.ViewDocument.php?documentid=" . $document->getID() . "\">" . htmlspecialchars($document_name) . "</a>";
 
 		$owner = $document->getOwner();
 		$color = $this->getAccessColor(M_ALL);
-		print " [<span style=\"color: $color\">".htmlspecialchars($owner->getFullName())."</span>] ";
+		print " [<span style=\"color: $color\">" . htmlspecialchars($owner->getFullName()) . "</span>] ";
 
-		if (! $document->inheritsAccess()) $this->printAccessList($document);
+		if (!$document->inheritsAccess())
+			$this->printAccessList($document);
 
-		print "<small>".SeedDMS_Core_File::format_filesize($folder_size).", ".$local_file_count." ".getMLText("files")."</small>\n";
+		print "<small>" . SeedDMS_Core_File::format_filesize($folder_size) . ", " . $local_file_count . " " . getMLText("files") . "</small>\n";
 
 		print "</li>";
 
@@ -122,33 +143,33 @@ class SeedDMS_View_Statistic extends SeedDMS_Theme_Style {
 		return $folder_size;
 	} /* }}} */
 
-	function printAccessList($obj) { /* {{{ */
+	function printAccessList($obj)
+	{ /* {{{ */
 		$accessList = $obj->getAccessList();
 		if (count($accessList["users"]) == 0 && count($accessList["groups"]) == 0)
 			return;
 
 		print " <span>(";
 
-		for ($i = 0; $i < count($accessList["groups"]); $i++)
-		{
+		for ($i = 0; $i < count($accessList["groups"]); $i++) {
 			$group = $accessList["groups"][$i]->getGroup();
 			$color = $this->getAccessColor($accessList["groups"][$i]->getMode());
-			print "<span style=\"color: $color\">".htmlspecialchars($group->getName())."</span>";
-			if ($i+1 < count($accessList["groups"]) || count($accessList["users"]) > 0)
+			print "<span style=\"color: $color\">" . htmlspecialchars($group->getName()) . "</span>";
+			if ($i + 1 < count($accessList["groups"]) || count($accessList["users"]) > 0)
 				print ", ";
 		}
-		for ($i = 0; $i < count($accessList["users"]); $i++)
-		{
+		for ($i = 0; $i < count($accessList["users"]); $i++) {
 			$user = $accessList["users"][$i]->getUser();
 			$color = $this->getAccessColor($accessList["users"][$i]->getMode());
-			print "<span style=\"color: $color\">".htmlspecialchars($user->getFullName())."</span>";
-			if ($i+1 < count($accessList["users"]))
+			print "<span style=\"color: $color\">" . htmlspecialchars($user->getFullName()) . "</span>";
+			if ($i + 1 < count($accessList["users"]))
 				print ", ";
 		}
 		print ")</span>";
 	} /* }}} */
 
-	function show() { /* {{{ */
+	function show()
+	{ /* {{{ */
 		$this->dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$rootfolder = $this->params['rootfolder'];
@@ -158,27 +179,29 @@ class SeedDMS_View_Statistic extends SeedDMS_Theme_Style {
 		$this->contentStart();
 		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
 
-		$this->folder_count=0;
-		$this->document_count=0;
-		$this->file_count=0;
-		$this->storage_size=0;
-?>
-<style type="text/css">
-li.documentClass, li.folderClass {
-	margin: 0;
-	padding: 4px 0 4px 30px;
-	list-style: none;
-	background-image: url("<?php $this->printImgPath("text-x-preview.svg");?>");
-	background-repeat: no-repeat;
-	background-position: left top;
-	background-size: 24px;
-}
-li.folderClass {
-	background-image: url("<?php $this->printImgPath("folder.svg");?>");
-}
-</style>
+		$this->folder_count = 0;
+		$this->document_count = 0;
+		$this->file_count = 0;
+		$this->storage_size = 0;
+		?>
+		<style type="text/css">
+			li.documentClass,
+			li.folderClass {
+				margin: 0;
+				padding: 4px 0 4px 30px;
+				list-style: none;
+				background-image: url("<?php $this->printImgPath("text-x-preview.svg"); ?>");
+				background-repeat: no-repeat;
+				background-position: left top;
+				background-size: 24px;
+			}
 
-<?php
+			li.folderClass {
+				background-image: url("<?php $this->printImgPath("folder.svg"); ?>");
+			}
+		</style>
+
+		<?php
 		$this->contentHeading(getMLText("folders_and_documents_statistic"));
 		$this->rowStart();
 		$this->columnStart(8);
@@ -191,22 +214,23 @@ li.folderClass {
 		$this->contentContainerEnd();
 		$this->columnEnd();
 		$this->columnStart(4);
+		$this->pageSidebar();
 		$this->contentContainerStart();
-		print "<legend>".getMLText("legend")."</legend>\n";
+		print "<legend>" . getMLText("legend") . "</legend>\n";
 		print "<ul class=\"unstyled\">\n";
-		print "<li><span style=\"color:black\">".getMLText("access_inheritance")." </span></li>";
-		print "<li><span style=\"color:".$this->getAccessColor(M_ALL)."\">".getMLText("access_mode_all")." </span></li>";
-		print "<li><span style=\"color:".$this->getAccessColor(M_READWRITE)."\">".getMLText("access_mode_readwrite")." </span></li>";
-		print "<li><span style=\"color:".$this->getAccessColor(M_READ)."\">".getMLText("access_mode_read")." </span></li>";
-		print "<li><span style=\"color:".$this->getAccessColor(M_NONE)."\">".getMLText("access_mode_none")." </span></li>";
+		print "<li><span style=\"color:black\">" . getMLText("access_inheritance") . " </span></li>";
+		print "<li><span style=\"color:" . $this->getAccessColor(M_ALL) . "\">" . getMLText("access_mode_all") . " </span></li>";
+		print "<li><span style=\"color:" . $this->getAccessColor(M_READWRITE) . "\">" . getMLText("access_mode_readwrite") . " </span></li>";
+		print "<li><span style=\"color:" . $this->getAccessColor(M_READ) . "\">" . getMLText("access_mode_read") . " </span></li>";
+		print "<li><span style=\"color:" . $this->getAccessColor(M_NONE) . "\">" . getMLText("access_mode_none") . " </span></li>";
 		print "</ul>\n";
 
-		print "<legend>".getMLText("statistic")."</legend>\n";
+		print "<legend>" . getMLText("statistic") . "</legend>\n";
 		print "<ul class=\"unstyled\">\n";
-		print "<li>".getMLText("folders").": ".$this->folder_count."</li>\n";
-		print "<li>".getMLText("documents").": ".$this->document_count."</li>\n";
-		print "<li>".getMLText("files").": ".$this->file_count."</li>\n";
-		print "<li>".getMLText("storage_size").": ".SeedDMS_Core_File::format_filesize($this->storage_size)."</li>\n";
+		print "<li>" . getMLText("folders") . ": " . $this->folder_count . "</li>\n";
+		print "<li>" . getMLText("documents") . ": " . $this->document_count . "</li>\n";
+		print "<li>" . getMLText("files") . ": " . $this->file_count . "</li>\n";
+		print "<li>" . getMLText("storage_size") . ": " . SeedDMS_Core_File::format_filesize($this->storage_size) . "</li>\n";
 
 		print "</ul>\n";
 
@@ -217,6 +241,7 @@ li.folderClass {
 		$this->contentContainerEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
+		
 	} /* }}} */
 }
 ?>

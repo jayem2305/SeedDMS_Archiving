@@ -212,6 +212,7 @@ $(document).ready( function() {
 		$this->contentHeading(getMLText("global_default_keywords"));
 		$this->rowStart();
 		$this->columnStart(4);
+		$this->pageSidebar();
 ?>
 <form class="form-horizontal">
 <?php

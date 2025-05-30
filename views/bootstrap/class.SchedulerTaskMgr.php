@@ -636,6 +636,7 @@ $(document).ready( function() {
 <?php
 		$this->columnEnd();
 		$this->columnStart(6);
+		$this->pageSidebar();
 ?>
 		<div id="editaddtask" class="ajax" data-view="SchedulerTaskMgr" data-action="form"></div>
 <?php
@@ -643,6 +644,7 @@ $(document).ready( function() {
 		$this->rowEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
+		
 	} /* }}} */
 }
 ?>

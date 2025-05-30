@@ -336,6 +336,7 @@ $(document).ready( function() {
 
 		if(!in_array($type, array('docspermonth', 'docsaccumulated'))) {
 			$this->columnStart(3);
+			$this->pageSidebar();
 			$this->contentHeading(getMLText('legend'));
 			$this->contentContainerStart('', 'legend');
 			$this->contentContainerEnd();
@@ -346,5 +347,6 @@ $(document).ready( function() {
 		$this->contentContainerEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
+		
 	} /* }}} */
 }

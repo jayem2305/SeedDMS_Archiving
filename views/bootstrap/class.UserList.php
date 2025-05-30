@@ -99,6 +99,7 @@ class SeedDMS_View_UserList extends SeedDMS_Theme_Style
 		$this->contentStart();
 		$this->pageNavigation("", "admin_tools");
 		$this->contentHeading(getMLText("user_list"));
+		$this->pageSidebar();
 
 		$sessionmgr = new SeedDMS_SessionMgr($dms->getDB());
 		?>

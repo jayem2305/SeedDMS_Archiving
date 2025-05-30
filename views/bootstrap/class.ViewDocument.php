@@ -31,7 +31,17 @@
  */
 class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 {
-
+	private function decrypt($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	private function decryptName($encrypted_combined_base64, $key)
 	{
 		$data = base64_decode($encrypted_combined_base64);
@@ -69,10 +79,14 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 			return;
 
 		$content = '';
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		for ($i = 0; $i < count($accessList["groups"]); $i++) {
 			$group = $accessList["groups"][$i]->getGroup();
+			$encrypted_name = $group->getName();
+			$decrypted = $this->decryptName($group->getName(), $encryption_key);
+			$keyword = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $group->getName() : $decrypted;
 			$accesstext = $this->getAccessModeText($accessList["groups"][$i]->getMode());
-			$content .= $accesstext . ": " . htmlspecialchars($group->getName());
+			$content .= $accesstext . ": " . htmlspecialchars($keyword);
 			if ($i + 1 < count($accessList["groups"]) || count($accessList["users"]) > 0)
 				$content .= "<br />";
 		}
@@ -317,7 +331,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$timeout = $this->params['timeout'];
 		$xsendfile = $this->params['xsendfile'];
 		$documentid = $document->getId();
-
 		$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidthdetail, $timeout, $xsendfile);
 		if ($conversionmgr)
 			$previewer->setConversionMgr($conversionmgr);
@@ -380,8 +393,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					print "<li>" . SeedDMS_Core_File::format_filesize(filesize($dms->contentDir . $file->getPath())) . " bytes, " . htmlspecialchars($file->getMimeType()) . "</li>";
 				} else
 					print "<li>" . htmlspecialchars($file->getMimeType()) . " - <span class=\"warning\">" . getMLText("document_deleted") . "</span></li>";
-
-				print "<li>" . getMLText("uploaded_by") . " <a href=\"mailto:" . htmlspecialchars($responsibleUser->getEmail()) . "\">" . htmlspecialchars($responsibleUser->getFullName()) . "</a></li>";
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+				$decrypted = $this->decrypt($responsibleUser->getEmail(), $encryption_key);
+				$email = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $responsibleUser->getEmail() : $decrypted;
+				$decrypted_name = $this->decrypt($responsibleUser->getFullName(), $encryption_key);
+				$fullname = ($decrypted_name === '[DECRYPTION FAILED]' || $decrypted_name === '[INVALID NAME]') ? $responsibleUser->getFullName() : $decrypted;
+				print "<li>" . getMLText("uploaded_by") . " <a href=\"mailto:" . htmlspecialchars($email) . "\">" . htmlspecialchars($fullname) . "</a></li>";
 				print "<li>" . getLongReadableDate($file->getDate()) . "</li>";
 				if ($file->getVersion())
 					print "<li>" . getMLText('linked_to_current_version') . "</li>";
@@ -475,6 +492,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						<?php
 						$owner = $document->getOwner();
 						print "<a class=\"infos\" href=\"mailto:" . htmlspecialchars($owner->getEmail()) . "\">" . htmlspecialchars($owner->getFullName()) . "</a>";
+						$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+						$decrypted = $this->decrypt($owner->getEmail(), $encryption_key);
+						$email = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $owner->getEmail() : $decrypted;
+						$decrypted_name = $this->decrypt($owner->getFullName(), $encryption_key);
+						$fullname = ($decrypted_name === '[DECRYPTION FAILED]' || $decrypted_name === '[INVALID NAME]') ? $owner->getFullName() : $decrypted;
+						print "<a class=\"infos\" href=\"mailto:" . htmlspecialchars($email) . "\">" . htmlspecialchars($fullname) . "</a>";
 						?>
 					</td>
 				</tr>
@@ -512,7 +535,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						echo "<td>";
 						echo getMLText("inherited") . "<br />";
 						$this->printAccessList($document);
-						echo "</tr>";
+						echo "</td></tr>";
 					} else {
 						echo "<tr>";
 						echo "<td>" . getMLText('access_mode') . ":</td>";
@@ -1016,32 +1039,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$timeout = $this->params['timeout'];
 		$xsendfile = $this->params['xsendfile'];
 
-		// Audit log insertion
-		try {
-			$db = $dms->getDB();
-			$documentId = $document->getId();
-			$username = $user->getLogin();
-			$now = date('Y-m-d H:i:s');
-			$action = 'Document Viewed';
-			$details = 'User "' . $username . '" viewed the document.';
-
-			// Use qstr() for proper escaping if available, otherwise fallback
-			$username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
-			$action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
-			$details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
-			$now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
-
-			$query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" .
-				intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
-			$result = $db->getResult($query);
-
-			if (!$result) {
-				echo '<div class="alert alert-danger">Audit log insert failed: ' . htmlspecialchars($db->getErrorMsg()) . '</div>';
-			}
-		} catch (Exception $e) {
-			echo '<div class="alert alert-danger">Audit log exception: ' . htmlspecialchars($e->getMessage()) . '</div>';
-		}
-
 		$versions = $this->callHook('documentVersions', $document);
 		if ($versions === null)
 			$versions = $document->getContent();
@@ -1213,7 +1210,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 			}
 			?>
 		</ul>
-		
 		<div class="tab-content">
 			<div class="tab-pane <?php if (!$currenttab || $currenttab == 'docinfo')
 				echo 'active'; ?>" id="docinfo" role="tabpanel">
@@ -1709,7 +1705,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 									/* If the init state has not been left, return is always possible */
 									if ($workflow->getInitState()->getID() == $latestContent->getWorkflowState()->getID()) {
 										echo "Initial state of sub workflow has not been left. Return to parent workflow is possible<br />";
-										echo "<form action=\"" . $this->html_url("ReturnFromSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('return_from_subworkflow') . "\" />";
+										echo "<form action=\"" . $this->html_url("ReturnFromSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" />";
+										echo "<input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('return_from_subworkflow') . "\" />";
 										echo "</form>";
 									} else {
 										/* Get a transition from the last state in the parent workflow
@@ -1962,6 +1959,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 									if ($user->isAdmin()) {
 										if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
 											$accesserr = getMLText("access_denied");
+										elseif (is_object($required) && $required->isDisabled())
+											$accesserr = getMLText("login_disabled_title");
 									}
 								}
 								if ($r["required"] == $user->getId()/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
@@ -1973,11 +1972,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 									$reqName = getMLText("unknown_group") . " '" . $r["required"] . "'";
 								} else {
 									$reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
-									if ($user->isAdmin()) {
-										$grpusers = $required->getUsers();
-										if (!$grpusers)
-											$accesserr = getMLText("no_group_members");
-									}
 									if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
 										$is_recipient = true;
 								}
@@ -2119,7 +2113,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 							print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
 							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL)) {
 								print "<br />" . getMLText("document_link_public") . ": " . (($link->isPublic()) ? getMLText("yes") : getMLText("no"));
-								print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
+								print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $documentid . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
 							}
 							print "</span></td>";
 							echo $this->documentListRowEnd($targetDoc);
@@ -2185,8 +2179,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 								echo $this->documentListRow($sourceDoc, $previewer, true, 0, $extracontent);
 							}
 							print "<td><span class=\"actions\">";
-							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL)) {
+							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL))
 								print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
+							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL)) {
 								print "<br />" . getMLText("document_link_public") . ": " . (($link->isPublic()) ? getMLText("yes") : getMLText("no"));
 								print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $sourceDoc->getId() . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
 							}
@@ -2316,6 +2311,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		<?php
 		if ($user->isAdmin()) {
 			$this->contentHeading(getMLText("timeline"));
+			$this->pageSidebar();
 			$this->printTimelineHtml(300);
 		}
 

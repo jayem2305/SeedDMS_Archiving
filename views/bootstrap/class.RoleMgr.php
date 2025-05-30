@@ -246,6 +246,7 @@ class SeedDMS_View_RoleMgr extends SeedDMS_Theme_Style
 		$this->contentHeading(getMLText("role_management"));
 		$this->rowStart();
 		$this->columnStart(4);
+		$this->pageSidebar();
 		?>
 		<form class="form-horizontal">
 			<?php

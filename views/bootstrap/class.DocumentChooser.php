@@ -29,9 +29,11 @@
  *             2010-2012 Uwe Steinmann
  * @version    Release: @package_version@
  */
-class SeedDMS_View_DocumentChooser extends SeedDMS_Theme_Style {
+class SeedDMS_View_DocumentChooser extends SeedDMS_Theme_Style
+{
 
-	public function subtree() { /* {{{ */
+	public function subtree()
+	{ /* {{{ */
 		$user = $this->params['user'];
 		$node = $this->params['node'];
 		$orderby = $this->params['orderby'];
@@ -39,18 +41,20 @@ class SeedDMS_View_DocumentChooser extends SeedDMS_Theme_Style {
 		$this->printNewTreeNavigationSubtree($node->getID(), 1, $orderby);
 	} /* }}} */
 
-	function js() { /* {{{ */
+	function js()
+	{ /* {{{ */
 		$folder = $this->params['folder'];
 		$form = $this->params['form'];
 		$orderby = $this->params['orderby'];
 		$partialtree = $this->params['partialtree'];
 
 		header('Content-Type: application/javascript; charset=UTF-8');
-		if($folder)
+		if ($folder)
 			$this->printNewTreeNavigationJs($folder->getID(), M_READ, 1, $form, 0, $orderby, $partialtree);
 	} /* }}} */
 
-	function show() { /* {{{ */
+	function show()
+	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
 		$folder = $this->params['folder'];
@@ -58,14 +62,14 @@ class SeedDMS_View_DocumentChooser extends SeedDMS_Theme_Style {
 		$partialtree = $this->params['partialtree'];
 		$orderby = $this->params['orderby'];
 
-//		$this->htmlStartPage(getMLText("choose_target_document"));
+		//		$this->htmlStartPage(getMLText("choose_target_document"));
 //		$this->contentContainerStart();
 //		$this->printNewTreeNavigationHtml($folder->getID(), M_READ, 1, $form);
-		if($folder) {
+		if ($folder) {
 			$this->printNewTreeNavigationHtml($folder->getID(), M_READ, 1, $form, 0, $orderby);
-			echo '<script src="../out/out.DocumentChooser.php?action=js&'.$_SERVER['QUERY_STRING'].'"></script>'."\n";
+			echo '<script src="../out/out.DocumentChooser.php?action=js&' . $_SERVER['QUERY_STRING'] . '"></script>' . "\n";
 		}
-//		$this->contentContainerEnd();
+		//		$this->contentContainerEnd();
 //		$this->htmlEndPage(true);
 	} /* }}} */
 }

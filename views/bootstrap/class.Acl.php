@@ -244,6 +244,7 @@ $(document).ready( function() {
 		$this->rowStart();
 		$this->columnStart(4);
 		$this->contentHeading(getMLText("role"));
+		$this->pageSidebar();
 ?>
 <form class="form-horizontal">
 <?php
