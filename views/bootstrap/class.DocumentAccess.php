@@ -336,15 +336,11 @@ class SeedDMS_View_DocumentAccess extends SeedDMS_Theme_Style
 				print "<input type=\"hidden\" name=\"documentid\" value=\"" . $document->getId() . "\">\n";
 				print "<input type=\"hidden\" name=\"action\" value=\"delaccess\">\n";
 				print "<input type=\"hidden\" name=\"groupid\" value=\"" . $groupObj->getID() . "\">\n";
-				print "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button>";
+				print "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button>";
 				print "</form>";
 				print "</span></td>\n";
 				print "</tr>\n";
 			}
-<<<<<<< HEAD
-=======
-
->>>>>>> refs/remotes/origin/main
 			print "</table><br>";
 		}
 		$this->columnEnd();
@@ -353,8 +349,4 @@ class SeedDMS_View_DocumentAccess extends SeedDMS_Theme_Style
 		$this->htmlEndPage();
 	} /* }}} */
 }
-<<<<<<< HEAD
 ?>
-=======
-?>
->>>>>>> refs/remotes/origin/main

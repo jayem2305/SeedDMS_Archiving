@@ -385,10 +385,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 
 				print "<td>";
 				print "<ul class=\"actions unstyled\">\n";
-<<<<<<< HEAD
-=======
-
->>>>>>> refs/remotes/origin/main
 				print "<li>" . htmlspecialchars($file->getName()) . "</li>\n";
 				if ($file->getName() != $file->getOriginalFileName())
 					print "<li>" . htmlspecialchars($file->getOriginalFileName()) . "</li>\n";

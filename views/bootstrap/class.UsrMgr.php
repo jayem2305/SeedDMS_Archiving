@@ -44,6 +44,9 @@ class SeedDMS_View_UsrMgr extends SeedDMS_Theme_Style
 	}
 	private function maybeDecrypt($value, $key)
 	{
+		if (!is_string($value) || $value === '' || $value === null) {
+			return $value;
+		}
 		$decoded = base64_decode($value, true);
 		if ($decoded === false || strlen($decoded) < 17) {
 			return $value; // Not encrypted or corrupted

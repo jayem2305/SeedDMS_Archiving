@@ -315,7 +315,7 @@ class SeedDMS_View_Charts extends SeedDMS_Theme_Style
 					$oldtotal = $item['total'];
 					$total += $item['total'];
 				}
-				echo "<tr><th></th><th>" . $total . "<th></tr>";
+				echo "<tr><th></th><th>" . $total . "</th></tr>";
 				break;
 			case 'docsaccumulated':
 				$oldtotal = 0;
@@ -335,7 +335,7 @@ class SeedDMS_View_Charts extends SeedDMS_Theme_Style
 					echo "<tr><td>" . htmlspecialchars($item['key']) . "</td><td>" . SeedDMS_Core_File::format_filesize((int) $item['total']) . "</td></tr>";
 					$total += $item['total'];
 				}
-				echo "<tr><th></th><th>" . SeedDMS_Core_File::format_filesize($total) . "<th></tr>";
+				echo "<tr><th></th><th>" . SeedDMS_Core_File::format_filesize($total) . "</th></tr>";
 				break;
 		}
 		echo "</table>";
@@ -354,10 +354,5 @@ class SeedDMS_View_Charts extends SeedDMS_Theme_Style
 		$this->contentContainerEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
-<<<<<<< HEAD
-		
-=======
-
->>>>>>> refs/remotes/origin/main
 	} /* }}} */
 }
