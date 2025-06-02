@@ -307,5 +307,26 @@ default:
 	}
 
 add_log_line("checkin document ".$documentid." with version ".$content->getVersion());
+        // --- Audit log: log document check-in (new version) ---
+        try {
+            $db = $dms->getDB();
+            $documentId = $document->getId();
+            $username = $user->getLogin();
+            $now = date('Y-m-d H:i:s');
+            $action = 'Document Checked In';
+            $details = '<b>' . htmlspecialchars($username) . '</b> checked in a new version: ' . htmlspecialchars($content->getVersion());
+            $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+            $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+            $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+            $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+            $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+            $result = $db->getResult($query);
+            if (!$result) {
+                error_log('Audit log insert failed (checkin document): ' . $db->getErrorMsg());
+            }
+        } catch (Exception $e) {
+            error_log('Audit log exception (checkin document): ' . $e->getMessage());
+        }
+
 header("Location:../out/out.ViewDocument.php?documentid=".$documentid);
 

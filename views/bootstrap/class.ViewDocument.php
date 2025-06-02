@@ -385,7 +385,10 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 
 				print "<td>";
 				print "<ul class=\"actions unstyled\">\n";
+<<<<<<< HEAD
+=======
 
+>>>>>>> refs/remotes/origin/main
 				print "<li>" . htmlspecialchars($file->getName()) . "</li>\n";
 				if ($file->getName() != $file->getOriginalFileName())
 					print "<li>" . htmlspecialchars($file->getOriginalFileName()) . "</li>\n";
@@ -1189,8 +1192,19 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						role="button"><?php printMLText('linked_documents');
 						echo (count($links) || count($reverselinks)) ? " (" . count($links) . "/" . count($reverselinks) . ")" : ""; ?></a>
 				</li>
+				
 				<?php
 			}
+
+			// Always show Audit Log tab
+			?>
+			<li class="nav-item <?php if ($currenttab == 'auditlog') echo 'active'; ?>">
+				<a class="nav-link <?php if ($currenttab == 'auditlog') echo 'active'; ?>" data-target="#auditlog" data-toggle="tab" role="button">
+					Audit Log
+				</a>
+			</li>
+			<?php
+
 			$tabs = $this->callHook('extraTabs', $document);
 			if ($tabs) {
 				foreach ($tabs as $tabid => $tab) {
@@ -2184,6 +2198,110 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 				</div>
 				<?php
 			}
+			if ($accessobject->check_view_access($this, ['action' => 'auditlog'])) {
+				echo '<div class="tab-pane ' . ($currenttab == 'auditlog' ? 'active' : '') . '" id="auditlog" role="tabpanel">';
+				try {
+					// Fetch audit logs from the database for the current document
+					$db = $dms->getDB();
+					$documentId = $document->getId();
+					$query = "SELECT created_at, user, action, details FROM audit_logs WHERE document_id = " . intval($documentId) . " ORDER BY created_at DESC";
+					$auditLogs = $db->getResultArray($query);
+
+					echo '<div id="auditlog-controls" class="d-flex justify-content-between align-items-center mb-2">';
+					// Search box (top left)
+					echo '<div><input type="text" id="auditlog-search" class="form-control form-control-sm d-inline-block" style="width:200px;" placeholder="Search view, edit, comment..."> <button id="auditlog-search-btn" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button></div>';
+					echo '</div>';
+
+					if ($auditLogs && count($auditLogs) > 0) {
+						// Table
+						echo '<div class="table-responsive"><table id="auditlog-table" class="table table-condensed table-sm table-hover">';
+						echo '<thead><tr>';
+						echo '<th>Date/Time</th>';
+						echo '<th>' . getMLText('user') . '</th>';
+						echo '<th>' . getMLText('action') . '</th>';
+						echo '<th>' . getMLText('details') . '</th>';
+						echo '</tr></thead><tbody>';
+						foreach ($auditLogs as $log) {
+							echo '<tr>';
+							echo '<td>' . htmlspecialchars($log['created_at']) . '</td>';
+							echo '<td>' . htmlspecialchars($log['user']) . '</td>';
+							echo '<td>' . htmlspecialchars($log['action']) . '</td>';
+							echo '<td>' . $log['details'] . '</td>';
+							echo '</tr>';
+						}
+						echo '</tbody></table></div>';
+						// Pagination and controls
+						echo '<div class="d-flex justify-content-between align-items-center mt-2">';
+						// Previous/Next icons (bottom left)
+						echo '<div>';
+						echo '<button id="auditlog-prev" class="btn btn-sm btn-secondary" title="Previous"><i class="fa fa-chevron-left"></i></button> ';
+						echo '<button id="auditlog-next" class="btn btn-sm btn-secondary" title="Next"><i class="fa fa-chevron-right"></i></button>';
+						echo '</div>';
+						// Page size input (bottom right)
+						echo '<div class="ml-auto">Rows per page: <input type="number" min="1" max="100" id="auditlog-pagesize" value="5" style="width:60px;" class="form-control form-control-sm d-inline-block"></div>';
+						echo '</div>';
+					} else {
+						$this->infoMsg('No Audit Logs Available');
+					}
+				} catch (Exception $e) {
+					echo "<div class='alert alert-danger'>Error fetching audit logs: " . htmlspecialchars($e->getMessage()) . "</div>";
+				}
+				// JS for pagination, search, and page size
+				echo '<script>
+(function() {
+    var table = document.getElementById("auditlog-table");
+    if (!table) return;
+    var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+    var pageSizeInput = document.getElementById("auditlog-pagesize");
+    var searchInput = document.getElementById("auditlog-search");
+    var searchBtn = document.getElementById("auditlog-search-btn");
+    var prevBtn = document.getElementById("auditlog-prev");
+    var nextBtn = document.getElementById("auditlog-next");
+    var currentPage = 1;
+    var pageSize = parseInt(pageSizeInput.value, 10) || 5;
+    var filteredRows = rows.slice();
+
+    function renderTable() {
+        var start = (currentPage - 1) * pageSize;
+        var end = start + pageSize;
+        rows.forEach(function(row) { row.style.display = "none"; });
+        filteredRows.slice(start, end).forEach(function(row) { row.style.display = ""; });
+        prevBtn.disabled = (currentPage === 1);
+        nextBtn.disabled = (end >= filteredRows.length);
+    }
+    function updatePageSize() {
+        pageSize = parseInt(pageSizeInput.value, 10) || 5;
+        currentPage = 1;
+        renderTable();
+    }
+    function searchTable() {
+        var q = searchInput.value.trim().toLowerCase();
+        filteredRows = rows.filter(function(row) {
+            var action = row.cells[2].textContent.toLowerCase();
+            var details = row.cells[3].textContent.toLowerCase();
+            return (
+                (!q) ||
+                action.indexOf(q) !== -1 ||
+                details.indexOf(q) !== -1
+            );
+        });
+        currentPage = 1;
+        renderTable();
+    }
+    pageSizeInput.addEventListener("change", updatePageSize);
+    searchBtn.addEventListener("click", searchTable);
+    searchInput.addEventListener("keydown", function(e) { if (e.key === "Enter") { searchTable(); e.preventDefault(); } });
+    prevBtn.addEventListener("click", function() { if (currentPage > 1) { currentPage--; renderTable(); } });
+    nextBtn.addEventListener("click", function() { if ((currentPage * pageSize) < filteredRows.length) { currentPage++; renderTable(); } });
+    // Initial render
+    renderTable();
+})();
+</script>';
+				echo '</div>';
+			} else {
+				$this->warnMsg(getMLText('no_access_to_auditlog'));
+			}
+			
 			if ($tabs) {
 				foreach ($tabs as $tabid => $tab) {
 					echo '<div class="tab-pane ' . ($currenttab == $tabid ? 'active' : '') . '" id="' . $tabid . '" role="tabpanel">';

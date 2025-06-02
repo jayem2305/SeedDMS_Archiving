@@ -291,6 +291,26 @@ class SeedDMS_View_ExtensionMgr extends SeedDMS_Theme_Style
 		$this->contentHeading(getMLText("extension_manager"));
 		$this->rowStart();
 		$this->columnStart(4);
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
+		if($settings->_enableExtensionImport && $extmgr->isWritableExtDir()) {
+?>
+		<form class="form-horizontal" method="post" enctype="multipart/form-data" action="../op/op.ExtensionMgr.php">
+			<?= createHiddenFieldWithKey('extensionmgr') ?>
+			<input type="hidden" name="action" value="upload" />
+<?php
+			$this->formField(
+				getMLText("extension_archive"),
+				$this->getFileChooserHtml('userfile', false)
+			);
+			$this->formSubmit("<i class=\"fa fa-upload\"></i> ".getMLText('import_extension'));
+?>
+		</form>
+<?php
+=======
 		$this->pageSidebar();
 		if ($settings->_enableExtensionImport && $extmgr->isWritableExtDir()) {
 			?>
@@ -306,6 +326,7 @@ class SeedDMS_View_ExtensionMgr extends SeedDMS_Theme_Style
 				?>
 			</form>
 			<?php
+>>>>>>> refs/remotes/origin/main
 		} else {
 			if ($settings->_enableExtensionImport)
 				echo "<div class=\"alert alert-warning\">" . getMLText('extension_mgr_no_upload') . "</div>";

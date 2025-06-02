@@ -188,7 +188,11 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$this->rowStart();
 		$this->columnStart(4);
 		$this->pageSidebar();
+<<<<<<< HEAD
+?>
+=======
 		?>
+>>>>>>> refs/remotes/origin/main
 		<div class="ajax" data-view="Dashboard" data-action="newdocuments"></div>
 		<?php
 		$this->columnEnd();

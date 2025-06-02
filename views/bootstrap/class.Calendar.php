@@ -514,11 +514,18 @@ class SeedDMS_View_Calendar extends SeedDMS_Theme_Style
 <<<<<<< HEAD
 =======
 		$this->pageSidebar();
+<<<<<<< HEAD
+=======
 >>>>>>> grinnel-sidebar
+>>>>>>> refs/remotes/origin/main
 		$this->rowEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */
 
 }
+<<<<<<< HEAD
 ?>
+=======
+?>
+>>>>>>> refs/remotes/origin/main

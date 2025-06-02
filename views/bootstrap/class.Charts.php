@@ -354,6 +354,10 @@ class SeedDMS_View_Charts extends SeedDMS_Theme_Style
 		$this->contentContainerEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
+<<<<<<< HEAD
+		
+=======
 
+>>>>>>> refs/remotes/origin/main
 	} /* }}} */
 }

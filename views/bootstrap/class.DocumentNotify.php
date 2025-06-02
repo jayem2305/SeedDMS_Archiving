@@ -230,4 +230,8 @@ class SeedDMS_View_DocumentNotify extends SeedDMS_Theme_Style
 		$this->htmlEndPage();
 	} /* }}} */
 }
+<<<<<<< HEAD
 ?>
+=======
+?>
+>>>>>>> refs/remotes/origin/main

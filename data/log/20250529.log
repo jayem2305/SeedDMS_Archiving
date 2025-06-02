@@ -1,3 +1,40 @@
+<<<<<<< HEAD
+May 29 06:47:19  [info] admin (::1) op.LockDocument.php?documentid=5&formtoken=a7a79e79f3663e1edf9e01d54b37643b 
+May 29 22:00:30  [info] admin (::1) op.Ajax.php?command=deletefolder&id=4&formtoken=f15e3f77f8df3052ac1c7dcda7eb7101 delete folder 4
+May 29 22:00:32  [info] admin (::1) op.Ajax.php?command=deletefolder&id=6&formtoken=f15e3f77f8df3052ac1c7dcda7eb7101 delete folder 6
+May 29 22:00:35  [info] admin (::1) op.Ajax.php?command=deletedocument&id=1&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 1
+May 29 22:00:37  [info] admin (::1) op.Ajax.php?command=deletedocument&id=2&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 2
+May 29 22:00:39  [info] admin (::1) op.Ajax.php?command=deletedocument&id=4&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 4
+May 29 22:00:45  [error] Notification service 'email': Sending notification 'document_deleted_email_subject' to user 'info@seeddms.org' (1) failed.
+May 29 22:00:45  [info] admin (::1) op.Ajax.php?command=deletedocument&id=5&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 5
+May 29 22:00:48  [info] admin (::1) op.Ajax.php?command=deletedocument&id=6&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 6
+May 29 22:00:50  [info] admin (::1) op.Ajax.php?command=deletedocument&id=10&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 10
+May 29 22:00:53  [info] admin (::1) op.Ajax.php?command=deletedocument&id=11&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 11
+May 29 22:00:54  [info] admin (::1) op.Ajax.php?command=deletedocument&id=12&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 12
+May 29 22:00:56  [info] admin (::1) op.Ajax.php?command=deletedocument&id=13&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 13
+May 29 22:00:58  [info] admin (::1) op.Ajax.php?command=deletedocument&id=14&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 14
+May 29 22:01:00  [info] admin (::1) op.Ajax.php?command=deletedocument&id=15&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 15
+May 29 22:01:01  [info] admin (::1) op.Ajax.php?command=deletedocument&id=16&formtoken=39aeabeefdf3b6bfd525c93caaa72800 delete document 16
+May 29 22:01:10  [info] admin (::1) op.Ajax.php add document 17 in folder 1
+May 29 22:04:17  [info] admin (::1) op.Download.php?documentid=17&version=1 
+May 29 22:09:59  [info] admin (::1) op.Download.php?documentid=17&version=1 
+May 29 22:11:39  [info] admin (::1) op.Ajax.php add document 18 in folder 1
+May 29 22:13:27  [info] admin (::1) op.Download.php?documentid=18&version=1 
+May 29 22:13:32  [info] admin (::1) op.Download.php?documentid=18&version=1 
+May 29 22:13:39  [info] admin (::1) op.Download.php?documentid=17&version=1 
+May 29 22:15:54  [info] admin (::1) op.Download.php?documentid=17&version=1 
+May 29 22:16:27  [info] admin (::1) op.Download.php?documentid=17&version=1 
+May 29 22:17:01  [info] admin (::1) op.Download.php?documentid=17&version=1 
+May 29 22:17:10  [info] admin (::1) op.Download.php?documentid=17&version=1 
+May 29 22:17:20  [info] admin (::1) op.Download.php?documentid=18&version=1 
+May 29 22:19:07  [info] admin (::1) op.AddSubFolder.php ?name=test&folderid=1
+May 29 22:19:33  [info] admin (::1) op.Download.php?documentid=17&version=1 
+May 29 22:24:25  [info] admin (::1) op.EditComment.php ?documentid=3
+May 29 22:25:43  [info] admin (::1) op.EditDocument.php ?documentid=3
+May 29 22:29:42  [info] admin (::1) op.Ajax.php add file 'BET-22-ACTIVITY-7-2025-Single-Phase-Electric-Motor-Rewinding.docx' to document 3
+May 29 22:30:05  [info] admin (::1) op.Ajax.php add file 'BET 22 ACTIVITY 7 ESPARTINEZ.pdf' to document 18
+May 29 22:30:36  [info] admin (::1) op.Ajax.php add document 19 in folder 7
+=======
 May 29 07:48:30  [info] -- (::1) op.Login.php 
 May 29 07:48:30  [info] Authentication service 'db'
 May 29 07:48:30  [info] Authentication service 'db': Authentication of user 'admin' successful.
@@ -79,3 +116,4 @@ May 29 23:06:43  [info] -- (::1) op.Login.php
 May 29 23:06:43  [info] Authentication service 'db'
 May 29 23:06:43  [info] Authentication service 'db': Authentication of user 'admin' successful.
 >>>>>>> grinnel-sidebar
+>>>>>>> refs/remotes/origin/main

@@ -650,7 +650,6 @@ class SeedDMS_View_SchedulerTaskMgr extends SeedDMS_Theme_Style
 		$this->rowEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
-
 	} /* }}} */
 }
 ?>

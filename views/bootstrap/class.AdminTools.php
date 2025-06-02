@@ -330,4 +330,8 @@ class SeedDMS_View_AdminTools extends SeedDMS_Theme_Style
 		$this->htmlEndPage();
 	}
 }
+<<<<<<< HEAD
 ?>
+=======
+?>
+>>>>>>> refs/remotes/origin/main

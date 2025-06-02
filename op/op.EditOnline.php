@@ -75,6 +75,26 @@ if($lc->getChecksum() == SeedDMS_Core_File::checksum($tmpfname)) {
 		if($notifier) {
 			$notifier->sendReplaceContentMail($lc, $user);
 		}
+        // --- Audit log: log online edit ---
+        try {
+            $db = $dms->getDB();
+            $documentId = $document->getId();
+            $username = $user->getLogin();
+            $now = date('Y-m-d H:i:s');
+            $action = 'Document Edited Online';
+            $details = '<b>' . htmlspecialchars($username) . '</b> edited the document online.';
+            $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+            $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+            $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+            $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) + "'";
+            $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+            $result = $db->getResult($query);
+            if (!$result) {
+                error_log('Audit log insert failed (edit online): ' . $db->getErrorMsg());
+            }
+        } catch (Exception $e) {
+            error_log('Audit log exception (edit online): ' . $e->getMessage());
+        }
 		echo json_encode(array('success'=>true, 'message'=>getMLText('splash_saved_file')));
 	} else {
 		echo json_encode(array('success'=>false, 'message'=>getMLText('splash_error_saving_file')));

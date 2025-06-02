@@ -155,6 +155,37 @@ class SeedDMS_View_Categories extends SeedDMS_Theme_Style
 		$this->contentHeading(getMLText("global_document_categories"));
 		$this->rowStart();
 		$this->columnStart(6);
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+		$this->pageSidebar();
+>>>>>>> 1f309085a20da01af576102fb7b70e417ed5d6b7
+?>
+<form class="form-horizontal">
+<?php
+		$options = array();
+		$options[] = array("-1", getMLText("choose_category"));
+		$options[] = array("0", getMLText("new_document_category"));
+		foreach ($categories as $category) {
+			$color = substr(md5($category->getName()), 0, 6);
+			$options[] = array($category->getID(), htmlspecialchars($category->getName()), $selcat && $category->getID()==$selcat->getID(), array(array('data-before-title', "<i class='fa fa-circle' style='color: #".$color.";'></i> "), array('data-subtitle', $category->countDocumentsByCategory().' '.getMLText('documents'))));
+		}
+		$this->formField(
+			null, //getMLText("selection"),
+			array(
+				'element'=>'select',
+				'id'=>'selector',
+				'class'=>'chzn-select',
+				'options'=>$options,
+				'placeholder'=>getMLText('choose_category'),
+			)
+		);
+?>
+</form>
+	<div class="ajax" style="margin-bottom: 15px;" data-view="Categories" data-action="actionmenu" <?php echo ($selcat ? "data-query=\"categoryid=".$selcat->getID()."\"" : "") ?>></div>
+		<div class="ajax" data-view="Categories" data-action="info" <?php echo ($selcat ? "data-query=\"categoryid=".$selcat->getID()."\"" : "") ?>></div>
+<?php
+=======
 
 		?>
 		<form class="form-horizontal">
@@ -181,6 +212,7 @@ class SeedDMS_View_Categories extends SeedDMS_Theme_Style
 		<div class="ajax" style="margin-bottom: 15px;" data-view="Categories" data-action="actionmenu" <?php echo ($selcat ? "data-query=\"categoryid=" . $selcat->getID() . "\"" : "") ?>></div>
 		<div class="ajax" data-view="Categories" data-action="info" <?php echo ($selcat ? "data-query=\"categoryid=" . $selcat->getID() . "\"" : "") ?>></div>
 		<?php
+>>>>>>> refs/remotes/origin/main
 		$this->columnEnd();
 		$this->columnStart(6);
 		echo $this->callHook('rightContentPre', $selcat);
