@@ -103,6 +103,7 @@ $("input[type=checkbox]").each(function () { this.checked = !this.checked; });
 		$this->htmlStartPage(getMLText("log_management"));
 		$this->globalNavigation();
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
 		
 
@@ -153,7 +154,7 @@ $("input[type=checkbox]").each(function () { this.checked = !this.checked; });
 			$this->showStartPaneContent($section[0], (!$mode || $mode == $section[0]));
 			$this->filelist($entries[$section[0]], $section[0]);
 			$this->showEndPaneContent($section[0], $mode);
-			$this->pageSidebar();
+			
 		}
 ?>
 	</div>
