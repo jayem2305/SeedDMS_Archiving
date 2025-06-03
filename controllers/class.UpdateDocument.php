@@ -109,7 +109,48 @@ class SeedDMS_Controller_UpdateDocument extends SeedDMS_Controller_Common {
 		if(false === $this->callHook('postUpdateDocument', $document, $content)) {
 		}
 
-		return $content;
-	} /* }}} */
+		// --- Audit log: log document download ---
+        try {
+            $db = $dms->getDB();
+            $username = isset($this->params['user']) ? $this->params['user']->getLogin() : 'unknown';
+            $documentId = $document ? $document->getId() : 0;
+            $now = date('Y-m-d H:i:s');
+            $action = 'Document Updated';
+            $details = 'User updated the document.';
+            $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+            $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+            $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+            $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+            $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+            $result = $db->getResult($query);
+            if (!$result) {
+                error_log('Audit log insert failed (download document): ' . $db->getErrorMsg());
+            }
+        } catch (Exception $e) {
+            error_log('Audit log exception (download document): ' . $e->getMessage());
+        }
+
+        // --- Audit log: log status change ---
+        try {
+            $db = $dms->getDB();
+            $documentId = $document->getId();
+            $username = $user->getLogin();
+            $now = date('Y-m-d H:i:s');
+            $action = 'Status Changed';
+            $details = 'User changed the document status.';
+            $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+            $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+            $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+            $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+            $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+            $result = $db->getResult($query);
+            if (!$result) {
+                error_log('Audit log insert failed (status change): ' . $db->getErrorMsg());
+            }
+        } catch (Exception $e) {
+            error_log('Audit log exception (status change): ' . $e->getMessage());
+        }
+        return true;
+    } /* }}} */
 }
 

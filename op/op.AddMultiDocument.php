@@ -261,7 +261,7 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
                 $username = $user->getLogin();
                 $now = date('Y-m-d H:i:s');
                 $action = 'Document Uploaded (Multi)';
-                $details = '<b>' . htmlspecialchars($username) . '</b> uploaded document: ' . htmlspecialchars($name);
+                $details = 'User uploaded document: ' . htmlspecialchars($name);
                 $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
                 $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
                 $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";

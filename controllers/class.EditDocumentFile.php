@@ -70,7 +70,7 @@ class SeedDMS_Controller_EditDocumentFile extends SeedDMS_Controller_Common {
             $username = $user->getLogin();
             $now = date('Y-m-d H:i:s');
             $action = 'Document File Edited';
-            $details = $username . 'edited the document file.';
+            $details = 'User edited the document file.';
             $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
             $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
             $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";

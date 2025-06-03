@@ -54,22 +54,6 @@ if (!$document->getLatestContent()) {
 	UI::exitError(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))), getMLText("access_denied"));
 }
 
-/* Recalculate the status of a document and reload the page if the status
- * has changed. A status change may occur if the document has expired in
- * the mean time
- */
-if ($document->verifyLastestContentExpriry()) {
-	header("Location:../out/out.ViewDocument.php?documentid=" . $document->getID());
-	exit;
-}
-
-/* Recalculate the status of a document and reload the page if the status
- * has changed. A status change may occur if a revision workflow is due
- */
-if ($document->checkForDueRevisionWorkflow($user)) {
-	header("Location:../out/out.ViewDocument.php?documentid=" . $document->getID());
-}
-
 if ($view) {
 	$view->setParam('fulltextservice', $fulltextservice);
 	$view->setParam('conversionmgr', $conversionmgr);

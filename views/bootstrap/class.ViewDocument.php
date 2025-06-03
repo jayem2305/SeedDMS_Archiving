@@ -1704,8 +1704,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 									/* If the init state has not been left, return is always possible */
 									if ($workflow->getInitState()->getID() == $latestContent->getWorkflowState()->getID()) {
 										echo "Initial state of sub workflow has not been left. Return to parent workflow is possible<br />";
-										echo "<form action=\"" . $this->html_url("ReturnFromSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" />";
-										echo "<input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('return_from_subworkflow') . "\" />";
+										echo "<form action=\"" . $this->html_url("ReturnFromSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('return_from_subworkflow') . "\" />";
 										echo "</form>";
 									} else {
 										/* Get a transition from the last state in the parent workflow
@@ -1958,8 +1957,6 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 									if ($user->isAdmin()) {
 										if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
 											$accesserr = getMLText("access_denied");
-										elseif (is_object($required) && $required->isDisabled())
-											$accesserr = getMLText("login_disabled_title");
 									}
 								}
 								if ($r["required"] == $user->getId()/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
@@ -1971,6 +1968,11 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 									$reqName = getMLText("unknown_group") . " '" . $r["required"] . "'";
 								} else {
 									$reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
+									if ($user->isAdmin()) {
+										$grpusers = $required->getUsers();
+										if (!$grpusers)
+											$accesserr = getMLText("no_group_members");
+									}
 									if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
 										$is_recipient = true;
 								}
@@ -2178,9 +2180,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 								echo $this->documentListRow($sourceDoc, $previewer, true, 0, $extracontent);
 							}
 							print "<td><span class=\"actions\">";
-							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL))
-								print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
 							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL)) {
+								print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
 								print "<br />" . getMLText("document_link_public") . ": " . (($link->isPublic()) ? getMLText("yes") : getMLText("no"));
 								print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $sourceDoc->getId() . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
 							}
@@ -2273,10 +2274,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
     function searchTable() {
         var q = searchInput.value.trim().toLowerCase();
         filteredRows = rows.filter(function(row) {
+            var user = row.cells[1].textContent.toLowerCase();
             var action = row.cells[2].textContent.toLowerCase();
             var details = row.cells[3].textContent.toLowerCase();
             return (
                 (!q) ||
+                user.indexOf(q) !== -1 ||
                 action.indexOf(q) !== -1 ||
                 details.indexOf(q) !== -1
             );

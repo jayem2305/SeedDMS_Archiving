@@ -314,7 +314,7 @@ add_log_line("checkin document ".$documentid." with version ".$content->getVersi
             $username = $user->getLogin();
             $now = date('Y-m-d H:i:s');
             $action = 'Document Checked In';
-            $details = '<b>' . htmlspecialchars($username) . '</b> checked in a new version: ' . htmlspecialchars($content->getVersion());
+            $details = 'User checked in a new version: ' . htmlspecialchars($content->getVersion());
             $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
             $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
             $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";

@@ -185,30 +185,14 @@ if($newattributes) {
 	}
 }
 
-add_log_line("?documentid=".$documentid);
-// --- Audit log: log attribute changes ---
+// --- Audit log: log attribute edit ---
 try {
     $db = $dms->getDB();
     $documentId = $document->getId();
     $username = $user->getLogin();
     $now = date('Y-m-d H:i:s');
     $action = 'Attributes Edited';
-    $details = '<b>' . htmlspecialchars($username) . '</b> edited attributes.';
-    // Optionally, list changed attributes
-    $changed = [];
-    foreach($oldattributes as $attrdefid=>$attribute) {
-        if(!isset($newattributes[$attrdefid]) || $newattributes[$attrdefid]->getValueAsArray() !== $oldattributes[$attrdefid]->getValueAsArray()) {
-            $changed[] = htmlspecialchars($attribute->getAttributeDefinition()->getName());
-        }
-    }
-    foreach($newattributes as $attrdefid=>$attribute) {
-        if(!isset($oldattributes[$attrdefid]) && $attribute) {
-            $changed[] = htmlspecialchars($dms->getAttributeDefinition($attrdefid)->getName());
-        }
-    }
-    if ($changed) {
-        $details .= ' Changed: ' . implode(', ', $changed);
-    }
+    $details = 'User edited document attributes.';
     $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
     $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
     $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";

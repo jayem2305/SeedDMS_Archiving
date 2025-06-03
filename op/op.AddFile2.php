@@ -125,8 +125,8 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
             $documentId = $document->getId();
             $username = $user->getLogin();
             $now = date('Y-m-d H:i:s');
-            $action = 'File Uploaded (Chunked)';
-            $details = '<b>' . htmlspecialchars($username) . '</b> uploaded file (chunked): ' . htmlspecialchars($name);
+            $action = 'File Uploaded';
+            $details = 'Usre uploaded file.';
             $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
             $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
             $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";

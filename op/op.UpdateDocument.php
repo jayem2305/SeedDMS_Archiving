@@ -442,7 +442,7 @@ add_log_line("update document ".$documentid." with version ".$content->getVersio
             $username = $user->getLogin();
             $now = date('Y-m-d H:i:s');
             $action = 'Document Updated';
-            $details = '<b>' . htmlspecialchars($username) . '</b> uploaded a new version: ' . htmlspecialchars($userfilename);
+            $details = 'User uploaded a new version';
             $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
             $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
             $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";

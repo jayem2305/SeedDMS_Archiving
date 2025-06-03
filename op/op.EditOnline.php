@@ -82,7 +82,7 @@ if($lc->getChecksum() == SeedDMS_Core_File::checksum($tmpfname)) {
             $username = $user->getLogin();
             $now = date('Y-m-d H:i:s');
             $action = 'Document Edited Online';
-            $details = '<b>' . htmlspecialchars($username) . '</b> edited the document online.';
+            $details = 'User edited the document online.';
             $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
             $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
             $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";

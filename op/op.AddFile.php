@@ -170,14 +170,14 @@ foreach($file_ary as $file) {
 		if($notifier) {
 			$notifier->sendNewFileMail($res, $user);
 		}
-        // --- Audit log: log file upload ---
+        // --- Audit log: log attachment upload ---
         try {
             $db = $dms->getDB();
             $documentId = $document->getId();
             $username = $user->getLogin();
             $now = date('Y-m-d H:i:s');
-            $action = 'File Uploaded';
-            $details = '<b>' . htmlspecialchars($username) . '</b> uploaded file: ' . htmlspecialchars($name);
+            $action = 'Attachment Uploaded';
+            $details = 'User uploaded attachment: ' . addslashes($userfilename);
             $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
             $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
             $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
@@ -185,10 +185,10 @@ foreach($file_ary as $file) {
             $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
             $result = $db->getResult($query);
             if (!$result) {
-                error_log('Audit log insert failed (add file): ' . $db->getErrorMsg());
+                error_log('Audit log insert failed (attachment upload): ' . $db->getErrorMsg());
             }
         } catch (Exception $e) {
-            error_log('Audit log exception (add file): ' . $e->getMessage());
+            error_log('Audit log exception (attachment upload): ' . $e->getMessage());
         }
 	}
 }
