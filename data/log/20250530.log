@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-May 30 09:08:54  [info] admin (::1) op.Ajax.php add file 'pat cv.pdf' to document 3
-=======
 May 30 00:23:53  [info] -- (::1) op.Login.php 
 May 30 00:23:53  [info] Authentication service 'db'
 May 30 00:23:53  [info] Authentication service 'db': Authentication of user 'admin' successful.
@@ -14,8 +11,3 @@ May 30 09:23:42  [info] admin (::1) op.Ajax.php add document 21 in folder 1
 May 30 09:23:42  [info] admin (::1) op.Ajax.php add document 23 in folder 1
 May 30 09:24:11  [info] admin (::1) op.UpdateDocument.php update document 23 with version 2
 May 30 09:28:00  [info] admin (::1) op.AddSubFolder.php ?name=PPTX&folderid=1
->>>>>>> refs/remotes/origin/main
-May 30 10:26:50  [info] admin (::1) op.LockDocument.php?documentid=18&formtoken=a7a79e79f3663e1edf9e01d54b37643b 
-May 30 10:26:53  [info] admin (::1) op.UnlockDocument.php?documentid=18&formtoken=62a76c4eb1a423771f5f4b05b3d32710 
-May 30 10:31:01  [info] admin (::1) op.Download.php?documentid=17&version=1 
-May 30 10:34:40  [info] admin (::1) op.LockDocument.php?documentid=17&formtoken=a7a79e79f3663e1edf9e01d54b37643b 

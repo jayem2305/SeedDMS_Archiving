@@ -136,20 +136,10 @@ class SeedDMS_View_ImportUsers extends SeedDMS_Theme_Style
 			else
 				$this->warningMsg(getMLText('import_users_no_column_mapping'));
 		}
-<<<<<<< HEAD
-		
-=======
-
->>>>>>> refs/remotes/origin/main
 		$this->columnEnd();
 		$this->rowEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
-<<<<<<< HEAD
-		
-=======
-
->>>>>>> refs/remotes/origin/main
 	} /* }}} */
 }
 
