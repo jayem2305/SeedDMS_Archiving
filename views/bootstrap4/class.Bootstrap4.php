@@ -367,7 +367,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			
 			// MODIFIED PLACEHOLDER AND BUTTON CLASS
 			echo "      <div class=\"input-group search-bar-modern\">"; // Added class for potential custom styling
-			echo "        <input name=\"query\" class=\"form-control search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" placeholder=\"Search Files and Folders\" aria-label=\"Search Files and Folders\" style=\"width: 220px;\">";
+			echo "        <input name=\"query\" class=\"form-control search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" placeholder=\"Search Files and Folders\" aria-label=\"Search Files and Folders\" style=\"width: 570px;\">";
 			echo "        <div class=\"input-group-append\">";
 			echo "          <button class=\"btn btn-dark\" type=\"submit\" title=\"" . getMLText("search") . "\"><i class=\"fa fa-search\"></i></button>"; // Changed to btn-dark for black button
 			echo "        </div>";
@@ -383,39 +383,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo " </button>\n";
 
 			echo " <div class=\"collapse navbar-collapse\" id=\"navbarMain\">\n";
-			echo "  <ul class=\"navbar-nav\">\n";
-			$menuitems = array();
-			/* calendar {{{ */
-			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
-				$menuitems['calendar'] = array(
-					'link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'],
-					'label' => '<i class="fa fa-calendar-times-o fa-lg" title="' . getMLText("calendar") . '"></i><span class="d-lg-none ml-2">' . getMLText("calendar") . '</span>' // Show text on small screens
-				);
-			if ($accessobject->check_view_access('AdminTools'))
-				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
-			if ($this->params['enablehelp']) {
-				$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-				$menuitems['help'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Help.php?context=' . $tmp[1], 'label' => getMLText("help"));
-			}
-			/* }}} End of calendar */
-
-			/* Check if hook exists because otherwise callHook() will override $menuitems */
-			if ($this->hasHook('globalNavigationBar'))
-				$menuitems = $this->callHook('globalNavigationBar', $menuitems);
-			foreach ($menuitems as $menuitem) {
-				if (!empty($menuitem['children'])) {
-					echo "   <li class=\"nav-item dropdown\">\n";
-					echo "     <a class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\">" . $menuitem['label'] . "</a>\n";
-					echo "     <div class=\"dropdown-menu dropdown-menu-left\">\n";
-					foreach ($menuitem['children'] as $submenuitem) {
-						echo "      <a class=\"dropdown-item\" href=\"" . $submenuitem['link'] . "\"" . (isset($submenuitem['target']) ? ' target="' . $submenuitem['target'] . '"' : '') . ">" . $submenuitem['label'] . "</a>\n";
-					}
-					echo "     </div>\n";
-				} else {
-					echo "<li class=\"nav-item\"><a class=\"nav-link\" href=\"" . $menuitem['link'] . "\"" . (isset($menuitem['target']) ? ' target="' . $menuitem['target'] . '"' : '') . ">" . $menuitem['label'] . "</a></li>";
-				}
-			}
-			echo "   </ul>\n";
+			
 
 			/* menu tasks {{{ */
 			if ($this->params['enablemenutasks'] && !$this->params['user']->isGuest()) {
@@ -468,6 +436,39 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 			/* user profile menu {{{ */
 			echo "  <ul class=\"navbar-nav ml-auto\">\n";
+			echo "  <ul class=\"navbar-nav\">\n";
+			$menuitems = array();
+			/* calendar {{{ */
+			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
+				$menuitems['calendar'] = array(
+					'link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'],
+					'label' => '<i class="fa fa-calendar-times-o fa-lg" title="' . getMLText("calendar") . '"></i><span class="d-lg-none ml-2">' . getMLText("calendar") . '</span>' // Show text on small screens
+				);
+			if ($accessobject->check_view_access('AdminTools'))
+				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
+			if ($this->params['enablehelp']) {
+				$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+				$menuitems['help'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Help.php?context=' . $tmp[1], 'label' => getMLText("help"));
+			}
+			/* }}} End of calendar */
+
+			/* Check if hook exists because otherwise callHook() will override $menuitems */
+			if ($this->hasHook('globalNavigationBar'))
+				$menuitems = $this->callHook('globalNavigationBar', $menuitems);
+			foreach ($menuitems as $menuitem) {
+				if (!empty($menuitem['children'])) {
+					echo "   <li class=\"nav-item dropdown\">\n";
+					echo "     <a class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\">" . $menuitem['label'] . "</a>\n";
+					echo "     <div class=\"dropdown-menu dropdown-menu-left\">\n";
+					foreach ($menuitem['children'] as $submenuitem) {
+						echo "      <a class=\"dropdown-item\" href=\"" . $submenuitem['link'] . "\"" . (isset($submenuitem['target']) ? ' target="' . $submenuitem['target'] . '"' : '') . ">" . $submenuitem['label'] . "</a>\n";
+					}
+					echo "     </div>\n";
+				} else {
+					echo "<li class=\"nav-item\"><a class=\"nav-link\" href=\"" . $menuitem['link'] . "\"" . (isset($menuitem['target']) ? ' target="' . $menuitem['target'] . '"' : '') . ">" . $menuitem['label'] . "</a></li>";
+				}
+			}
+			echo "   </ul>\n";
 			echo "   <li class=\"nav-item dropdown\">\n";
 			$userFullName = htmlspecialchars($this->params['user']->getFullName());
 			$tooltipText = ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . $userFullName . "'";

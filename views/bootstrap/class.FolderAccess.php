@@ -108,6 +108,7 @@ class SeedDMS_View_FolderAccess extends SeedDMS_Theme_Style
 
 		$this->contentHeading(getMLText("edit_folder_access"));
 		$this->rowStart();
+		$this->pageSidebar();
 		$this->columnStart(4);
 
 		if ($user->isAdmin()) {

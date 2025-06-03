@@ -450,6 +450,7 @@ class SeedDMS_View_AddDocument extends SeedDMS_Theme_Style
 			}
 			$this->columnEnd();
 			$this->columnStart(6);
+			$this->pageSidebar();
 			$this->contentSubHeading(getMLText("version_info"));
 			$this->contentContainerStart();
 			if (!$nodocumentformfields || !in_array('version', $nodocumentformfields)) {

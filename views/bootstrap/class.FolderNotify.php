@@ -102,6 +102,7 @@ class SeedDMS_View_FolderNotify extends SeedDMS_Theme_Style
 		}
 
 		$this->rowStart();
+		$this->pageSidebar();
 		$this->columnStart(6);
 
 		?>

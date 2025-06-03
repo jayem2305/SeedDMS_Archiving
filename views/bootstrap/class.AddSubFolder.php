@@ -63,6 +63,7 @@ class SeedDMS_View_AddSubFolder extends SeedDMS_Theme_Style
 
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
+		$this->pageSidebar();
 		$this->contentStart();
 		$this->pageNavigation($this->getFolderPathHTML($folder, true), "view_folder", $folder);
 		/*
