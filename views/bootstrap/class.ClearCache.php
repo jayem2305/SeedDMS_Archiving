@@ -48,23 +48,6 @@ class SeedDMS_View_ClearCache extends SeedDMS_Theme_Style
 		$this->contentStart();
 		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
 		$this->contentHeading(getMLText("clear_cache"));
-<<<<<<< HEAD
-		$this->warningMsg(getMLText("confirm_clear_cache", array('cache_dir'=>$cachedir)));
-		$this->pageSidebar();
-?>
-<form action="../op/op.ClearCache.php" name="form1" method="post">
-<?php echo createHiddenFieldWithKey('clearcache'); ?>
-<?php
-		$this->contentContainerStart('warning');
-?>
-<?php
-		$totalc = 0;
-		$totalspace = 0;
-		// Preview for png, pdf, and txt */
-		foreach(['png', 'pdf', 'txt'] as $t) {
-			$path = addDirSep($cachedir).$t;
-			if(file_exists($path)) {
-=======
 		$this->warningMsg(getMLText("confirm_clear_cache", array('cache_dir' => $cachedir)));
 		$this->pageSidebar();
 		?>
@@ -77,7 +60,7 @@ class SeedDMS_View_ClearCache extends SeedDMS_Theme_Style
 			$totalc = 0;
 			$totalspace = 0;
 			// Preview for png, pdf, and txt */
-			foreach (['png', 'pdf', 'txt'] as $t) {
+			foreach (array('png', 'pdf', 'txt') as $t) {
 				$path = addDirSep($cachedir) . $t;
 				if (file_exists($path)) {
 					$space = dskspace($path);
@@ -94,7 +77,6 @@ class SeedDMS_View_ClearCache extends SeedDMS_Theme_Style
 			/* Javascript */
 			$path = addDirSep($cachedir) . 'js';
 			if (file_exists($path)) {
->>>>>>> refs/remotes/origin/main
 				$space = dskspace($path);
 				$fi = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
 				$c = iterator_count($fi);

@@ -224,33 +224,6 @@ class SeedDMS_View_DefaultKeywords extends SeedDMS_Theme_Style
 		$this->rowStart();
 		$this->columnStart(4);
 		$this->pageSidebar();
-<<<<<<< HEAD
-?>
-<form class="form-horizontal">
-<?php
-		$options = array();
-		$options[] = array("-1", getMLText("choose_category"));
-		$options[] = array("0", getMLText("new_default_keyword_category"));
-		foreach ($categories as $category) {
-			$owner = $category->getOwner();
-			if ($user->isAdmin() || ($owner->getID() == $user->getID()))
-				$options[] = array($category->getID(), htmlspecialchars($category->getName()), $selcategory && $category->getID()==$selcategory->getID(), array(array('data-subtitle', $category->countKeywordLists().' '.getMLText('keywords'))));
-		}
-		$this->formField(
-			null, //getMLText("selection"),
-			array(
-				'element'=>'select',
-				'id'=>'selector',
-				'class'=>'chzn-select',
-				'options'=>$options,
-				'placeholder'=>getMLText('choose_category'),
-			)
-		);
-?>
-</form>
-	<div class="ajax" style="margin-bottom: 15px;" data-view="DefaultKeywords" data-action="actionmenu" <?php echo ($selcategory ? "data-query=\"categoryid=".$selcategory->getId()."\"" : "") ?>></div>
-<?php
-=======
 		?>
 		<form class="form-horizontal">
 			<?php
@@ -276,7 +249,6 @@ class SeedDMS_View_DefaultKeywords extends SeedDMS_Theme_Style
 		</form>
 		<div class="ajax" style="margin-bottom: 15px;" data-view="DefaultKeywords" data-action="actionmenu" <?php echo ($selcategory ? "data-query=\"categoryid=" . $selcategory->getId() . "\"" : "") ?>></div>
 		<?php
->>>>>>> refs/remotes/origin/main
 		$this->columnEnd();
 		$this->columnStart(8);
 		?>

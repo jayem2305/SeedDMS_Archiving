@@ -364,11 +364,6 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
 			}
 			echo "      <input type=\"hidden\" name=\"navBar\" value=\"1\" />";
-<<<<<<< HEAD
-			
-=======
-
->>>>>>> refs/remotes/origin/main
 			// MODIFIED PLACEHOLDER AND BUTTON CLASS
 			echo "      <div class=\"input-group search-bar-modern\">"; // Added class for potential custom styling
 			echo "        <input name=\"query\" class=\"form-control search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" placeholder=\"Search Files and Folders\" aria-label=\"Search Files and Folders\" style=\"width: 220px;\">";
@@ -2794,10 +2789,6 @@ HTML_CSS;
 								$content .= " selected";
 							elseif ($value == $objvalue)
 								$content .= " selected";
-<<<<<<< HEAD
-=======
-
->>>>>>> refs/remotes/origin/main
 							$content .= ">" . htmlspecialchars($value) . "</option>";
 						}
 					}
@@ -4862,15 +4853,6 @@ HTML_CSS;
 	{ /* {{{ */
 		$id = md5(uniqid());
 		/*
-<<<<<<< HEAD
-																																																																																																																																																																					  $this->addFooterJS('
-																																																																																																																																																																			  $("body").on("click", "span.openpopupbox", function(e) {
-																																																																																																																																																																				  $(""+$(e.target).data("href")).toggle();
-																																																																																																																																																																			  //	$("div.popupbox").toggle();
-																																																																																																																																																																			  });
-																																																																																																																																																																			  ');
-																																																																																																																																																																					   */
-=======
 																																																																																																																																																																							$this->addFooterJS('
 																																																																																																																																																																					$("body").on("click", "span.openpopupbox", function(e) {
 																																																																																																																																																																						$(""+$(e.target).data("href")).toggle();
@@ -4878,7 +4860,6 @@ HTML_CSS;
 																																																																																																																																																																					});
 																																																																																																																																																																					');
 																																																																																																																																																																							 */
->>>>>>> refs/remotes/origin/main
 		$html = '
 		<span class="openpopupbox" data-href="#' . $id . '">' . $title . '</span>
 		<div id="' . $id . '" class="popupbox" style="display: none;">' . $content . '<span class="closepopupbox"><i class="fa fa-remove"></i></span>
