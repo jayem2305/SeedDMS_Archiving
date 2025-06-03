@@ -133,6 +133,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/vendors/jqtree/jqtree.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/styles/application.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/styles/styles.css" rel="stylesheet"/>' . "\n";
+		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/styles/sidebar.css" rel="stylesheet"/>' . "\n";
 		if ($this->extraheader['css'])
 			echo $this->extraheader['css'];
 		if (method_exists($this, 'css'))
@@ -359,7 +360,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 		if (isset($this->params['user']) && $this->params['user']) {
 			/* search form {{{ */
-			echo "     <form action=\"" . $this->params['settings']->_httpRoot . "out/out.Search.php\" class=\"form-inline my-2 my-lg-0\" autocomplete=\"off\" style=\"margin-left: 6.5rem; margin-right: auto; flex-grow: 1; max-width: 450px; min-width: 535px;\">"; 
+			echo "     <form action=\"" . $this->params['settings']->_httpRoot . "out/out.Search.php\" class=\"form-inline ml-4 mr-auto my-2 my-lg-0\" autocomplete=\"off\">";
 			if ($folder != null && is_object($folder) && !strcasecmp(get_class($folder), $dms->getClassname('folder'))) {
 				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
 			}
@@ -367,7 +368,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			
 			// MODIFIED PLACEHOLDER AND BUTTON CLASS
 			echo "      <div class=\"input-group search-bar-modern\">"; // Added class for potential custom styling
-			echo "        <input name=\"query\" class=\"form-control search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" placeholder=\"Search Files and Folders\" aria-label=\"Search Files and Folders\">";
+			echo "        <input name=\"query\" class=\"form-control search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" placeholder=\"Search Files and Folders\" aria-label=\"Search Files and Folders\" style=\"width: 500px;\">";
 			echo "        <div class=\"input-group-append\">";
 			echo "          <button class=\"btn btn-dark\" type=\"submit\" title=\"" . getMLText("search") . "\"><i class=\"fa fa-search\"></i></button>"; // Changed to btn-dark for black button
 			echo "        </div>";
@@ -605,240 +606,8 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 		$outputHtml .= <<<HTML_CSS
 <style type="text/css">
-    /* CRITICAL: Prevent body from expanding due to fixed elements */
-    body {
-        overflow-x: hidden; /* Prevents scrollbars on the body itself if children are managed correctly */
-    }
+    
 
-    /* Main Sidebar Container */
-    .page-sidebar-custom {
-        width: 240px; 
-        /* ... other existing .page-sidebar-custom styles ... */
-        position: fixed; 
-        top: 0;
-        left: 0; /* Initial position */
-        height: 100vh;
-        overflow-y: auto; 
-        overflow-x: hidden !important;
-        z-index: 1030; 
-        transition: transform 0.3s ease-in-out;
-        transform: translateX(-100%); /* Start hidden for mobile-first approach */
-        box-sizing: border-box !important;
-        padding: 0 !important;
-        background-color: #20242c !important; 
-        border-right: 1px solid #1a1d23; 
-    }
-
-    /* --- Desktop: Sidebar Visible, Pushes Content --- */
-    @media (min-width: 992px) { 
-        .page-sidebar-custom {
-            transform: translateX(0); /* Sidebar is visible and in its fixed position */
-        }
-        .sidebar-mobile-toggle-btn {
-            display: none !important; 
-        }
-
-        /* Main content area starts after the sidebar */
-        body > main.container-fluid { 
-             margin-left: 240px !important; 
-             width: calc(100% - 240px); /* Ensure it doesn't try to be wider */
-             box-sizing: border-box;
-             position: relative; /* To ensure its width calculation is constrained */
-        }
-
-        /* Navbar's container is also shifted and sized */
-        .navbar-container-wrapper.fixed-top {
-            left: 240px; /* Start after the sidebar */
-            width: calc(100% - 240px); /* Occupy remaining width */
-            position: fixed; /* Ensure it's fixed */
-            top: 0;
-            overflow-x: auto; /* Allows navbar content to scroll if it's too wide */
-            background-color: #ffffff; /* Or your navbar's background */
-            z-index: 1020; /* Below sidebar (1030) */
-        }
-        nav.navbar { /* The actual navbar inside the wrapper */
-            min-width: 700px; /* ADJUST this based on your navbar items' minimum reasonable width */
-            /* Make sure navbar itself is not trying to be 100% of a too-large parent */
-            display: flex; /* Default for navbar but good to ensure */
-            flex-wrap: nowrap; /* Items inside navbar should not wrap by default */
-        }
-    }
-
-    /* --- Tablet/Mobile: Sidebar Hidden by Default, Overlays --- */
-    @media (max-width: 991.98px) {
-        .page-sidebar-custom {
-            transform: translateX(-100%); /* Hidden */
-            box-shadow: 3px 0 10px rgba(0,0,0,0.2);
-        }
-        .page-sidebar-custom.open-mobile {
-            transform: translateX(0) !important; /* Slides in */
-        }
-        .sidebar-mobile-toggle-btn { 
-            display: inline-block !important; 
-            position: fixed; 
-            top: 7px; 
-            left: 8px; 
-            z-index: 1032; /* Above everything */
-            /* ... (your button styles) ... */
-            padding: 4px 10px; font-size: 18px; color: #ffffff; 
-            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25); background-color: #222222; 
-            background-image: linear-gradient(to bottom, #333333, #111111); 
-            border: 1px solid #111111; border-radius: 4px; 
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.075);
-        }
-        .sidebar-mobile-toggle-btn:hover { background-color: #111111; color: #ffffff; }
-
-        body > main.container-fluid { 
-             margin-left: 0 !important; /* Full width */
-             width: 100%;
-        }
-        .navbar-container-wrapper.fixed-top {
-            left: 0;
-            width: 100%;
-            position: fixed;
-            top:0;
-            overflow-x: auto;
-            background-color: #ffffff;
-            z-index: 1020; 
-        }
-         nav.navbar {
-            min-width: 700px; /* Or your preferred min-width */
-             display: flex;
-            flex-wrap: nowrap;
-        }
-
-        .sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5); z-index: 1029; 
-            display: none; opacity: 0; transition: opacity 0.3s ease-in-out;
-        }
-        .sidebar-overlay.active { display: block; opacity: 1; }
-        body.sidebar-open-overlay-active { overflow-y: hidden !important; }
-    }
-
-    /* Navbar content flex properties */
-    .navbar-collapse {
-        display: flex;
-        flex-basis: auto; /* Bootstrap default */
-        flex-grow: 1;   /* Allow it to take space */
-        align-items: center;
-    }
-    .navbar-nav { /* Applies to both left and right nav groups if you have them */
-        flex-wrap: nowrap !important; /* Critical: prevent nav items from wrapping */
-    }
-    .navbar-nav .nav-item {
-        flex-shrink: 0; /* Prevent individual items from shrinking too much */
-        white-space: nowrap;
-    }
-    /* For AJAX menu items directly in .navbar-collapse, if not in a .navbar-nav */
-    .navbar-collapse > div[id^="menu-"] {
-        flex-shrink: 0;
-        white-space: nowrap;
-        display: flex;
-        align-items: center;
-        margin-right: .5rem; /* Add some spacing between these items */
-    }
-    .navbar-brand {
-        flex-shrink: 0; /* Brand should not shrink */
-    }
-    .navbar .form-inline { /* Search form */
-        flex-grow: 1; /* Allow search form to take available space */
-        flex-shrink: 1; /* But allow it to shrink if needed */
-        min-width: 150px; /* Don't let it get too small */
-        max-width: 500px; /* Don't let it get too big */
-        margin-left: 1rem; /* Space from brand */
-        margin-right: 1rem; /* Space before right-aligned items */
-    }
-    .navbar .form-inline .input-group {
-        width: 100%; /* Make input group fill the form */
-    }
-
-
-    /* ... (rest of your .page-sidebar-custom styles for logo, nav items etc. remain the same) ... */
-    /* ... (and .search-bar-modern styles remain the same) ... */
-     .search-bar-modern.input-group { border-radius: 0.35rem; }
-    .search-bar-modern.input-group > .form-control { border-top-left-radius: 0.35rem; border-bottom-left-radius: 0.35rem; border-right: 0; }
-    .search-bar-modern.input-group > .input-group-append > .btn { border-top-right-radius: 0.35rem; border-bottom-right-radius: 0.35rem;}
-    .search-bar-modern.input-group > .form-control:focus { z-index: 3; border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);}
-    .btn-dark .fa-search { color: #fff; }
-    nav.navbar .input-group .btn-dark { background-color: #000000 !important; border-color: #000000 !important; color: #ffffff !important;}
-    nav.navbar .input-group .btn-dark .fa-search { color: #ffffff !important; }
-    nav.navbar .input-group .btn-dark:hover,
-    nav.navbar .input-group .btn-dark:focus { background-color: #1a1e21 !important; border-color: #1a1e21 !important; color: #ffffff !important;}
-
-     .page-sidebar-custom .sidebar-inner {
-       padding: 0; width: 100%; height: 100%;
-    }
-    .page-sidebar-custom .sidebar-logo {
-        padding: 15px 15px; margin-bottom: 0; border-bottom: 1px solid #30353e; 
-        display: flex !important; align-items: center !important; cursor: default;
-        width: 100%; overflow: hidden; 
-    }
-    .page-sidebar-custom .sidebar-logo:hover { background-color: transparent !important; }
-    .page-sidebar-custom .sidebar-logo .img-sidebar-logo {
-        margin-right: 10px; flex-shrink: 0; display: flex; align-items: center;
-    }
-    .page-sidebar-custom .sidebar-logo img { max-width: 40px; height: auto; display: block; pointer-events: none; }
-    .page-sidebar-custom .sidebar-logo .logo-text {
-        display: flex; align-items: center; overflow: hidden; flex-shrink: 1;
-    }
-    .page-sidebar-custom .sidebar-logo .logo-text h3 { 
-        font-size: 1.05rem; margin: 0; color: #e9ecef !important; font-weight: 600;
-        line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .page-sidebar-custom .main-sidebar-nav { width: 100%; padding-top: 10px; }
-    .page-sidebar-custom .main-sidebar-nav ul {
-        list-style: none !important; padding-left: 0 !important; margin-left: 0 !important;
-        margin-bottom: 0; width: 100%;
-    }
-    .page-sidebar-custom .main-sidebar-nav ul li {
-         width: 100%; margin-left: 0 !important; padding-left: 0 !important; position: relative;
-    }
-    .page-sidebar-custom .main-sidebar-nav ul li a {
-        display: flex !important; align-items: center !important; width: 100% !important; 
-        padding: 10px 15px !important; color: #adb5bd !important; text-decoration: none !important;
-        font-size: 14px !important; border-left: 3px solid transparent; 
-        outline: none !important; cursor: pointer; overflow: hidden; 
-        line-height: 1.4; box-sizing: border-box !important; margin-bottom: 0;
-    }
-    .page-sidebar-custom .main-sidebar-nav ul li a span:not(.rotate-icon) { 
-        flex-grow: 1; white-space: normal !important; overflow-wrap: break-word !important;
-        word-wrap: break-word !important; text-align: left; min-width: 0; overflow: visible; 
-    }
-    .page-sidebar-custom .main-sidebar-nav ul li a .fa:not(.rotate-icon) { 
-        margin-right: 10px; width: 20px; text-align: center;
-        color: #6c757d !important; flex-shrink: 0; 
-    }
-    .page-sidebar-custom .rotate-icon {
-        margin-left: auto; padding-left: 8px; font-size: 0.9em; 
-        color: #6c757d !important; flex-shrink: 0;
-        transition: transform 0.2s ease-in-out;
-    }
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse {
-        padding-left: 0 !important; list-style: none !important;
-        background-color: #1c1f26 !important; margin-top: 0; margin-bottom: 5px; 
-    }
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a {
-        padding: 9px 15px 9px 35px !important; font-size: 13px; 
-        color: #9fa6ad !important; border-left-color: transparent !important;
-    }
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a span {
-        min-width: 0; overflow: visible; white-space: normal !important; 
-        overflow-wrap: break-word !important; word-wrap: break-word !important; 
-    }
-    .page-sidebar-custom .main-sidebar-nav ul li a:hover,
-    .page-sidebar-custom .main-sidebar-nav ul li a:focus { background-color: #2a2f38 !important; color: #ffffff !important; border-left-color: #007bff; }
-    .page-sidebar-custom .main-sidebar-nav ul li a.active { background-color: #007bff !important; color: #ffffff !important; font-weight: 500; border-left-color: #ffffff; }
-    .page-sidebar-custom .main-sidebar-nav ul li a.active .fa:not(.rotate-icon) { color: #ffffff !important; }
-    .page-sidebar-custom .main-sidebar-nav ul li a:hover .fa:not(.rotate-icon) { color: #ffffff !important;}
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:hover,
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:focus { background-color: #262a32 !important; color: #f8f9fa !important;}
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a.active { color: #ffffff !important; background-color: #0069d9 !important; font-weight: normal; }
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a .fa { margin-right: 8px; flex-shrink: 0; color: #6c757d !important;}
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:hover .fa,
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a.active .fa { color: #f8f9fa !important;}
-    .page-sidebar-custom a[data-toggle="collapse"][aria-expanded="true"] .rotate-icon { transform: rotate(90deg); color: #e0f5ff !important; }
-    .page-sidebar-custom a[data-toggle="collapse"]:hover .rotate-icon { color: #ffffff !important; }
 </style>
 HTML_CSS;
 
