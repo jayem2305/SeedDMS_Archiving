@@ -1,0 +1,460 @@
+<?php
+/**
+ * Implementation of GroupMgr view
+ *
+ * @category   DMS
+ * @package    SeedDMS
+ * @license    GPL 2
+ * @version    @version@
+ * @author     Uwe Steinmann <uwe@steinmann.cx>
+ * @copyright  Copyright (C) 2002-2005 Markus Westphal,
+ *             2006-2008 Malcolm Cowe, 2010 Matteo Lucarelli,
+ *             2010-2012 Uwe Steinmann
+ * @version    Release: @package_version@
+ */
+
+/**
+ * Include parent class
+ */
+//require_once("class.Bootstrap.php");
+
+/**
+ * Class which outputs the html page for GroupMgr view
+ *
+ * @category   DMS
+ * @package    SeedDMS
+ * @author     Markus Westphal, Malcolm Cowe, Uwe Steinmann <uwe@steinmann.cx>
+ * @copyright  Copyright (C) 2002-2005 Markus Westphal,
+ *             2006-2008 Malcolm Cowe, 2010 Matteo Lucarelli,
+ *             2010-2012 Uwe Steinmann
+ * @version    Release: @package_version@
+ */
+class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
+{
+	private function decryptName($encrypted_combined_base64, $key)
+	{
+		// Ensure it's a valid base64-encoded string
+		$data = base64_decode($encrypted_combined_base64, true); // strict mode
+		if ($data === false || strlen($data) < 17) { // 16-byte IV + 1+ byte ciphertext
+			error_log("DecryptName: Invalid or non-encrypted string.");
+			return '[INVALID NAME]';
+		}
+
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+
+		if ($decrypted === false) {
+			error_log("DecryptName: Decryption failed for data: " . $encrypted_combined_base64);
+			return '[DECRYPTION FAILED]';
+		}
+
+		return $decrypted;
+	}
+	private function maybeDecrypt($value, $key)
+	{
+		$decoded = base64_decode($value, true);
+		if ($decoded === false || strlen($decoded) < 17) {
+			return $value; // Probably plain text
+		}
+
+		$iv = substr($decoded, 0, 16);
+		$ciphertext = substr($decoded, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+
+		return $decrypted === false ? $value : $decrypted;
+	}
+	public function decrypt($data, $encryption_key)
+	{
+		$encryption_method = 'AES-256-CBC';
+
+		// Make sure key is 32 bytes
+		if (strlen($encryption_key) !== 32) {
+			$encryption_key = hash('sha256', $encryption_key, true);
+		}
+
+		$decoded = base64_decode($data);
+		if ($decoded === false) {
+			return '[BASE64 DECODE FAILED]';
+		}
+
+		$iv_length = openssl_cipher_iv_length($encryption_method); // = 16
+
+		if (strlen($decoded) < $iv_length) {
+			return '[INVALID ENCRYPTED DATA]';
+		}
+
+		$iv = substr($decoded, 0, $iv_length);
+		$ciphertext = substr($decoded, $iv_length);
+
+		$decrypted = openssl_decrypt($ciphertext, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $iv);
+		if ($decrypted === false) {
+			return '[DECRYPTION FAILED]';
+		}
+
+		return $decrypted;
+	}
+
+
+
+
+
+	private function looksEncrypted($string)
+	{
+		// Check if it’s valid base64 and long enough to hold IV + ciphertext
+		if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $string)) {
+			return false;
+		}
+
+		$decoded = base64_decode($string, true);
+		return $decoded !== false && strlen($decoded) > 16;
+	}
+
+	function js()
+	{ /* {{{ */
+		$selgroup = $this->params['selgroup'];
+		$strictformcheck = $this->params['strictformcheck'];
+
+		header('Content-Type: application/javascript; charset=UTF-8');
+		parent::jsTranslations(array('js_form_error', 'js_form_errors'));
+		?>
+		function runValidation() {
+		$("#form_1").validate({
+		rules: {
+		name: {
+		required: true
+		},
+		<?php
+		if ($strictformcheck) {
+			?>
+			comment: {
+			required: true
+			},
+			<?php
+		}
+		?>
+		},
+		messages: {
+		name: "<?php printMLText("js_no_name"); ?>",
+		<?php
+		if ($strictformcheck) {
+			?>
+			comment: "<?php printMLText("js_no_comment"); ?>",
+			<?php
+		}
+		?>
+		}
+		});
+		$("#form_2").validate({
+		rules: {
+		userid: {
+		required: true
+		},
+		},
+		messages: {
+		userid: "<?php printMLText("js_select_user"); ?>",
+		}
+		});
+		}
+
+		$(document).ready( function() {
+		$( "#selector" ).change(function() {
+		$('div.ajax').trigger('update', {groupid: $(this).val()});
+		window.history.pushState({"html":"","pageTitle":""},"", '../out/out.GroupMgr.php?groupid=' + $(this).val());
+		});
+		});
+		<?php
+	} /* }}} */
+
+	function info()
+	{ /* {{{ */
+		$dms = $this->params['dms'];
+		$selgroup = $this->params['selgroup'];
+		$cachedir = $this->params['cachedir'];
+		$previewwidth = $this->params['previewWidthList'];
+		$workflowmode = $this->params['workflowmode'];
+		$timeout = $this->params['timeout'];
+		$xsendfile = $this->params['xsendfile'];
+
+		if ($selgroup) {
+			$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidth, $timeout, $xsendfile);
+			$this->contentHeading(getMLText("group_info"));
+			echo "<table class=\"table table-condensed table-sm\">\n";
+			if ($workflowmode == "traditional") {
+				$reviewstatus = $selgroup->getReviewStatus();
+				$i = 0;
+				foreach ($reviewstatus as $rv) {
+					if ($rv['status'] == 0) {
+						$i++;
+					}
+				}
+				echo "<tr><td>" . getMLText('pending_reviews') . "</td><td>" . $i . "</td></tr>";
+			}
+			if ($workflowmode == "traditional" || $workflowmode == 'traditional_only_approval') {
+				$approvalstatus = $selgroup->getApprovalStatus();
+				$i = 0;
+				foreach ($approvalstatus as $rv) {
+					if ($rv['status'] == 0) {
+						$i++;
+					}
+				}
+				echo "<tr><td>" . getMLText('pending_approvals') . "</td><td>" . $i . "</td></tr>";
+			}
+			if ($workflowmode == 'advanced') {
+				$workflowStatus = $selgroup->getWorkflowStatus();
+				if ($workflowStatus)
+					echo "<tr><td>" . getMLText('pending_workflows') . "</td><td>" . count($workflowStatus) . "</td></tr>\n";
+			}
+			echo "</table>";
+		}
+	} /* }}} */
+
+	function actionmenu()
+	{ /* {{{ */
+		$dms = $this->params['dms'];
+		$user = $this->params['user'];
+		$selgroup = $this->params['selgroup'];
+
+		if ($selgroup) {
+			$button = array(
+				'label' => getMLText('action'),
+				'menuitems' => array(
+				)
+			);
+			$button['menuitems'][] = array('label' => '<i class="fa fa-remove"></i> ' . getMLText("rm_group"), 'link' => '../out/out.RemoveGroup.php?groupid=' . $selgroup->getID());
+			if ($selgroup->getUsers())
+				$button['menuitems'][] = array('label' => '<i class="fa fa-download"></i> ' . getMLText("export_user_list_csv"), 'link' => '../op/op.UserListCsv.php?groupid=' . $selgroup->getID());
+			self::showButtonwithMenu($button);
+		}
+	} /* }}} */
+
+	function showGroupForm($group)
+	{ /* {{{ */
+		$dms = $this->params['dms'];
+		$user = $this->params['user'];
+		$settings = $this->params['settings'];
+		$allUsers = $this->params['allusers'];
+		$groups = $this->params['allgroups'];
+		$sortusersinlist = $this->params['sortusersinlist'];
+		?>
+		<form class="form-horizontal" action="../op/op.GroupMgr.php" name="form_1" id="form_1" method="post">
+			<?php
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+			if ($group) {
+				echo createHiddenFieldWithKey('editgroup');
+				$getName = $this->maybeDecrypt($group->getName(), $encryption_key);
+
+				?>
+				<input type="hidden" name="groupid" value="<?php print $group->getID(); ?>">
+				<input type="hidden" name="action" value="editgroup">
+				<?php
+			} else {
+				echo createHiddenFieldWithKey('addgroup');
+				?>
+				<input type="hidden" name="action" value="addgroup">
+				<?php
+			}
+			$this->contentContainerStart();
+			$this->formField(
+				getMLText("name"),
+				array(
+					'element' => 'input',
+					'type' => 'text',
+					'id' => 'name',
+					'name' => 'name',
+					'value' => ($group ? htmlspecialchars($getName) : '')
+				)
+			);
+			$this->formField(
+				getMLText("comment"),
+				array(
+					'element' => 'textarea',
+					'id' => 'comment',
+					'name' => 'comment',
+					'rows' => 4,
+					'value' => ($group && $group->getComment() ? htmlspecialchars($this->maybeDecrypt($group->getComment(), $encryption_key)) : '')
+				)
+			);
+
+			$this->contentContainerEnd();
+			$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('save'));
+			?>
+		</form>
+		<?php
+		if ($group) {
+			$this->contentHeading(getMLText("group_members"));
+			?>
+			<table class="table table-condensed table-sm">
+				<?php
+				$members = $group->getUsers();
+				if (count($members) == 0)
+					print "<tr><td>" . getMLText("no_group_members") . "</td></tr>";
+				else {
+					$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+					foreach ($members as $member) {
+						$getName = $this->maybeDecrypt($member->getFullName(), $encryption_key);
+						$getLogin = $this->maybeDecrypt($member->getLogin(), $encryption_key);
+						$getEmail = $this->maybeDecrypt($member->getEmail(), $encryption_key);
+						print "<tr>";
+						print "<td><i class=\"fa fa-user\"></i></td>";
+						print "<td>" . htmlspecialchars($getName . " (" . $getLogin . ")") . "<br>" . htmlspecialchars($getEmail) . "</td>";
+						print "<td>" . ($group->isMember($member, true) ? getMLText("manager") : "&nbsp;") . "</td>";
+						print "<td>";
+						print "<form action=\"../op/op.GroupMgr.php\" method=\"post\" class=\"form-inline\" style=\"display: inline-block; margin-bottom: 0px;\"><input type=\"hidden\" name=\"action\" value=\"rmmember\" /><input type=\"hidden\" name=\"groupid\" value=\"" . $group->getID() . "\" /><input type=\"hidden\" name=\"userid\" value=\"" . $member->getID() . "\" />" . createHiddenFieldWithKey('rmmember') . "<button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i><span class=\"d-none d-lg-block\"> " . getMLText("delete") . "</span></button></form>";
+						print "&nbsp;";
+						print "<form action=\"../op/op.GroupMgr.php\" method=\"post\" class=\"form-inline\" style=\"display: inline-block; margin-bottom: 0px;\"><input type=\"hidden\" name=\"groupid\" value=\"" . $group->getID() . "\" /><input type=\"hidden\" name=\"action\" value=\"tmanager\" /><input type=\"hidden\" name=\"userid\" value=\"" . $member->getID() . "\" />" . createHiddenFieldWithKey('tmanager') . "<button type=\"submit\" class=\"btn btn-secondary btn-mini btn-sm\"><i class=\"fa fa-random\"></i><span class=\"d-none d-lg-block\"> " . getMLText("toggle_manager") . "</span></button></form>";
+						print "</td>";
+						echo "<td>";
+						if ($group->isMember($member, true) && $member->isAdmin() && $settings->_addManagerAsReviewer && !$settings->_enableAdminRevApp) {
+							$this->warningMsg(getMLText("settings_manager_reviewer_is_admin", ['login' => $member->getLogin()]));
+						}
+						if ($group->isMember($member, true) && $member->isAdmin() && $settings->_addManagerAsApprover && !$settings->_enableAdminRevApp) {
+							$this->warningMsg(getMLText("settings_manager_approver_is_admin", ['login' => $member->getLogin()]));
+						}
+						echo "</td>";
+						print "</tr>";
+					}
+				}
+				?>
+			</table>
+
+			<?php
+			$this->contentHeading(getMLText("add_member"));
+			?>
+
+			<form class="form-horizontal" action="../op/op.GroupMgr.php" method="POST" name="form_2" id="form_2">
+				<?php echo createHiddenFieldWithKey('addmember'); ?>
+				<input type="Hidden" name="action" value="addmember">
+				<input type="Hidden" name="groupid" value="<?php print $group->getID(); ?>">
+				<?php
+				$this->contentContainerStart();
+				$options = array();
+				$allUsers = $dms->getAllUsers($sortusersinlist);
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+				foreach ($allUsers as $currUser) {
+					$getName = $this->maybeDecrypt($member->getFullName(), $encryption_key);
+					$getLogin = $this->maybeDecrypt($member->getLogin(), $encryption_key);
+					$getEmail = $this->maybeDecrypt($member->getEmail(), $encryption_key);
+					if (!$group->isMember($currUser))
+						$options[] = array($currUser->getID(), htmlspecialchars($getLogin . ' - ' . $getName), ($currUser->getID() == $user->getID()), array(array('data-subtitle', htmlspecialchars($getEmail))));
+				}
+				$this->formField(
+					getMLText("user"),
+					array(
+						'element' => 'select',
+						'id' => 'userid',
+						'name' => 'userid',
+						'class' => 'chzn-select',
+						'options' => $options
+					)
+				);
+				$this->formField(
+					getMLText("manager"),
+					array(
+						'element' => 'input',
+						'type' => 'checkbox',
+						'name' => 'manager',
+						'value' => 1
+					)
+				);
+				$this->contentContainerEnd();
+				$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('add'));
+				?>
+			</form>
+			<?php
+		}
+	} /* }}} */
+
+	function form()
+	{ /* {{{ */
+		$selgroup = $this->params['selgroup'];
+
+		$this->showGroupForm($selgroup);
+	} /* }}} */
+
+	function show()
+	{ /* {{{ */
+		$dms = $this->params['dms'];
+		$user = $this->params['user'];
+		$accessop = $this->params['accessobject'];
+		$selgroup = $this->params['selgroup'];
+		$allUsers = $this->params['allusers'];
+		$allGroups = $this->params['allgroups'];
+		$strictformcheck = $this->params['strictformcheck'];
+
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/vendors/jquery-validation/jquery.validate.js"></script>' . "\n", 'js');
+		$this->htmlAddHeader('<script type="text/javascript" src="../views/' . $this->theme . '/styles/validation-default.js"></script>' . "\n", 'js');
+
+		$this->htmlStartPage(getMLText("admin_tools"));
+		$this->globalNavigation();
+		$this->contentStart();
+		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
+
+		$this->contentHeading(getMLText("group_management"));
+		$this->rowStart();
+		$this->columnStart(4);
+		$encryption_key = "b8c75fa53c0c7a18a84adb6ca815bd94"; // This will be 16 bytes, perfect for AES-128-CBC
+		$this->pageSidebar();
+		?>
+		<form class="form-horizontal">
+			<?php
+			$options = array();
+			$options[] = array("-1", getMLText("choose_group"));
+			$options[] = array("0", getMLText("add_group"));
+			foreach ($allGroups as $group) {
+				// Ensure the key is 16 bytes (128 bits) for AES-128-CBC
+				//$encryption_key = hex2bin('b8c75fa53c0c7a18a84adb6ca815bd94'); // 16 bytes
+				$rawName = $group->getName();
+				$decrypted = $this->decrypt("O0NGRSxQ7limaHMfr6TCl5u3mfqSxEjmWOJDpv0pa9njP+nfXW", $encryption_key);
+				echo "<script>console.log(" . json_encode("[RAW BASE64] " . $group->getName()) . ");</script>";
+				echo "<script>console.log(" . json_encode("[decrypted data] " . $decrypted) . ");</script>";
+
+				// Check if the name *looks like* a base64-encoded encrypted string
+				if ($this->looksEncrypted($rawName)) {
+					$decrypted_name = $this->maybeDecrypt($rawName, $encryption_key);
+				} else {
+					$decrypted_name = $rawName;
+				}
+
+				$options[] = array(
+					$group->getID(),
+					htmlspecialchars($decrypted_name),
+					$selgroup && $group->getID() == $selgroup->getID()
+				);
+			}
+
+			$this->formField(
+				null, //getMLText("selection"),
+				array(
+					'element' => 'select',
+					'id' => 'selector',
+					'class' => 'chzn-select',
+					'options' => $options,
+					'placeholder' => getMLText('select_groups'),
+				)
+			);
+			?>
+		</form>
+
+		<div class="ajax" style="margin-bottom: 15px;" data-view="GroupMgr" data-action="actionmenu" <?php echo ($selgroup ? "data-query=\"groupid=" . $selgroup->getID() . "\"" : "") ?>></div>
+		<?php if ($accessop->check_view_access($this, array('action' => 'info'))) { ?>
+			<div class="ajax" data-view="GroupMgr" data-action="info" <?php echo ($selgroup ? "data-query=\"groupid=" . $selgroup->getID() . "\"" : "") ?>></div>
+			<?php
+		}
+		$this->columnEnd();
+		$this->columnStart(8);
+		if ($accessop->check_view_access($this, array('action' => 'form'))) {
+			?>
+			<div class="ajax" data-view="GroupMgr" data-action="form" data-afterload="()=>{runValidation();}" <?php echo ($selgroup ? "data-query=\"groupid=" . $selgroup->getID() . "\"" : "") ?>></div>
+			<?php
+		}
+		$this->columnEnd();
+		$this->rowEnd();
+		$this->contentEnd();
+		$this->htmlEndPage();
+	} /* }}} */
+}
+?>
