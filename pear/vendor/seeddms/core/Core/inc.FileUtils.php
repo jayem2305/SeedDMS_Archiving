@@ -219,6 +219,9 @@ class SeedDMS_Core_File {
 	 * @return string md5 sum of file
 	 */
 	public static function checksum($file) { /* {{{ */
+		if (!file_exists($file)) {
+			return false;
+		}
 		return md5_file($file);
 	} /* }}} */
 
