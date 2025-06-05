@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 
 class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 {
-	private function decryptName($encrypted_combined_base64, $key)
+	private function decrypt($encrypted_combined_base64, $key)
 	{
 		$data = base64_decode($encrypted_combined_base64);
 		if ($data === false || strlen($data) < 16) {
@@ -189,6 +189,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		}
 		echo '</div>';
 	}
+
 	// ========================================================================
 	// END CHART RELATED METHODS
 	// ========================================================================
@@ -198,7 +199,6 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 	// ========================================================================
 	protected function printList($documents, $previewer)
 	{
-		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		$txt = $this->callHook('folderListPreContent', null, [], $documents);
 		if (is_string($txt))
 			echo $txt;
@@ -237,6 +237,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 					echo $itemTxt;
 				} else {
 					$extracontent = [];
+					$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 
 					if (method_exists($this, 'getListRowPath')) {
 						$path = $this->getListRowPath($document); // Get the full encrypted path (e.g., /abc123/xyz456/...)
@@ -246,7 +247,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 						$decrypted_parts = [];
 
 						foreach ($path_parts as $part) {
-							$decrypted = $this->decryptName($part, $encryption_key);
+
+							$decrypted = $this->decrypt($part, $encryption_key);
 
 							// If decryption fails, fall back to original encrypted value
 							$decrypted_parts[] = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
@@ -262,9 +264,6 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 					// Finally, pass the decrypted path info to the document row renderer
 					echo $this->documentListRow($document, $previewer, false, 0, $extracontent);
 				}
-
-
-
 			}
 		}
 		$footerTxt = $this->callHook('folderListFooter', null);
@@ -421,7 +420,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 
 		?>
 		jQuery(document).ready(function($) {
-		console.log("Dashboard JS Initialized (Combined - Charts, AJAX lists, Drop Upload)"); // Updated log
+		console.log("Dashboard JS Initialized (Combined - Charts, AJAX lists, Drop Upload)");
 
 		$("<div id='chart_tooltip'></div>").css({
 		position: "absolute", display: "none", padding: "5px", color: "white",
@@ -450,36 +449,40 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 			SeedDMSUpload.setMaxFileSize(<?php echo SeedDMS_Core_File::getBytes($maxuploadsize); ?>);
 			SeedDMSUpload.setMaxFileSizeMsg('<?php echo htmlspecialchars(addslashes(getMLText("uploading_maxsize")), ENT_QUOTES, 'UTF-8'); ?>');
 
-			// Ensure #dashboard-drop-zone exists before initializing
 			if ($('#dashboard-drop-zone').length) {
 			SeedDMSUpload.initDropZone($('#dashboard-drop-zone'), uploadFolderId);
 			console.log("Dashboard Drop Upload initialized for folder ID: " + uploadFolderId + " on #dashboard-drop-zone");
 			} else {
 			console.error("Dashboard Drop Upload: #dashboard-drop-zone HTML element not found!");
-			// Optionally display an error somewhere visible if the drop zone div is missing
 			}
 			} else {
 			console.error("Dashboard Drop Upload: SeedDMSUpload library not found or uploadFolderId is invalid/null.",
 			"SeedDMSUpload defined?", (typeof SeedDMSUpload !== 'undefined'), "uploadFolderId:", uploadFolderId);
-			if ($('#dashboard-drop-zone').length) { // Check if div exists to put message
-			$('#dashboard-drop-zone').html("<p style='color:red; padding-top: 50px; text-align:center;'>
-				<em><?php echo htmlspecialchars(addslashes(getMLText('error_drop_upload_misconfigured', [], 'File drop upload is misconfigured or target folder is invalid.')), ENT_QUOTES, 'UTF-8'); ?></em>
-			</p>");
+
+			if ($('#dashboard-drop-zone').length) {
+			$('#dashboard-drop-zone').html(`<?php
+			echo "<p style='color:red; padding-top: 50px; text-align:center;'><em>" .
+				htmlspecialchars(addslashes(getMLText('error_drop_upload_misconfigured', [], 'File drop upload is misconfigured or target folder is invalid.')), ENT_QUOTES, 'UTF-8') .
+				"</em></p>";
+			?>`);
 			}
 			}
 		<?php else: ?>
 			console.log("Dashboard Drop Upload: Conditions not met. enableDropUploadOnDashboard:",
 			<?php echo json_encode($enableDropUploadOnDashboard); ?>, "dashboardUploadFolder set:",
 			<?php echo json_encode(!!$dashboardUploadFolder); ?>);
+
 			if ($('#dashboard-drop-zone').length && <?php echo json_encode($enableDropUploadOnDashboard); ?> &&
 			!<?php echo json_encode(!!$dashboardUploadFolder); ?>) {
-			$('#dashboard-drop-zone').html("<p style='color:orange; padding-top: 50px; text-align:center;'>
-				<em><?php echo htmlspecialchars(addslashes(getMLText('info_drop_upload_no_folder', [], 'Quick upload enabled, but no target folder specified.')), ENT_QUOTES, 'UTF-8'); ?></em>
-			</p>");
+			$('#dashboard-drop-zone').html(`<?php
+			echo "<p style='color:orange; padding-top: 50px; text-align:center;'><em>" .
+				htmlspecialchars(addslashes(getMLText('info_drop_upload_no_folder', [], 'Quick upload enabled, but no target folder specified.')), ENT_QUOTES, 'UTF-8') .
+				"</em></p>";
+			?>`);
 			}
 		<?php endif; ?>
 
-
+		// Chart rendering section
 		if (typeof $.plot === 'undefined') {
 		console.error("Flot library ($.plot) is not loaded.");
 		$('.chart').html("<p style='color:red; text-align:center;'>Error: Charting library not loaded.</p>");
@@ -489,18 +492,10 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		var noDataMessage = <?php echo json_encode($noDataText); ?>;
 		var monthNamesForFlot = <?php echo json_encode($monthNamesJs); ?>;
 
-		// console.log("VIEW JS: Final allChartsData passed to Flot:", JSON.parse(JSON.stringify(allChartsDataFromPHP))); //
-		Optional: less verbose
-
 		function pieLabelFormatter(label, series) {
-		return "<div
+		return `<div
 			style='font-size:8pt; line-height: 14px; text-align:center; padding:2px; color:black; background: white; border-radius: 5px;'>
-			" + label + "<br />" + series.data[0][1] + " (" + Math.round(series.percent) + "%)</div>";
-		}
-		function formatFileSizeForTooltip(bytes) {
-		if (bytes === 0) return '0 Bytes'; const k = 1024; const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']; const i =
-		Math.floor(Math.log(bytes) / Math.log(k));
-		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+			${label}<br />${series.data[0][1]} (${Math.round(series.percent)}%)</div>`;
 		}
 
 		if (!allChartsDataFromPHP || allChartsDataFromPHP.length === 0) {
@@ -511,28 +506,35 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		var chartDivSelector = "#" + chartInfo.divId;
 		var phpStyleDataForChart = chartInfo.data;
 
-		if (!$(chartDivSelector).length) { console.error("Chart div NOT FOUND: " + chartDivSelector); return; }
+		if (!$(chartDivSelector).length) {
+		console.error("Chart div NOT FOUND: " + chartDivSelector);
+		return;
+		}
 		$(chartDivSelector).empty();
+
 		if (!phpStyleDataForChart || phpStyleDataForChart.length === 0) {
 		$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
 		return;
 		}
 
-		var plotOptions = { grid: { hoverable: true, clickable: true, borderWidth:1, borderColor: '#ddd' } };
+		var plotOptions = {
+		grid: { hoverable: true, clickable: true, borderWidth: 1, borderColor: '#ddd' }
+		};
 		var flotDataSeries = [];
 
 		if (chartInfo.type === 'docspermonth') {
 		flotDataSeries = [phpStyleDataForChart];
 		plotOptions.xaxis = { mode: "categories", tickLength: 0 };
 		plotOptions.series = { bars: { show: true, align: "center", barWidth: 0.8 } };
-		plotOptions.legend = {show: false};
-		$(chartDivSelector).bind("plothover", function (event, pos, item) {
+		plotOptions.legend = { show: false };
+
+		$(chartDivSelector).bind("plothover", function(event, pos, item) {
 		$("#chart_tooltip").hide();
 		if (item) {
 		var xLabel = item.series.xaxis.ticks[item.dataIndex].label;
 		var yVal = item.datapoint[1];
 		$("#chart_tooltip").html(xLabel + ": " + yVal)
-		.css({top: item.pageY - 35, left: item.pageX + 5}).fadeIn(200);
+		.css({ top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
 		}
 		});
 		} else if (chartInfo.type === 'docsaccumulated') {
@@ -540,57 +542,61 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		plotOptions.xaxis = { mode: "time", timeformat: "%d.%m.%y", monthNames: monthNamesForFlot };
 		plotOptions.series = { lines: { show: true, fill: 0.2 }, points: { show: true, radius: 3 } };
 		plotOptions.legend = { position: "nw" };
-		$(chartDivSelector).bind("plothover", function (event, pos, item) {
+
+		$(chartDivSelector).bind("plothover", function(event, pos, item) {
 		$("#chart_tooltip").hide();
 		if (item) {
 		$("#chart_tooltip").html($.plot.formatDate(new Date(item.datapoint[0]), '%e. %b %Y') + ": " + item.datapoint[1])
-		.css({top: item.pageY - 35, left: item.pageX + 5}).fadeIn(200);
+		.css({ top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
 		}
 		});
 		} else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
 		flotDataSeries = phpStyleDataForChart;
 		plotOptions.series = {
 		pie: {
-		show: true, radius: 1,
-		label: { show: true, radius: 2/3, formatter: pieLabelFormatter, threshold: 0.05, background: { opacity: 0.8 }}
+		show: true,
+		radius: 1,
+		label: {
+		show: true,
+		radius: 2/3,
+		formatter: pieLabelFormatter,
+		threshold: 0.05,
+		background: { opacity: 0.8 }
+		}
 		}
 		};
+
 		var legendContainer = $('#legend_container_' + chartInfo.type);
-		plotOptions.legend = legendContainer.length ? { show: true, container: legendContainer, labelBoxBorderColor:"none" } : {
-		show: true, noColumns: 2, labelBoxBorderColor:"none" };
-		$(chartDivSelector).bind("plothover", function (event, pos, item) {
+		plotOptions.legend = legendContainer.length
+		? { show: true, container: legendContainer, labelBoxBorderColor: "none" }
+		: { show: true, noColumns: 2, labelBoxBorderColor: "none" };
+
+		$(chartDivSelector).bind("plothover", function(event, pos, item) {
 		$("#chart_tooltip").hide();
 		if (item) {
-		$("#chart_tooltip").html(item.series.label + ": " . item.series.data[0][1] + " (" + Math.round(item.series.percent) +
+		$("#chart_tooltip").html(item.series.label + ": " + item.series.data[0][1] + " (" + Math.round(item.series.percent) +
 		"%)")
-		.css({top: pos.pageY-35, left: pos.pageX+5}).fadeIn(200);
+		.css({ top: pos.pageY - 35, left: pos.pageX + 5 }).fadeIn(200);
 		}
 		});
 		}
 
-		if (flotDataSeries && (Array.isArray(flotDataSeries) && flotDataSeries.length > 0) ) {
-		if(chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus'){
-		let hasActualData = flotDataSeries.some(series => series.data && series.data.length > 0 && series.data[0].length > 1 &&
-		series.data[0][1] > 0 );
-		if(!hasActualData && flotDataSeries.length > 0){
-		// console.warn("FlotDataSeries for PIE chart " + chartInfo.type + " has only zero or no data points.", flotDataSeries);
-		// Optional: less verbose
+		if (flotDataSeries && Array.isArray(flotDataSeries) && flotDataSeries.length > 0) {
+		if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
+		let hasActualData = flotDataSeries.some(series => series.data && series.data.length > 0 &&
+		series.data[0].length > 1 && series.data[0][1] > 0);
+		if (!hasActualData && flotDataSeries.length > 0) {
 		$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
 		return;
 		}
 		}
-		// console.log("Plotting chart: " + chartInfo.type + " with data: ", JSON.parse(JSON.stringify(flotDataSeries)), "and
-		options: ", plotOptions); // Optional: less verbose
-		$.plot(chartDivSelector, flotDataSeries, plotOptions);
-		} else {
-		// console.warn("FlotDataSeries is empty or not plottable for " + chartInfo.type, phpStyleDataForChart, flotDataSeries);
-		// Optional: less verbose
-		$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+		$.plot($(chartDivSelector), flotDataSeries, plotOptions);
 		}
 		});
 		}
 		}
 		});
+
 		<?php
 	}
 
