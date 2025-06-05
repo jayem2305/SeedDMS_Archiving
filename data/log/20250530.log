@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 May 30 00:23:53  [info] -- (::1) op.Login.php 
 May 30 00:23:53  [info] Authentication service 'db'
 May 30 00:23:53  [info] Authentication service 'db': Authentication of user 'admin' successful.
@@ -11,3 +12,16 @@ May 30 09:23:42  [info] admin (::1) op.Ajax.php add document 21 in folder 1
 May 30 09:23:42  [info] admin (::1) op.Ajax.php add document 23 in folder 1
 May 30 09:24:11  [info] admin (::1) op.UpdateDocument.php update document 23 with version 2
 May 30 09:28:00  [info] admin (::1) op.AddSubFolder.php ?name=PPTX&folderid=1
+=======
+May 30 08:39:47  [info] Conversion from image/png to image/png with gd image service took 0.027951002120972 sec.
+May 30 08:50:00  [info] -- (::1) op.Login.php 
+May 30 08:50:00  [info] Authentication service 'db'
+May 30 08:50:00  [info] Authentication service 'db': Authentication of user 'admin' successful.
+May 30 08:50:52  [info] admin (::1) op.Ajax.php?command=deletedocument&id=13&formtoken=a8565e01616036ad5f5f036946f5a45f delete document 13
+May 30 08:51:06  [info] admin (::1) op.Ajax.php add document 14 in folder 1
+May 30 08:51:06  [info] admin (::1) op.Ajax.php add document 15 in folder 1
+May 30 08:51:06  [info] admin (::1) op.Ajax.php add document 16 in folder 1
+May 30 08:51:06  [info] admin (::1) op.Ajax.php add document 18 in folder 1
+May 30 08:51:06  [info] admin (::1) op.Ajax.php add document 19 in folder 1
+May 30 08:51:06  [info] Conversion from image/png to image/png with gd image service took 0.039450168609619 sec.
+>>>>>>> 0b45db80ebef829d7382c7a1ef20ad2551dfaf82

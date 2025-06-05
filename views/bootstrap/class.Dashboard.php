@@ -158,7 +158,6 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
     // END CHART RELATED METHODS
     // ========================================================================
 
-
     // ========================================================================
     // AJAX ACTION METHODS & HELPERS (from your original dashboard for lists)
     // ========================================================================
