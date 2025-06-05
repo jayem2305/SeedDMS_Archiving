@@ -50,7 +50,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 				echo $txt;
 			else {
 				$extracontent = array();
-				$extracontent['below_title'] = $this->getListRowPath($document);
+				$extracontent['below_title'] = $this->getListRowPath(object: $document);
 				echo $this->documentListRow($document, $previewer, false, 0, $extracontent);
 			}
 		}
@@ -186,17 +186,17 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$this->contentStart();
 
 		$this->rowStart();
-        $this->columnStart(4);
-        $this->pageSidebar();
-        print '<div class="ajax" data-view="Dashboard" data-action="newdocuments"></div>';
-        $this->columnEnd();
-        $this->columnStart(4);
-        print '<div class="ajax" data-view="Dashboard" data-action="updateddocuments"></div>';
-        $this->columnEnd();
-        $this->columnStart(4);
-        print '<div class="ajax" data-view="Dashboard" data-action="status"></div>';
-        $this->columnEnd();
-        $this->rowEnd();
+		$this->columnStart(4);
+		$this->pageSidebar();
+		print '<div class="ajax" data-view="Dashboard" data-action="newdocuments"></div>';
+		$this->columnEnd();
+		$this->columnStart(4);
+		print '<div class="ajax" data-view="Dashboard" data-action="updateddocuments"></div>';
+		$this->columnEnd();
+		$this->columnStart(4);
+		print '<div class="ajax" data-view="Dashboard" data-action="status"></div>';
+		$this->columnEnd();
+		$this->rowEnd();
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */

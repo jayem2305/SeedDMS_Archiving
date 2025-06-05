@@ -1188,14 +1188,16 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						role="button"><?php printMLText('linked_documents');
 						echo (count($links) || count($reverselinks)) ? " (" . count($links) . "/" . count($reverselinks) . ")" : ""; ?></a>
 				</li>
-				
+
 				<?php
 			}
 
 			// Always show Audit Log tab
 			?>
-			<li class="nav-item <?php if ($currenttab == 'auditlog') echo 'active'; ?>">
-				<a class="nav-link <?php if ($currenttab == 'auditlog') echo 'active'; ?>" data-target="#auditlog" data-toggle="tab" role="button">
+			<li class="nav-item <?php if ($currenttab == 'auditlog')
+				echo 'active'; ?>">
+				<a class="nav-link <?php if ($currenttab == 'auditlog')
+					echo 'active'; ?>" data-target="#auditlog" data-toggle="tab" role="button">
 					Audit Log
 				</a>
 			</li>
@@ -2300,7 +2302,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 			} else {
 				$this->warnMsg(getMLText('no_access_to_auditlog'));
 			}
-			
+
 			if ($tabs) {
 				foreach ($tabs as $tabid => $tab) {
 					echo '<div class="tab-pane ' . ($currenttab == $tabid ? 'active' : '') . '" id="' . $tabid . '" role="tabpanel">';
