@@ -1,4 +1,3 @@
-
 Create a DB name:
 seeddms_dbdoc
 
@@ -7,3 +6,5 @@ User: admin
 Password: admin
 
 Added sidebar in all pages bootstrap & 4
+
+AUDITLOGS, FRONT END ARE MERGED
