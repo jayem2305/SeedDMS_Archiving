@@ -417,11 +417,13 @@ default:
 
 			$notifier->sendChangedExpiryMail($document, $user, $oldexpires);
 
-			$status = $content->getStatus();
-			if ($status["status"] == S_RELEASED) {
-				if ($settings->_enableNotificationAppRev) {
-					if ($notifier) {
-						$notifier->sendToAllReceiptMail($content, $user);
+			if($content && is_object($content)) {
+				$status = $content->getStatus();
+				if ($status && isset($status["status"]) && $status["status"] == S_RELEASED) {
+					if ($settings->_enableNotificationAppRev) {
+						if ($notifier) {
+							$notifier->sendToAllReceiptMail($content, $user);
+						}
 					}
 				}
 			}
@@ -434,8 +436,11 @@ default:
 		}
 	}
 
-add_log_line("update document ".$documentid." with version ".$content->getVersion());
-        // --- Audit log: log document update (new version upload) ---
+if(is_object($content))
+	add_log_line("update document ".$documentid." with version ".$content->getVersion());
+else
+	add_log_line("update document ".$documentid);
+		// --- Audit log: log document update (new version upload) ---
         try {
             $db = $dms->getDB();
             $documentId = $document->getId();
