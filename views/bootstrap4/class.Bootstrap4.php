@@ -133,6 +133,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/vendors/jqtree/jqtree.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/styles/application.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/styles/styles.css" rel="stylesheet"/>' . "\n";
+		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/styles/sidebar.css" rel="stylesheet"/>' . "\n";
 		if ($this->extraheader['css'])
 			echo $this->extraheader['css'];
 		if (method_exists($this, 'css'))
@@ -319,15 +320,15 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function contentStart()
 	{ /* {{{ */
 		/*
-																																																																																																																																																																							  echo "<div class=\"container-fluid\">\n";
-																																																																																																																																																																							  echo "<div class=\"row\">\n";
-																																																																																																																																																																							  echo "<nav class=\"_col-md-2 d-none d-md-block bg-light sidebar\">\n";
-																																																																																																																																																																							  echo "<div class=\"sidebar-sticky\">\n";
-																																																																																																																																																																							  echo "lsajdlf";
-																																																																																																																																																																							  echo "</div>\n";
-																																																																																																																																																																							  echo "</nav>\n";
-																																																																																																																																																																							  echo "<main role=\"main\" class=\"_col-md-10 _ml-sm-auto pb-3 px-4\">\n";
-																																																																																																																																																																					  */
+																																																																																																																																																																						echo "<div class=\"container-fluid\">\n";
+																																																																																																																																																																						echo "<div class=\"row\">\n";
+																																																																																																																																																																						echo "<nav class=\"_col-md-2 d-none d-md-block bg-light sidebar\">\n";
+																																																																																																																																																																						echo "<div class=\"sidebar-sticky\">\n";
+																																																																																																																																																																						echo "lsajdlf";
+																																																																																																																																																																						echo "</div>\n";
+																																																																																																																																																																						echo "</nav>\n";
+																																																																																																																																																																						echo "<main role=\"main\" class=\"_col-md-10 _ml-sm-auto pb-3 px-4\">\n";
+																																																																																																																																																																				*/
 		echo "<main role=\"main\" class=\"container-fluid mt-3 pb-3\">\n";
 		echo " <div class=\"row-fluid\">\n";
 	} /* }}} */
@@ -337,9 +338,9 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo " </div>\n";
 		echo "</main>\n";
 		/*
-																																																																																																																																																																							  echo "</div>\n";
-																																																																																																																																																																							  echo "</div>\n";
-																																																																																																																																																																					  */
+																																																																																																																																																																						echo "</div>\n";
+																																																																																																																																																																						echo "</div>\n";
+																																																																																																																																																																				*/
 	} /* }}} */
 
 	function globalBanner()
@@ -364,9 +365,10 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 				echo "      <input type=\"hidden\" name=\"folderid\" value=\"" . $folder->getID() . "\" />";
 			}
 			echo "      <input type=\"hidden\" name=\"navBar\" value=\"1\" />";
+			
 			// MODIFIED PLACEHOLDER AND BUTTON CLASS
 			echo "      <div class=\"input-group search-bar-modern\">"; // Added class for potential custom styling
-			echo "        <input name=\"query\" class=\"form-control search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" placeholder=\"Search Files and Folders\" aria-label=\"Search Files and Folders\" style=\"width: 220px;\">";
+			echo "        <input name=\"query\" class=\"form-control search-query\" " . ($this->params['defaultsearchmethod'] == 'fulltext_' ? "id=\"searchfield\"" : "id=\"searchfield\"") . " data-provide=\"typeahead\" type=\"search\" placeholder=\"Search Files and Folders\" aria-label=\"Search Files and Folders\" style=\"width: 500px;\">";
 			echo "        <div class=\"input-group-append\">";
 			echo "          <button class=\"btn btn-dark\" type=\"submit\" title=\"" . getMLText("search") . "\"><i class=\"fa fa-search\"></i></button>"; // Changed to btn-dark for black button
 			echo "        </div>";
@@ -382,39 +384,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 			echo " </button>\n";
 
 			echo " <div class=\"collapse navbar-collapse\" id=\"navbarMain\">\n";
-			echo "  <ul class=\"navbar-nav\">\n";
-			$menuitems = array();
-			/* calendar {{{ */
-			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
-				$menuitems['calendar'] = array(
-					'link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'],
-					'label' => '<i class="fa fa-calendar-times-o fa-lg" title="' . getMLText("calendar") . '"></i><span class="d-lg-none ml-2">' . getMLText("calendar") . '</span>' // Show text on small screens
-				);
-			if ($accessobject->check_view_access('AdminTools'))
-				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
-			if ($this->params['enablehelp']) {
-				$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-				$menuitems['help'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Help.php?context=' . $tmp[1], 'label' => getMLText("help"));
-			}
-			/* }}} End of calendar */
-
-			/* Check if hook exists because otherwise callHook() will override $menuitems */
-			if ($this->hasHook('globalNavigationBar'))
-				$menuitems = $this->callHook('globalNavigationBar', $menuitems);
-			foreach ($menuitems as $menuitem) {
-				if (!empty($menuitem['children'])) {
-					echo "   <li class=\"nav-item dropdown\">\n";
-					echo "     <a class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\">" . $menuitem['label'] . "</a>\n";
-					echo "     <div class=\"dropdown-menu dropdown-menu-left\">\n";
-					foreach ($menuitem['children'] as $submenuitem) {
-						echo "      <a class=\"dropdown-item\" href=\"" . $submenuitem['link'] . "\"" . (isset($submenuitem['target']) ? ' target="' . $submenuitem['target'] . '"' : '') . ">" . $submenuitem['label'] . "</a>\n";
-					}
-					echo "     </div>\n";
-				} else {
-					echo "<li class=\"nav-item\"><a class=\"nav-link\" href=\"" . $menuitem['link'] . "\"" . (isset($menuitem['target']) ? ' target="' . $menuitem['target'] . '"' : '') . ">" . $menuitem['label'] . "</a></li>";
-				}
-			}
-			echo "   </ul>\n";
+			
 
 			/* menu tasks {{{ */
 			if ($this->params['enablemenutasks'] && !$this->params['user']->isGuest()) {
@@ -467,6 +437,39 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 			/* user profile menu {{{ */
 			echo "  <ul class=\"navbar-nav ml-auto\">\n";
+			echo "  <ul class=\"navbar-nav\">\n";
+			$menuitems = array();
+			/* calendar {{{ */
+			if ($this->params['enablecalendar'] && $accessobject->check_view_access('Calendar'))
+				$menuitems['calendar'] = array(
+					'link' => $this->params['settings']->_httpRoot . 'out/out.Calendar.php?mode=' . $this->params['calendardefaultview'],
+					'label' => '<i class="fa fa-calendar-times-o fa-lg" title="' . getMLText("calendar") . '"></i><span class="d-lg-none ml-2">' . getMLText("calendar") . '</span>' // Show text on small screens
+				);
+			if ($accessobject->check_view_access('AdminTools'))
+				$menuitems['admintools'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.AdminTools.php', 'label' => getMLText("admin_tools"));
+			if ($this->params['enablehelp']) {
+				$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
+				$menuitems['help'] = array('link' => $this->params['settings']->_httpRoot . 'out/out.Help.php?context=' . $tmp[1], 'label' => getMLText("help"));
+			}
+			/* }}} End of calendar */
+
+			/* Check if hook exists because otherwise callHook() will override $menuitems */
+			if ($this->hasHook('globalNavigationBar'))
+				$menuitems = $this->callHook('globalNavigationBar', $menuitems);
+			foreach ($menuitems as $menuitem) {
+				if (!empty($menuitem['children'])) {
+					echo "   <li class=\"nav-item dropdown\">\n";
+					echo "     <a class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\">" . $menuitem['label'] . "</a>\n";
+					echo "     <div class=\"dropdown-menu dropdown-menu-left\">\n";
+					foreach ($menuitem['children'] as $submenuitem) {
+						echo "      <a class=\"dropdown-item\" href=\"" . $submenuitem['link'] . "\"" . (isset($submenuitem['target']) ? ' target="' . $submenuitem['target'] . '"' : '') . ">" . $submenuitem['label'] . "</a>\n";
+					}
+					echo "     </div>\n";
+				} else {
+					echo "<li class=\"nav-item\"><a class=\"nav-link\" href=\"" . $menuitem['link'] . "\"" . (isset($menuitem['target']) ? ' target="' . $menuitem['target'] . '"' : '') . ">" . $menuitem['label'] . "</a></li>";
+				}
+			}
+			echo "   </ul>\n";
 			echo "   <li class=\"nav-item dropdown\">\n";
 			$userFullName = htmlspecialchars($this->params['user']->getFullName());
 			$tooltipText = ($this->params['session']->getSu() ? getMLText("switched_to") : getMLText("signed_in_as")) . " '" . $userFullName . "'";
@@ -594,260 +597,16 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 	function pageSidebar()
 	{ /* {{{ */
 		$httpRoot = $this->params['settings']->_httpRoot;
-		$outputHtml = '';
+		$outputHtml = ''; 
 
 		$outputHtml .= '<button class="sidebar-mobile-toggle-btn" type="button" aria-label="Toggle sidebar">
                 <i class="fa fa-bars"></i>
               </button>';
-		$outputHtml .= "<div class=\"sidebar-overlay\"></div>\n";
+        $outputHtml .= "<div class=\"sidebar-overlay\"></div>\n";
 
 		$outputHtml .= <<<HTML_CSS
 <style type="text/css">
-    /* Main Sidebar Container */
-    .page-sidebar-custom {
-        width: 240px; 
-        background-color: #20242c !important; 
-        border-right: 1px solid #1a1d23; 
-        height: 100vh; 
-        position: fixed; 
-        top: 0px; /* CRITICAL: Adjust to your fixed navbar height */
-        left: 0;
-        overflow-y: auto; 
-        overflow-x: hidden !important; /* Prevent horizontal scroll */
-        z-index: 1030; 
-        transform: translateX(0); 
-        transition: transform 0.3s ease-in-out;
-        box-sizing: border-box !important; /* Ensure padding doesn't add to width */
-        padding: 0 !important; /* Remove all padding from the main container */
-    }
-
-		 @media (min-width: 992px) { /* Bootstrap 4 'lg' breakpoint - adjust if your sidebar shows at a different size */
-        body > main.container-fluid { 
-             margin-left: 240px !important; /* Push main content to the right of the sidebar */
-        }
-nav.navbar.fixed-top form.form-inline.ml-4.mr-auto {
-            margin-left: 100px !important; /* Sidebar width (240px) + 5px gap. Adjust as needed. */
-                                         /* Using !important to override the existing 'ml-4' if necessary. */
-        }
-    }
-		 @media (max-width: 991.98px) { /* Screen sizes smaller than the sidebar breakpoint */
-        /* ... (your existing mobile sidebar styles) ... */
-        
-        /* Reset the search bar's margin-left on smaller screens if it was changed above */
-        nav.navbar.fixed-top form.form-inline.ml-4.mr-auto {
-            margin-left: 1.5rem; /* This is the typical value for Bootstrap's 'ml-4'. Adjust if your theme uses a different value. */
-                                 /* Or use 'initial' or 'unset' if 'ml-4' is not always desired on mobile. */
-        }
-    }
-
-.search-bar-modern.input-group {
-    /* You can adjust this value for more or less rounding */
-    /* Bootstrap's default is often 0.25rem. Increase for more noticeable rounding. */
-    border-radius: 0.35rem; 
-}
-
-/* Ensure child elements also look rounded if the parent has a border */
-/* This is often needed if the input-group itself has a border and overflow:hidden */
-.search-bar-modern.input-group > .form-control {
-    border-top-left-radius: 0.35rem;    /* Match parent */
-    border-bottom-left-radius: 0.35rem; /* Match parent */
-    border-right: 0; /* Remove right border if button is directly attached */
-}
-
-.search-bar-modern.input-group > .input-group-append > .btn {
-    border-top-right-radius: 0.35rem;   /* Match parent */
-    border-bottom-right-radius: 0.35rem;/* Match parent */
-}
-
-/* Adjust focus glow if needed */
-.search-bar-modern.input-group > .form-control:focus {
-    z-index: 3; /* Ensure it's above other elements on focus if using box-shadow */
-    border-color: #80bdff; 
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-}
-
-/* Ensure search icon on dark button is light */
-.btn-dark .fa-search {
-    color: #fff; /* Or another light color that contrasts well with btn-dark */
-}
-
-nav.navbar .input-group .btn-dark {
-    background-color: #000000 !important; /* Or #000000 for pure black */
-    border-color: #000000 !important;   /* Or #000000 */
-    color: #ffffff !important;          /* For the icon/text */
-}
-
-/* Ensure the icon itself within this specific button is white */
-nav.navbar .input-group .btn-dark .fa-search {
-    color: #ffffff !important;
-}
-
-/* Optional: Hover/Focus states if they also get overridden */
-nav.navbar .input-group .btn-dark:hover,
-nav.navbar .input-group .btn-dark:focus {
-    background-color: #1a1e21 !important; /* A slightly darker shade for hover/focus */
-    border-color: #1a1e21 !important;
-    color: #ffffff !important;
-}
-
-
-    .page-sidebar-custom .sidebar-inner {
-       padding: 0; /* Remove padding if any was here */
-       width: 100%;
-       height: 100%;
-    }
-
-    /* LOGO ALIGNMENT & STYLING */
-    .page-sidebar-custom .sidebar-logo {
-        padding: 15px 15px; /* Keep some padding for the logo section */
-        margin-bottom: 0; /* Remove margin if border is enough */
-        border-bottom: 1px solid #30353e; 
-        display: flex !important; 
-        align-items: center !important; 
-        cursor: default;
-        width: 100%; 
-        overflow: hidden; 
-    }
-    .page-sidebar-custom .sidebar-logo:hover {
-        background-color: transparent !important; 
-    }
-    .page-sidebar-custom .sidebar-logo .img-sidebar-logo {
-        margin-right: 10px; 
-        flex-shrink: 0; 
-        display: flex;
-        align-items: center;
-    }
-    .page-sidebar-custom .sidebar-logo img {
-        max-width: 40px; height: auto; display: block; pointer-events: none;
-    }
-    .page-sidebar-custom .sidebar-logo .logo-text {
-        display: flex; align-items: center; overflow: hidden; flex-shrink: 1;
-    }
-    .page-sidebar-custom .sidebar-logo .logo-text h3 { 
-        font-size: 1.05rem; margin: 0; color: #e9ecef !important; font-weight: 600;
-        line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-
-    /* Sidebar Navigation List */
-    .page-sidebar-custom .main-sidebar-nav {
-        width: 100%;
-        padding-top: 10px; /* Add some space above the first nav item */
-    }
-    .page-sidebar-custom .main-sidebar-nav ul {
-        list-style: none !important;
-        padding-left: 0 !important; /* CRITICAL: Remove default UL padding */
-        margin-left: 0 !important;  /* CRITICAL: Remove default UL margin */
-        margin-bottom: 0;
-        width: 100%;
-    }
-    .page-sidebar-custom .main-sidebar-nav ul li {
-         width: 100%;
-         margin-left: 0 !important; /* CRITICAL: Ensure li has no left margin */
-         padding-left: 0 !important;/* CRITICAL: Ensure li has no left padding */
-         position: relative;
-    }
-    .page-sidebar-custom .main-sidebar-nav ul li a {
-        display: flex !important; 
-        align-items: center !important; 
-        width: 100% !important; 
-        padding: 10px 15px !important; /* Padding inside the link */
-        color: #adb5bd !important; 
-        text-decoration: none !important;
-        font-size: 14px !important; 
-        border-left: 3px solid transparent; 
-        outline: none !important; 
-        cursor: pointer;
-        overflow: hidden; 
-        line-height: 1.4; 
-        box-sizing: border-box !important; /* Ensure padding doesn't make 'a' wider */
-        margin-bottom: 0; /* Removed bottom margin, use padding for separation or li margin */
-    }
-	
-	/* Text span within the link */
-    .page-sidebar-custom .main-sidebar-nav ul li a span:not(.rotate-icon) { 
-        flex-grow: 1; 
-        white-space: normal !important; 
-        overflow-wrap: break-word !important;
-        word-wrap: break-word !important; 
-        text-align: left; 
-        min-width: 0; 
-        overflow: visible; 
-    }
     
-    /* Icons within main links */
-     .page-sidebar-custom .main-sidebar-nav ul li a .fa:not(.rotate-icon) { 
-        margin-right: 10px; 
-        width: 20px; 
-        text-align: center;
-        color: #6c757d !important; 
-        flex-shrink: 0; 
-    }
-
-    /* Rotate icon for collapsible sections */
-    .page-sidebar-custom .rotate-icon {
-        margin-left: auto; 
-        padding-left: 8px; 
-        font-size: 0.9em; 
-        color: #6c757d !important; 
-        flex-shrink: 0;
-        transition: transform 0.2s ease-in-out;
-    }
-
-    /* Collapsible Sub-menu */
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse {
-        padding-left: 0 !important; /* CRITICAL: No extra indent on the UL itself */
-        list-style: none !important;
-        background-color: #1c1f26 !important; 
-        margin-top: 0;
-        margin-bottom: 5px; 
-    }
-     .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a {
-        /* Indentation is now controlled by padding-left on the 'a' tag */
-        padding: 9px 15px 9px 35px !important; /* 15px base + 20px indent */
-        font-size: 13px; 
-        color: #9fa6ad !important; 
-        border-left-color: transparent !important; /* Reset from parent */
-    }
-    /* Text span in sub-menu */
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a span {
-        min-width: 0; 
-        overflow: visible;
-        white-space: normal !important; 
-        overflow-wrap: break-word !important;
-        word-wrap: break-word !important; 
-    }
-
-
-    /* Keep other styles (hover, active, colors, media queries for mobile toggle) */
-    /* ... (Make sure to include all the hover, active, and media query styles from the previous version) ... */
-    .page-sidebar-custom .main-sidebar-nav ul li a:hover,
-    .page-sidebar-custom .main-sidebar-nav ul li a:focus { background-color: #2a2f38 !important; color: #ffffff !important; border-left-color: #007bff; }
-    .page-sidebar-custom .main-sidebar-nav ul li a.active { background-color: #007bff !important; color: #ffffff !important; font-weight: 500; border-left-color: #ffffff; }
-    .page-sidebar-custom .main-sidebar-nav ul li a.active .fa:not(.rotate-icon) { color: #ffffff !important; }
-    .page-sidebar-custom .main-sidebar-nav ul li a:hover .fa:not(.rotate-icon) { color: #ffffff !important;}
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:hover,
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:focus { background-color: #262a32 !important; color: #f8f9fa !important;}
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a.active { color: #ffffff !important; background-color: #0069d9 !important; font-weight: normal; }
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a .fa { margin-right: 8px; flex-shrink: 0; color: #6c757d !important;}
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a:hover .fa,
-    .page-sidebar-custom .main-sidebar-nav ul ul.collapse li a.active .fa { color: #f8f9fa !important;}
-    .page-sidebar-custom a[data-toggle="collapse"][aria-expanded="true"] .rotate-icon { transform: rotate(90deg); color: #e0f5ff !important; }
-    .page-sidebar-custom a[data-toggle="collapse"]:hover .rotate-icon { color: #ffffff !important; }
-    body > main.container-fluid { transition: margin-left 0.3s ease-in-out; }
-    @media (min-width: 980px) { 
-        body > main.container-fluid { 
-             margin-left: 240px !important; 
-        }
-    }
-    .sidebar-mobile-toggle-btn { display: none; position: fixed; top: 7px; left: 8px; z-index: 1031; padding: 4px 10px; font-size: 18px; color: #ffffff; text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25); background-color: #222222; background-image: linear-gradient(to bottom, #333333, #111111); border: 1px solid #111111; border-radius: 4px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.075); }
-    .sidebar-mobile-toggle-btn:hover { background-color: #111111; color: #ffffff; }
-    @media (max-width: 979px) { 
-        .page-sidebar-custom { transform: translateX(-100%); top: 0 !important; height: 100% !important; box-shadow: 3px 0 10px rgba(0,0,0,0.2); padding-top: 15px; }
-        .page-sidebar-custom.open-mobile { transform: translateX(0) !important; }
-        body > main.container-fluid { margin-left: 0 !important; }
-        .sidebar-mobile-toggle-btn { display: inline-block !important; }
-        body.sidebar-open-overlay-active { overflow: hidden !important; }
-    }
 
 </style>
 HTML_CSS;
@@ -856,8 +615,8 @@ HTML_CSS;
 		// (PHP for HTML generation remains the same)
 		$outputHtml .= "<div class=\"page-sidebar-custom\">\n";
 		$outputHtml .= " <div class=\"sidebar-inner\">\n"; // sidebar-inner might be redundant now
-		// ... (The rest of your HTML generation for the sidebar logo and nav items)
-		// Make sure all link text is wrapped in <span> like: <a><i...></i><span>Text</span>...</a>
+        // ... (The rest of your HTML generation for the sidebar logo and nav items)
+        // Make sure all link text is wrapped in <span> like: <a><i...></i><span>Text</span>...</a>
 		$outputHtml .= '
 <div class="sidebar-logo">
     <div class="img-sidebar-logo">
@@ -867,8 +626,8 @@ HTML_CSS;
         <h3>ORTADEL DMS</h3>
     </div>
 </div>';
-		$outputHtml .= '<div class="main-sidebar-nav">';
-		$outputHtml .= '<ul>
+        $outputHtml .= '<div class="main-sidebar-nav">';
+        $outputHtml .= '<ul>
 	    <li><a href="' . $httpRoot . 'out/out.Dashboard.php">
             <i class="fa fa-tachometer fa-lg"></i><span>' . getMLText('dashboard') . '</span>
           </a>
@@ -900,12 +659,12 @@ HTML_CSS;
             <li><a href="' . $httpRoot . 'out/out.DefaultKeywords.php"><i class="fa fa-tags fa-lg"></i><span>' . getMLText('global_default_keywords') . '</span></a></li>
             <li><a href="' . $httpRoot . 'out/out.Categories.php"><i class="fa fa-columns fa-lg"></i><span>' . getMLText('global_document_categories') . '</span></a></li>
             <li><a href="' . $httpRoot . 'out/out.AttributeMgr.php"><i class="fa fa-cogs fa-lg"></i><span>' . getMLText('global_attributedefinitions') . '</span></a></li>';
-		if (($this->params['workflowmode'] ?? '') == 'advanced') {
-			$outputHtml .= '<li><a href="' . $httpRoot . 'out/out.WorkflowMgr.php"><i class="fa fa-sitemap fa-lg"></i><span>' . getMLText('global_workflows') . '</span></a></li>
+        if (($this->params['workflowmode'] ?? '') == 'advanced') {
+            $outputHtml .= '<li><a href="' . $httpRoot . 'out/out.WorkflowMgr.php"><i class="fa fa-sitemap fa-lg"></i><span>' . getMLText('global_workflows') . '</span></a></li>
                   <li><a href="' . $httpRoot . 'out/out.WorkflowStatesMgr.php"><i class="fa fa-star fa-lg"></i><span>' . getMLText('global_workflow_states') . '</span></a></li>
                   <li><a href="' . $httpRoot . 'out/out.WorkflowActionsMgr.php"><i class="fa fa-bolt fa-lg"></i><span>' . getMLText('global_workflow_actions') . '</span></a></li>';
-		}
-		$outputHtml .= '    </ul>
+        }
+        $outputHtml .= '    </ul>
         </li>
         <li>
           <a data-toggle="collapse" href="#collapse-BackupLogging" role="button" aria-expanded="false" aria-controls="collapse-BackupLogging">
@@ -914,10 +673,10 @@ HTML_CSS;
           </a>
           <ul class="collapse list-unstyled" id="collapse-BackupLogging">
             <li><a href="' . $httpRoot . 'out/out.BackupTools.php"><i class="fa fa-life-saver fa-lg"></i><span>' . getMLText('backup_tools') . '</span></a></li>';
-		if ($this->params['logfileenable'] ?? false) {
-			$outputHtml .= '<li><a href="' . $httpRoot . 'out/out.LogManagement.php"><i class="fa fa-list-alt fa-lg"></i><span>' . getMLText('log_management') . '</span></a></li>';
-		}
-		$outputHtml .= '    </ul>
+        if ($this->params['logfileenable'] ?? false) {
+            $outputHtml .= '<li><a href="' . $httpRoot . 'out/out.LogManagement.php"><i class="fa fa-list-alt fa-lg"></i><span>' . getMLText('log_management') . '</span></a></li>';
+        }
+        $outputHtml .= '    </ul>
         </li>
         <li>
           <a data-toggle="collapse" href="#collapse-Misc" role="button" aria-expanded="false" aria-controls="collapse-Misc">
@@ -941,10 +700,10 @@ HTML_CSS;
 	</ul>
 </div>';
 
-		$outputHtml .= " </div>\n";
-		$outputHtml .= "</div>\n";
+		$outputHtml .= " </div>\n"; 
+		$outputHtml .= "</div>\n"; 
 
-		echo $outputHtml;
+        echo $outputHtml;
 
 		// --- JavaScript (remains the same) ---
 		$this->addFooterJS("
@@ -2227,14 +1986,14 @@ HTML_CSS;
 	{ /* {{{ */
 		$id = preg_replace('/[^A-Za-z]/', '', $varname);
 		/* do not use bootstrap4 custom form element because it is difficult to localize
-																																																																																																																																																																							  $html = '
-																																																																																																																																																																					  <div class="custom-file">
-																																																																																																																																																																						<input type="file" class="custom-file-input" id="'.$id.'" name="'.$varname.'">
-																																																																																																																																																																						<label class="custom-file-label" for="'.$id.'">'.getMLText("browse").'&hellip;'.'</label>
-																																																																																																																																																																					  </div>
-																																																																																																																																																																					  ';
-																																																																																																																																																																							  return $html;
-																																																																																																																																																																					   */
+																																																																																																																																																																						$html = '
+																																																																																																																																																																				<div class="custom-file">
+																																																																																																																																																																				  <input type="file" class="custom-file-input" id="'.$id.'" name="'.$varname.'">
+																																																																																																																																																																				  <label class="custom-file-label" for="'.$id.'">'.getMLText("browse").'&hellip;'.'</label>
+																																																																																																																																																																				</div>
+																																																																																																																																																																				';
+																																																																																																																																																																						return $html;
+																																																																																																																																																																				 */
 		$html = '
 	<div id="' . $id . '-upload-files">
 		<div id="' . $id . '-upload-file" class="upload-file">
@@ -2711,9 +2470,9 @@ HTML_CSS;
 				$content .= "<input type=\"text\" class=\"form-control\" id=\"" . $attr_id . "\" name=\"" . $attr_name . "\" value=\"" . htmlspecialchars($objvalue) . "\"" . ((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '') . ' data-rule-email="true"' . " />";
 				break;
 			/* case SeedDMS_Core_AttributeDefinition::type_float:
-																																																																																																																																																																																																																																																										   $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
-																																																																																																																																																																																																																																																										   $content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
-																																																																																																																																																																																																																																																										   break; */
+																																																																																																																																																																																																																																																								  $objvalue = $attribute ? (is_object($attribute) ? $attribute->getValue() : $attribute) : '';
+																																																																																																																																																																																																																																																								  $content .= "<input type=\"text\" class=\"form-control\" id=\"".$attr_id."\" name=\"".$attr_name."\" value=\"".htmlspecialchars($objvalue)."\"".((!$norequire && $attrdef->getMinValues() > 0) ? ' required="required"' : '')." data-rule-number=\"true\"/>";
+																																																																																																																																																																																																																																																								  break; */
 			case SeedDMS_Core_AttributeDefinition::type_folder:
 				$target = $attribute ? $attribute->getValue() : null;
 				$content .= $this->getFolderChooserHtml("attr" . $attrdef->getId(), M_READWRITE, -1, $target, $attr_name, false);
@@ -2789,6 +2548,7 @@ HTML_CSS;
 								$content .= " selected";
 							elseif ($value == $objvalue)
 								$content .= " selected";
+
 							$content .= ">" . htmlspecialchars($value) . "</option>";
 						}
 					}
@@ -4853,13 +4613,13 @@ HTML_CSS;
 	{ /* {{{ */
 		$id = md5(uniqid());
 		/*
-																																																																																																																																																																							$this->addFooterJS('
-																																																																																																																																																																					$("body").on("click", "span.openpopupbox", function(e) {
-																																																																																																																																																																						$(""+$(e.target).data("href")).toggle();
-																																																																																																																																																																					//	$("div.popupbox").toggle();
-																																																																																																																																																																					});
-																																																																																																																																																																					');
-																																																																																																																																																																							 */
+																																																																																																																																																																					  $this->addFooterJS('
+																																																																																																																																																																			  $("body").on("click", "span.openpopupbox", function(e) {
+																																																																																																																																																																				  $(""+$(e.target).data("href")).toggle();
+																																																																																																																																																																			  //	$("div.popupbox").toggle();
+																																																																																																																																																																			  });
+																																																																																																																																																																			  ');
+																																																																																																																																																																					   */
 		$html = '
 		<span class="openpopupbox" data-href="#' . $id . '">' . $title . '</span>
 		<div id="' . $id . '" class="popupbox" style="display: none;">' . $content . '<span class="closepopupbox"><i class="fa fa-remove"></i></span>

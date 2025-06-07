@@ -268,6 +268,7 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		$user = $this->params['user'];
 		$settings = $this->params['settings'];
 		$folder = $this->params['folder'];
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 
 		$txt = $this->callHook('folderInfos', $folder);
 		if (is_string($txt))
@@ -279,10 +280,17 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 				echo $txt;
 			ob_start();
 			echo "<table class=\"table table-condensed table-sm\">\n";
+
 			if ($user->isAdmin()) {
 				echo "<tr>";
 				echo "<td>" . getMLText("id") . ":</td>\n";
 				echo "<td>" . htmlspecialchars($folder->getID()) . "</td>\n";
+				echo "</tr>";
+				echo "<tr>";
+				$decrypted = $this->decryptName($folder->getName(), $encryption_key);
+				$foldername = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $folder->getName() : $decrypted;
+				echo "<td>" . getMLText("folder") . ":</td>\n";
+				echo "<td>" . htmlspecialchars($foldername) . "</td>\n";
 				echo "</tr>";
 			}
 			echo "<tr>";
@@ -294,22 +302,26 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			echo "<td>" . getLongReadableDate($folder->getDate()) . "</td>";
 			echo "</tr>";
 			if ($folder->getComment()) {
-				if ($settings->_markdownComments) {
+				$raw_comment = $folder->getComment(); // Encrypted comment text (raw)
+				$decrypted = $this->decryptName($raw_comment, $encryption_key);
+
+				// Fallback if decryption fails
+				$foldername_v = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
+					? htmlspecialchars($raw_comment)
+					: htmlspecialchars($decrypted);
+
+				// Optional: Parse Markdown if decryption worked and setting is enabled
+				if ($settings->_markdownComments && $decrypted !== '[DECRYPTION FAILED]' && $decrypted !== '[INVALID NAME]') {
 					$Parsedown = new Parsedown();
-					$comment = $Parsedown->text($folder->getComment());
-				} else {
-					$comment = htmlspecialchars($folder->getComment());
+					$foldername_v = $Parsedown->text($decrypted);
 				}
-				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-				$decrypted_name = htmlspecialchars($this->decryptName(htmlspecialchars($comment), $encryption_key));
-				if ($decrypted_name === '[INVALID NAME]' || $decrypted_name === '[DECRYPTION FAILED]') {
-					$decrypted_name = $comment;
-				}
+
 				echo "<tr>";
 				echo "<td>" . getMLText("comment") . ":</td>\n";
-				echo "<td><div class=\"folder-comment\">" . $decrypted_name . "</div></td>\n";
+				echo "<td><div class=\"folder-comment\">" . $foldername_v . "</div></td>\n";
 				echo "</tr>";
 			}
+
 
 			if ($folder->getAccessMode($user) == M_ALL) {
 				echo "<tr>";

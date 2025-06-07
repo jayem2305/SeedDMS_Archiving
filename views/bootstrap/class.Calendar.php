@@ -31,7 +31,17 @@
  */
 class SeedDMS_View_Calendar extends SeedDMS_Theme_Style
 {
-
+	private function decrypt($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	function iteminfo()
 	{ /* {{{ */
 		$dms = $this->params['dms'];
@@ -256,6 +266,7 @@ class SeedDMS_View_Calendar extends SeedDMS_Theme_Style
 				}
 
 				if ($data = $dms->getTimeline($from, $to)) {
+					$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 					foreach ($data as $i => $item) {
 						switch ($item['type']) {
 							case 'add_version':
@@ -273,20 +284,22 @@ class SeedDMS_View_Calendar extends SeedDMS_Theme_Style
 							default:
 								$color = '#20a8a8';
 						}
-						if ($item['document']->getAccessMode($user) >= M_READ)
-							$arr[] = array(
-								'start' => $item['date'],
-								'title' => $item['document']->getName() . (isset($item['version']) ? " (" . $item['version'] . ")" : "") . (isset($item['status']) ? "\n" . getOverallStatusText($item['status']) : ''),
-								'allDay' => isset($item['allday']) ? $item['allday'] : false,
-								'color' => $color,
-								'type' => $item['type'],
-								'documentid' => (int) $item['document']->getID(),
-								'version' => isset($item['version']) ? (int) $item['version'] : '',
-								'statusid' => isset($item['statusid']) ? (int) $item['statusid'] : '',
-								'statuslogid' => isset($item['statuslogid']) ? (int) $item['statuslogid'] : '',
-								'fileid' => isset($item['fileid']) ? (int) $item['fileid'] : '',
-								'eventtype' => $eventtype,
-							);
+						if ($item['document']->getAccessMode($user) >= M_READ)// start name decrypt here 
+							$decrypted = $this->decrypt($item['document']->getName(), $encryption_key);
+						$fullname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $item['document']->getName() : $decrypted;
+						$arr[] = array(
+							'start' => $item['date'],
+							'title' => $fullname . (isset($item['version']) ? " (" . $item['version'] . ")" : "") . (isset($item['status']) ? "\n" . getOverallStatusText($item['status']) : ''),
+							'allDay' => isset($item['allday']) ? $item['allday'] : false,
+							'color' => $color,
+							'type' => $item['type'],
+							'documentid' => (int) $item['document']->getID(),
+							'version' => isset($item['version']) ? (int) $item['version'] : '',
+							'statusid' => isset($item['statusid']) ? (int) $item['statusid'] : '',
+							'statuslogid' => isset($item['statuslogid']) ? (int) $item['statuslogid'] : '',
+							'fileid' => isset($item['fileid']) ? (int) $item['fileid'] : '',
+							'eventtype' => $eventtype,
+						);
 					}
 				}
 				break;
@@ -511,7 +524,6 @@ class SeedDMS_View_Calendar extends SeedDMS_Theme_Style
 		</div>
 		<?php
 		$this->columnEnd();
-
 		$this->pageSidebar();
 		$this->rowEnd();
 		$this->contentEnd();
