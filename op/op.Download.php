@@ -102,9 +102,49 @@ elseif (isset($_GET["file"])) { /* {{{ */
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
 	}
 
-	$controller->setParam('file', $file);
-	$controller->setParam('type', 'file');
-	$controller->run();
+    // --- Audit log: log attachment download ---
+    try {
+        $db = $dms->getDB();
+        $documentId = $document->getId();
+        $username = $user->getLogin();
+        $now = date('Y-m-d H:i:s');
+        $action = 'Attachment Downloaded';
+        $details = 'User downloaded attachment ' . addslashes($file->getOriginalFileName());
+        $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+        $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+        $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+        $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+        $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+        $result = $db->getResult($query);
+        if (!$result) {
+            error_log('Audit log insert failed (attachment download): ' . $db->getErrorMsg());
+        }
+    } catch (Exception $e) {
+        error_log('Audit log exception (attachment download): ' . $e->getMessage());
+    }
+    $controller->setParam('file', $file);
+    $controller->setParam('type', 'file');
+    $controller->run();
+	// --- Audit log: log attachment download ---
+    try {
+        $db = $dms->getDB();
+        $documentId = $document->getId();
+        $username = $user->getLogin();
+        $now = date('Y-m-d H:i:s');
+        $action = 'Attachment Downloaded';
+        $details = 'User downloaded an attachment (file id: ' . $fileid . ', file name: ' . addslashes($file->getOriginalFileName()) . ')';
+        $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+        $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+        $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+        $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+        $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+        $result = $db->getResult($query);
+        if (!$result) {
+            error_log('Audit log insert failed (attachment download): ' . $db->getErrorMsg());
+        }
+    } catch (Exception $e) {
+        error_log('Audit log exception (attachment download): ' . $e->getMessage());
+    }
 } /* }}} */
 elseif (isset($_GET["arkname"])) { /* {{{ */
 	$filename = basename($_GET["arkname"]);

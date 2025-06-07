@@ -78,11 +78,13 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 		}
 
 		$res = $document->addDocumentFile($name, $comment, $user, $userfiletmp, 
-																			utf8_basename($userfilename),$fileType, $userfiletype );
-																		
+										utf8_basename($userfilename),$fileType, $userfiletype );
+		error_log('DEBUG: addDocumentFile result: ' . var_export($res, true));
 		if (is_bool($res) && !$res) {
+			error_log('DEBUG: addDocumentFile returned boolean false, exiting with error');
 			UI::exitError(getMLText("folder_title", array("foldername" => $folder->getName())),getMLText("error_occured"));
 		} else {
+			error_log('DEBUG: addDocumentFile returned non-false, proceeding to audit log');
 			if($notifier) {
 				$notifyList = $document->getNotifyList();
 				// Send notification to subscribers.
@@ -117,28 +119,36 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 					$notifier->toGroup($user, $grp, $subject, $message, $params);
 				}
 			}
-		}
-		add_log_line("?name=".$name."&documentid=".$documentid);
-        // --- Audit log: log file upload (chunked) ---
-        try {
-            $db = $dms->getDB();
-            $documentId = $document->getId();
-            $username = $user->getLogin();
-            $now = date('Y-m-d H:i:s');
-            $action = 'File Uploaded';
-            $details = 'Usre uploaded file.';
-            $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
-            $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
-            $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
-            $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
-            $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
-            $result = $db->getResult($query);
-            if (!$result) {
-                error_log('Audit log insert failed (add file2): ' . $db->getErrorMsg());
+			// --- Audit log: log attachment upload ---
+			error_log('DEBUG: Entering audit log block for drag-and-drop upload');
+            try {
+                $db = $dms->getDB();
+                if (!$db) {
+                    error_log('DEBUG: $db is null or invalid in drag-and-drop audit log');
+                } else {
+                    error_log('DEBUG: $db object obtained, class: ' . get_class($db));
+                }
+                $documentId = $document->getId();
+                $username = $user->getLogin();
+                $now = date('Y-m-d H:i:s');
+                $action = 'Attachment Uploaded';
+                $details = 'User uploaded an attachment.';
+                $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+                $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+                $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+                $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+                $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+                error_log('DEBUG: Audit log SQL query: ' . $query);
+                $result = $db->getResult($query);
+                if ($result) {
+                    error_log('DEBUG: Audit log insert succeeded for drag-and-drop upload');
+                } else {
+                    error_log('Audit log insert failed (attachment upload): ' . $db->getErrorMsg());
+                }
+            } catch (Exception $e) {
+                error_log('Audit log exception (attachment upload): ' . $e->getMessage());
             }
-        } catch (Exception $e) {
-            error_log('Audit log exception (add file2): ' . $e->getMessage());
-        }
+		}
 	}
 }
 

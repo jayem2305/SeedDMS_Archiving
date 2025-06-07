@@ -405,7 +405,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 				else
 					print "<li>" . getMLText('linked_to_document') . "</li>";
 				print "</ul></td>";
-				print "<td>" . htmlspecialchars($file->getComment()) . "</td>";
+				print "<td>" . htmlspecialchars((string)($file->getComment() ?? '')) . "</td>";
 
 				print "<td>";
 				$items = [];
@@ -2067,6 +2067,8 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 									data-droptarget="attachment_<?= $document->getID(); ?>" data-target="<?= $document->getID(); ?>"
 									data-uploadformtoken="<?= createFormKey('addfile'); ?>">
 									<?php echo $this->html_link('AddFile', array('documentid' => $documentid), array(), getMLText('drop_files_here_or_click'), false, true); ?>
+
+
 								</div>
 								<?php
 							} else {
@@ -2207,6 +2209,16 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					echo '<div id="auditlog-controls" class="d-flex justify-content-between align-items-center mb-2">';
 					// Search box (top left)
 					echo '<div><input type="text" id="auditlog-search" class="form-control form-control-sm d-inline-block" style="width:200px;" placeholder="Search view, edit, comment..."> <button id="auditlog-search-btn" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button></div>';
+					
+					// Export button (top right)
+					if($auditLogs && count($auditLogs) > 0) {
+						echo '<div><form action="' . $this->params['settings']->_httpRoot . 'op/op.DownloadAuditLog.php" method="post">';
+						echo "<input type=\"hidden\" name=\"documentid\" value=\"{$documentId}\">";
+						echo "<input type=\"hidden\" name=\"auditlogs\" value=\"" . htmlspecialchars(json_encode($auditLogs)) . "\">";
+						echo createHiddenFieldWithKey('downloadauditlog');
+						echo '<button type="submit" class="btn btn-sm btn-success"><i class="fa fa-download"></i> Export to Excel</button>';
+						echo '</form></div>';
+					}
 					echo '</div>';
 
 					if ($auditLogs && count($auditLogs) > 0) {
@@ -2222,12 +2234,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 							echo '<tr>';
 							echo '<td>' . htmlspecialchars($log['created_at']) . '</td>';
 							echo '<td>' . htmlspecialchars($log['user']) . '</td>';
-							echo '<td>' . htmlspecialchars($log['action']) . '</td>';
+							echo '<td>' . htmlspecialchars($log['action']) . '</td>'; 
 							echo '<td>' . $log['details'] . '</td>';
 							echo '</tr>';
 						}
 						echo '</tbody></table></div>';
-						// Pagination and controls
+						// Pagination and controls  
 						echo '<div class="d-flex justify-content-between align-items-center mt-2">';
 						// Previous/Next icons (bottom left)
 						echo '<div>';

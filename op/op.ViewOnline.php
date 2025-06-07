@@ -78,6 +78,27 @@ elseif(isset($_GET["file"])) { /* {{{ */
 		UI::exitError(getMLText("document_title", array("documentname" => $document->getName())),getMLText("invalid_file_id"));
 	}
 
+    // --- Audit log: log attachment view (online) ---
+    try {
+        $db = $dms->getDB();
+        $documentId = $document->getId();
+        $username = $user->getLogin();
+        $now = date('Y-m-d H:i:s');
+        $action = 'Attachment Viewed Online';
+        $details = 'User viewed attachment online: ' . addslashes($file->getOriginalFileName());
+        $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+        $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+        $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+        $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+        $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+        $result = $db->getResult($query);
+        if (!$result) {
+            error_log('Audit log insert failed (attachment view online): ' . $db->getErrorMsg());
+        }
+    } catch (Exception $e) {
+        error_log('Audit log exception (attachment view online): ' . $e->getMessage());
+    }
+
 	if (isset($settings->_viewOnlineFileTypes) && is_array($settings->_viewOnlineFileTypes) && in_array(strtolower($file->getFileType()), $settings->_viewOnlineFileTypes)) {
 		header("Content-Type: " . $file->getMimeType());
 	}

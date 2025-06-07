@@ -216,5 +216,26 @@ $(document).ready( function() {
 		$this->contentEnd();
 		$this->htmlEndPage();
 
+		// --- Audit log: log attachment creation ---
+		try {
+			$db = $dms->getDB();
+			$documentId = $document->getId();
+			$username = $user->getLogin();
+			$now = date('Y-m-d H:i:s');
+			$action = 'Attachment Created';
+			$details = 'User uploaded an attachment.';
+			$username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+			$action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+			$details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+			$now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+			$query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+			$result = $db->getResult($query);
+			if (!$result) {
+				error_log('Audit log insert failed (attachment created): ' . $db->getErrorMsg());
+			}
+		} catch (Exception $e) {
+			error_log('Audit log exception (attachment created): ' . $e->getMessage());
+		}
+
 	} /* }}} */
 }
