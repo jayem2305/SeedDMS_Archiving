@@ -515,16 +515,33 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		if ($folder->getAccessMode($user) >= M_READWRITE) {
 			$this->contentHeading(getMLText("dropupload"), true);
 			?>
-				<div id="draganddrophandler" class="well alert alert-warning"
+				<div id="draganddrophandler" class="well alert alert-warning text-center rounded border border-dark"
+					style="height: 240px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-style: dashed;"
 					data-droptarget="folder_<?php echo $folder->getID(); ?>" data-target="<?php echo $folder->getID(); ?>"
 					data-uploadformtoken="<?php echo createFormKey(''); ?>">
-					<?php printMLText('drop_files_here', ['maxuploadsize' => SeedDMS_Core_File::format_filesize($maxuploadsize)]); ?>
+
+					<!-- Cloud Upload Icon (Outlined, White, Bigger) -->
+					<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="black"
+						stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="transform: scale(2);">
+						<path
+							d="M19.35 10.04C18.67 6.59 15.64 4 12 4a6.994 6.994 0 00-6.92 6H4a4 4 0 000 8h16a4 4 0 00-.65-7.96z" />
+						<path d="M13 12v4h-2v-4H8l4-4 4 4h-3z" />
+					</svg>
+
+					<!-- Upload Instructions -->
+					<h4 style="margin-top: 20px; font-size: 18px;">
+						Drop Files here
+					</h4>
+					<h5 class="text-danger" style="font-size: 15px;">
+						Accepted File Size: 0B to 1.2 YiB
+					</h5>
 				</div>
 				<?php
 		} else {
 			//$this->errorMsg(getMLText('access_denied'));
 		}
 	} /* }}} */
+
 
 	function entries()
 	{ /* {{{ */
@@ -643,7 +660,12 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			<div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
 			<?php
 			$this->rowStart();
+			$this->columnStart(12);
+			?>
+			<div class="ajax" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
+			<?php
 
+			$this->columnEnd();
 			// dynamic columns - left column removed if no content and right column then fills span12.
 			if (!($enableFolderTree || $enableClipboard)) {
 				$LeftColumnSpan = 0;
@@ -685,7 +707,7 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 
 			if ($enableDropUpload/* && $folder->getAccessMode($user) >= M_READWRITE*/) {
 				$this->rowStart();
-				$this->columnStart(8);
+				$this->columnStart(12);
 			}
 			?>
 			<ul class="nav nav-pills" id="folderinfotab" role="tablist">
@@ -720,12 +742,7 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			<?php
 			if ($enableDropUpload/* && $folder->getAccessMode($user) >= M_READWRITE*/) {
 				$this->columnEnd();
-				$this->columnStart(4);
-				?>
-				<div class="ajax" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
-				<?php
 
-				$this->columnEnd();
 				$this->rowEnd();
 			}
 
