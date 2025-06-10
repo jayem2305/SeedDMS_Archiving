@@ -515,10 +515,9 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		if ($folder->getAccessMode($user) >= M_READWRITE) {
 			$this->contentHeading(getMLText("dropupload"), true);
 			?>
-				<div id="draganddrophandler" class="well alert alert-warning text-center rounded border border-dark"
-					style="height: 240px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-style: dashed;"
-					data-droptarget="folder_<?php echo $folder->getID(); ?>" data-target="<?php echo $folder->getID(); ?>"
-					data-uploadformtoken="<?php echo createFormKey(''); ?>">
+				<div id="draganddrophandler" class="dashed-border alert alert-warning text-center" style="height: 240px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center;  border: 2px dashed #343a40;
+	border-radius: 0.25rem;" data-droptarget="folder_<?php echo $folder->getID(); ?>"
+					data-target="<?php echo $folder->getID(); ?>" data-uploadformtoken="<?php echo createFormKey(''); ?>">
 
 					<!-- Cloud Upload Icon (Outlined, White, Bigger) -->
 					<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="black"
