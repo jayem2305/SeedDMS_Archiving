@@ -661,7 +661,57 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			$this->rowStart();
 			$this->columnStart(12);
 			?>
-			<div class="ajax" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
+			<style>
+				.compiled-statusbar {
+					max-height: 300px;
+					overflow-y: auto;
+					border: 1px solid #ccc;
+					padding: 10px;
+					display: none;
+					/* Hide initially */
+				}
+			</style>
+
+			<!-- AJAX container where statusbar elements will be inserted -->
+			<div class="ajax ajax-scroll" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>>
+			</div>
+
+			<!-- This is the actual wrapper you want to display the statusbars in -->
+			<div class="compiled-statusbar"></div>
+			<br>
+
+			<script>
+				document.addEventListener("DOMContentLoaded", function () {
+					const ajaxDiv = document.querySelector('.ajax-scroll');
+					const wrapper = document.querySelector('.compiled-statusbar');
+
+					if (!ajaxDiv || !wrapper) return;
+
+					// Watch for new .statusbar elements added by AJAX
+					const observer = new MutationObserver((mutationsList) => {
+						let addedStatusbar = false;
+
+						mutationsList.forEach(mutation => {
+							mutation.addedNodes.forEach(node => {
+								if (node.classList && node.classList.contains('statusbar')) {
+									wrapper.appendChild(node);
+									addedStatusbar = true;
+								}
+							});
+						});
+
+						// Show wrapper only if it has at least one statusbar
+						if (addedStatusbar && wrapper.children.length > 0) {
+							wrapper.style.display = 'block';
+						}
+					});
+
+					observer.observe(ajaxDiv, {
+						childList: true,
+						subtree: true
+					});
+				});
+			</script>
 			<?php
 
 			$this->columnEnd();
