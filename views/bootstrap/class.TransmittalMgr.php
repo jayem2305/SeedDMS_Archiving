@@ -235,6 +235,7 @@ $(document).ready( function() {
 		$this->htmlStartPage(getMLText("my_transmittals"));
 		$this->globalNavigation();
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation(getMLText("my_transmittals"), "my_documents");
 		$this->contentHeading(getMLText("my_transmittals"));
 		$this->rowStart();

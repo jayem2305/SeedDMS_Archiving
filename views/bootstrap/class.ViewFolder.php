@@ -515,16 +515,32 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		if ($folder->getAccessMode($user) >= M_READWRITE) {
 			$this->contentHeading(getMLText("dropupload"), true);
 			?>
-				<div id="draganddrophandler" class="well alert alert-warning"
-					data-droptarget="folder_<?php echo $folder->getID(); ?>" data-target="<?php echo $folder->getID(); ?>"
-					data-uploadformtoken="<?php echo createFormKey(''); ?>">
-					<?php printMLText('drop_files_here', ['maxuploadsize' => SeedDMS_Core_File::format_filesize($maxuploadsize)]); ?>
+				<div id="draganddrophandler" class="dashed-border alert alert-warning text-center" style="height: 240px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center;  border: 2px dashed #343a40;
+	border-radius: 0.25rem;" data-droptarget="folder_<?php echo $folder->getID(); ?>"
+					data-target="<?php echo $folder->getID(); ?>" data-uploadformtoken="<?php echo createFormKey(''); ?>">
+
+					<!-- Cloud Upload Icon (Outlined, White, Bigger) -->
+					<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="black"
+						stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="transform: scale(2);">
+						<path
+							d="M19.35 10.04C18.67 6.59 15.64 4 12 4a6.994 6.994 0 00-6.92 6H4a4 4 0 000 8h16a4 4 0 00-.65-7.96z" />
+						<path d="M13 12v4h-2v-4H8l4-4 4 4h-3z" />
+					</svg>
+
+					<!-- Upload Instructions -->
+					<h4 style="margin-top: 20px; font-size: 18px;">
+						Drop Files here
+					</h4>
+					<h5 class="text-danger" style="font-size: 15px;">
+						Accepted File Size: 0B to 1.2 YiB
+					</h5>
 				</div>
 				<?php
 		} else {
 			//$this->errorMsg(getMLText('access_denied'));
 		}
 	} /* }}} */
+
 
 	function entries()
 	{ /* {{{ */
@@ -642,18 +658,19 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		?>
 			<div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
 			<?php
+			// ROW 1: Drop Upload Area
 			$this->rowStart();
+			$this->columnStart(12);
+			?>
+			<div class="ajax" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
+			<?php
+			$this->columnEnd();
+			$this->rowEnd();
 
-			// dynamic columns - left column removed if no content and right column then fills span12.
-			if (!($enableFolderTree || $enableClipboard)) {
-				$LeftColumnSpan = 0;
-				$RightColumnSpan = 12;
-			} else {
-				$LeftColumnSpan = 4;
-				$RightColumnSpan = 8;
-			}
-			if ($LeftColumnSpan > 0) {
-				$this->columnStart($LeftColumnSpan);
+			// ROW 2: Tree and Clipboard (Moved from left column to a full-width row above folder info)
+			if ($enableFolderTree || $enableClipboard) {
+				$this->rowStart();
+				$this->columnStart(12);
 
 				echo $this->callHook('leftContentPre');
 
@@ -674,19 +691,21 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 
 				echo $this->callHook('leftContent');
 
-				if ($enableClipboard)
+				if ($enableClipboard) {
 					$this->printClipboard($this->params['session']->getClipboard(), $previewer);
+				}
 
 				echo $this->callHook('leftContentPost');
 
 				$this->columnEnd();
+				$this->rowEnd();
 			}
-			$this->columnStart($RightColumnSpan);
 
-			if ($enableDropUpload/* && $folder->getAccessMode($user) >= M_READWRITE*/) {
-				$this->rowStart();
-				$this->columnStart(8);
-			}
+			// ROW 3: Folder Information and Contents
+			$this->rowStart();
+			$this->columnStart(12);
+
+			echo $this->callHook('rightContentPre');
 			?>
 			<ul class="nav nav-pills" id="folderinfotab" role="tablist">
 				<li class="nav-item <?php if (!$currenttab || $currenttab == 'folderinfo')
@@ -717,25 +736,13 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 				}
 				?>
 			</div>
-			<?php
-			if ($enableDropUpload/* && $folder->getAccessMode($user) >= M_READWRITE*/) {
-				$this->columnEnd();
-				$this->columnStart(4);
-				?>
-				<div class="ajax" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
-				<?php
-
-				$this->columnEnd();
-				$this->rowEnd();
-			}
-
-			echo $this->callHook('rightContentPre');
-			?>
+			
 			<div class="ajax" data-view="ViewFolder" data-action="folderList" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "&orderby=" . $orderby . "\"" : "") ?>></div>
 			<?php
 			echo $this->callHook('rightContentPost');
-			$this->columnEnd(); // End of right column div
-			$this->rowEnd(); // End of div around left and right column
+			
+			$this->columnEnd(); // End of main content column
+			$this->rowEnd(); // End of main content row
 	
 			echo $this->callHook('postContent');
 

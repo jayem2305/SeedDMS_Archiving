@@ -167,8 +167,8 @@ class SeedDMS_Controller_AddDocument extends SeedDMS_Controller_Common
 		$maxsizeforfulltext = $this->getParam('maxsizeforfulltext');
 		$defaultaccessdocs = $this->getParam('defaultaccessdocs');
 		/*
-																																						
-																																						 */
+																																												
+																																												 */
 		// Define encryption parameters
 		$encryption_method = 'AES-256-CBC';
 		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';

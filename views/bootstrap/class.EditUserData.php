@@ -84,6 +84,7 @@ $(document).ready( function() {
 		$this->htmlStartPage(getMLText("edit_user_details"));
 		$this->globalNavigation();
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation(getMLText("my_account"), "my_account");
 
 		$this->contentHeading(getMLText("edit_user_details"));

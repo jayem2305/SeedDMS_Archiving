@@ -56,7 +56,6 @@ if($document->isLocked()) {
 $folder = $document->getFolder();
 $attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_document, SeedDMS_Core_AttributeDefinition::objtype_all));
 
-
 if($view) {
 	$view->setParam('folder', $folder);
 	$view->setParam('document', $document);

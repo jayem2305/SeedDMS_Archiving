@@ -349,7 +349,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 			print "<th width='20%'></th>\n";
 			print "<th width='20%'>" . getMLText("file") . "</th>\n";
 			print "<th width='40%'>" . getMLText("comment") . "</th>\n";
-			print "<th width='20%'></th>\n";
+			print "<th width='20%'>" . getMLText(key: "action") . "</th>\n";
 			print "</tr>\n</thead>\n<tbody>\n";
 
 			foreach ($files as $file) {
@@ -405,7 +405,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 				else
 					print "<li>" . getMLText('linked_to_document') . "</li>";
 				print "</ul></td>";
-				print "<td>" . htmlspecialchars((string)($file->getComment() ?? '')) . "</td>";
+				print "<td>" . htmlspecialchars((string) ($file->getComment() ?? '')) . "</td>";
 
 				print "<td>";
 				$items = [];
@@ -2055,30 +2055,45 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					echo 'active'; ?>" id="attachments" role="tabpanel">
 					<?php
 					$this->rowStart();
-					$this->columnStart(9);
-					?>
-					<div class="ajax" data-view="ViewDocument" data-action="documentFiles" data-no-spinner="true" <?php echo ($document ? "data-query=\"documentid=" . $document->getID() . "\"" : "") ?>></div>
-					<?php
-					$this->columnEnd();
-					$this->columnStart(3);
+					$this->columnStart(12);
+
 					if ($accessobject->check_controller_access('AddFile')) {
 						if ($document->getAccessMode($user) >= M_READWRITE) {
 							if ($enableDropUpload) {
 								?>
 								<div id="draganddrophandler" class="well alert alert-warning"
+									style="min-height: 250px; padding: 40px; font-size: 18px; text-align: center; border: 2px dashed #aaa;"
 									data-droptarget="attachment_<?= $document->getID(); ?>" data-target="<?= $document->getID(); ?>"
 									data-uploadformtoken="<?= createFormKey('addfile'); ?>">
-									<?php echo $this->html_link('AddFile', array('documentid' => $documentid), array(), getMLText('drop_files_here_or_click'), false, true); ?>
+									<div>
+										<!-- Upload icon -->
+										<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none"
+											stroke="black" stroke-width=".2" stroke-linecap="round" stroke-linejoin="round"
+											style="transform: scale(1);">
+											<path
+												d="M19.35 10.04C18.67 6.59 15.64 4 12 4a6.994 6.994 0 00-6.92 6H4a4 4 0 000 8h16a4 4 0 00-.65-7.96z" />
+											<path d="M13 12v4h-2v-4H8l4-4 4 4h-3z" />
+										</svg>
+									</div>
 
-
+									<!-- Upload link -->
+									<?php echo $this->html_link('AddFile', array('documentid' => $documentid), array('style' => 'font-size: 20px; font-weight: bold;'), getMLText('drop_files_here_or_click'), false, true); ?>
 								</div>
 								<?php
 							} else {
-								print $this->html_link('AddFile', array('documentid' => $documentid), array('class' => 'btn btn-primary'), getMLText("add"), false, true) . "\n";
+								print $this->html_link('AddFile', array('documentid' => $documentid), array('class' => 'btn btn-primary btn-lg'), getMLText("add"), false, true) . "\n";
 							}
 						}
 					}
+
+
 					$this->columnEnd();
+					$this->columnStart(12);
+					?>
+					<div class="ajax" data-view="ViewDocument" data-action="documentFiles" data-no-spinner="true" <?php echo ($document ? "data-query=\"documentid=" . $document->getID() . "\"" : "") ?>></div>
+					<?php
+					$this->columnEnd();
+
 					$this->rowEnd();
 					?>
 				</div>

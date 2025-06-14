@@ -54,6 +54,7 @@ class SeedDMS_View_ApprovalSummary extends SeedDMS_Theme_Style {
 		$this->htmlStartPage(getMLText("approval_summary"));
 		$this->globalNavigation();
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation(getMLText("my_documents"), "my_documents");
 		$this->rowStart();
 		$this->columnStart(6);
