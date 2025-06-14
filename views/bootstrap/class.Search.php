@@ -453,6 +453,8 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 		$query = $this->params['query'];
 		$entries = $this->params['searchhits'];
 		$terms = $this->params['terms'];
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
 		$recs = array();
 		$recs[] = array('type' => 'S', 'name' => $query, 'occurences' => '');
 		if ($terms) {
@@ -461,10 +463,29 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 		}
 		if ($entries) {
 			foreach ($entries as $entry) {
+				$decrypted = $this->decrypt($entry->getName(), $encryption_key);
+				$name = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $entry->getName() : $decrypted;
+
+				$encrypted_path_parts = explode('/', $entry->getParent()->getFolderPathPlain(true, '/'));
+				$decrypted_parts = [];
+
+				foreach ($encrypted_path_parts as $part) {
+					if (empty($part))
+						continue;
+
+					$decrypted_part = $this->decrypt($part, $encryption_key);
+					$decrypted_parts[] = ($decrypted_part === '[DECRYPTION FAILED]' || $decrypted_part === '[INVALID NAME]')
+						? $part
+						: $decrypted_part;
+				}
+
+				$decrypted_path = implode('/', $decrypted_parts);
+
+
 				if ($entry->isType('document')) {
-					$recs[] = array('type' => 'D', 'id' => $entry->getId(), 'name' => htmlspecialchars($entry->getName()), 'path' => htmlspecialchars($entry->getParent()->getFolderPathPlain(true, '/')));
+					$recs[] = array('type' => 'D', 'id' => $entry->getId(), 'name' => htmlspecialchars($name), 'path' => htmlspecialchars($decrypted_path));
 				} elseif ($entry->isType('folder')) {
-					$recs[] = array('type' => 'F', 'id' => $entry->getId(), 'name' => htmlspecialchars($entry->getName()), 'path' => htmlspecialchars($entry->getParent()->getFolderPathPlain(true, '/')));
+					$recs[] = array('type' => 'F', 'id' => $entry->getId(), 'name' => htmlspecialchars($name), 'path' => htmlspecialchars($decrypted_path));
 				}
 			}
 		}
@@ -1719,16 +1740,8 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 			} elseif (is_array($txt)) {
 				print "<table class=\"table table-condensed table-sm table-hover\">";
 				print "<thead>\n<tr>\n";
-				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-
 				foreach ($txt as $headcol)
-					$decrypted = $this->decrypt($headcol, $encryption_key);
-
-				// If decryption fails, fall back to original encrypted value
-				$decrypted_parts = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
-					? $headcol
-					: $decrypted;
-				echo "<th>" . $decrypted_parts . "</th>\n";
+					echo "<th>" . $headcol . "</th>\n";
 				print "</tr>\n</thead>\n";
 			} else {
 				echo $this->folderListHeader(null, 'search');

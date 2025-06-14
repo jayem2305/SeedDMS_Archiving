@@ -670,6 +670,10 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 					display: none;
 					/* Hide initially */
 				}
+
+				.num_of_uploads {
+					display: none;
+				}
 			</style>
 
 			<!-- AJAX container where statusbar elements will be inserted -->
@@ -678,14 +682,15 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 
 			<!-- This is the actual wrapper you want to display the statusbars in -->
 			<div class="compiled-statusbar"></div>
+			<p class="num_of_uploads text-end text-secondary fs-4"></p>
 			<br>
 
 			<script>
 				document.addEventListener("DOMContentLoaded", function () {
 					const ajaxDiv = document.querySelector('.ajax-scroll');
 					const wrapper = document.querySelector('.compiled-statusbar');
-
-					if (!ajaxDiv || !wrapper) return;
+					const numupload = document.querySelector('.num_of_uploads');
+					if (!ajaxDiv || !wrapper || !numupload) return;
 
 					// Watch for new .statusbar elements added by AJAX
 					const observer = new MutationObserver((mutationsList) => {
@@ -700,9 +705,11 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 							});
 						});
 
-						// Show wrapper only if it has at least one statusbar
+						// Show wrapper and update count
 						if (addedStatusbar && wrapper.children.length > 0) {
 							wrapper.style.display = 'block';
+							numupload.style.display = 'block';
+							numupload.textContent = `Number of Uploaded Files: ${wrapper.querySelectorAll('.statusbar').length}`;
 						}
 					});
 
@@ -712,6 +719,7 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 					});
 				});
 			</script>
+
 			<?php
 
 			$this->columnEnd();

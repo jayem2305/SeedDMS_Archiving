@@ -3643,6 +3643,7 @@ HTML_CSS;
 	 */
 	function getListRowPath($object)
 	{ /* {{{ */
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		if (!$object)
 			return '';
 		$belowtitle = '';
@@ -3651,7 +3652,10 @@ HTML_CSS;
 			$belowtitle .= "<br /><span style=\"font-size: 85%;\">" . getMLText('in_folder') . ": /";
 			$path = $folder->getPath();
 			for ($i = 1; $i < count($path); $i++) {
-				$belowtitle .= htmlspecialchars($path[$i]->getName()) . "/";
+				$decrypted = $this->decryptName($path[$i]->getName(), $encryption_key);
+				$foldername = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $path[$i]->getName() : $decrypted;
+
+				$belowtitle .= htmlspecialchars($foldername) . "/";
 			}
 			$belowtitle .= "</span>";
 		}
