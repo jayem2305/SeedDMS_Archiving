@@ -236,25 +236,96 @@ class SeedDMS_Controller_EditDocument extends SeedDMS_Controller_Common {
 		}
 
 		// --- Audit log: log document edit ---
-        try {
-            $db = $dms->getDB();
-            $documentId = $document->getId();
-            $username = $user->getLogin();
-            $now = date('Y-m-d H:i:s');
-            $action = 'Document Edited';
-            $details = 'User edited the document.';
-            $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
-            $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
-            $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
-            $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
-            $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
-            $result = $db->getResult($query);
-            if (!$result) {
-                error_log('Audit log insert failed (edit document): ' . $db->getErrorMsg());
-            }
-        } catch (Exception $e) {
-            error_log('Audit log exception (edit document): ' . $e->getMessage());
-        }
+		try {
+			$db = $dms->getDB();
+			$documentId = $document->getId();
+			$username = $user->getLogin();
+			$now = date('Y-m-d H:i:s');
+			
+			// Define encryption parameters
+			$encryption_method = 'AES-256-CBC';
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+			
+			// Build detailed change log
+			$changes = array();
+			$oldValues = array();
+			$newValues = array();
+			
+			if ($oldname != $name) {
+				$changes[] = "Name changed";
+				$oldValues[] = "Name:\n" . $oldname . "\n";
+				$newValues[] = "Name:\n" . $name . "\n";
+			}
+			
+			if ($oldcomment != $comment) {
+				$changes[] = "Comment changed";
+				$oldValues[] = "Comment:\n" . $oldcomment . "\n";
+				$newValues[] = "Comment:\n" . $comment . "\n";
+			}
+			
+			if ($oldkeywords != $keywords) {
+				$changes[] = "Keywords changed"; 
+				$oldValues[] = "Keywords:\n" . $oldkeywords . "\n";
+				$newValues[] = "Keywords:\n" . $keywords . "\n";
+			}
+			
+			if (count($oldcategories) != count($categories)) {
+				$old_cats = array_map(function($cat) { return $cat->getName(); }, $oldcategories);
+				$new_cats = array();
+				foreach ($categories as $catid) {
+					if ($cat = $dms->getDocumentCategory($catid)) {
+						$new_cats[] = $cat->getName();
+					}
+				}
+				$changes[] = "Categories changed";
+				$oldValues[] = "Categories:\n" . implode(", ", $old_cats) . "\n";
+				$newValues[] = "Categories:\n" . implode(", ", $new_cats) . "\n";
+			}
+			
+			if ($oldexpires != $expires) {
+				$old_exp = $oldexpires ? date('Y-m-d', $oldexpires) : 'Does not expire';
+				$new_exp = $expires ? date('Y-m-d', $expires) : 'Does not expire';
+				$changes[] = "Expiry date changed";
+				$oldValues[] = "Expires:\n" . $old_exp . "\n";
+				$newValues[] = "Expires:\n" . $new_exp . "\n";
+			}			
+
+			$oldValuesStr = implode("\n", $oldValues);
+			$newValuesStr = implode("\n", $newValues);
+			
+			// Encrypt username
+			$encryption_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_username = openssl_encrypt($username, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv);
+			$combined_username = $encryption_iv . $encrypted_username;
+			$encrypted_username_base64 = base64_encode($combined_username);
+
+			// Encrypt old values
+			$encryption_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_old = openssl_encrypt($oldValuesStr, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv);
+			$combined_old = $encryption_iv . $encrypted_old;
+			$encrypted_old_base64 = base64_encode($combined_old);
+
+			// Encrypt new values
+			$encryption_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_new = openssl_encrypt($newValuesStr, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv);
+			$combined_new = $encryption_iv . $encrypted_new;
+			$encrypted_new_base64 = base64_encode($combined_new);
+
+			$username_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_username_base64) : "'" . addslashes($encrypted_username_base64) . "'";
+			$oldValues_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_old_base64) : "'" . addslashes($encrypted_old_base64) . "'";
+			$newValues_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_new_base64) : "'" . addslashes($encrypted_new_base64) . "'";
+			$time_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+			
+			$query = "INSERT INTO audit_logs (document_id, created_at, user, old_value, new_value) VALUES (" . 
+					 intval($documentId) . ", " . $time_esc . ", " . $username_esc . ", " . $oldValues_esc . ", " . $newValues_esc . ")";
+			
+			$result = $db->getResult($query);
+			if (!$result) {
+				error_log('Audit log insert failed (edit document): ' . $db->getErrorMsg());
+			}
+		} catch (Exception $e) {
+			error_log('Audit log exception (edit document): ' . $e->getMessage());
+		}
 
 		return true;
 	}

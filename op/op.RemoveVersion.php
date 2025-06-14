@@ -205,27 +205,29 @@ else {
 	}
 }
 
-// --- AUDIT LOG: Log version removal ---
-try {
-	$db = $dms->getDB();
-	$documentId = $document->getId();
-	$username = $user->getLogin();
-	$now = date('Y-m-d H:i:s');
-	$action = 'Remove Version';
-	// Only log document and version, not file name
-	$details = 'User removed version a version of the document';
-	$username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
-	$action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
-	$details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
-	$now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
-	$query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
-	$result = $db->getResult($query);
-	if (!$result) {
-		error_log('Audit log insert failed (version removal): ' . $db->getErrorMsg());
-	}
-} catch (Exception $e) {
-	error_log('Audit log exception (version removal): ' . $e->getMessage());
-}
+// // --- AUDIT LOG: Log version removal ---
+// try {
+// 	$db = $dms->getDB();
+// 	$documentId = $document->getId();
+// 	$username = $user->getLogin();
+// 	$now = date('Y-m-d H:i:s');
+// 	$action = 'Remove Version';
+// 	// Only log document and version, not file name
+// 	$details = 'User removed version a version of the document';
+// 	$username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
+// 	$action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
+// 	$details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
+// 	$now_esc = method_exists($db, 'qstr') ? $db->qstr($noglow) : "'" . addslashes($now) . "'";
+// 	$query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
+// 	$result = $db->getResult($query);
+// 	if (!$result) {
+// 		error_log('Audit log insert failed (version removal): ' . $db->getErrorMsg());
+// 	}
+// } catch (Exception $e) {
+// 	error_log('Audit log exception (version removal): ' . $e->getMessage());
+// }
+
+
 // --- END AUDIT LOG ---
 
 add_log_line("?documentid=".$documentid."&version".$version_num);

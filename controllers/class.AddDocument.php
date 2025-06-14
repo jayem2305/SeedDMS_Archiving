@@ -230,27 +230,6 @@ class SeedDMS_Controller_AddDocument extends SeedDMS_Controller_Common
 
 			$document = $res[0];
 
-			// --- Audit log: log document addition ---
-			try {
-				$db = $dms->getDB();
-				$documentId = $document->getId();
-				$username = $user->getLogin();
-				$now = date('Y-m-d H:i:s');
-				$action = 'Document Added';
-				$details = 'User added a new document.';
-				$username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
-				$action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
-				$details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
-				$now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
-				$query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
-				$result = $db->getResult($query);
-				if (!$result) {
-					error_log('Audit log insert failed (add document): ' . $db->getErrorMsg());
-				}
-			} catch (Exception $e) {
-				error_log('Audit log exception (add document): ' . $e->getMessage());
-			}
-
 			/* Set access as specified in settings. */
 			if ($defaultaccessdocs) {
 				if ($defaultaccessdocs > 0 && $defaultaccessdocs < 4) {

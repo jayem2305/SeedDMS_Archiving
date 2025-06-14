@@ -43,7 +43,7 @@ $output = fopen('php://output', 'w');
 fwrite($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
 // Excel/CSV header
-fputcsv($output, ['Date/Time', 'User', 'Action', 'Details']);
+fputcsv($output, ['Date/Time', 'User', 'Old Value', 'New Value']);
 
 // Use auditlogs from POST if present, otherwise query the database
 if (isset($_POST['auditlogs']) && !empty($_POST['auditlogs'])) {
@@ -51,10 +51,10 @@ if (isset($_POST['auditlogs']) && !empty($_POST['auditlogs'])) {
     if (is_array($auditLogs) && count($auditLogs) > 0) {
         foreach ($auditLogs as $row) {
             fputcsv($output, [
-                $row['created_at'],
-                $row['user'],
-                $row['action'],
-                $row['details']
+                $row['created_at'] ?? '',
+                $row['user'] ?? '',
+                $row['old_value'] ?? '',
+                $row['new_value'] ?? ''
             ]);
         }
     } else {
@@ -62,15 +62,15 @@ if (isset($_POST['auditlogs']) && !empty($_POST['auditlogs'])) {
     }
 } else {
     $db = $dms->getDB();
-    $query = "SELECT created_at, user, action, details FROM audit_logs WHERE document_id = $documentId ORDER BY created_at DESC";
+    $query = "SELECT created_at, user, old_value, new_value FROM audit_logs WHERE document_id = $documentId ORDER BY created_at DESC";
     $result = $db->getResult($query);
     if ($result && is_array($result) && count($result) > 0) {
         foreach ($result as $row) {
             fputcsv($output, [
-                $row['created_at'],
-                $row['user'],
-                $row['action'],
-                $row['details']
+                $row['created_at'] ?? '',
+                $row['user'] ?? '',
+                $row['old_value'] ?? '',
+                $row['new_value'] ?? ''
             ]);
         }
     } else {

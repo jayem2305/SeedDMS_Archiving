@@ -109,47 +109,126 @@ class SeedDMS_Controller_UpdateDocument extends SeedDMS_Controller_Common {
 		if(false === $this->callHook('postUpdateDocument', $document, $content)) {
 		}
 
-		// --- Audit log: log document download ---
-        try {
-            $db = $dms->getDB();
-            $username = isset($this->params['user']) ? $this->params['user']->getLogin() : 'unknown';
-            $documentId = $document ? $document->getId() : 0;
-            $now = date('Y-m-d H:i:s');
-            $action = 'Document Updated';
-            $details = 'User updated the document.';
-            $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
-            $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
-            $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
-            $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
-            $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
-            $result = $db->getResult($query);
-            if (!$result) {
-                error_log('Audit log insert failed (download document): ' . $db->getErrorMsg());
-            }
-        } catch (Exception $e) {
-            error_log('Audit log exception (download document): ' . $e->getMessage());
-        }
+		// --- Audit log: log document update ---
+		try {
+			$db = $dms->getDB();
+			$documentId = $document->getId();
+			$username = $user->getLogin();
+			$now = date('Y-m-d H:i:s');
+			
+			// Define encryption parameters
+			$encryption_method = 'AES-256-CBC';
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+			
+			// Build detailed change log
+			$changes = array();
+			$oldValues = array();
+			$newValues = array();
+			
+			// Log file changes
+			if ($userfilename) {
+			$changes[] = "File updated";
+			$oldValues[] = "File:\n" . $document->getLatestContent()->getOriginalFileName() . "\n";
+			$newValues[] = "File:\n" . $userfilename . "\n";
+			}
+			
+			// Log comment changes
+			if ($comment) {
+			$changes[] = "Comment added";
+			$oldValues[] = "Comment:\nNone\n";
+			$newValues[] = "Comment:\n" . $comment . "\n";
+			}
 
-        // --- Audit log: log status change ---
-        try {
-            $db = $dms->getDB();
-            $documentId = $document->getId();
-            $username = $user->getLogin();
-            $now = date('Y-m-d H:i:s');
-            $action = 'Status Changed';
-            $details = 'User changed the document status.';
-            $username_esc = method_exists($db, 'qstr') ? $db->qstr($username) : "'" . addslashes($username) . "'";
-            $action_esc = method_exists($db, 'qstr') ? $db->qstr($action) : "'" . addslashes($action) . "'";
-            $details_esc = method_exists($db, 'qstr') ? $db->qstr($details) : "'" . addslashes($details) . "'";
-            $now_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
-            $query = "INSERT INTO audit_logs (document_id, created_at, user, action, details) VALUES (" . intval($documentId) . ", $now_esc, $username_esc, $action_esc, $details_esc)";
-            $result = $db->getResult($query);
-            if (!$result) {
-                error_log('Audit log insert failed (status change): ' . $db->getErrorMsg());
-            }
-        } catch (Exception $e) {
-            error_log('Audit log exception (status change): ' . $e->getMessage());
-        }
+			// Log expiration changes
+			if ($this->hasParam('expires')) {
+			$new_exp = $this->getParam('expires') ? date('Y-m-d', $this->getParam('expires')) : 'Does not expire';
+			$changes[] = "Expiration changed";
+			$oldValues[] = "Expiration:\n" . ($document->getExpires() ? date('Y-m-d', $document->getExpires()) : 'Does not expire') . "\n";
+			$newValues[] = "Expiration:\n" . $new_exp . "\n";
+			}
+
+			// Log reviewer changes
+			if ($reviewers) {
+			$rev_ind = array();
+			$rev_grp = array();
+			if(!empty($reviewers['i'])) {
+				foreach($reviewers['i'] as $uid) {
+				if($u = $dms->getUser($uid)) {
+					$rev_ind[] = $u->getFullName();
+				}
+				}
+			}
+			if(!empty($reviewers['g'])) {
+				foreach($reviewers['g'] as $gid) {
+				if($g = $dms->getGroup($gid)) {
+					$rev_grp[] = $g->getName();
+				}
+				}
+			}
+			$changes[] = "Reviewers assigned";
+			$oldValues[] = "Reviewers:\nNone\n";
+			$newValues[] = "Reviewers:\nIndividuals: " . implode(", ", $rev_ind) . "\nGroups: " . implode(", ", $rev_grp) . "\n";
+			}
+
+			// Log approver changes
+			if ($approvers) {
+			$app_ind = array();
+			$app_grp = array();
+			if(!empty($approvers['i'])) {
+				foreach($approvers['i'] as $uid) {
+				if($u = $dms->getUser($uid)) {
+					$app_ind[] = $u->getFullName();
+				}
+				}
+			}
+			if(!empty($approvers['g'])) {
+				foreach($approvers['g'] as $gid) {
+				if($g = $dms->getGroup($gid)) {
+					$app_grp[] = $g->getName();
+				}
+				}
+			}
+			$changes[] = "Approvers assigned";
+			$oldValues[] = "Approvers:\nNone\n";
+			$newValues[] = "Approvers:\nIndividuals: " . implode(", ", $app_ind) . "\nGroups: " . implode(", ", $app_grp) . "\n";
+			}
+
+			$oldValuesStr = implode("\n", $oldValues);
+			$newValuesStr = implode("\n", $newValues);
+			
+			// Encrypt username
+			$encryption_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_username = openssl_encrypt($username, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv);
+			$combined_username = $encryption_iv . $encrypted_username;
+			$encrypted_username_base64 = base64_encode($combined_username);
+
+			// Encrypt old values
+			$encryption_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_old = openssl_encrypt($oldValuesStr, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv);
+			$combined_old = $encryption_iv . $encrypted_old;
+			$encrypted_old_base64 = base64_encode($combined_old);
+
+			// Encrypt new values
+			$encryption_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+			$encrypted_new = openssl_encrypt($newValuesStr, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv);
+			$combined_new = $encryption_iv . $encrypted_new;
+			$encrypted_new_base64 = base64_encode($combined_new);
+
+			$username_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_username_base64) : "'" . addslashes($encrypted_username_base64) . "'";
+			$oldValues_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_old_base64) : "'" . addslashes($encrypted_old_base64) . "'";
+			$newValues_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_new_base64) : "'" . addslashes($encrypted_new_base64) . "'";
+			$time_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
+			
+			$query = "INSERT INTO audit_logs (document_id, created_at, user, old_value, new_value) VALUES (" . 
+				 intval($documentId) . ", " . $time_esc . ", " . $username_esc . ", " . $oldValues_esc . ", " . $newValues_esc . ")";
+			
+			$result = $db->getResult($query);
+			if (!$result) {
+			error_log('Audit log insert failed (update document): ' . $db->getErrorMsg());
+			}
+		} catch (Exception $e) {
+			error_log('Audit log exception (update document): ' . $e->getMessage());
+		}
         return true;
     } /* }}} */
 }
