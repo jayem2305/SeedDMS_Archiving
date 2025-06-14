@@ -658,19 +658,23 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		?>
 			<div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
 			<?php
-			// ROW 1: Drop Upload Area
 			$this->rowStart();
 			$this->columnStart(12);
 			?>
 			<div class="ajax" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
 			<?php
-			$this->columnEnd();
-			$this->rowEnd();
 
-			// ROW 2: Tree and Clipboard (Moved from left column to a full-width row above folder info)
-			if ($enableFolderTree || $enableClipboard) {
-				$this->rowStart();
-				$this->columnStart(12);
+			$this->columnEnd();
+			// dynamic columns - left column removed if no content and right column then fills span12.
+			if (!($enableFolderTree || $enableClipboard)) {
+				$LeftColumnSpan = 0;
+				$RightColumnSpan = 12;
+			} else {
+				$LeftColumnSpan = 4;
+				$RightColumnSpan = 8;
+			}
+			if ($LeftColumnSpan > 0) {
+				$this->columnStart($LeftColumnSpan);
 
 				echo $this->callHook('leftContentPre');
 
@@ -691,21 +695,19 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 
 				echo $this->callHook('leftContent');
 
-				if ($enableClipboard) {
+				if ($enableClipboard)
 					$this->printClipboard($this->params['session']->getClipboard(), $previewer);
-				}
 
 				echo $this->callHook('leftContentPost');
 
 				$this->columnEnd();
-				$this->rowEnd();
 			}
+			$this->columnStart($RightColumnSpan);
 
-			// ROW 3: Folder Information and Contents
-			$this->rowStart();
-			$this->columnStart(12);
-
-			echo $this->callHook('rightContentPre');
+			if ($enableDropUpload/* && $folder->getAccessMode($user) >= M_READWRITE*/) {
+				$this->rowStart();
+				$this->columnStart(12);
+			}
 			?>
 			<ul class="nav nav-pills" id="folderinfotab" role="tablist">
 				<li class="nav-item <?php if (!$currenttab || $currenttab == 'folderinfo')
@@ -736,13 +738,20 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 				}
 				?>
 			</div>
-			
+			<?php
+			if ($enableDropUpload/* && $folder->getAccessMode($user) >= M_READWRITE*/) {
+				$this->columnEnd();
+
+				$this->rowEnd();
+			}
+
+			echo $this->callHook('rightContentPre');
+			?>
 			<div class="ajax" data-view="ViewFolder" data-action="folderList" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "&orderby=" . $orderby . "\"" : "") ?>></div>
 			<?php
 			echo $this->callHook('rightContentPost');
-			
-			$this->columnEnd(); // End of main content column
-			$this->rowEnd(); // End of main content row
+			$this->columnEnd(); // End of right column div
+			$this->rowEnd(); // End of div around left and right column
 	
 			echo $this->callHook('postContent');
 
@@ -750,5 +759,6 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			$this->htmlEndPage();
 	} /* }}} */
 }
+
 
 ?>

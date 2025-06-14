@@ -31,7 +31,17 @@
  */
 class SeedDMS_View_Search extends SeedDMS_Theme_Style
 {
-
+	private function decrypt($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	/**
 	 * Mark search query sting in a given string
 	 *
@@ -408,6 +418,7 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 		$user = $this->params['user'];
 		$query = $this->params['query'];
 		$entries = $this->params['searchhits'];
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		$recs = array();
 		$content = "<?xml version=\"1.0\"?>\n";
 		$content .= "<SearchSuggestion version=\"2.0\" xmlns=\"http://opensearch.org/searchsuggest2\">\n";
@@ -416,11 +427,13 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 			$content .= "<Section>\n";
 			foreach ($entries as $entry) {
 				$content .= "<Item>\n";
+				$decrypted = $this->decrypt($entry->getName(), $encryption_key);
+				$name = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $entry->getName() : $decrypted;
 				if ($entry->isType('document')) {
-					$content .= "<Text xml:space=\"preserve\">" . $entry->getName() . "</Text>\n";
+					$content .= "<Text xml:space=\"preserve\">" . $name . "</Text>\n";
 					$content .= "<Url xml:space=\"preserve\">http:" . ((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'], 'off') != 0)) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $settings->_httpRoot . "out/out.ViewDocument.php?documentid=" . $entry->getId() . "</Url>\n";
 				} elseif ($entry->isType('folder')) {
-					$content .= "<Text xml:space=\"preserve\">" . $entry->getName() . "</Text>\n";
+					$content .= "<Text xml:space=\"preserve\">" . $name . "</Text>\n";
 					$content .= "<Url xml:space=\"preserve\">http:" . ((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'], 'off') != 0)) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $settings->_httpRoot . "out/out.ViewFolder.php?folderid=" . $entry->getId() . "</Url>\n";
 				}
 				$content .= "</Item>\n";
@@ -1254,7 +1267,8 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 													switch ($attrdef->getType()) {
 														case SeedDMS_Core_AttributeDefinition::type_date:
 															array_walk($allparams['attributes'][$facetname], function (&$v, $k) {
-																$v = getReadableDate($v); });
+																$v = getReadableDate($v);
+															});
 															break;
 													}
 													$oldvalue = $allparams['attributes'][$facetname];
@@ -1304,13 +1318,15 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 												$oldvalue = is_array($allparams[$facetname]) ? $allparams[$facetname] : [$allparams[$facetname]];
 												$oldtransval = $oldvalue;
 												array_walk($oldtransval, function (&$v, $k) {
-													$v = getOverallStatusText($v); });
+													$v = getOverallStatusText($v);
+												});
 												break;
 											case 'created':
 											case 'modified':
 												if (!empty($allparams[$facetname]['from']) || !empty($allparams[$facetname]['to'])) {
 													array_walk($allparams[$facetname], function (&$v, $k) {
-														$v = getReadableDate($v); });
+														$v = getReadableDate($v);
+													});
 													$oldvalue = $allparams[$facetname];
 													$oldtransval = $oldvalue; //$oldvalue['from'].' TO '.$oldvalue['to'];
 												} else {
@@ -1703,8 +1719,16 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 			} elseif (is_array($txt)) {
 				print "<table class=\"table table-condensed table-sm table-hover\">";
 				print "<thead>\n<tr>\n";
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
 				foreach ($txt as $headcol)
-					echo "<th>" . $headcol . "</th>\n";
+					$decrypted = $this->decrypt($headcol, $encryption_key);
+
+				// If decryption fails, fall back to original encrypted value
+				$decrypted_parts = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
+					? $headcol
+					: $decrypted;
+				echo "<th>" . $decrypted_parts . "</th>\n";
 				print "</tr>\n</thead>\n";
 			} else {
 				echo $this->folderListHeader(null, 'search');

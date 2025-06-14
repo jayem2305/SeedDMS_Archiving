@@ -2224,11 +2224,17 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					$auditLogs = $db->getResultArray($query);
 
 					echo '<div id="auditlog-controls" class="d-flex justify-content-between align-items-center mb-2">';
+<<<<<<< HEAD
+					// Search box (top left)
+					echo '<div><input type="text" id="auditlog-search" class="form-control form-control-sm d-inline-block" style="width:200px;" placeholder="Search view, edit, comment..."> <button id="auditlog-search-btn" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button></div>';
+
+=======
 					// Search box (top left)  
 					echo '<div><input type="text" id="auditlog-search" class="form-control form-control-sm d-inline-block" style="width:200px;" placeholder="Search users, values..."> <button id="auditlog-search-btn" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button></div>';
 					
+>>>>>>> 4f1d23ac4541791bd3699d1982465883d3dd66b4
 					// Export button (top right)
-					if($auditLogs && count($auditLogs) > 0) {
+					if ($auditLogs && count($auditLogs) > 0) {
 						echo '<div><form action="' . $this->params['settings']->_httpRoot . 'op/op.DownloadAuditLog.php" method="post">';
 						echo "<input type=\"hidden\" name=\"documentid\" value=\"{$documentId}\">";
 						echo "<input type=\"hidden\" name=\"auditlogs\" value=\"" . htmlspecialchars(json_encode($auditLogs)) . "\">";
@@ -2251,8 +2257,13 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 							echo '<tr>';
 							echo '<td>' . htmlspecialchars($log['created_at']) . '</td>';
 							echo '<td>' . htmlspecialchars($log['user']) . '</td>';
+<<<<<<< HEAD
+							echo '<td>' . htmlspecialchars($log['action']) . '</td>';
+							echo '<td>' . $log['details'] . '</td>';
+=======
 							echo '<td>' . htmlspecialchars($log['old_value']) . '</td>';
 							echo '<td>' . htmlspecialchars($log['new_value']) . '</td>';
+>>>>>>> 4f1d23ac4541791bd3699d1982465883d3dd66b4
 							echo '</tr>';
 						}
 						echo '</tbody></table></div>';

@@ -683,22 +683,22 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$diskSpaceUsed = 'N/A';
 		if ($settings) {
 			if (isset($settings->storageUsed))
-				$diskSpaceUsed = SeedDMS_Core_File::formatFileSize($settings->storageUsed);
+				$diskSpaceUsed = SeedDMS_Core_File::format_filesize($settings->storageUsed);
 			elseif (isset($settings->_storageUsed))
-				$diskSpaceUsed = SeedDMS_Core_File::formatFileSize($settings->_storageUsed);
+				$diskSpaceUsed = SeedDMS_Core_File::format_filesize($settings->_storageUsed);
 		}
 		$statsData = [
 			['label_key' => 'files', 'icon' => 'fa-file', 'value' => $docCount],
 			['label_key' => 'folders', 'icon' => 'fa-folder', 'value' => $folderCount],
 			['label_key' => 'users', 'icon' => 'fa-user', 'value' => $userCount],
-			['label_key' => 'disk_space_used', 'icon' => 'fa-database', 'value' => $diskSpaceUsed],
+			//['label_key' => 'disk_space_used', 'icon' => 'fa-database', 'value' => $diskSpaceUsed],
 		];
-		$stat_chunks = array_chunk($statsData, 2);
+		$stat_chunks = array_chunk($statsData, 3);
 		foreach ($stat_chunks as $chunk) {
 			$this->rowStart();
 			foreach ($chunk as $stat_item) {
-				$this->columnStart(6);
-				echo '<div class="details-grid" style="background:#fff; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px; text-align:center; min-height: 80px;">';
+				$this->columnStart(4);
+				echo '<div class="details-grid" style="background:#fff; padding:10px; border:1px solid #ddd; border-radius:4px; text-align:center; min-height: 80px;">';
 				echo '<div class="rightside" style="float:right; opacity:0.5;"><i class="fa ' . htmlspecialchars($stat_item['icon']) . ' fa-2x"></i></div>';
 				echo '<div class="text-details" style="text-align:left;">';
 				echo '<h3 style="font-size:1em; margin-top:0; color:#555;">' . htmlspecialchars(getMLText($stat_item['label_key'], [], ucfirst(str_replace('_', ' ', $stat_item['label_key'])))) . '</h3>';
@@ -716,7 +716,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		echo '</div>';
 
 		// Charts Section
-		echo '<div class="charts-dashboard-container" style="margin-top:20px;">';
+		echo '<div class="charts-dashboard-container">';
 		$dashboardChartLayout = [
 			['docspermonth', 'docsperuser'],
 			['docsaccumulated', 'docsperstatus']
