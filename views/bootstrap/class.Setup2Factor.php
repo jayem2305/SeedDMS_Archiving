@@ -74,6 +74,7 @@ $(document).ready( function() {
 		$this->htmlStartPage(getMLText("2_factor_auth"), "forcepasswordchange");
 		$this->globalNavigation();
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation(getMLText("my_account"), "my_account");
 		$this->contentHeading(getMLText('2_factor_auth'));
 		$this->infoMsg(getMLText('2_factor_auth_info'));

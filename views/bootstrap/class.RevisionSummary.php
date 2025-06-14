@@ -49,6 +49,7 @@ class SeedDMS_View_RevisionSummary extends SeedDMS_Theme_Style {
 		$this->htmlStartPage(getMLText("my_documents"));
 		$this->globalNavigation();
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation(getMLText("my_documents"), "my_documents");
 
 		$this->rowStart();

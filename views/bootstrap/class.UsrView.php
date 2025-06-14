@@ -41,6 +41,7 @@ class SeedDMS_View_UsrView extends SeedDMS_Theme_Style {
 		$this->htmlStartPage(getMLText("my_account"));
 		$this->globalNavigation();
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation(getMLText("my_account"), "my_account");
 
 		$this->contentHeading(getMLText("users"));

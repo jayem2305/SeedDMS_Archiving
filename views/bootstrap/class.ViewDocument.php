@@ -2220,13 +2220,19 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					// Fetch audit logs from the database for the current document
 					$db = $dms->getDB();
 					$documentId = $document->getId();
-					$query = "SELECT created_at, user, action, details FROM audit_logs WHERE document_id = " . intval($documentId) . " ORDER BY created_at DESC";
+					$query = "SELECT created_at, user, old_value, new_value FROM audit_logs WHERE document_id = " . intval($documentId) . " ORDER BY created_at DESC";
 					$auditLogs = $db->getResultArray($query);
 
 					echo '<div id="auditlog-controls" class="d-flex justify-content-between align-items-center mb-2">';
+<<<<<<< HEAD
 					// Search box (top left)
 					echo '<div><input type="text" id="auditlog-search" class="form-control form-control-sm d-inline-block" style="width:200px;" placeholder="Search view, edit, comment..."> <button id="auditlog-search-btn" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button></div>';
 
+=======
+					// Search box (top left)  
+					echo '<div><input type="text" id="auditlog-search" class="form-control form-control-sm d-inline-block" style="width:200px;" placeholder="Search users, values..."> <button id="auditlog-search-btn" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button></div>';
+					
+>>>>>>> 4f1d23ac4541791bd3699d1982465883d3dd66b4
 					// Export button (top right)
 					if ($auditLogs && count($auditLogs) > 0) {
 						echo '<div><form action="' . $this->params['settings']->_httpRoot . 'op/op.DownloadAuditLog.php" method="post">';
@@ -2237,22 +2243,27 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						echo '</form></div>';
 					}
 					echo '</div>';
-
+					
 					if ($auditLogs && count($auditLogs) > 0) {
 						// Table
 						echo '<div class="table-responsive"><table id="auditlog-table" class="table table-condensed table-sm table-hover">';
 						echo '<thead><tr>';
 						echo '<th>Date/Time</th>';
 						echo '<th>' . getMLText('user') . '</th>';
-						echo '<th>' . getMLText('action') . '</th>';
-						echo '<th>' . getMLText('details') . '</th>';
+						echo '<th>Old Value</th>';
+						echo '<th>New</th>';
 						echo '</tr></thead><tbody>';
 						foreach ($auditLogs as $log) {
 							echo '<tr>';
 							echo '<td>' . htmlspecialchars($log['created_at']) . '</td>';
 							echo '<td>' . htmlspecialchars($log['user']) . '</td>';
+<<<<<<< HEAD
 							echo '<td>' . htmlspecialchars($log['action']) . '</td>';
 							echo '<td>' . $log['details'] . '</td>';
+=======
+							echo '<td>' . htmlspecialchars($log['old_value']) . '</td>';
+							echo '<td>' . htmlspecialchars($log['new_value']) . '</td>';
+>>>>>>> 4f1d23ac4541791bd3699d1982465883d3dd66b4
 							echo '</tr>';
 						}
 						echo '</tbody></table></div>';
@@ -2274,57 +2285,57 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 				}
 				// JS for pagination, search, and page size
 				echo '<script>
-(function() {
-    var table = document.getElementById("auditlog-table");
-    if (!table) return;
-    var rows = Array.prototype.slice.call(table.tBodies[0].rows);
-    var pageSizeInput = document.getElementById("auditlog-pagesize");
-    var searchInput = document.getElementById("auditlog-search");
-    var searchBtn = document.getElementById("auditlog-search-btn");
-    var prevBtn = document.getElementById("auditlog-prev");
-    var nextBtn = document.getElementById("auditlog-next");
-    var currentPage = 1;
-    var pageSize = parseInt(pageSizeInput.value, 10) || 5;
-    var filteredRows = rows.slice();
+					(function() {
+						var table = document.getElementById("auditlog-table");
+						if (!table) return;
+						var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+						var pageSizeInput = document.getElementById("auditlog-pagesize");
+						var searchInput = document.getElementById("auditlog-search");
+						var searchBtn = document.getElementById("auditlog-search-btn");
+						var prevBtn = document.getElementById("auditlog-prev");
+						var nextBtn = document.getElementById("auditlog-next");
+						var currentPage = 1;
+						var pageSize = parseInt(pageSizeInput.value, 10) || 5;
+						var filteredRows = rows.slice();
 
-    function renderTable() {
-        var start = (currentPage - 1) * pageSize;
-        var end = start + pageSize;
-        rows.forEach(function(row) { row.style.display = "none"; });
-        filteredRows.slice(start, end).forEach(function(row) { row.style.display = ""; });
-        prevBtn.disabled = (currentPage === 1);
-        nextBtn.disabled = (end >= filteredRows.length);
-    }
-    function updatePageSize() {
-        pageSize = parseInt(pageSizeInput.value, 10) || 5;
-        currentPage = 1;
-        renderTable();
-    }
-    function searchTable() {
-        var q = searchInput.value.trim().toLowerCase();
-        filteredRows = rows.filter(function(row) {
-            var user = row.cells[1].textContent.toLowerCase();
-            var action = row.cells[2].textContent.toLowerCase();
-            var details = row.cells[3].textContent.toLowerCase();
-            return (
-                (!q) ||
-                user.indexOf(q) !== -1 ||
-                action.indexOf(q) !== -1 ||
-                details.indexOf(q) !== -1
-            );
-        });
-        currentPage = 1;
-        renderTable();
-    }
-    pageSizeInput.addEventListener("change", updatePageSize);
-    searchBtn.addEventListener("click", searchTable);
-    searchInput.addEventListener("keydown", function(e) { if (e.key === "Enter") { searchTable(); e.preventDefault(); } });
-    prevBtn.addEventListener("click", function() { if (currentPage > 1) { currentPage--; renderTable(); } });
-    nextBtn.addEventListener("click", function() { if ((currentPage * pageSize) < filteredRows.length) { currentPage++; renderTable(); } });
-    // Initial render
-    renderTable();
-})();
-</script>';
+						function renderTable() {
+							var start = (currentPage - 1) * pageSize;
+							var end = start + pageSize;
+							rows.forEach(function(row) { row.style.display = "none"; });
+							filteredRows.slice(start, end).forEach(function(row) { row.style.display = ""; });
+							prevBtn.disabled = (currentPage === 1);
+							nextBtn.disabled = (end >= filteredRows.length);
+						}
+						function updatePageSize() {
+							pageSize = parseInt(pageSizeInput.value, 10) || 5;
+							currentPage = 1;
+							renderTable();
+						}
+						function searchTable() {
+							var q = searchInput.value.trim().toLowerCase();
+							filteredRows = rows.filter(function(row) {
+								var user = row.cells[1].textContent.toLowerCase();
+								var action = row.cells[2].textContent.toLowerCase();
+								var details = row.cells[3].textContent.toLowerCase();
+								return (
+									(!q) ||
+									user.indexOf(q) !== -1 ||
+									action.indexOf(q) !== -1 ||
+									details.indexOf(q) !== -1
+								);
+							});
+							currentPage = 1;
+							renderTable();
+						}
+						pageSizeInput.addEventListener("change", updatePageSize);
+						searchBtn.addEventListener("click", searchTable);
+						searchInput.addEventListener("keydown", function(e) { if (e.key === "Enter") { searchTable(); e.preventDefault(); } });
+						prevBtn.addEventListener("click", function() { if (currentPage > 1) { currentPage--; renderTable(); } });
+						nextBtn.addEventListener("click", function() { if ((currentPage * pageSize) < filteredRows.length) { currentPage++; renderTable(); } });
+						// Initial render
+						renderTable();
+					})();
+					</script>';
 				echo '</div>';
 			} else {
 				$this->warnMsg(getMLText('no_access_to_auditlog'));

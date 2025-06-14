@@ -153,6 +153,7 @@ if( move_uploaded_file( $source_file_path, $target_file_path ) ) {
 					}
 			}
 		}
+		
 
 		$filesize = SeedDMS_Core_File::fileSize($userfiletmp);
 		$contentResult=$document->addContent($comment, $user, $userfiletmp, basename($userfilename), $fileType, $userfiletype, $reviewers, $approvers, $version=0, null, null, $settings->_initialDocumentStatus);

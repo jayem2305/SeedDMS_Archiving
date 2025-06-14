@@ -179,6 +179,7 @@ $(document).ready( function() {
 		$this->htmlStartPage(getMLText("my_account"));
 		$this->globalNavigation();
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation(getMLText("my_account"), "my_account");
 
 		$this->rowStart();

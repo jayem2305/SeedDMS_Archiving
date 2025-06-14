@@ -53,6 +53,7 @@ class SeedDMS_View_SubstituteUser extends SeedDMS_Theme_Style {
 		$this->htmlStartPage(getMLText("substitute_user"));
 		$this->globalNavigation();
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation(getMLText("admin_tools"), "admin_tools");
 
 		$this->contentHeading(getMLText("substitute_user"));
