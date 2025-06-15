@@ -241,91 +241,110 @@ class SeedDMS_Controller_EditDocument extends SeedDMS_Controller_Common {
 			$documentId = $document->getId();
 			$username = $user->getLogin();
 			$now = date('Y-m-d H:i:s');
-			
-			// Define encryption parameters
+
+			// Encryption setup
 			$encryption_method = 'AES-256-CBC';
 			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-			
-			// Build detailed change log
-			$changes = array();
-			$oldValues = array();
-			$newValues = array();
-			
-			if ($oldname != $name) {
-				$changes[] = "Name changed";
-				$oldValues[] = "Name:\n" . $oldname . "\n";
-				$newValues[] = "Name:\n" . $name . "\n";
+
+			// Helper to decrypt safely
+			function decryptIfEncrypted($base64, $key, $method) {
+			if (!$base64 || !base64_decode($base64, true)) return '';
+			$combined = base64_decode($base64);
+			$iv_length = openssl_cipher_iv_length($method);
+			if (strlen($combined) < $iv_length) return '';
+			$iv = substr($combined, 0, $iv_length);
+			$encrypted = substr($combined, $iv_length);
+			return trim(openssl_decrypt($encrypted, $method, $key, OPENSSL_RAW_DATA, $iv));
 			}
+
+			// Decrypt and normalize
+			$normalizedOldName = decryptIfEncrypted($oldname, $encryption_key, $encryption_method);
+			$normalizedNewName = trim((string)$name);
+
+			$normalizedOldComment = decryptIfEncrypted($oldcomment, $encryption_key, $encryption_method);
+			$normalizedNewComment = trim((string)$comment);
+
+			$normalizedOldKeywords = decryptIfEncrypted($oldkeywords ?? '', $encryption_key, $encryption_method);
+			$normalizedNewKeywords = trim((string)($keywords ?? ''));
+
+			// Get and decrypt category names
+			$oldCategoryNames = array_map(function($cat) use ($encryption_key, $encryption_method) {
+			return decryptIfEncrypted($cat->getName(), $encryption_key, $encryption_method);
+			}, $oldcategories);
 			
-			if ($oldcomment != $comment) {
-				$changes[] = "Comment changed";
-				$oldValues[] = "Comment:\n" . $oldcomment . "\n";
-				$newValues[] = "Comment:\n" . $comment . "\n";
-			}
-			
-			if ($oldkeywords != $keywords) {
-				$changes[] = "Keywords changed"; 
-				$oldValues[] = "Keywords:\n" . $oldkeywords . "\n";
-				$newValues[] = "Keywords:\n" . $keywords . "\n";
-			}
-			
-			if (count($oldcategories) != count($categories)) {
-				$old_cats = array_map(function($cat) { return $cat->getName(); }, $oldcategories);
-				$new_cats = array();
-				foreach ($categories as $catid) {
-					if ($cat = $dms->getDocumentCategory($catid)) {
-						$new_cats[] = $cat->getName();
-					}
+			$newCategoryNames = [];
+			if($categories) {
+			foreach($categories as $catid) {
+				if($cat = $dms->getDocumentCategory($catid)) {
+				$newCategoryNames[] = decryptIfEncrypted($cat->getName(), $encryption_key, $encryption_method);
 				}
-				$changes[] = "Categories changed";
-				$oldValues[] = "Categories:\n" . implode(", ", $old_cats) . "\n";
-				$newValues[] = "Categories:\n" . implode(", ", $new_cats) . "\n";
 			}
-			
-			if ($oldexpires != $expires) {
-				$old_exp = $oldexpires ? date('Y-m-d', $oldexpires) : 'Does not expire';
-				$new_exp = $expires ? date('Y-m-d', $expires) : 'Does not expire';
-				$changes[] = "Expiry date changed";
-				$oldValues[] = "Expires:\n" . $old_exp . "\n";
-				$newValues[] = "Expires:\n" . $new_exp . "\n";
-			}			
+			}
 
-			$oldValuesStr = implode("\n", $oldValues);
-			$newValuesStr = implode("\n", $newValues);
-			
-			// Encrypt username
+			// Compare changes
+			$nameChanged = $normalizedOldName !== $normalizedNewName;
+			$commentChanged = $normalizedOldComment !== $normalizedNewComment;
+			$keywordsChanged = $normalizedOldKeywords !== $normalizedNewKeywords;
+			$categoriesChanged = implode(', ', $oldCategoryNames) !== implode(', ', $newCategoryNames);
+			$expiresChanged = $oldexpires != $expires;
+
+			if ($nameChanged || $commentChanged || $keywordsChanged || $categoriesChanged || $expiresChanged) {
+			$oldValues = [];
+			$newValues = [];
+
+			if ($nameChanged) {
+				$oldValues[] = "Name:\n{$normalizedOldName}";
+				$newValues[] = "Name:\n{$normalizedNewName}";
+			}
+
+			if ($commentChanged) {
+				$oldValues[] = "Comment:\n{$normalizedOldComment}";
+				$newValues[] = "Comment:\n{$normalizedNewComment}";
+			}
+
+			if ($keywordsChanged) {
+				$oldValues[] = "Keywords:\n{$normalizedOldKeywords}";
+				$newValues[] = "Keywords:\n{$normalizedNewKeywords}";
+			}
+
+			if ($categoriesChanged) {
+				$oldValues[] = "Categories:\n" . implode(', ', $oldCategoryNames);
+				$newValues[] = "Categories:\n" . implode(', ', $newCategoryNames);
+			}
+
+			if ($expiresChanged) {
+				$oldValues[] = "Expires:\n" . ($oldexpires ? date('Y-m-d', $oldexpires) : 'Never');
+				$newValues[] = "Expires:\n" . ($expires ? date('Y-m-d', $expires) : 'Never');
+			}
+
+			$oldValuesStr = implode("\n\n", $oldValues);
+			$newValuesStr = implode("\n\n", $newValues);
+
+			// Encrypt with IV
 			$encryption_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
-			$encrypted_username = openssl_encrypt($username, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv);
-			$combined_username = $encryption_iv . $encrypted_username;
-			$encrypted_username_base64 = base64_encode($combined_username);
+			$encrypted_username = base64_encode($encryption_iv . openssl_encrypt($username, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv));
+			$encrypted_old = base64_encode($encryption_iv . openssl_encrypt($oldValuesStr, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv));
+			$encrypted_new = base64_encode($encryption_iv . openssl_encrypt($newValuesStr, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv));
 
-			// Encrypt old values
-			$encryption_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
-			$encrypted_old = openssl_encrypt($oldValuesStr, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv);
-			$combined_old = $encryption_iv . $encrypted_old;
-			$encrypted_old_base64 = base64_encode($combined_old);
-
-			// Encrypt new values
-			$encryption_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
-			$encrypted_new = openssl_encrypt($newValuesStr, $encryption_method, $encryption_key, OPENSSL_RAW_DATA, $encryption_iv);
-			$combined_new = $encryption_iv . $encrypted_new;
-			$encrypted_new_base64 = base64_encode($combined_new);
-
-			$username_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_username_base64) : "'" . addslashes($encrypted_username_base64) . "'";
-			$oldValues_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_old_base64) : "'" . addslashes($encrypted_old_base64) . "'";
-			$newValues_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_new_base64) : "'" . addslashes($encrypted_new_base64) . "'";
+			// Escape SQL
+			$username_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_username) : "'" . addslashes($encrypted_username) . "'";
+			$oldValues_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_old) : "'" . addslashes($encrypted_old) . "'";
+			$newValues_esc = method_exists($db, 'qstr') ? $db->qstr($encrypted_new) : "'" . addslashes($encrypted_new) . "'";
 			$time_esc = method_exists($db, 'qstr') ? $db->qstr($now) : "'" . addslashes($now) . "'";
-			
-			$query = "INSERT INTO audit_logs (document_id, created_at, user, old_value, new_value) VALUES (" . 
-					 intval($documentId) . ", " . $time_esc . ", " . $username_esc . ", " . $oldValues_esc . ", " . $newValues_esc . ")";
-			
+
+			// Insert
+			$query = "INSERT INTO audit_logs (document_id, created_at, user, old_value, new_value) VALUES (" .
+				intval($documentId) . ", $time_esc, $username_esc, $oldValues_esc, $newValues_esc)";
+
 			$result = $db->getResult($query);
 			if (!$result) {
 				error_log('Audit log insert failed (edit document): ' . $db->getErrorMsg());
 			}
+			}
 		} catch (Exception $e) {
 			error_log('Audit log exception (edit document): ' . $e->getMessage());
 		}
+		// --- End of Audit log ---
 
 		return true;
 	}
