@@ -201,6 +201,7 @@ class SeedDMS_Controller_AddDocument extends SeedDMS_Controller_Common
 		$document = $this->callHook('addDocument');
 		if ($document === null) {
 			$filesize = SeedDMS_Core_File::fileSize($userfiletmp);
+
 			$res = $folder->addDocument(
 				$iv_base64_name,  // Encrypted name
 				$iv_base64_comment,  // Encrypted comment

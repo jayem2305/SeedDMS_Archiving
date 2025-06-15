@@ -658,19 +658,81 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		?>
 			<div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
 			<?php
-			// ROW 1: Drop Upload Area
 			$this->rowStart();
 			$this->columnStart(12);
 			?>
-			<div class="ajax" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
-			<?php
-			$this->columnEnd();
-			$this->rowEnd();
+			<style>
+				.compiled-statusbar {
+					max-height: 300px;
+					overflow-y: auto;
+					border: 1px solid #ccc;
+					padding: 10px;
+					display: none;
+					/* Hide initially */
+				}
 
-			// ROW 2: Tree and Clipboard (Moved from left column to a full-width row above folder info)
-			if ($enableFolderTree || $enableClipboard) {
-				$this->rowStart();
-				$this->columnStart(12);
+				.num_of_uploads {
+					display: none;
+				}
+			</style>
+
+			<!-- AJAX container where statusbar elements will be inserted -->
+			<div class="ajax ajax-scroll" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>>
+			</div>
+
+			<!-- This is the actual wrapper you want to display the statusbars in -->
+			<div class="compiled-statusbar"></div>
+			<p class="num_of_uploads text-end text-secondary fs-4"></p>
+			<br>
+
+			<script>
+				document.addEventListener("DOMContentLoaded", function () {
+					const ajaxDiv = document.querySelector('.ajax-scroll');
+					const wrapper = document.querySelector('.compiled-statusbar');
+					const numupload = document.querySelector('.num_of_uploads');
+					if (!ajaxDiv || !wrapper || !numupload) return;
+
+					// Watch for new .statusbar elements added by AJAX
+					const observer = new MutationObserver((mutationsList) => {
+						let addedStatusbar = false;
+
+						mutationsList.forEach(mutation => {
+							mutation.addedNodes.forEach(node => {
+								if (node.classList && node.classList.contains('statusbar')) {
+									wrapper.appendChild(node);
+									addedStatusbar = true;
+								}
+							});
+						});
+
+						// Show wrapper and update count
+						if (addedStatusbar && wrapper.children.length > 0) {
+							wrapper.style.display = 'block';
+							numupload.style.display = 'block';
+							numupload.textContent = `Number of Uploaded Files: ${wrapper.querySelectorAll('.statusbar').length}`;
+						}
+					});
+
+					observer.observe(ajaxDiv, {
+						childList: true,
+						subtree: true
+					});
+				});
+			</script>
+
+			<?php
+
+			$this->columnEnd();
+			// dynamic columns - left column removed if no content and right column then fills span12.
+			if (!($enableFolderTree || $enableClipboard)) {
+				$LeftColumnSpan = 0;
+				$RightColumnSpan = 12;
+			} else {
+				$LeftColumnSpan = 4;
+				$RightColumnSpan = 8;
+			}
+			if ($LeftColumnSpan > 0) {
+				$this->columnStart($LeftColumnSpan);
 
 				echo $this->callHook('leftContentPre');
 
@@ -691,21 +753,19 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 
 				echo $this->callHook('leftContent');
 
-				if ($enableClipboard) {
+				if ($enableClipboard)
 					$this->printClipboard($this->params['session']->getClipboard(), $previewer);
-				}
 
 				echo $this->callHook('leftContentPost');
 
 				$this->columnEnd();
-				$this->rowEnd();
 			}
+			$this->columnStart($RightColumnSpan);
 
-			// ROW 3: Folder Information and Contents
-			$this->rowStart();
-			$this->columnStart(12);
-
-			echo $this->callHook('rightContentPre');
+			if ($enableDropUpload/* && $folder->getAccessMode($user) >= M_READWRITE*/) {
+				$this->rowStart();
+				$this->columnStart(12);
+			}
 			?>
 			<ul class="nav nav-pills" id="folderinfotab" role="tablist">
 				<li class="nav-item <?php if (!$currenttab || $currenttab == 'folderinfo')
@@ -736,13 +796,20 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 				}
 				?>
 			</div>
-			
+			<?php
+			if ($enableDropUpload/* && $folder->getAccessMode($user) >= M_READWRITE*/) {
+				$this->columnEnd();
+
+				$this->rowEnd();
+			}
+
+			echo $this->callHook('rightContentPre');
+			?>
 			<div class="ajax" data-view="ViewFolder" data-action="folderList" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "&orderby=" . $orderby . "\"" : "") ?>></div>
 			<?php
 			echo $this->callHook('rightContentPost');
-			
-			$this->columnEnd(); // End of main content column
-			$this->rowEnd(); // End of main content row
+			$this->columnEnd(); // End of right column div
+			$this->rowEnd(); // End of div around left and right column
 	
 			echo $this->callHook('postContent');
 
@@ -750,5 +817,6 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 			$this->htmlEndPage();
 	} /* }}} */
 }
+
 
 ?>

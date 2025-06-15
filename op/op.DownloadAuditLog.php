@@ -35,7 +35,7 @@ if ($document->getAccessMode($user) < M_READ || !$accessop->check_view_access($d
 
 // Set headers for Excel-compatible download (CSV with .xls extension)
 header('Content-Type: application/vnd.ms-excel; charset=utf-8');
-header('Content-Disposition: attachment; filename="audit_log_doc' . $documentId . '_' . date('Ymd_His') . '.xls"');
+header('Content-Disposition: attachment; filename="audit_log_doc' . $documentId . '_' . date('Ymd_His') . '.xlsx"');
 
 $output = fopen('php://output', 'w');
 

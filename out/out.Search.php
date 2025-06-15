@@ -29,7 +29,8 @@ require_once("inc/inc.DBInit.php");
 require_once("inc/inc.ClassUI.php");
 require_once("inc/inc.Authentication.php");
 
-function getTime() {
+function getTime()
+{
 	if (function_exists('microtime')) {
 		$tm = microtime();
 		$tm = explode(' ', $tm);
@@ -41,8 +42,8 @@ function getTime() {
 // Redirect to the search page if the navigation search button has been
 // selected without supplying any search terms.
 if (isset($_GET["navBar"])) {
-	if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"])<1) {
-		$folderid=$settings->_rootFolderID;
+	if (!isset($_GET["folderid"]) || !is_numeric($_GET["folderid"]) || intval($_GET["folderid"]) < 1) {
+		$folderid = $settings->_rootFolderID;
 	} else {
 		$folderid = $_GET["folderid"];
 	}
@@ -83,19 +84,19 @@ $createendts = null;
 $createenddate = null;
 $created['from'] = null;
 $created['to'] = null;
-if(!empty($_GET["created"]["from"])) {
+if (!empty($_GET["created"]["from"])) {
 	$createstartts = makeTsFromDate($_GET["created"]["from"]);
-	$createstartdate = array('year'=>(int)date('Y', $createstartts), 'month'=>(int)date('m', $createstartts), 'day'=>(int)date('d', $createstartts), 'hour'=>0, 'minute'=>0, 'second'=>0);
+	$createstartdate = array('year' => (int) date('Y', $createstartts), 'month' => (int) date('m', $createstartts), 'day' => (int) date('d', $createstartts), 'hour' => 0, 'minute' => 0, 'second' => 0);
 	if (!checkdate($createstartdate['month'], $createstartdate['day'], $createstartdate['year'])) {
-		UI::exitError(getMLText("search"),getMLText("invalid_create_date_end"));
+		UI::exitError(getMLText("search"), getMLText("invalid_create_date_end"));
 	}
 	$created['from'] = $createstartts;
 }
-if(!empty($_GET["created"]["to"])) {
+if (!empty($_GET["created"]["to"])) {
 	$createendts = makeTsFromDate($_GET["created"]["to"]);
-	$createenddate = array('year'=>(int)date('Y', $createendts), 'month'=>(int)date('m', $createendts), 'day'=>(int)date('d', $createendts), 'hour'=>23, 'minute'=>59, 'second'=>59);
+	$createenddate = array('year' => (int) date('Y', $createendts), 'month' => (int) date('m', $createendts), 'day' => (int) date('d', $createendts), 'hour' => 23, 'minute' => 59, 'second' => 59);
 	if (!checkdate($createenddate['month'], $createenddate['day'], $createenddate['year'])) {
-		UI::exitError(getMLText("search"),getMLText("invalid_create_date_end"));
+		UI::exitError(getMLText("search"), getMLText("invalid_create_date_end"));
 	}
 	$created['to'] = $createendts;
 }
@@ -108,19 +109,19 @@ $modifyendts = null;
 $modifyenddate = null;
 $modified['from'] = null;
 $modified['to'] = null;
-if(!empty($_GET["modified"]["from"])) {
+if (!empty($_GET["modified"]["from"])) {
 	$modifystartts = makeTsFromDate($_GET["modified"]["from"]);
-	$modifystartdate = array('year'=>(int)date('Y', $modifystartts), 'month'=>(int)date('m', $modifystartts), 'day'=>(int)date('d', $modifystartts), 'hour'=>0, 'minute'=>0, 'second'=>0);
+	$modifystartdate = array('year' => (int) date('Y', $modifystartts), 'month' => (int) date('m', $modifystartts), 'day' => (int) date('d', $modifystartts), 'hour' => 0, 'minute' => 0, 'second' => 0);
 	if (!checkdate($modifystartdate['month'], $modifystartdate['day'], $modifystartdate['year'])) {
-		UI::exitError(getMLText("search"),getMLText("invalid_modification_date_end"));
+		UI::exitError(getMLText("search"), getMLText("invalid_modification_date_end"));
 	}
 	$modified['from'] = $modifystartts;
 }
-if(!empty($_GET["modified"]["to"])) {
+if (!empty($_GET["modified"]["to"])) {
 	$modifyendts = makeTsFromDate($_GET["modified"]["to"]);
-	$modifyenddate = array('year'=>(int)date('Y', $modifyendts), 'month'=>(int)date('m', $modifyendts), 'day'=>(int)date('d', $modifyendts), 'hour'=>23, 'minute'=>59, 'second'=>59);
+	$modifyenddate = array('year' => (int) date('Y', $modifyendts), 'month' => (int) date('m', $modifyendts), 'day' => (int) date('d', $modifyendts), 'hour' => 23, 'minute' => 59, 'second' => 59);
 	if (!checkdate($modifyenddate['month'], $modifyenddate['day'], $modifyenddate['year'])) {
-		UI::exitError(getMLText("search"),getMLText("invalid_modification_date_end"));
+		UI::exitError(getMLText("search"), getMLText("invalid_modification_date_end"));
 	}
 	$modified['to'] = $modifyendts;
 }
@@ -131,11 +132,11 @@ $filesizestart = 0;
 $filesizeend = 0;
 $filesize['from'] = null;
 $filesize['to'] = null;
-if(!empty($_GET["filesize"]["from"])) {
+if (!empty($_GET["filesize"]["from"])) {
 	$filesizestart = $_GET["filesize"]["from"];
 	$filesize['from'] = $_GET["filesize"]["from"];
 }
-if(!empty($_GET["filesize"]["to"])) {
+if (!empty($_GET["filesize"]["to"])) {
 	$filesizeend = $_GET["filesize"]["to"];
 	$filesize['to'] = $_GET["filesize"]["to"];
 }
@@ -147,25 +148,25 @@ if(!empty($_GET["filesize"]["to"])) {
 $owner = [];
 $ownernames = []; // Needed by fulltext search
 $ownerobjs = []; // Needed by database search
-if(!empty($_GET["owner"])) {
+if (!empty($_GET["owner"])) {
 	$owner = $_GET['owner'];
 	if (!is_array($_GET['owner'])) {
-		if(is_numeric($_GET['owner']))
+		if (is_numeric($_GET['owner']))
 			$o = $dms->getUser($_GET['owner']);
 		else
 			$o = $dms->getUserByLogin($_GET['owner']);
-		if($o) {
+		if ($o) {
 			$ownernames[] = $o->getLogin();
 			$ownerobjs[] = $o;
 		}
 	} else {
-		foreach($_GET["owner"] as $l) {
-			if($l) {
-				if(is_numeric($l))
+		foreach ($_GET["owner"] as $l) {
+			if ($l) {
+				if (is_numeric($l))
 					$o = $dms->getUser($l);
 				else
 					$o = $dms->getUserByLogin($l);
-				if($o) {
+				if ($o) {
 					$ownernames[] = $o->getLogin();
 					$ownerobjs[] = $o;
 				}
@@ -174,45 +175,43 @@ if(!empty($_GET["owner"])) {
 	}
 } /* }}} */
 
-	// category {{{
-	$categories = array();
-	$categorynames = array();
-	$category = array();
-	if(isset($_GET['category']) && $_GET['category']) {
-		$category = $_GET['category'];
-		foreach($_GET['category'] as $catid) {
-			if($catid) {
-				if(is_numeric($catid)) {
-					if($cat = $dms->getDocumentCategory($catid)) {
-						$categories[] = $cat;
-						$categorynames[] = $cat->getName();
-					}
-				} else {
-					$categorynames[] = $catid;
+// category {{{
+$categories = array();
+$categorynames = array();
+$category = array();
+if (isset($_GET['category']) && $_GET['category']) {
+	$category = $_GET['category'];
+	foreach ($_GET['category'] as $catid) {
+		if ($catid) {
+			if (is_numeric($catid)) {
+				if ($cat = $dms->getDocumentCategory($catid)) {
+					$categories[] = $cat;
+					$categorynames[] = $cat->getName();
 				}
+			} else {
+				$categorynames[] = $catid;
 			}
 		}
-	} /* }}} */
+	}
+} /* }}} */
 
-	if (isset($_GET["orderby"]) && is_string($_GET["orderby"])) {
-		$orderby = $_GET["orderby"];
-	}
-	else {
-		$orderby = "";
-	}
+if (isset($_GET["orderby"]) && is_string($_GET["orderby"])) {
+	$orderby = $_GET["orderby"];
+} else {
+	$orderby = "";
+}
 
 $terms = [];
 $limit = (isset($_GET["limit"]) && is_numeric($_GET["limit"])) ? (int) $_GET['limit'] : 20;
 $fullsearch = ((!isset($_GET["fullsearch"]) && $settings->_defaultSearchMethod == 'fulltext') || !empty($_GET["fullsearch"])) && $settings->_enableFullSearch;
 $facetsearch = !empty($_GET["facetsearch"]) && $settings->_enableFullSearch;
-if($fullsearch) {
-// Search in Fulltext {{{
+if ($fullsearch) {
+	// Search in Fulltext {{{
 	if (isset($_GET["query"]) && is_string($_GET["query"])) {
 		$query = $_GET["query"];
-//		if(isset($_GET['action']) && ($_GET['action'] == 'typeahead'))
+		//		if(isset($_GET['action']) && ($_GET['action'] == 'typeahead'))
 //			$query .= '*';
-	}
-	else {
+	} else {
 		$query = "";
 	}
 
@@ -224,12 +223,11 @@ if($fullsearch) {
 	// user is interested in, and an extra clause on the select statement.
 	//
 	// Default page to display is always one.
-	$pageNumber=1;
+	$pageNumber = 1;
 	if (isset($_GET["pg"])) {
-		if (is_numeric($_GET["pg"]) && $_GET["pg"]>0) {
-			$pageNumber = (integer)$_GET["pg"];
-		}
-		elseif (!strcasecmp($_GET["pg"], "all")) {
+		if (is_numeric($_GET["pg"]) && $_GET["pg"] > 0) {
+			$pageNumber = (integer) $_GET["pg"];
+		} elseif (!strcasecmp($_GET["pg"], "all")) {
 			$pageNumber = "all";
 		}
 	}
@@ -241,11 +239,11 @@ if($fullsearch) {
 	$mimetype = [];
 	if (isset($_GET["mimetype"])) {
 		if (!is_array($_GET['mimetype'])) {
-			if(!empty($_GET['mimetype']))
+			if (!empty($_GET['mimetype']))
 				$mimetype[] = $_GET['mimetype'];
 		} else {
-			foreach($_GET["mimetype"] as $l) {
-				if($l)
+			foreach ($_GET["mimetype"] as $l) {
+				if ($l)
 					$mimetype[] = $l;
 			}
 		}
@@ -276,13 +274,13 @@ if($fullsearch) {
 	 }}} */
 
 	// status
-	if(isset($_GET['status']))
+	if (isset($_GET['status']))
 		$status = $_GET['status'];
 	else
 		$status = array();
 
 	// record_type
-	if(isset($_GET['record_type']))
+	if (isset($_GET['record_type']))
 		$record_type = $_GET['record_type'];
 	else
 		$record_type = array();
@@ -292,90 +290,90 @@ if($fullsearch) {
 	else
 		$attributes = array();
 
-	foreach($attributes as $an=>&$av) {
-		if(substr($an, 0, 5) == 'attr_') {
+	foreach ($attributes as $an => &$av) {
+		if (substr($an, 0, 5) == 'attr_') {
 			$tmp = explode('_', $an);
-			if($attrdef = $dms->getAttributeDefinition($tmp[1])) {
-				switch($attrdef->getType()) {
-				/* Turn dates into timestamps */
-				case SeedDMS_Core_AttributeDefinition::type_date:
-					foreach(['from', 'to'] as $kk)
-						if(!empty($av[$kk])) {
-							if(!is_numeric($av[$kk])) {
-								$av[$kk] = makeTsFromDate($av[$kk]);
+			if ($attrdef = $dms->getAttributeDefinition($tmp[1])) {
+				switch ($attrdef->getType()) {
+					/* Turn dates into timestamps */
+					case SeedDMS_Core_AttributeDefinition::type_date:
+						foreach (['from', 'to'] as $kk)
+							if (!empty($av[$kk])) {
+								if (!is_numeric($av[$kk])) {
+									$av[$kk] = makeTsFromDate($av[$kk]);
+								}
 							}
-						}
-					break;
+						break;
 				}
 			}
 		}
 	}
 
 	/* Create $order array for fulltext search */
-	$order = ['by'=>'', 'dir'=>''];
-	switch($orderby) {
-	case 'dd':
-		$order = ['by'=>'created', 'dir'=>'desc'];
-		break;
-	case 'd':
-		$order = ['by'=>'created', 'dir'=>'asc'];
-		break;
-	case 'nd':
-		$order = ['by'=>'title', 'dir'=>'desc'];
-		break;
-	case 'n':
-		$order = ['by'=>'title', 'dir'=>'asc'];
-		break;
-	case 'id':
-		$order = ['by'=>'id', 'dir'=>'desc'];
-		break;
-	case 'i':
-		$order = ['by'=>'id', 'dir'=>'asc'];
-		break;
-	default:
-		$order = ['by'=>'', 'dir'=>''];
+	$order = ['by' => '', 'dir' => ''];
+	switch ($orderby) {
+		case 'dd':
+			$order = ['by' => 'created', 'dir' => 'desc'];
+			break;
+		case 'd':
+			$order = ['by' => 'created', 'dir' => 'asc'];
+			break;
+		case 'nd':
+			$order = ['by' => 'title', 'dir' => 'desc'];
+			break;
+		case 'n':
+			$order = ['by' => 'title', 'dir' => 'asc'];
+			break;
+		case 'id':
+			$order = ['by' => 'id', 'dir' => 'desc'];
+			break;
+		case 'i':
+			$order = ['by' => 'id', 'dir' => 'asc'];
+			break;
+		default:
+			$order = ['by' => '', 'dir' => ''];
 	}
 
 	//print_r($attributes);exit;
 	// Check to see if the search has been restricted to a particular sub-tree in
 	// the folder hierarchy.
 	$startFolder = null;
-	if (isset($_GET["folderfullsearchid"]) && is_numeric($_GET["folderfullsearchid"]) && $_GET["folderfullsearchid"]>0) {
+	if (isset($_GET["folderfullsearchid"]) && is_numeric($_GET["folderfullsearchid"]) && $_GET["folderfullsearchid"] > 0) {
 		$targetid = $_GET["folderfullsearchid"];
 		$startFolder = $dms->getFolder($targetid);
 		if (!is_object($startFolder)) {
-			UI::exitError(getMLText("search"),getMLText("invalid_folder_id"));
+			UI::exitError(getMLText("search"), getMLText("invalid_folder_id"));
 		}
 	}
 
 	$rootFolder = $dms->getFolder($settings->_rootFolderID);
 
 	$startTime = getTime();
-	if($settings->_fullSearchEngine == 'lucene') {
+	if ($settings->_fullSearchEngine == 'lucene') {
 		Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
 	}
 
-	if(strlen($query) < 4 && strpos($query, '*')) {
-		$session->setSplashMsg(array('type'=>'error', 'msg'=>getMLText('splash_invalid_searchterm')));
+	if (strlen($query) < 4 && strpos($query, '*')) {
+		$session->setSplashMsg(array('type' => 'error', 'msg' => getMLText('splash_invalid_searchterm')));
 		$dcount = 0;
 		$totalPages = 0;
 		$entries = array();
 		$searchTime = 0;
 	} else {
 		$startTime = getTime();
-//		$limit = 20;
+		//		$limit = 20;
 		$total = 0;
 		$index = $fulltextservice->Indexer();
-		if($index) {
-			if(!empty($settings->_suggestTerms) && !empty($_GET['query'])) {
+		if ($index) {
+			if (!empty($settings->_suggestTerms) && !empty($_GET['query'])) {
 				$st = preg_split("/[\s,]+/", trim($_GET['query']));
-				if($lastterm = end($st))
+				if ($lastterm = end($st))
 					$terms = $index->terms($lastterm, $settings->_suggestTerms);
 			}
 			$lucenesearch = $fulltextservice->Search();
-			$searchresult = $lucenesearch->search($query, array('record_type'=>$record_type, 'owner'=>$ownernames, 'status'=>$status, 'category'=>$categorynames, 'user'=>$user->isAdmin() ? [] : [$user->getLogin()], 'mimetype'=>$mimetype, 'startFolder'=>$startFolder, 'rootFolder'=>$rootFolder, 'created_start'=>$createstartts, 'created_end'=>$createendts, 'modified_start'=>$modifystartts, 'modified_end'=>$modifyendts, 'filesize_start'=>$filesizestart, 'filesize_end'=>$filesizeend, 'attributes'=>$attributes), ($pageNumber == 'all' ? array() : array('limit'=>$limit, 'offset'=>$limit * ($pageNumber-1))), $order);
-			if($searchresult === false) {
-				$session->setSplashMsg(array('type'=>'error', 'msg'=>getMLText('splash_invalid_searchterm')));
+			$searchresult = $lucenesearch->search($query, array('record_type' => $record_type, 'owner' => $ownernames, 'status' => $status, 'category' => $categorynames, 'user' => $user->isAdmin() ? [] : [$user->getLogin()], 'mimetype' => $mimetype, 'startFolder' => $startFolder, 'rootFolder' => $rootFolder, 'created_start' => $createstartts, 'created_end' => $createendts, 'modified_start' => $modifystartts, 'modified_end' => $modifyendts, 'filesize_start' => $filesizestart, 'filesize_end' => $filesizeend, 'attributes' => $attributes), ($pageNumber == 'all' ? array() : array('limit' => $limit, 'offset' => $limit * ($pageNumber - 1))), $order);
+			if ($searchresult === false) {
+				$session->setSplashMsg(array('type' => 'error', 'msg' => getMLText('splash_invalid_searchterm')));
 				$dcount = 0;
 				$fcount = 0;
 				$totalPages = 0;
@@ -389,35 +387,35 @@ if($fullsearch) {
 				$stats = $searchresult['stats'] ?? null;
 				$dcount = 0;
 				$fcount = 0;
-				if($searchresult['hits']) {
-					foreach($searchresult['hits'] as $hit) {
-						if($hit['document_id'][0] == 'D') {
-							if($tmp = $dms->getDocument(substr($hit['document_id'], 1))) {
-//								if($tmp->getAccessMode($user) >= M_READ) {
-									$tmp->verifyLastestContentExpriry();
-									$entries[] = $tmp;
-									$dcount++;
-//								}
+				if ($searchresult['hits']) {
+					foreach ($searchresult['hits'] as $hit) {
+						if ($hit['document_id'][0] == 'D') {
+							if ($tmp = $dms->getDocument(substr($hit['document_id'], 1))) {
+								//								if($tmp->getAccessMode($user) >= M_READ) {
+								$tmp->verifyLastestContentExpriry();
+								$entries[] = $tmp;
+								$dcount++;
+								//								}
 							}
-						} elseif($hit['document_id'][0] == 'F') {
-							if($tmp = $dms->getFolder(substr($hit['document_id'], 1))) {
-//								if($tmp->getAccessMode($user) >= M_READ) {
-									$entries[] = $tmp;
-									$fcount++;
-//								}
+						} elseif ($hit['document_id'][0] == 'F') {
+							if ($tmp = $dms->getFolder(substr($hit['document_id'], 1))) {
+								//								if($tmp->getAccessMode($user) >= M_READ) {
+								$entries[] = $tmp;
+								$fcount++;
+								//								}
 							}
 						}
 					}
-					if(isset($facets['record_type'])) {
+					if (isset($facets['record_type'])) {
 						$fcount = isset($facets['record_type']['folder']) ? $facets['record_type']['folder'] : 0;
-						$dcount = isset($facets['record_type']['document']) ? $facets['record_type']['document'] : 0 ;
+						$dcount = isset($facets['record_type']['document']) ? $facets['record_type']['document'] : 0;
 					}
 				}
-				if(/* $pageNumber != 'all' && */$searchresult['count'] > $limit) {
-					$totalPages = (int) ($searchresult['count']/$limit);
-					if($searchresult['count']%$limit)
+				if (/* $pageNumber != 'all' && */ $searchresult['count'] > $limit) {
+					$totalPages = (int) ($searchresult['count'] / $limit);
+					if ($searchresult['count'] % $limit)
 						$totalPages++;
-//					if($limit > 0)
+					//					if($limit > 0)
 //						$entries = array_slice($entries, ($pageNumber-1)*$limit, $limit);
 				} else {
 					$totalPages = 1;
@@ -427,7 +425,7 @@ if($fullsearch) {
 			$searchTime = getTime() - $startTime;
 			$searchTime = round($searchTime, 2);
 		} else {
-			$session->setSplashMsg(array('type'=>'error', 'msg'=>getMLText('splash_invalid_search_service')));
+			$session->setSplashMsg(array('type' => 'error', 'msg' => getMLText('splash_invalid_search_service')));
 			$dcount = 0;
 			$fcount = 0;
 			$totalPages = 0;
@@ -443,8 +441,7 @@ if($fullsearch) {
 	// Search in Database {{{
 	if (isset($_GET["query"]) && is_string($_GET["query"])) {
 		$query = $_GET["query"];
-	}
-	else {
+	} else {
 		$query = "";
 	}
 
@@ -453,12 +450,12 @@ if($fullsearch) {
 	 */
 	$resultmode = 0x03;
 	if (isset($_GET["resultmode"]) && is_numeric($_GET["resultmode"])) {
-			$resultmode = $_GET['resultmode'];
+		$resultmode = $_GET['resultmode'];
 	}
 
 	$mode = "AND";
-	if (isset($_GET["mode"]) && is_numeric($_GET["mode"]) && $_GET["mode"]==0) {
-			$mode = "OR";
+	if (isset($_GET["mode"]) && is_numeric($_GET["mode"]) && $_GET["mode"] == 0) {
+		$mode = "OR";
 	}
 
 	$searchin = array();
@@ -479,19 +476,19 @@ if($fullsearch) {
 	}
 
 	// if none is checkd search all
-	if (count($searchin)==0) $searchin=array(1, 2, 3, 4, 5);
+	if (count($searchin) == 0)
+		$searchin = array(1, 2, 3, 4, 5);
 
 	// Check to see if the search has been restricted to a particular sub-tree in
 	// the folder hierarchy.
-	if (isset($_GET["targetid"]) && is_numeric($_GET["targetid"]) && $_GET["targetid"]>0) {
+	if (isset($_GET["targetid"]) && is_numeric($_GET["targetid"]) && $_GET["targetid"] > 0) {
 		$targetid = $_GET["targetid"];
 		$startFolder = $dms->getFolder($targetid);
-	}
-	else {
+	} else {
 		$startFolder = $dms->getRootFolder();
 	}
 	if (!is_object($startFolder)) {
-		UI::exitError(getMLText("search"),getMLText("invalid_folder_id"));
+		UI::exitError(getMLText("search"), getMLText("invalid_folder_id"));
 	}
 
 	// Check to see if the search has been restricted to a particular
@@ -536,18 +533,18 @@ if($fullsearch) {
 	/* Revision date {{{ */
 	$revisionstartdate = array();
 	$revisionenddate = array();
-	if(!empty($_GET["revisiondatestart"])) {
+	if (!empty($_GET["revisiondatestart"])) {
 		$revisionstartts = makeTsFromDate($_GET["revisiondatestart"]);
-		$revisionstartdate = array('year'=>(int)date('Y', $revisionstartts), 'month'=>(int)date('m', $revisionstartts), 'day'=>(int)date('d', $revisionstartts), 'hour'=>0, 'minute'=>0, 'second'=>0);
+		$revisionstartdate = array('year' => (int) date('Y', $revisionstartts), 'month' => (int) date('m', $revisionstartts), 'day' => (int) date('d', $revisionstartts), 'hour' => 0, 'minute' => 0, 'second' => 0);
 		if (!checkdate($revisionstartdate['month'], $revisionstartdate['day'], $revisionstartdate['year'])) {
-			UI::exitError(getMLText("search"),getMLText("invalid_revision_date_start"));
+			UI::exitError(getMLText("search"), getMLText("invalid_revision_date_start"));
 		}
 	}
-	if(!empty($_GET["revisiondateend"])) {
+	if (!empty($_GET["revisiondateend"])) {
 		$revisionendts = makeTsFromDate($_GET["revisiondateend"]);
-		$revisionenddate = array('year'=>(int)date('Y', $revisionendts), 'month'=>(int)date('m', $revisionendts), 'day'=>(int)date('d', $revisionendts), 'hour'=>23, 'minute'=>59, 'second'=>59);
+		$revisionenddate = array('year' => (int) date('Y', $revisionendts), 'month' => (int) date('m', $revisionendts), 'day' => (int) date('d', $revisionendts), 'hour' => 23, 'minute' => 59, 'second' => 59);
 		if (!checkdate($revisionenddate['month'], $revisionenddate['day'], $revisionenddate['year'])) {
-			UI::exitError(getMLText("search"),getMLText("invalid_revision_date_end"));
+			UI::exitError(getMLText("search"), getMLText("invalid_revision_date_end"));
 		}
 	}
 	/* }}} */
@@ -555,37 +552,37 @@ if($fullsearch) {
 	/* Status date {{{ */
 	$statusstartdate = array();
 	$statusenddate = array();
-	if(!empty($_GET["statusdatestart"])) {
+	if (!empty($_GET["statusdatestart"])) {
 		$statusstartts = makeTsFromDate($_GET["statusdatestart"]);
-		$statusstartdate = array('year'=>(int)date('Y', $statusstartts), 'month'=>(int)date('m', $statusstartts), 'day'=>(int)date('d', $statusstartts), 'hour'=>0, 'minute'=>0, 'second'=>0);
+		$statusstartdate = array('year' => (int) date('Y', $statusstartts), 'month' => (int) date('m', $statusstartts), 'day' => (int) date('d', $statusstartts), 'hour' => 0, 'minute' => 0, 'second' => 0);
 	}
 	if ($statusstartdate && !checkdate($statusstartdate['month'], $statusstartdate['day'], $statusstartdate['year'])) {
-		UI::exitError(getMLText("search"),getMLText("invalid_status_date_start"));
+		UI::exitError(getMLText("search"), getMLText("invalid_status_date_start"));
 	}
-	if(!empty($_GET["statusdateend"])) {
+	if (!empty($_GET["statusdateend"])) {
 		$statusendts = makeTsFromDate($_GET["statusdateend"]);
-		$statusenddate = array('year'=>(int)date('Y', $statusendts), 'month'=>(int)date('m', $statusendts), 'day'=>(int)date('d', $statusendts), 'hour'=>23, 'minute'=>59, 'second'=>59);
+		$statusenddate = array('year' => (int) date('Y', $statusendts), 'month' => (int) date('m', $statusendts), 'day' => (int) date('d', $statusendts), 'hour' => 23, 'minute' => 59, 'second' => 59);
 	}
 	if ($statusenddate && !checkdate($statusenddate['month'], $statusenddate['day'], $statusenddate['year'])) {
-		UI::exitError(getMLText("search"),getMLText("invalid_status_date_end"));
+		UI::exitError(getMLText("search"), getMLText("invalid_status_date_end"));
 	}
 	/* }}} */
 
 	/* Expiration date {{{ */
 	$expstartdate = array();
 	$expenddate = array();
-	if(!empty($_GET["expirationstart"])) {
+	if (!empty($_GET["expirationstart"])) {
 		$expstartts = makeTsFromDate($_GET["expirationstart"]);
-		$expstartdate = array('year'=>(int)date('Y', $expstartts), 'month'=>(int)date('m', $expstartts), 'day'=>(int)date('d', $expstartts), 'hour'=>0, 'minute'=>0, 'second'=>0);
+		$expstartdate = array('year' => (int) date('Y', $expstartts), 'month' => (int) date('m', $expstartts), 'day' => (int) date('d', $expstartts), 'hour' => 0, 'minute' => 0, 'second' => 0);
 		if (!checkdate($expstartdate['month'], $expstartdate['day'], $expstartdate['year'])) {
-			UI::exitError(getMLText("search"),getMLText("invalid_expiration_date_start"));
+			UI::exitError(getMLText("search"), getMLText("invalid_expiration_date_start"));
 		}
 	}
-	if(!empty($_GET["expirationend"])) {
+	if (!empty($_GET["expirationend"])) {
 		$expendts = makeTsFromDate($_GET["expirationend"]);
-		$expenddate = array('year'=>(int)date('Y', $expendts), 'month'=>(int)date('m', $expendts), 'day'=>(int)date('d', $expendts), 'hour'=>23, 'minute'=>59, 'second'=>59);
+		$expenddate = array('year' => (int) date('Y', $expendts), 'month' => (int) date('m', $expendts), 'day' => (int) date('d', $expendts), 'hour' => 23, 'minute' => 59, 'second' => 59);
 		if (!checkdate($expenddate['month'], $expenddate['day'], $expenddate['year'])) {
-			UI::exitError(getMLText("search"),getMLText("invalid_expiration_date_end"));
+			UI::exitError(getMLText("search"), getMLText("invalid_expiration_date_end"));
 		}
 	}
 	/* }}} */
@@ -627,7 +624,7 @@ if($fullsearch) {
 	 */
 
 	$reception = array();
-	if (isset($_GET["reception"])){
+	if (isset($_GET["reception"])) {
 		$reception = $_GET["reception"];
 	}
 
@@ -637,7 +634,7 @@ if($fullsearch) {
 	 * also all folders of that user because the status doesn't apply
 	 * to folders.
 	 */
-//	if($status)
+	//	if($status)
 //		$resultmode = 0x01;
 
 	if (isset($_GET["attributes"]))
@@ -645,14 +642,14 @@ if($fullsearch) {
 	else
 		$attributes = array();
 
-	foreach($attributes as $attrdefid=>$attribute) {
+	foreach ($attributes as $attrdefid => $attribute) {
 		$attrdef = $dms->getAttributeDefinition($attrdefid);
-		if($attribute) {
-			if($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_date) {
-				if(is_array($attribute)) {
-					if(!empty($attributes[$attrdefid]['from']))
+		if ($attribute) {
+			if ($attrdef->getType() == SeedDMS_Core_AttributeDefinition::type_date) {
+				if (is_array($attribute)) {
+					if (!empty($attributes[$attrdefid]['from']))
 						$attributes[$attrdefid]['from'] = date('Y-m-d', makeTsFromDate($attribute['from']));
-					if(!empty($attributes[$attrdefid]['to']))
+					if (!empty($attributes[$attrdefid]['to']))
 						$attributes[$attrdefid]['to'] = date('Y-m-d', makeTsFromDate($attribute['to']));
 				} else {
 					$attributes[$attrdefid] = date('Y-m-d', makeTsFromDate($attribute));
@@ -669,13 +666,12 @@ if($fullsearch) {
 	// user is interested in, and an extra clause on the select statement.
 	//
 	// Default page to display is always one.
-	$pageNumber=1;
-//	$limit = 15;
+	$pageNumber = 1;
+	//	$limit = 15;
 	if (isset($_GET["pg"])) {
-		if (is_numeric($_GET["pg"]) && $_GET["pg"]>0) {
+		if (is_numeric($_GET["pg"]) && $_GET["pg"] > 0) {
 			$pageNumber = (int) $_GET["pg"];
-		}
-		elseif (!strcasecmp($_GET["pg"], "all")) {
+		} elseif (!strcasecmp($_GET["pg"], "all")) {
 			$pageNumber = "all";
 		}
 	}
@@ -683,31 +679,31 @@ if($fullsearch) {
 	// ---------------- Start searching -----------------------------------------
 	$startTime = getTime();
 	$resArr = $dms->search(array(
-		'query'=>$query,
-		'limit'=>0,
-		'offset'=>0 /*$limit, ($pageNumber-1)*$limit*/,
-		'logicalmode'=>$mode,
-		'searchin'=>$searchin,
-		'startFolder'=>$startFolder,
-		'owner'=>$ownerobjs,
-		'status'=>$status,
-		'creationstartdate'=>$created['from'], //$createstartdate ? $createstartdate : array(),
-		'creationenddate'=>$created['to'], //$createenddate ? $createenddate : array(),
-		'modificationstartdate'=>$modified['from'],
-		'modificationenddate'=>$modified['to'],
-		'filesizestart'=>$filesize['from'],
-		'filesizeend'=>$filesize['to'],
-		'categories'=>$categories,
-		'attributes'=>$attributes,
-		'mode'=>$resultmode,
-		'expirationstartdate'=>$expstartdate ? $expstartdate : array(),
-		'expirationenddate'=>$expenddate ? $expenddate : array(),
-		'revisionstartdate'=>$revisionstartdate ? $revisionstartdate : array(),
-		'revisionenddate'=>$revisionenddate ? $revisionenddate : array(),
-		'reception'=>$reception,
-		'statusstartdate'=>$statusstartdate ? $statusstartdate : array(),
-		'statusenddate'=>$statusenddate ? $statusenddate : array(),
-		'orderby'=>$orderby
+		'query' => '%',
+		'limit' => 0,
+		'offset' => 0 /*$limit, ($pageNumber-1)*$limit*/ ,
+		'logicalmode' => $mode,
+		'searchin' => $searchin,
+		'startFolder' => $startFolder,
+		'owner' => $ownerobjs,
+		'status' => $status,
+		'creationstartdate' => $created['from'], //$createstartdate ? $createstartdate : array(),
+		'creationenddate' => $created['to'], //$createenddate ? $createenddate : array(),
+		'modificationstartdate' => $modified['from'],
+		'modificationenddate' => $modified['to'],
+		'filesizestart' => $filesize['from'],
+		'filesizeend' => $filesize['to'],
+		'categories' => $categories,
+		'attributes' => $attributes,
+		'mode' => $resultmode,
+		'expirationstartdate' => $expstartdate ? $expstartdate : array(),
+		'expirationenddate' => $expenddate ? $expenddate : array(),
+		'revisionstartdate' => $revisionstartdate ? $revisionstartdate : array(),
+		'revisionenddate' => $revisionenddate ? $revisionenddate : array(),
+		'reception' => $reception,
+		'statusstartdate' => $statusstartdate ? $statusstartdate : array(),
+		'statusenddate' => $statusenddate ? $statusenddate : array(),
+		'orderby' => $orderby
 	));
 	$total = $resArr['totalDocs'] + $resArr['totalFolders'];
 	$searchTime = getTime() - $startTime;
@@ -715,58 +711,110 @@ if($fullsearch) {
 
 	$entries = array();
 	$fcount = 0;
-//	if(!isset($_GET['action']) || $_GET['action'] != 'export') {
-		if($resArr['folders']) {
-			foreach ($resArr['folders'] as $entry) {
-				if ($entry->getAccessMode($user) >= M_READ) {
-					$entries[] = $entry;
-					$fcount++;
+	//	if(!isset($_GET['action']) || $_GET['action'] != 'export') {
+	function decrypt($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
+
+	$dcount = 0;
+	$encryption_key_dec = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
+	function normalizeText($text)
+	{
+		return preg_replace('/[^a-z0-9]/', '', strtolower(trim($text)));
+	}
+
+	$normalizedQuery = normalizeText($query);
+
+	if ($resArr['folders']) {
+		foreach ($resArr['folders'] as $entry) {
+			if ($entry->getAccessMode($user) >= M_READ) {
+				$encryptedTitle = $entry->getName();
+				$decrypted = decrypt($encryptedTitle, $encryption_key_dec);
+				if ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') {
+					$decryptedTitle = '';
+				} else {
+					$decryptedTitle = $decrypted;
+				}
+				$normalizedTitle = normalizeText($decryptedTitle);
+				if (!empty($normalizedTitle)) {
+					if (strpos($normalizedTitle, $normalizedQuery) !== false) {
+						$entries[] = $entry;
+						$fcount++;
+					}
 				}
 			}
 		}
-//	}
-	$dcount = 0;
-	if($resArr['docs']) {
+	}
+
+	//	}
+
+
+	if ($resArr['docs']) {
 		foreach ($resArr['docs'] as $entry) {
-			if ($entry->getAccessMode($user) >= M_READ) {
-				if($entry->getLatestContent()) {
-					$entry->verifyLastestContentExpriry();
-					$entries[] = $entry;
-					$dcount++;
+			// Temporarily disable access/content check to test
+			if ($entry->getAccessMode($user) >= M_READ && $entry->getLatestContent()) {
+				$encryptedTitle = $entry->getName();
+				$decrypted = decrypt($encryptedTitle, $encryption_key_dec);
+				if ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') {
+					$decryptedTitle = '';
+				} else {
+					$decryptedTitle = $decrypted;
+				}
+
+				$normalizedTitle = normalizeText($decryptedTitle);
+
+				if (!empty($normalizedTitle)) {
+					if (strpos($normalizedTitle, $normalizedQuery) !== false) {
+						//echo "<pre>✅ Match found: [$normalizedTitle] contains [$normalizedQuery]</pre>";
+						$entries[] = $entry;
+						$dcount++;
+					} else {
+						//echo "<pre>❌ No match in: [$normalizedTitle]</pre>";
+					}
 				}
 			}
 		}
 	}
 	$totalPages = 1;
 	if ((!isset($_GET['action']) || $_GET['action'] != 'export') /*&& (!isset($_GET["pg"]) || strcasecmp($_GET["pg"], "all"))*/) {
-		$totalPages = (int) (count($entries)/$limit);
-		if(count($entries)%$limit)
+		$totalPages = (int) (count($entries) / $limit);
+		if (count($entries) % $limit)
 			$totalPages++;
-		if($pageNumber != 'all')
-			$entries = array_slice($entries, ($pageNumber-1)*$limit, $limit);
+		if ($pageNumber != 'all')
+			$entries = array_slice($entries, ($pageNumber - 1) * $limit, $limit);
 	} else
 		$totalPages = 1;
 	$facets = array();
 	$stats = array();
-// }}}
+	// }}}
 }
+
 
 // -------------- Output results --------------------------------------------
 
-if($settings->_showSingleSearchHit && count($entries) == 1) {
+if ($settings->_showSingleSearchHit && count($entries) == 1) {
 	$entry = $entries[0];
-	if($entry->isType('document')) {
-		header('Location: ../out/out.ViewDocument.php?documentid='.$entry->getID());
+	if ($entry->isType('document')) {
+		header('Location: ../out/out.ViewDocument.php?documentid=' . $entry->getID());
 		exit;
-	} elseif($entry->isType('folder')) {
-		header('Location: ../out/out.ViewFolder.php?folderid='.$entry->getID());
+	} elseif ($entry->isType('folder')) {
+		header('Location: ../out/out.ViewFolder.php?folderid=' . $entry->getID());
 		exit;
 	}
 } else {
 	$tmp = explode('.', basename($_SERVER['SCRIPT_FILENAME']));
-	$view = UI::factory($theme, $tmp[1], array('dms'=>$dms, 'user'=>$user));
+	$view = UI::factory($theme, $tmp[1], array('dms' => $dms, 'user' => $user));
 	$accessop = new SeedDMS_AccessOperation($dms, $user, $settings);
-	if($view) {
+	if ($view) {
 		$view->setParam('facets', $facets);
 		$view->setParam('stats', $stats);
 		$view->setParam('accessobject', $accessop);

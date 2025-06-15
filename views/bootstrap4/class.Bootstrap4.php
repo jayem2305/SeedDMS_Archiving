@@ -301,21 +301,30 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 
 	function footNote()
 	{ /* {{{ */
-		$html = "<footer class=\"footer border-top\">\n";
-		$html .= '<div class="container">' . "\n";
+		$html = "<footer class=\"footer border-top bg-light py-4 mt-5\">\n";
+		$html .= "<div class=\"container\">\n";
+		$html .= "<div class=\"row justify-content-end\">\n";
+		$html .= "<div class=\"col-lg-10 text-end\">\n"; // Right-aligned content in a large column
 
-		if ($this->params['printdisclaimer']) {
-			$html .= "<div class=\"disclaimer\">" . getMLText("disclaimer") . "</div>";
-		}
+		// Optional: Add a small muted heading
 
-		if (isset($this->params['footnote']) && strlen((string) $this->params['footnote']) > 0) {
-			$html .= "<div class=\"footNote\">" . (string) $this->params['footnote'] . "</div>";
+		if (!empty($this->params['printdisclaimer'])) {
+			$html .= "<div class=\"footer-disclaimer text-muted fst-italic mb-2\">\n";
+			$html .= getMLText("disclaimer") . "\n";
+			$html .= "</div>\n";
 		}
-		$html .= "</div>\n";
+		$html .= "<small class=\"text-muted d-block mb-2\">ORTADEL Technologies inc., All Right Reserved.</small>\n";
+
+
+		$html .= "</div>\n"; // close col-lg-10
+		$html .= "</div>\n"; // close row
+		$html .= "</div>\n"; // close container
 		$html .= "</footer>\n";
 
 		return $html;
 	} /* }}} */
+
+
 
 	function contentStart()
 	{ /* {{{ */
@@ -809,11 +818,13 @@ HTML_CSS;
 		if ($pageType != null && strcasecmp($pageType, "noNav")) {
 			//			echo "<div class=\"fixed-top\" style=\"z-index: 1029; margin-top: 51px;\">";
 			echo "<nav class=\"navbar navbar-expand-lg mb-4 bg-light navbar-light\">\n";
-			echo '<a class="navbar-brand">' . getMLText('nav_brand_' . $pageType) . '</a>';
+			echo '<a class="navbar-brand fs-4 fs-sm-5 fs-md-4 fs-lg-3 text-break">' . getMLText('nav_brand_' . $pageType) . '</a>';
+
 			echo "<button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" data-target=\"#navbarPageContent\" aria-controls=\"navbarMain\" aria-expanded=\"false\" aria-label=\"Toggle navigation\">\n";
 			echo " <span class=\"navbar-toggler-icon\"></span>\n";
 			echo "</button>\n";
-			echo "<div class=\"collapse navbar-collapse\" id=\"navbarPageContent\">\n";
+			echo "<div class=\"collapse navbar-collapse text-nowrap\" id=\"navbarPageContent\" style=\"font-size: clamp(12px, 1.5vw, 14.5px);\">\n";
+
 			switch ($pageType) {
 				case "view_folder":
 					$this->folderNavigationBar($extra);
@@ -3632,6 +3643,7 @@ HTML_CSS;
 	 */
 	function getListRowPath($object)
 	{ /* {{{ */
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		if (!$object)
 			return '';
 		$belowtitle = '';
@@ -3640,7 +3652,10 @@ HTML_CSS;
 			$belowtitle .= "<br /><span style=\"font-size: 85%;\">" . getMLText('in_folder') . ": /";
 			$path = $folder->getPath();
 			for ($i = 1; $i < count($path); $i++) {
-				$belowtitle .= htmlspecialchars($path[$i]->getName()) . "/";
+				$decrypted = $this->decryptName($path[$i]->getName(), $encryption_key);
+				$foldername = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $path[$i]->getName() : $decrypted;
+
+				$belowtitle .= htmlspecialchars($foldername) . "/";
 			}
 			$belowtitle .= "</span>";
 		}

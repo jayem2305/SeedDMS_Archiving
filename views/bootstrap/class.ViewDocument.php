@@ -31,6 +31,26 @@
  */
 class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 {
+	function fullyDecrypt($value, $encryption_key)
+	{
+		$attempts = 0;
+		$max_attempts = 5; // avoid infinite loops
+
+		while ($attempts < $max_attempts) {
+			$decrypted = $this->decrypt($value, $encryption_key);
+
+			// If decryption failed, return the last successful value
+			if ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') {
+				break;
+			}
+
+			$value = $decrypted;
+			$attempts++;
+		}
+
+		return $value;
+	}
+
 	private function decrypt($encrypted_combined_base64, $key)
 	{
 		$data = base64_decode($encrypted_combined_base64);
@@ -2226,9 +2246,9 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					echo '<div id="auditlog-controls" class="d-flex justify-content-between align-items-center mb-2">';
 					// Search box (top left)  
 					echo '<div><input type="text" id="auditlog-search" class="form-control form-control-sm d-inline-block" style="width:200px;" placeholder="Search users, values..."> <button id="auditlog-search-btn" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button></div>';
-					
+
 					// Export button (top right)
-					if($auditLogs && count($auditLogs) > 0) {
+					if ($auditLogs && count($auditLogs) > 0) {
 						echo '<div><form action="' . $this->params['settings']->_httpRoot . 'op/op.DownloadAuditLog.php" method="post">';
 						echo "<input type=\"hidden\" name=\"documentid\" value=\"{$documentId}\">";
 						echo "<input type=\"hidden\" name=\"auditlogs\" value=\"" . htmlspecialchars(json_encode($auditLogs)) . "\">";
@@ -2237,9 +2257,11 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						echo '</form></div>';
 					}
 					echo '</div>';
-					
+
 					if ($auditLogs && count($auditLogs) > 0) {
 						// Table
+						$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
 						echo '<div class="table-responsive"><table id="auditlog-table" class="table table-condensed table-sm table-hover">';
 						echo '<thead><tr>';
 						echo '<th>Date/Time</th>';
@@ -2248,11 +2270,17 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						echo '<th>New</th>';
 						echo '</tr></thead><tbody>';
 						foreach ($auditLogs as $log) {
+							$decrypted = $this->decrypt($log['user'], $encryption_key);
+							$user_log = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $log['user'] : $decrypted;
+							$old_value_decrypt = $this->fullyDecrypt($log['old_value'], $encryption_key);
+							$old_value = ($old_value_decrypt === '[DECRYPTION FAILED]' || $old_value_decrypt === '[INVALID NAME]') ? $log['old_value'] : $old_value_decrypt;
+							$decrypted = $this->decrypt($log['new_value'], $encryption_key);
+							$new_value = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $log['new_value'] : $decrypted;
 							echo '<tr>';
 							echo '<td>' . htmlspecialchars($log['created_at']) . '</td>';
-							echo '<td>' . htmlspecialchars($log['user']) . '</td>';
-							echo '<td>' . htmlspecialchars($log['old_value']) . '</td>';
-							echo '<td>' . htmlspecialchars($log['new_value']) . '</td>';
+							echo '<td>' . htmlspecialchars($user_log) . '</td>';
+							echo '<td>' . htmlspecialchars($old_value) . '</td>';
+							echo '<td>' . htmlspecialchars($new_value) . '</td>';
 							echo '</tr>';
 						}
 						echo '</tbody></table></div>';

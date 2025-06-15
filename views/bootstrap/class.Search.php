@@ -31,7 +31,17 @@
  */
 class SeedDMS_View_Search extends SeedDMS_Theme_Style
 {
-
+	private function decrypt($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	/**
 	 * Mark search query sting in a given string
 	 *
@@ -408,6 +418,7 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 		$user = $this->params['user'];
 		$query = $this->params['query'];
 		$entries = $this->params['searchhits'];
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 		$recs = array();
 		$content = "<?xml version=\"1.0\"?>\n";
 		$content .= "<SearchSuggestion version=\"2.0\" xmlns=\"http://opensearch.org/searchsuggest2\">\n";
@@ -416,11 +427,13 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 			$content .= "<Section>\n";
 			foreach ($entries as $entry) {
 				$content .= "<Item>\n";
+				$decrypted = $this->decrypt($entry->getName(), $encryption_key);
+				$name = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $entry->getName() : $decrypted;
 				if ($entry->isType('document')) {
-					$content .= "<Text xml:space=\"preserve\">" . $entry->getName() . "</Text>\n";
+					$content .= "<Text xml:space=\"preserve\">" . $name . "</Text>\n";
 					$content .= "<Url xml:space=\"preserve\">http:" . ((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'], 'off') != 0)) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $settings->_httpRoot . "out/out.ViewDocument.php?documentid=" . $entry->getId() . "</Url>\n";
 				} elseif ($entry->isType('folder')) {
-					$content .= "<Text xml:space=\"preserve\">" . $entry->getName() . "</Text>\n";
+					$content .= "<Text xml:space=\"preserve\">" . $name . "</Text>\n";
 					$content .= "<Url xml:space=\"preserve\">http:" . ((isset($_SERVER['HTTPS']) && (strcmp($_SERVER['HTTPS'], 'off') != 0)) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $settings->_httpRoot . "out/out.ViewFolder.php?folderid=" . $entry->getId() . "</Url>\n";
 				}
 				$content .= "</Item>\n";
@@ -440,6 +453,8 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 		$query = $this->params['query'];
 		$entries = $this->params['searchhits'];
 		$terms = $this->params['terms'];
+		$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+
 		$recs = array();
 		$recs[] = array('type' => 'S', 'name' => $query, 'occurences' => '');
 		if ($terms) {
@@ -448,10 +463,29 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 		}
 		if ($entries) {
 			foreach ($entries as $entry) {
+				$decrypted = $this->decrypt($entry->getName(), $encryption_key);
+				$name = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $entry->getName() : $decrypted;
+
+				$encrypted_path_parts = explode('/', $entry->getParent()->getFolderPathPlain(true, '/'));
+				$decrypted_parts = [];
+
+				foreach ($encrypted_path_parts as $part) {
+					if (empty($part))
+						continue;
+
+					$decrypted_part = $this->decrypt($part, $encryption_key);
+					$decrypted_parts[] = ($decrypted_part === '[DECRYPTION FAILED]' || $decrypted_part === '[INVALID NAME]')
+						? $part
+						: $decrypted_part;
+				}
+
+				$decrypted_path = implode('/', $decrypted_parts);
+
+
 				if ($entry->isType('document')) {
-					$recs[] = array('type' => 'D', 'id' => $entry->getId(), 'name' => htmlspecialchars($entry->getName()), 'path' => htmlspecialchars($entry->getParent()->getFolderPathPlain(true, '/')));
+					$recs[] = array('type' => 'D', 'id' => $entry->getId(), 'name' => htmlspecialchars($name), 'path' => htmlspecialchars($decrypted_path));
 				} elseif ($entry->isType('folder')) {
-					$recs[] = array('type' => 'F', 'id' => $entry->getId(), 'name' => htmlspecialchars($entry->getName()), 'path' => htmlspecialchars($entry->getParent()->getFolderPathPlain(true, '/')));
+					$recs[] = array('type' => 'F', 'id' => $entry->getId(), 'name' => htmlspecialchars($name), 'path' => htmlspecialchars($decrypted_path));
 				}
 			}
 		}
@@ -1254,7 +1288,8 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 													switch ($attrdef->getType()) {
 														case SeedDMS_Core_AttributeDefinition::type_date:
 															array_walk($allparams['attributes'][$facetname], function (&$v, $k) {
-																$v = getReadableDate($v); });
+																$v = getReadableDate($v);
+															});
 															break;
 													}
 													$oldvalue = $allparams['attributes'][$facetname];
@@ -1304,13 +1339,15 @@ class SeedDMS_View_Search extends SeedDMS_Theme_Style
 												$oldvalue = is_array($allparams[$facetname]) ? $allparams[$facetname] : [$allparams[$facetname]];
 												$oldtransval = $oldvalue;
 												array_walk($oldtransval, function (&$v, $k) {
-													$v = getOverallStatusText($v); });
+													$v = getOverallStatusText($v);
+												});
 												break;
 											case 'created':
 											case 'modified':
 												if (!empty($allparams[$facetname]['from']) || !empty($allparams[$facetname]['to'])) {
 													array_walk($allparams[$facetname], function (&$v, $k) {
-														$v = getReadableDate($v); });
+														$v = getReadableDate($v);
+													});
 													$oldvalue = $allparams[$facetname];
 													$oldtransval = $oldvalue; //$oldvalue['from'].' TO '.$oldvalue['to'];
 												} else {
