@@ -40,70 +40,55 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 	 */
 	function dropUpload()
 	{ /* {{{ */
-		// Get all necessary parameters from the controller.
 		$dms = $this->params['dms'] ?? null;
 		$user = $this->params['user'] ?? null;
+		$folder = $this->params['folder'] ?? null;
 		$maxuploadsize = $this->params['maxuploadsize'] ?? ini_get('upload_max_filesize');
 
-		// MODIFIED: We now hardcode the folder ID here instead of reading from settings.xml
-		// Change '1' to the ID of the folder you want uploads to go to.
-		$dashboardUploadFolderParam = 1; // <-- SET YOUR FOLDER ID HERE
+		// Fallback to a specific folder ID if $folder is not passed
+		if (!$folder && $dms) {
+			$folder = $dms->getFolder(1); // Default to folder ID 1
+		}
 
-		// 1. Get the folder object from the dashboard-specific configuration.
-		$folder = null;
-		if ($dashboardUploadFolderParam && $dms) {
-			if (is_object($dashboardUploadFolderParam) && method_exists($dashboardUploadFolderParam, 'getID')) {
-				$folder = $dashboardUploadFolderParam;
-			} elseif (is_numeric($dashboardUploadFolderParam)) {
-				$folder = $dms->getFolder((int)$dashboardUploadFolderParam);
+		// Make sure $folder and $user are valid before accessing methods
+		if ($folder && is_object($folder) && method_exists($folder, 'getAccessMode') && $user) {
+			if ($folder->getAccessMode($user) >= M_READWRITE) {
+				$this->contentHeading(getMLText("dropupload"), true);
+
+				// Convert to bytes if needed
+				$maxuploadsizeBytes = is_string($maxuploadsize)
+					? SeedDMS_Core_File::parse_filesize($maxuploadsize)
+					: (int) $maxuploadsize;
+				?>
+				<div id="draganddrophandler" class="dashed-border alert alert-warning text-center"
+					style="height: 240px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #343a40; border-radius: 0.25rem;"
+					data-droptarget="folder_<?php echo $folder->getID(); ?>" data-target="<?php echo $folder->getID(); ?>"
+					data-uploadformtoken="<?php echo createFormKey(''); ?>">
+
+					<!-- Cloud Upload Icon -->
+					<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="black"
+						stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="transform: scale(2);">
+						<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4a6.994 6.994 0 00-6.92 6H4a4 4 0 000 8h16a4 4 0 00-.65-7.96z" />
+						<path d="M13 12v4h-2v-4H8l4-4 4 4h-3z" />
+					</svg>
+
+					<h4 style="margin-top: 20px; font-size: 18px;">
+						Drop Files here
+					</h4>
+					<h5 class="text-danger" style="font-size: 15px;">
+						Max. size: <?php echo SeedDMS_Core_File::format_filesize($maxuploadsizeBytes); ?>
+					</h5>
+					<script>
+						SeedDMSUpload.setMaxFileSize(<?php echo (int) $maxuploadsizeBytes; ?>);
+					</script>
+				</div>
+				<?php
 			}
-		}
-
-		// 2. Check for write access to the target folder.
-		$hasWriteAccess = false;
-		if ($folder && $user && is_object($folder) && method_exists($folder, 'getAccessMode')) {
-			$hasWriteAccess = ($folder->getAccessMode($user) >= M_READWRITE);
-		}
-
-		// 3. Render either the redesigned drop zone or an informative message.
-		if ($folder && $hasWriteAccess) {
-			// SUCCESS: User has permission, render the fully functional, redesigned drop zone.
-			// The ID 'dashboard-drop-zone' is crucial for the javascript uploader.
-?>
-			<div id="dashboard-drop-zone" class="dashed-border alert alert-warning text-center droptarget"
-				 style="height: 240px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #343a40; border-radius: 0.25rem;"
-				 data-droptarget="folder_<?php echo $folder->getID(); ?>"
-				 data-uploadformtoken="<?php echo createFormKey(''); ?>">
-
-				<!-- Cloud Upload Icon (Your requested design) -->
-				<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="black"
-					 stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="transform: scale(2);">
-					<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4a6.994 6.994 0 00-6.92 6H4a4 4 0 000 8h16a4 4 0 00-.65-7.96z" />
-					<path d="M13 12v4h-2v-4H8l4-4 4 4h-3z" />
-				</svg>
-
-				<!-- Upload Instructions (Your requested text) -->
-				<h4 style="margin-top: 20px; font-size: 18px;">
-					<?php echo htmlspecialchars(getMLText('drop_files_here_dashboard', [], 'Drop Files here')); ?>
-				</h4>
-				<!-- Max file size with 'text-danger' class as requested, but with the correct dynamic size -->
-				<h5 class="text-danger" style="font-size: 15px;">
-					<?php echo htmlspecialchars(getMLText('max_size_param', ['%size%' => SeedDMS_Core_File::format_filesize($maxuploadsize)], 'Max. size: %size%')); ?>
-				</h5>
-			</div>
-<?php
 		} else {
-			// FAILURE: Render a message explaining why the uploader is not available.
-			$message = '';
-			if (!$folder) {
-				// This message will now only appear if your hardcoded ID is invalid (e.g., folder deleted).
-				$message = getMLText('info_drop_upload_no_folder', [], 'The hardcoded target folder ID is invalid or the folder does not exist.');
-			} else { // Folder is valid, but user lacks permission.
-				$message = getMLText('access_denied_to_upload_folder', [], 'You do not have permission to upload to the configured quick upload folder.');
-			}
-			echo '<div class="alert alert-warning text-center" role="alert" style="padding: 40px; min-height: 240px; display: flex; align-items: center; justify-content: center;">' . htmlspecialchars($message) . '</div>';
+			echo '<div class="alert alert-danger text-center">Drop upload folder is not available or access is denied.</div>';
 		}
 	} /* }}} */
+
 
 
 	private function getJsDataForChartType($type, $phpData)
@@ -191,11 +176,11 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$chartColumnWidth = ($isPieChart && !$isBarOrLineChart) ? 8 : 12;
 		$this->columnStart($chartColumnWidth);
 		$this->contentContainerStart('chart-plot-area-' . $chartType, '', 'background-color:#fff; padding:10px; border:1px solid #e0e0e0; border-radius:4px; min-height:420px;');
-?>
+		?>
 		<div id="chart_<?php echo htmlspecialchars($chartType); ?>" style="height:400px; width:100%;" class="chart">
 			<p style="text-align:center; padding-top:180px; color:#777;">Loading chart...</p>
 		</div>
-<?php
+		<?php
 		$this->contentContainerEnd();
 		$this->columnEnd();
 
@@ -482,151 +467,163 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$translations = ['cancel', 'edit_document_props', 'uploading_maxsize', 'splash_move_document', 'confirm_move_document', 'move_document', 'confirm_transfer_link_document', 'transfer_content', 'link_document', 'splash_move_folder', 'confirm_move_folder', 'move_folder'];
 		parent::jsTranslations($translations);
 
-?>
+		?>
 		jQuery(document).ready(function($) {
-			console.log("Dashboard JS Initialized (Combined - Charts, AJAX lists, Drop Upload)");
+		console.log("Dashboard JS Initialized (Combined - Charts, AJAX lists, Drop Upload)");
 
-			$("<div id='chart_tooltip'></div>").css({
-				position: "absolute",
-				display: "none",
-				padding: "5px",
-				color: "white",
-				"background-color": "#000",
-				"border-radius": "5px",
-				opacity: 0.80,
-				zIndex: 1050
-			}).appendTo("body");
+		$("<div id='chart_tooltip'></div>").css({
+		position: "absolute",
+		display: "none",
+		padding: "5px",
+		color: "white",
+		"background-color": "#000",
+		"border-radius": "5px",
+		opacity: 0.80,
+		zIndex: 1050
+		}).appendTo("body");
 
-			// Initialize Dashboard Drop Upload
-			<?php // This JS block is still wrapped in a condition, which is good practice.
-			      // It ensures JS doesn't try to initialize the uploader if the backend
-			      // determined it shouldn't be displayed (e.g., no folder set).
-				  if ($enableDropUploadOnDashboard || true) : // Forcing JS to always consider initialization.
-			?>
-				var uploadFolderId = null;
-				<?php
-				if (is_object($dashboardUploadFolder) && method_exists($dashboardUploadFolder, 'getID')) {
-					echo "uploadFolderId = " . $dashboardUploadFolder->getID() . ";";
-				} elseif (is_numeric($dashboardUploadFolder)) {
-					echo "uploadFolderId = " . (int) $dashboardUploadFolder . ";";
-				}
-				?>
-
-				if (typeof SeedDMSUpload !== 'undefined' && uploadFolderId !== null) {
-					console.log("Dashboard Drop Upload: Initializing...");
-					SeedDMSUpload.setUrl('<?php echo rtrim($httpRoot, '/') . '/op/op.Ajax.php'; ?>');
-					SeedDMSUpload.setAbortBtnLabel('<?php echo htmlspecialchars(addslashes(getMLText("cancel")), ENT_QUOTES, 'UTF-8'); ?>');
-					SeedDMSUpload.setEditBtnLabel('<?php echo htmlspecialchars(addslashes(getMLText("edit_document_props")), ENT_QUOTES, 'UTF-8'); ?>');
-					SeedDMSUpload.setMaxFileSize(<?php echo SeedDMS_Core_File::getBytes($maxuploadsize); ?>);
-					SeedDMSUpload.setMaxFileSizeMsg('<?php echo htmlspecialchars(addslashes(getMLText("uploading_maxsize")), ENT_QUOTES, 'UTF-8'); ?>');
-
-					if ($('#dashboard-drop-zone').length) {
-						SeedDMSUpload.initDropZone($('#dashboard-drop-zone'));
-						console.log("Dashboard Drop Upload initialized on #dashboard-drop-zone");
-					} else {
-						// This is now an expected state if the user doesn't have permission, so we log it as info, not an error.
-						console.log("Dashboard Drop Upload: #dashboard-drop-zone HTML element not found. This is expected if the folder is not configured or user lacks permissions.");
-					}
-				} else {
-					console.warn("Dashboard Drop Upload: SeedDMSUpload library not found or uploadFolderId is invalid/null.");
-				}
-			<?php else : ?>
-				console.log("Dashboard Drop Upload: Not enabled or folder not configured. No action taken.");
-			<?php endif; ?>
-
-			// Chart rendering section
-			if (typeof $.plot === 'undefined') {
-				console.error("Flot library ($.plot) is not loaded.");
-				$('.chart').html("<p style='color:red; text-align:center;'>Error: Charting library not loaded.</p>");
-			} else {
-				var allChartsDataFromPHP = <?php echo json_encode($jsChartDataArray, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_NUMERIC_CHECK); ?>;
-				var noDataMessage = <?php echo json_encode($noDataText); ?>;
-				var monthNamesForFlot = <?php echo json_encode($monthNamesJs); ?>;
-
-				function pieLabelFormatter(label, series) {
-					return `<div style='font-size:8pt; line-height: 14px; text-align:center; padding:2px; color:black; background: white; border-radius: 5px;'>${label}<br />${series.data[0][1]} (${Math.round(series.percent)}%)</div>`;
-				}
-
-				if (!allChartsDataFromPHP || allChartsDataFromPHP.length === 0) {
-					console.warn("No chart configurations to process for the dashboard.");
-					$('.chart').html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
-				} else {
-					allChartsDataFromPHP.forEach(function(chartInfo) {
-						var chartDivSelector = "#" + chartInfo.divId;
-						var phpStyleDataForChart = chartInfo.data;
-
-						if (!$(chartDivSelector).length) {
-							console.error("Chart div NOT FOUND: " + chartDivSelector);
-							return;
-						}
-						$(chartDivSelector).empty();
-
-						if (!phpStyleDataForChart || phpStyleDataForChart.length === 0) {
-							$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
-							return;
-						}
-
-						var plotOptions = {
-							grid: { hoverable: true, clickable: true, borderWidth: 1, borderColor: '#ddd' }
-						};
-						var flotDataSeries = [];
-
-						if (chartInfo.type === 'docspermonth') {
-							flotDataSeries = [phpStyleDataForChart];
-							plotOptions.xaxis = { mode: "categories", tickLength: 0 };
-							plotOptions.series = { bars: { show: true, align: "center", barWidth: 0.8 } };
-							plotOptions.legend = { show: false };
-
-							$(chartDivSelector).bind("plothover", function(event, pos, item) {
-								$("#chart_tooltip").hide();
-								if (item) {
-									var xLabel = item.series.xaxis.ticks[item.dataIndex].label;
-									var yVal = item.datapoint[1];
-									$("#chart_tooltip").html(xLabel + ": " + yVal).css({ top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
-								}
-							});
-						} else if (chartInfo.type === 'docsaccumulated') {
-							flotDataSeries = [phpStyleDataForChart];
-							plotOptions.xaxis = { mode: "time", timeformat: "%d.%m.%y", monthNames: monthNamesForFlot };
-							plotOptions.series = { lines: { show: true, fill: 0.2 }, points: { show: true, radius: 3 } };
-							plotOptions.legend = { position: "nw" };
-
-							$(chartDivSelector).bind("plothover", function(event, pos, item) {
-								$("#chart_tooltip").hide();
-								if (item) {
-									$("#chart_tooltip").html($.plot.formatDate(new Date(item.datapoint[0]), '%e. %b %Y') + ": " + item.datapoint[1]).css({ top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
-								}
-							});
-						} else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
-							flotDataSeries = phpStyleDataForChart;
-							plotOptions.series = { pie: { show: true, radius: 1, label: { show: true, radius: 2 / 3, formatter: pieLabelFormatter, threshold: 0.05, background: { opacity: 0.8 } } } };
-
-							var legendContainer = $('#legend_container_' + chartInfo.type);
-							plotOptions.legend = legendContainer.length ? { show: true, container: legendContainer, labelBoxBorderColor: "none" } : { show: true, noColumns: 2, labelBoxBorderColor: "none" };
-
-							$(chartDivSelector).bind("plothover", function(event, pos, item) {
-								$("#chart_tooltip").hide();
-								if (item) {
-									$("#chart_tooltip").html(item.series.label + ": " + item.series.data[0][1] + " (" + Math.round(item.series.percent) + "%)").css({ top: pos.pageY - 35, left: pos.pageX + 5 }).fadeIn(200);
-								}
-							});
-						}
-
-						if (flotDataSeries && Array.isArray(flotDataSeries) && flotDataSeries.length > 0) {
-							if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
-								let hasActualData = flotDataSeries.some(series => series.data && series.data.length > 0 && series.data[0].length > 1 && series.data[0][1] > 0);
-								if (!hasActualData && flotDataSeries.length > 0) {
-									$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
-									return;
-								}
-							}
-							$.plot($(chartDivSelector), flotDataSeries, plotOptions);
-						}
-					});
-				}
+		// Initialize Dashboard Drop Upload
+		<?php // This JS block is still wrapped in a condition, which is good practice.
+				// It ensures JS doesn't try to initialize the uploader if the backend
+				// determined it shouldn't be displayed (e.g., no folder set).
+				if ($enableDropUploadOnDashboard || true): // Forcing JS to always consider initialization.
+					?>
+			var uploadFolderId = null;
+			<?php
+			if (is_object($dashboardUploadFolder) && method_exists($dashboardUploadFolder, 'getID')) {
+				echo "uploadFolderId = " . $dashboardUploadFolder->getID() . ";";
+			} elseif (is_numeric($dashboardUploadFolder)) {
+				echo "uploadFolderId = " . (int) $dashboardUploadFolder . ";";
 			}
+			?>
+
+			if (typeof SeedDMSUpload !== 'undefined' && uploadFolderId !== null) {
+			console.log("Dashboard Drop Upload: Initializing...");
+			SeedDMSUpload.setUrl('<?php echo rtrim($httpRoot, '/') . '/op/op.Ajax.php'; ?>');
+			SeedDMSUpload.setAbortBtnLabel('<?php echo htmlspecialchars(addslashes(getMLText("cancel")), ENT_QUOTES, 'UTF-8'); ?>');
+			SeedDMSUpload.setEditBtnLabel('<?php echo htmlspecialchars(addslashes(getMLText("edit_document_props")), ENT_QUOTES, 'UTF-8'); ?>');
+			SeedDMSUpload.setMaxFileSize(<?php echo (int) $maxuploadsize; ?>);
+
+			SeedDMSUpload.setMaxFileSizeMsg('<?php echo htmlspecialchars(addslashes(getMLText("uploading_maxsize")), ENT_QUOTES, 'UTF-8'); ?>');
+
+			if ($('#dashboard-drop-zone').length) {
+			SeedDMSUpload.initDropZone($('#dashboard-drop-zone'));
+			console.log("Dashboard Drop Upload initialized on #dashboard-drop-zone");
+			} else {
+			// This is now an expected state if the user doesn't have permission, so we log it as info, not an error.
+			console.log("Dashboard Drop Upload: #dashboard-drop-zone HTML element not found. " +
+			"This is expected if the folder is not configured or user lacks permissions.");
+
+
+			}
+			} else {
+			console.warn("Dashboard Drop Upload: SeedDMSUpload library not found or uploadFolderId is invalid/null.");
+			}
+		<?php else: ?>
+			console.log("Dashboard Drop Upload: Not enabled or folder not configured. No action taken.");
+		<?php endif; ?>
+
+		// Chart rendering section
+		if (typeof $.plot === 'undefined') {
+		console.error("Flot library ($.plot) is not loaded.");
+		$('.chart').html("<p style='color:red; text-align:center;'>Error: Charting library not loaded.</p>");
+		} else {
+		var allChartsDataFromPHP =
+		<?php echo json_encode($jsChartDataArray, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_NUMERIC_CHECK); ?>;
+		var noDataMessage = <?php echo json_encode($noDataText); ?>;
+		var monthNamesForFlot = <?php echo json_encode($monthNamesJs); ?>;
+
+		function pieLabelFormatter(label, series) {
+		return `<div
+			style='font-size:8pt; line-height: 14px; text-align:center; padding:2px; color:black; background: white; border-radius: 5px;'>
+			${label}<br />${series.data[0][1]} (${Math.round(series.percent)}%)</div>`;
+		}
+
+		if (!allChartsDataFromPHP || allChartsDataFromPHP.length === 0) {
+		console.warn("No chart configurations to process for the dashboard.");
+		$('.chart').html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+		} else {
+		allChartsDataFromPHP.forEach(function(chartInfo) {
+		var chartDivSelector = "#" + chartInfo.divId;
+		var phpStyleDataForChart = chartInfo.data;
+
+		if (!$(chartDivSelector).length) {
+		console.error("Chart div NOT FOUND: " + chartDivSelector);
+		return;
+		}
+		$(chartDivSelector).empty();
+
+		if (!phpStyleDataForChart || phpStyleDataForChart.length === 0) {
+		$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+		return;
+		}
+
+		var plotOptions = {
+		grid: { hoverable: true, clickable: true, borderWidth: 1, borderColor: '#ddd' }
+		};
+		var flotDataSeries = [];
+
+		if (chartInfo.type === 'docspermonth') {
+		flotDataSeries = [phpStyleDataForChart];
+		plotOptions.xaxis = { mode: "categories", tickLength: 0 };
+		plotOptions.series = { bars: { show: true, align: "center", barWidth: 0.8 } };
+		plotOptions.legend = { show: false };
+
+		$(chartDivSelector).bind("plothover", function(event, pos, item) {
+		$("#chart_tooltip").hide();
+		if (item) {
+		var xLabel = item.series.xaxis.ticks[item.dataIndex].label;
+		var yVal = item.datapoint[1];
+		$("#chart_tooltip").html(xLabel + ": " + yVal).css({ top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
+		}
 		});
-<?php
+		} else if (chartInfo.type === 'docsaccumulated') {
+		flotDataSeries = [phpStyleDataForChart];
+		plotOptions.xaxis = { mode: "time", timeformat: "%d.%m.%y", monthNames: monthNamesForFlot };
+		plotOptions.series = { lines: { show: true, fill: 0.2 }, points: { show: true, radius: 3 } };
+		plotOptions.legend = { position: "nw" };
+
+		$(chartDivSelector).bind("plothover", function(event, pos, item) {
+		$("#chart_tooltip").hide();
+		if (item) {
+		$("#chart_tooltip").html($.plot.formatDate(new Date(item.datapoint[0]), '%e. %b %Y') + ": " + item.datapoint[1]).css({
+		top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
+		}
+		});
+		} else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
+		flotDataSeries = phpStyleDataForChart;
+		plotOptions.series = { pie: { show: true, radius: 1, label: { show: true, radius: 2 / 3, formatter: pieLabelFormatter,
+		threshold: 0.05, background: { opacity: 0.8 } } } };
+
+		var legendContainer = $('#legend_container_' + chartInfo.type);
+		plotOptions.legend = legendContainer.length ? { show: true, container: legendContainer, labelBoxBorderColor: "none" } :
+		{ show: true, noColumns: 2, labelBoxBorderColor: "none" };
+
+		$(chartDivSelector).bind("plothover", function(event, pos, item) {
+		$("#chart_tooltip").hide();
+		if (item) {
+		$("#chart_tooltip").html(item.series.label + ": " + item.series.data[0][1] + " (" + Math.round(item.series.percent) +
+		"%)").css({ top: pos.pageY - 35, left: pos.pageX + 5 }).fadeIn(200);
+		}
+		});
+		}
+
+		if (flotDataSeries && Array.isArray(flotDataSeries) && flotDataSeries.length > 0) {
+		if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
+		let hasActualData = flotDataSeries.some(series => series.data && series.data.length > 0 && series.data[0].length > 1 &&
+		series.data[0][1] > 0);
+		if (!hasActualData && flotDataSeries.length > 0) {
+		$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+		return;
+		}
+		}
+		$.plot($(chartDivSelector), flotDataSeries, plotOptions);
+		}
+		});
+		}
+		}
+		});
+		<?php
 	}
 
 	// ========================================================================
@@ -642,14 +639,14 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		// This line is no longer used to control the display, but we'll leave it
 		// as other parts of the code (like the JS) might still reference it.
 		$enableDropUploadOnDashboard = $this->params['enableDropUploadOnDashboard'] ?? false;
-		
+
 		$httpRootForLibs = $this->params['settings']->_httpRoot ?? '../';
 		$this->htmlAddHeader(
 			'<script type="text/javascript" src="' . $httpRootForLibs . 'styles/bootstrap/flot/jquery.flot.min.js"></script>' . "\n" .
-				'<script type="text/javascript" src="' . $httpRootForLibs . 'styles/bootstrap/flot/jquery.flot.pie.min.js"></script>' . "\n" .
-				'<script type="text/javascript" src="' . $httpRootForLibs . 'styles/bootstrap/flot/jquery.flot.categories.min.js"></script>' . "\n" .
-				'<script type="text/javascript" src="' . $httpRootForLibs . 'styles/bootstrap/flot/jquery.flot.time.min.js"></script>' . "\n" .
-				'<script type="text/javascript" src="' . $httpRootForLibs . 'styles/bootstrap/flot/jquery.flot.resize.min.js"></script>' . "\n"
+			'<script type="text/javascript" src="' . $httpRootForLibs . 'styles/bootstrap/flot/jquery.flot.pie.min.js"></script>' . "\n" .
+			'<script type="text/javascript" src="' . $httpRootForLibs . 'styles/bootstrap/flot/jquery.flot.categories.min.js"></script>' . "\n" .
+			'<script type="text/javascript" src="' . $httpRootForLibs . 'styles/bootstrap/flot/jquery.flot.time.min.js"></script>' . "\n" .
+			'<script type="text/javascript" src="' . $httpRootForLibs . 'styles/bootstrap/flot/jquery.flot.resize.min.js"></script>' . "\n"
 		);
 
 		$pageTitle = getMLText("dashboard", [], "Dashboard");
@@ -662,11 +659,11 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		echo '<div class="dashboard-main-content-wrapper" style="padding: 15px;">';
 
 		// Quick Upload section - The 'if' condition has been removed to make it always appear.
-		echo '<div class="dashboard-quick-upload-section" style="margin-bottom: 30px;">';
+		echo '<div class="dashboard-quick-upload-section">';
 		$this->rowStart();
 		$this->columnStart(12);
-		$this->contentHeading(getMLText("quick_upload", [], "Quick Upload"));
-		$this->dropUpload(); // Call the dropUpload function unconditionally.
+		//$this->contentHeading(getMLText("quick_upload", [], "Quick Upload"));
+		//$this->dropUpload(); // Call the dropUpload function unconditionally.
 		$this->columnEnd();
 		$this->rowEnd();
 		echo '</div>';
