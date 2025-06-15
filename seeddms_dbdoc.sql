@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 02, 2025 at 03:25 PM
+-- Generation Time: Jun 15, 2025 at 12:49 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,76 +32,9 @@ CREATE TABLE `audit_logs` (
   `document_id` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
   `user` varchar(255) NOT NULL,
-  `action` varchar(255) NOT NULL,
-  `details` text DEFAULT NULL
+  `old_value` text DEFAULT NULL,
+  `new_value` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `audit_logs`
---
-
-INSERT INTO `audit_logs` (`id`, `document_id`, `created_at`, `user`, `action`, `details`) VALUES
-(1, 3, '2025-05-30 09:00:00', 'admin', 'Document Viewed', 'User viewed the document details.'),
-(2, 3, '2025-05-30 10:15:00', 'jdoe', 'File Uploaded', 'Uploaded file \"contract.pdf\".'),
-(3, 3, '2025-05-30 11:30:00', 'asmith', 'Comment Added', 'Added a comment to the document.'),
-(4, 3, '2025-05-29 22:08:49', 'admin', 'Document Viewed', 'User viewed the document details.'),
-(5, 3, '2025-05-29 22:08:52', 'admin', 'Document Viewed', 'User viewed the document details.'),
-(6, 17, '2025-05-29 22:09:10', 'admin', 'Document Viewed', 'User viewed the document details.'),
-(7, 17, '2025-05-29 22:10:02', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(8, 18, '2025-05-29 22:11:39', 'admin', 'Document Added', 'User added a new document.'),
-(9, 18, '2025-05-29 22:11:41', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(10, 18, '2025-05-29 22:13:25', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(11, 18, '2025-05-29 22:13:27', 'admin', 'Document Downloaded', 'User downloaded a document version.'),
-(12, 18, '2025-05-29 22:13:32', 'admin', 'Document Downloaded', 'User downloaded a document version.'),
-(13, 17, '2025-05-29 22:13:39', 'admin', 'Document Downloaded', 'User downloaded a document version.'),
-(14, 17, '2025-05-29 22:13:41', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(15, 17, '2025-05-29 22:14:41', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(16, 17, '2025-05-29 22:15:54', 'admin', 'Document Downloaded', 'admin downloaded the document.'),
-(17, 17, '2025-05-29 22:15:55', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(18, 17, '2025-05-29 22:16:22', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(19, 17, '2025-05-29 22:16:27', 'admin', 'Document Downloaded', '<b>admin</b> downloaded the document.'),
-(20, 17, '2025-05-29 22:16:28', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(21, 17, '2025-05-29 22:16:34', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(22, 17, '2025-05-29 22:16:42', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(23, 17, '2025-05-29 22:16:46', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(24, 17, '2025-05-29 22:17:02', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(25, 17, '2025-05-29 22:17:10', 'admin', 'Document Downloaded', 'admin downloaded the document.'),
-(26, 17, '2025-05-29 22:17:12', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(27, 18, '2025-05-29 22:17:20', 'admin', 'Document Downloaded', 'admin downloaded the document.'),
-(28, 18, '2025-05-29 22:17:21', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(29, 18, '2025-05-29 22:18:45', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(30, 17, '2025-05-29 22:19:33', 'admin', 'Document Downloaded', 'admin downloaded the document.'),
-(31, 3, '2025-05-29 22:19:35', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(32, 3, '2025-05-29 22:19:52', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(33, 3, '2025-05-29 22:24:25', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(34, 3, '2025-05-29 22:25:43', 'admin', 'Document Edited', 'User edited the document.'),
-(35, 3, '2025-05-29 22:25:43', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(36, 3, '2025-05-29 22:29:37', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(37, 3, '2025-05-29 22:29:51', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(38, 18, '2025-05-29 22:29:57', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(39, 19, '2025-05-29 22:30:36', 'admin', 'Document Added', 'User added a new document.'),
-(40, 19, '2025-05-29 22:30:38', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(41, 3, '2025-05-30 08:54:18', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(42, 3, '2025-05-30 08:54:27', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(43, 3, '2025-05-30 08:59:17', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(44, 3, '2025-05-30 09:02:30', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(45, 3, '2025-05-30 09:02:40', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(46, 3, '2025-05-30 09:02:46', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(47, 3, '2025-05-30 09:02:52', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(48, 3, '2025-05-30 09:02:57', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(49, 3, '2025-05-30 09:07:05', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(50, 3, '2025-05-30 09:07:16', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(51, 3, '2025-05-30 09:08:20', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(52, 3, '2025-05-30 09:16:31', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(53, 18, '2025-05-30 09:27:08', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(54, 18, '2025-05-30 09:37:37', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(55, 18, '2025-05-30 09:51:20', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(56, 18, '2025-05-30 09:51:45', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(57, 18, '2025-05-30 09:51:45', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(58, 18, '2025-05-30 09:51:45', 'admin', 'Document Viewed', 'User \"admin\" viewed the document.'),
-(59, 17, '2025-05-30 10:31:01', 'admin', 'Document Downloaded', 'admin downloaded the document.');
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `tblacls`
@@ -149,12 +82,8 @@ CREATE TABLE `tblaros` (
 --
 
 INSERT INTO `tblaros` (`id`, `parent`, `model`, `foreignid`, `alias`) VALUES
-(1, 0, 'Role', 5, NULL),
-(2, 0, 'Role', 3, NULL),
-(3, 0, 'Role', 2, NULL),
-(4, 0, 'Role', 1, NULL),
-(5, 0, 'Role', 8, NULL),
-(6, 0, 'Role', 27, NULL);
+(1, 0, 'Role', 4, NULL),
+(2, 0, 'Role', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -190,13 +119,6 @@ CREATE TABLE `tblattributedefinitions` (
   `regex` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
---
--- Dumping data for table `tblattributedefinitions`
---
-
-INSERT INTO `tblattributedefinitions` (`id`, `name`, `objtype`, `type`, `multiple`, `minvalues`, `maxvalues`, `valueset`, `regex`) VALUES
-(1, '+9IJmG2jMfGrf1enSWnbyXclwHVDCgfVPvy2Xv+G7xE=', 1, 1, 0, 0, 0, 'Qzw82p3O1vl4B4CEYuQUNYzXjMrEKSyBFMB+2fY2yz4=', '73kL22Q1sXIrLlDL9WQj6JZxY8f1x9tEm3bUawxxzkw=');
-
 -- --------------------------------------------------------
 
 --
@@ -226,7 +148,7 @@ CREATE TABLE `tblcategory` (
 --
 
 INSERT INTO `tblcategory` (`id`, `name`) VALUES
-(1, 'oFLOwwEAAdoMfNMSh+wNKZA5lYAyCyUKAOmg2qoVvMM=');
+(1, 'bG8j69gmIjpaR2Fj43F6miL2L/n4kglTDdeOwDjb06axXJY8V+LKGzoxczBi8CpL');
 
 -- --------------------------------------------------------
 
@@ -317,15 +239,6 @@ CREATE TABLE `tbldocumentcontent` (
   `revisiondate` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
---
--- Dumping data for table `tbldocumentcontent`
---
-
-INSERT INTO `tbldocumentcontent` (`id`, `document`, `version`, `comment`, `date`, `createdBy`, `dir`, `orgFileName`, `fileType`, `mimeType`, `fileSize`, `checksum`, `revisiondate`) VALUES
-(3, 3, 1, '9dAh2IIF74gOb3Hsk/DPA15gvzusozuXce8b7zGZqCA=', 1745367177, 1, '3\\', 'Xb5iEelSXgSGggPZyAlQxypyCOj21v8+glM9YApOJMKqusJGjzZgiivIFPjXvs6t', '.png', 'image/png', 228680, '97e402e4ed61778a5c703b5d8e1e682b', NULL),
-(23, 17, 1, '', 1748548870, 1, '17\\', 'UKsjX9/pgpGos9KA4pVPwZHalglnw+tAkyg8FuPK183859Uw4qHPgpgAArW/0nUmid/ZokRu4BGedgmw/Lds3P83CR3zX6oeCXG9eeO7oUgb9wNEUraEPFxjrZj98o08', '.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 913283, 'fd3a0e818c4be0558042304b4d4dcfb1', NULL),
-(24, 18, 1, '', 1748549499, 1, '18\\', 'esi5L8K+u2HnFCaBI5jq7g2MxQDz4g2QaD7ZZ2Qn67cLAeDi1gumjW/PmWjPXVmL1PnK9Azg9en6Y+NM4dkCVA==', '.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 58823, 'cdad97d98114bc87330e4c79c0a53608', NULL),
-(25, 19, 1, '', 1748550636, 1, '19\\', 'RWMTj7Q8QDEJvZqGK7nq6xi6Ocd8Q3YHBdcw5pC4EzE=', '.pdf', 'application/pdf', 871668, 'ce64ecb9d1c413c295c223abaabf7978', NULL);
 
 -- --------------------------------------------------------
 
@@ -361,14 +274,6 @@ CREATE TABLE `tbldocumentfiles` (
   `mimeType` varchar(100) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
---
--- Dumping data for table `tbldocumentfiles`
---
-
-INSERT INTO `tbldocumentfiles` (`id`, `document`, `version`, `public`, `userID`, `comment`, `name`, `date`, `dir`, `orgFileName`, `fileType`, `mimeType`) VALUES
-(5, 3, 0, 0, 1, '', 'BET-22-ACTIVITY-7-2025-Single-Phase-Electric-Motor-Rewinding.docx', 1748550582, '3\\', 'BET-22-ACTIVITY-7-2025-Single-Phase-Electric-Motor-Rewinding.docx', '.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
-(6, 18, 0, 0, 1, '', 'BET 22 ACTIVITY 7 ESPARTINEZ.pdf', 1748550605, '18\\', 'BET 22 ACTIVITY 7 ESPARTINEZ.pdf', '.pdf', 'application/pdf'),
-(7, 3, 0, 0, 1, '', 'pat cv.pdf', 1748588934, '3\\', 'pat cv.pdf', '.pdf', 'application/pdf');
 
 -- --------------------------------------------------------
 
@@ -505,15 +410,6 @@ CREATE TABLE `tbldocuments` (
   `sequence` double NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
---
--- Dumping data for table `tbldocuments`
---
-
-INSERT INTO `tbldocuments` (`id`, `name`, `comment`, `date`, `expires`, `owner`, `folder`, `folderList`, `inheritAccess`, `defaultAccess`, `locked`, `keywords`, `sequence`) VALUES
-(3, 'O2k0Eqc6A6KJPeGfnoToolMPVSOKR24Gph1CgX7+0Gzi8Ut2nJO486SOmOMR7hkX', 'GPopJ3SxRcuxeUcHDV5vtxYNM0LaHhslTzayFKGTspw=', 1745367177, 0, 1, 1, ':1:', 1, 2, -1, 'JKZmrya+h7dSPpgn0c2UaeGawoQfTm3d6DDhbELwL2o=', 108.2),
-(17, 'd6grkHCOhon8t/6PUmYK9M/4/GjgUb/6WAqlK8lZNuVg7R38hyKFOl4biSA2B3NbQHYRc0AgMIiyhF9sHaBE3E46KxarYiYerebFHnephq30G0WtPokoz8uMPzu/qC62', 'GUKcZxzRKXE4d/1S+5F7LyhgxTR1AyY3qiwFtc3dqeA=', 1748548870, 0, 1, 1, ':1:', 1, 2, -1, 'eymUvmjVPj5ffE+ZPfrE2B1j4v87d3JGGiC4hc3f9/M=', 147.5),
-(18, 'eobR8SxeXIF1aUQkQ6d9JXQ9WASqaRsLOyp9MzYuEl6FR0Dx+Hn465Y5pAMvIntPenDdoHr6T+g6s8mdekjoGw==', '5HvlHNQEHYCmbyKJC5/hLYRzfyWH0XSkRcXXM76A3hA=', 1748549499, 0, 1, 1, ':1:', 1, 2, -1, 'wSJQE0QXZa8PyyVKYIRNQuyQN2Fjd7CLQK/JHaEox3g=', 170.1),
-(19, 'sH8yIpgPkeSFT94pIfdp6vqURJSxDBpTRfCcKnQVPJg=', 'rbjb5Y80e+cC/Oazge79XKtc1Bpv2IjDxD8DLGWAMTM=', 1748550636, 0, 1, 7, ':1:7:', 1, 2, -1, 'gZyLb7RUgtgTU8AqDPFEISpJYcI8zG5JGmEDICxXsrQ=', 37.4);
 
 -- --------------------------------------------------------
 
@@ -526,16 +422,6 @@ CREATE TABLE `tbldocumentstatus` (
   `documentID` int(11) NOT NULL DEFAULT 0,
   `version` smallint(5) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Dumping data for table `tbldocumentstatus`
---
-
-INSERT INTO `tbldocumentstatus` (`statusID`, `documentID`, `version`) VALUES
-(3, 3, 1),
-(23, 17, 1),
-(24, 18, 1),
-(25, 19, 1);
 
 -- --------------------------------------------------------
 
@@ -551,16 +437,6 @@ CREATE TABLE `tbldocumentstatuslog` (
   `date` datetime NOT NULL,
   `userID` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Dumping data for table `tbldocumentstatuslog`
---
-
-INSERT INTO `tbldocumentstatuslog` (`statusLogID`, `statusID`, `status`, `comment`, `date`, `userID`) VALUES
-(3, 3, 2, 'New document content submitted', '2025-04-23 08:12:57', 1),
-(29, 23, 2, 'New document content submitted', '2025-05-30 04:01:10', 1),
-(30, 24, 2, 'New document content submitted', '2025-05-30 04:11:39', 1),
-(31, 25, 2, 'New document content submitted', '2025-05-30 04:30:36', 1);
 
 -- --------------------------------------------------------
 
@@ -615,8 +491,7 @@ CREATE TABLE `tblfolders` (
 --
 
 INSERT INTO `tblfolders` (`id`, `name`, `parent`, `folderList`, `comment`, `date`, `owner`, `inheritAccess`, `defaultAccess`, `sequence`) VALUES
-(1, 'DMS', 0, '', 'DMS root', 1744267009, 1, 0, 2, 0),
-(7, 'kFpwEevuIyxRbZHm36KwJ2exAMf2OpFzSOOtbXKOzmM=', 1, ':1:', 'm237z5XWSjBDaeSFSGPgdRmZ9klUch8kw7HMvIsgXPo=', 1748549947, 1, 1, 2, 1);
+(1, 'DMS', 0, '', 'DMS root', 1748498471, 1, 0, 2, 0);
 
 -- --------------------------------------------------------
 
@@ -647,11 +522,7 @@ CREATE TABLE `tblgroups` (
 --
 
 INSERT INTO `tblgroups` (`id`, `name`, `comment`) VALUES
-(1, 'heyy', ''),
-(2, '7CLk40hTSaCn0IsoDqzaitPOj/jXWzReravjubZCEv01HKAIOt', 'BGCDq3pYNfusS4D4R4c81uIkrJvn46Jx7LL3ay8Bokxy85XE9oY9r0tmkEJjbFhHbJylegQB+f1OiF2Z3oM57A=='),
-(3, 'yfC8KNZ6Dvxci21kWs2lh+StSzISiqIY2TomgzTPMkJGwYQQ8l', 'xQL2XAyNiMKIIQkFWJo2yQv1emRcQV/mB3Eq6Lu1Vpc9YdJ7hbpSUr7ta76gM3Wz261IQEM46RPFkOnQb0upFw=='),
-(4, 'h2VED9mD9WfkJuPqObobrTFtPil7Uj1dBjeuhS4cetDeU1uwIQ', 'CoPsA+nAZq36UWGv/TLTVnSwhUTDz0qvTgT7qzEC097BVr2vPTXJgmFweU+BKTu/4nUTMsN+kVZL5yP9b8Clmw=='),
-(5, 'QRAXFozzfItUBhXZMrM0wm6ptJrh/gaE8LMCpNmse6m3vX2VYb', 'PuORqJQBO9TTspqh84TKqXopCdb7j2vasju7/NKtflN+h8Xv3V8+yR4qnTVGDaHVjx0VnUh53hNqbtL+dlkbtQ==');
+(1, '7QgfHrLYhfYXUHO8UyN6RQiIshl5yiAMoO8tQqxCUZo=', 'L0XIhayG9zXyvTyiMu93I63/uFf20fn+23NYKTxTFl8=');
 
 -- --------------------------------------------------------
 
@@ -670,7 +541,7 @@ CREATE TABLE `tblkeywordcategories` (
 --
 
 INSERT INTO `tblkeywordcategories` (`id`, `name`, `owner`) VALUES
-(1, '0jsY8BJDpOr+z4yzqAmNHkfHPiOXPgZGAG1QSjvLMoQ=', 1);
+(1, 'ut9o25X5MlGIiSIBk+lRBMnaRvNYgox4ti0R/FDv/ug=', 1);
 
 -- --------------------------------------------------------
 
@@ -683,14 +554,6 @@ CREATE TABLE `tblkeywords` (
   `category` int(11) NOT NULL DEFAULT 0,
   `keywords` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Dumping data for table `tblkeywords`
---
-
-INSERT INTO `tblkeywords` (`id`, `category`, `keywords`) VALUES
-(2, 1, 'Bfk/pCqWQ9jLnWQeQ3iqP9rzhcTCZHbLvAvJzy4tR3I='),
-(3, 1, 'bO1OUFJXXB7h2i5cKsxkaX2OB8su+9YubUOf9L1jnPA=');
 
 -- --------------------------------------------------------
 
@@ -749,27 +612,7 @@ CREATE TABLE `tblroles` (
 INSERT INTO `tblroles` (`id`, `name`, `role`, `noaccess`) VALUES
 (1, 'Admin', 1, ''),
 (2, 'Guest', 2, ''),
-(3, 'User', 0, ''),
-(5, 'test', 0, ''),
-(8, 'A6ztNOTPGt4QooLN+aSS0nsSFSevYRDhE4etpdeaxQM=', 0, ''),
-(10, '/ZuTrBkmQEpTaf5qIB2w2sMSAQpoSH7ACQl8l9uit9k=', 0, ''),
-(11, 'PAOqHgM9im7I9dr2RwSQH8E+ABQ2HsIQJcVSQfUkzC0=', 0, ''),
-(13, 'CkkuXQ8bWZFmxBBDlILFp/qeHIzGKIKJoLfXHUwsufw=', 0, ''),
-(14, 'M2bvuqhB0S/8y8PvS7jVgbgmpHTDC5d+j0fDSIhv9rdNsq8SzO', 0, ''),
-(15, 'SiMsw7/wCWT8633HK3yJvbIEUnF62ubMzD+W4FwDQEYUV21Mbc', 0, ''),
-(16, 'TnTPtOxWHX5DbgalgFQXRHduez64yb0AauvzvgdNPNW9T0i1Hz', 8, ''),
-(17, 'TDrwYuLTpXtE9ZQBrgv84idjGyY8CX6pz+MSCIQl4GE=', 0, ''),
-(18, 'ODXYXaxVBi24SC2/ah5iOdaDV+9APWnbN+PwPUzXigY=', 0, ''),
-(19, 'DrEzZNsJ9qX+IXXR/EIXpw4a/ePtakm+G8XjbNo5nIi2ow4Ndr', 0, ''),
-(20, '08kclyafJp3devJcQW0KPC96f9sYM0cw6zy3PVj+OXo=', 0, ''),
-(21, 'UFIebX3sI80X44l94bnSTUjoLvZIeUmzCg46FeQT/EJ64/nHOR', 0, ''),
-(22, '0yJew6odI0FY/yPRI6bAfUEX4iLNdLvKctf3xs01c0M=', 0, ''),
-(23, 'qTH+KWF45tkSSzasW6wBHVexgBm25H9VjjkHIs8Tb1w=', 0, ''),
-(24, '9L+ff8vtq6A5LxCMWdj0oyi1RkIj4PE3pfQOpLgZFW0=', 0, ''),
-(25, 'S+8qmnqDZ7H5VFrB2oioORyjC29Pdu+hslcqxlP0qPI=', 0, ''),
-(26, 'mXZBl2NHY/fy5pLWOf1ZgXWqlXwA/lzvkyba4xFlO8k=', 0, ''),
-(27, '0L427FbCTmvjDLQVzG7/DP60If6Dw4+X7jbLv7n24V4=', 0, ''),
-(29, 'wzVQ7YULyDSjVxjWmaZEj3LJiEO8msT99jHgUBOTkMRceNmJEf', 0, '');
+(3, 'User', 0, '');
 
 -- --------------------------------------------------------
 
@@ -812,7 +655,7 @@ CREATE TABLE `tblsessions` (
 --
 
 INSERT INTO `tblsessions` (`id`, `userID`, `lastAccess`, `theme`, `language`, `clipboard`, `su`, `splashmsg`) VALUES
-('7a63f9b20630471be7823210cba8ba2a', 1, 1748870663, 'bootstrap4', 'en_GB', NULL, 0, '');
+('daea96b095b4da6e25d59ef5375d228e', 1, 1749984410, 'bootstrap4', 'en_GB', NULL, 0, '');
 
 -- --------------------------------------------------------
 
@@ -913,16 +756,7 @@ CREATE TABLE `tblusers` (
 
 INSERT INTO `tblusers` (`id`, `login`, `pwd`, `secret`, `fullName`, `email`, `language`, `theme`, `comment`, `role`, `hidden`, `pwdExpiration`, `loginfailures`, `disabled`, `quota`, `homefolder`) VALUES
 (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', '', 'Administrator', 'info@seeddms.org', 'en_GB', 'bootstrap4', '', 1, 0, NULL, 0, 0, 0, NULL),
-(2, 'guest', NULL, '', 'Guest User', NULL, '', '', '', 2, 0, NULL, 0, 0, 0, NULL),
-(3, '7JYdKygi4k8NOijBd8C6Iq4ClJL+TDUz9f6q2/2yk9Q=', '161ebd7d45089b3446ee4e0d86dbcf92', NULL, 'BsLaBiQMuc97BwXi43aQSZW+YUBjjNx+ftL1Xj8NBSE=', 'XElZ9qA+6JORTCfzvmKBwr/l23Q7UmNpr+ZraQvo5Pc=', 'en_GB', 'bootstrap4', 'M5zC+IhJisOF5KKpQC2T/ithY5JKIlKqcMqvnsgtTrs=', 3, 0, NULL, 0, 0, 0, NULL),
-(4, 'usertest', '964d72e72d053d501f2949969849b96c', NULL, 'User Test', 'usertest@gmail.com', 'en_GB', 'bootstrap4', '7NfucBin4KUrPRarHtGIBQ10ZJ/cQDq72yoyqUV5kGU=', 3, 0, NULL, 0, 0, 0, NULL),
-(5, 'rZc8cyBfgtodQxvgrp8TrMKbDDGp3GC8IyMdYUE77wU=', NULL, NULL, 'SypwChM1hcxjc5BlZrIyEVG0EPhAne+8pSNRERoy5CI=', 'MBZ2Ol3P6P72MrPGeKR32oQiIb7ACWdt1wpTvTHl/DOKxjfJ1BiJVwPTIntRynVb', 'en_GB', 'bootstrap4', 'tE/oM5Tq0jBv+yBeFl7+L8jcf7TRVR0RM0TjcxohZmA=', 1, 0, NULL, 0, 0, 0, NULL),
-(6, 'adaaa', 'wZVgayZXy+xRil2elDQ7wcSWFWC6Hi3TJS5rjzDuhXEAgfLjeh', NULL, 'ada', 'adasda@gmail.com', 'en_GB', 'bootstrap4', '', 1, 0, NULL, 0, 0, 0, NULL),
-(7, 'iApFpFHuWPSIwLSger0vvthUQ3KXCA1zw3jI92FyFY0=', '34ec78fcc91ffb1e54cd85e4a0924332', NULL, 'eq4Cb0Eq895Z7SkbR1qW5cLXPbJjiwj/3jwNyHVs5dg=', 'sf0BDtbiYJP+5Tqz1BCwwdTDg+AG/mLl6oMQ5Du8ABw=', 'en_GB', 'bootstrap4', 'xP7uFXVXGyRpsgQ0l8Z9n6PRNITEeU4oekeomjoVLl0=', 1, 0, NULL, 0, 0, 0, NULL),
-(8, 'eiAZFKAl9COzCT2yFSbhZFwd0xpvq2ZPMYD+c7FBToc=', '1a1dc91c907325c69271ddf0c944bc72', NULL, 'qv+dahlU7yq3586n72Jl0aAeWeBuGAGLBFgK9/mFIaY=', 'MRznzi1CbD0pPfy6XvJsmV50dwpe68UetZrgxixyeS0=', 'en_GB', 'bootstrap4', 'q/OY+LRujjsKGKvR64AeSYO1DsL3ZlJsthD2QVfDj6o=', 1, 0, NULL, 0, 0, 0, NULL),
-(9, 'PfA0Yz93UXiCP2tcB2SkJdhCOLvlmaIxh1T0BoqN924=', '1ee9cb572c30a8f27ebec15c193d4617', NULL, 'NL9lBRa1Ph4y53GPNyUBDkyKlee6EDyOTmIIFMwze7E=', 'mGGsXp2Nw9KmjJg0eWWKF+FYNA1dS0hMtQJgF4h1j1k=', 'en_GB', 'bootstrap4', 'v+5bY4fHtnK6iEUwMg+WjN0AxoS9zIpOyZ9MGkZ/aE0=', 1, 0, NULL, 0, 0, 0, NULL),
-(10, 'HgNCmDS12w7yIyLSqktZmv55m5MrxiPZL+K9ZpYIIWI=', '5ca2aa845c8cd5ace6b016841f100d82', NULL, '+LJyGfgy3lvxN8NzVh66tOQMBJlkLP3eZwO6sNKXeeM=', 'Qo6h5peYVxHalEpxE1QtDDj6R1KFMsDuWFaHkKvfKCo=', 'en_GB', 'bootstrap4', 'NGInX/wuL5dpVoTFUplofbUAP0Y27UkDYmR/ssKiXJw=', 1, 0, NULL, 0, 0, 0, NULL),
-(11, 'aaa', '47bce5c74f589f4867dbd57e9ca9f808', NULL, 'dO4izgLN1Ut/xNFbsSQEC8clgXS8xz8Cd4xTiSnW+0M=', 'tFrEfhEPU35a+Fuu3feBLMWpIk8+yWx7RKO/C5KhQsw=', 'en_GB', 'bootstrap4', '', 1, 0, NULL, 0, 0, 0, NULL);
+(2, 'guest', NULL, '', 'Guest User', NULL, '', '', '', 2, 0, NULL, 0, 0, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -954,7 +788,7 @@ CREATE TABLE `tblversion` (
 --
 
 INSERT INTO `tblversion` (`date`, `major`, `minor`, `subminor`) VALUES
-('2025-04-10 14:36:49', 6, 0, 0);
+('2025-05-29 14:01:11', 6, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -1080,12 +914,6 @@ CREATE TABLE `tblworkflowtransitionusers` (
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `audit_logs`
---
-ALTER TABLE `audit_logs`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `tblacls`
@@ -1497,12 +1325,6 @@ ALTER TABLE `tblworkflowtransitionusers`
 --
 
 --
--- AUTO_INCREMENT for table `audit_logs`
---
-ALTER TABLE `audit_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
-
---
 -- AUTO_INCREMENT for table `tblacls`
 --
 ALTER TABLE `tblacls`
@@ -1518,7 +1340,7 @@ ALTER TABLE `tblacos`
 -- AUTO_INCREMENT for table `tblaros`
 --
 ALTER TABLE `tblaros`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tblarosacos`
@@ -1530,7 +1352,7 @@ ALTER TABLE `tblarosacos`
 -- AUTO_INCREMENT for table `tblattributedefinitions`
 --
 ALTER TABLE `tblattributedefinitions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tblcachedaccess`
@@ -1548,13 +1370,13 @@ ALTER TABLE `tblcategory`
 -- AUTO_INCREMENT for table `tbldocumentapprovelog`
 --
 ALTER TABLE `tbldocumentapprovelog`
-  MODIFY `approveLogID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `approveLogID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tbldocumentapprovers`
 --
 ALTER TABLE `tbldocumentapprovers`
-  MODIFY `approveID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `approveID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tbldocumentattributes`
@@ -1566,7 +1388,7 @@ ALTER TABLE `tbldocumentattributes`
 -- AUTO_INCREMENT for table `tbldocumentcontent`
 --
 ALTER TABLE `tbldocumentcontent`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=265;
 
 --
 -- AUTO_INCREMENT for table `tbldocumentcontentattributes`
@@ -1578,13 +1400,13 @@ ALTER TABLE `tbldocumentcontentattributes`
 -- AUTO_INCREMENT for table `tbldocumentfiles`
 --
 ALTER TABLE `tbldocumentfiles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `tbldocumentlinks`
 --
 ALTER TABLE `tbldocumentlinks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tbldocumentreceiptlog`
@@ -1602,13 +1424,13 @@ ALTER TABLE `tbldocumentrecipients`
 -- AUTO_INCREMENT for table `tbldocumentreviewers`
 --
 ALTER TABLE `tbldocumentreviewers`
-  MODIFY `reviewID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `reviewID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tbldocumentreviewlog`
 --
 ALTER TABLE `tbldocumentreviewlog`
-  MODIFY `reviewLogID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `reviewLogID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tbldocumentrevisionlog`
@@ -1626,19 +1448,19 @@ ALTER TABLE `tbldocumentrevisors`
 -- AUTO_INCREMENT for table `tbldocuments`
 --
 ALTER TABLE `tbldocuments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=257;
 
 --
 -- AUTO_INCREMENT for table `tbldocumentstatus`
 --
 ALTER TABLE `tbldocumentstatus`
-  MODIFY `statusID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `statusID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=265;
 
 --
 -- AUTO_INCREMENT for table `tbldocumentstatuslog`
 --
 ALTER TABLE `tbldocumentstatuslog`
-  MODIFY `statusLogID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `statusLogID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=265;
 
 --
 -- AUTO_INCREMENT for table `tblevents`
@@ -1656,13 +1478,13 @@ ALTER TABLE `tblfolderattributes`
 -- AUTO_INCREMENT for table `tblfolders`
 --
 ALTER TABLE `tblfolders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `tblgroups`
 --
 ALTER TABLE `tblgroups`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tblkeywordcategories`
@@ -1674,13 +1496,13 @@ ALTER TABLE `tblkeywordcategories`
 -- AUTO_INCREMENT for table `tblkeywords`
 --
 ALTER TABLE `tblkeywords`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tblroles`
 --
 ALTER TABLE `tblroles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `tblschedulertask`
@@ -1722,7 +1544,7 @@ ALTER TABLE `tbluserpasswordrequest`
 -- AUTO_INCREMENT for table `tblusers`
 --
 ALTER TABLE `tblusers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tblusersubstitutes`

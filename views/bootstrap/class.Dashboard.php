@@ -42,50 +42,72 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 	{ /* {{{ */
 		$dms = $this->params['dms'] ?? null;
 		$user = $this->params['user'] ?? null;
-		$folder = $this->params['folder'] ?? null;
-		$maxuploadsize = $this->params['maxuploadsize'] ?? ini_get('upload_max_filesize');
 
-		// Fallback to a specific folder ID if $folder is not passed
-		if (!$folder && $dms) {
-			$folder = $dms->getFolder(1); // Default to folder ID 1
+		// Get max upload size from parameter or fallback to php.ini
+		$maxuploadsize = $this->params['maxuploadsize'] ?? ini_get('upload_max_filesize');
+		$maxuploadsizeBytes = is_string($maxuploadsize)
+			? SeedDMS_Core_File::parse_filesize($maxuploadsize)
+			: (int) $maxuploadsize;
+
+		// Hardcoded folder ID for dashboard upload (adjust as needed)
+		$dashboardUploadFolderParam = 1;
+		// Fetch the folder object
+		$folder = null;
+		if ($dashboardUploadFolderParam && $dms) {
+			if (is_object($dashboardUploadFolderParam) && method_exists($dashboardUploadFolderParam, 'getID')) {
+				$folder = $dashboardUploadFolderParam;
+			} elseif (is_numeric($dashboardUploadFolderParam)) {
+				$folder = $dms->getFolder((int) $dashboardUploadFolderParam);
+			}
 		}
 
-		// Make sure $folder and $user are valid before accessing methods
-		if ($folder && is_object($folder) && method_exists($folder, 'getAccessMode') && $user) {
-			if ($folder->getAccessMode($user) >= M_READWRITE) {
-				$this->contentHeading(getMLText("dropupload"), true);
+		// Check access
+		$hasWriteAccess = false;
+		if ($folder && $user && is_object($folder) && method_exists($folder, 'getAccessMode')) {
+			$hasWriteAccess = ($folder->getAccessMode($user) >= M_READWRITE);
+		}
 
-				// Convert to bytes if needed
-				$maxuploadsizeBytes = is_string($maxuploadsize)
-					? SeedDMS_Core_File::parse_filesize($maxuploadsize)
-					: (int) $maxuploadsize;
-				?>
-				<div id="draganddrophandler" class="dashed-border alert alert-warning text-center"
-					style="height: 240px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #343a40; border-radius: 0.25rem;"
-					data-droptarget="folder_<?php echo $folder->getID(); ?>" data-target="<?php echo $folder->getID(); ?>"
-					data-uploadformtoken="<?php echo createFormKey(''); ?>">
+		if ($folder && $hasWriteAccess) {
+			// Render drop zone with dynamic file size and JS enforcement
+			?>
+			<div id="dashboard-drop-zone" class="dashed-border alert alert-warning text-center droptarget"
+				style="height: 240px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #343a40; border-radius: 0.25rem;"
+				data-droptarget="folder_<?php echo $folder->getID(); ?>" data-uploadformtoken="<?php echo createFormKey(''); ?>">
 
-					<!-- Cloud Upload Icon -->
-					<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="black"
-						stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="transform: scale(2);">
-						<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4a6.994 6.994 0 00-6.92 6H4a4 4 0 000 8h16a4 4 0 00-.65-7.96z" />
-						<path d="M13 12v4h-2v-4H8l4-4 4 4h-3z" />
-					</svg>
+				<!-- Cloud Upload Icon -->
+				<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="black"
+					stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="transform: scale(2);">
+					<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4a6.994 6.994 0 00-6.92 6H4a4 4 0 000 8h16a4 4 0 00-.65-7.96z" />
+					<path d="M13 12v4h-2v-4H8l4-4 4 4h-3z" />
+				</svg>
 
-					<h4 style="margin-top: 20px; font-size: 18px;">
-						Drop Files here
-					</h4>
-					<h5 class="text-danger" style="font-size: 15px;">
-						Max. size: <?php echo SeedDMS_Core_File::format_filesize($maxuploadsizeBytes); ?>
-					</h5>
-					<script>
-						SeedDMSUpload.setMaxFileSize(<?php echo (int) $maxuploadsizeBytes; ?>);
-					</script>
-				</div>
-				<?php
-			}
+				<!-- Upload Instructions -->
+				<h4 style="margin-top: 20px; font-size: 18px;">
+					<?php echo htmlspecialchars(getMLText('drop_files_here_dashboard', [], 'Drop Files here')); ?>
+				</h4>
+
+				<!-- Display file size limit -->
+				<h5 class="text-danger" style="font-size: 15px;">
+					Max. size: <?php echo SeedDMS_Core_File::format_filesize($maxuploadsizeBytes); ?>
+				</h5>
+
+
+			</div>
+
+			<!-- JavaScript: enforce max file size -->
+			<script>
+				if (typeof SeedDMSUpload !== 'undefined' && SeedDMSUpload.setMaxFileSize) {
+					SeedDMSUpload.setMaxFileSize(<?= (int) $maxuploadsizeBytes ?>);
+				}
+			</script>
+			<?php
 		} else {
-			echo '<div class="alert alert-danger text-center">Drop upload folder is not available or access is denied.</div>';
+			// Error: Folder is invalid or access denied
+			$message = !$folder
+				? getMLText('info_drop_upload_no_folder', [], 'The hardcoded target folder ID is invalid or the folder does not exist.')
+				: getMLText('access_denied_to_upload_folder', [], 'You do not have permission to upload to the configured quick upload folder.');
+
+			echo '<div class="alert alert-warning text-center" role="alert" style="padding: 40px; min-height: 240px; display: flex; align-items: center; justify-content: center;">' . htmlspecialchars($message) . '</div>';
 		}
 	} /* }}} */
 
@@ -488,7 +510,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 				// determined it shouldn't be displayed (e.g., no folder set).
 				if ($enableDropUploadOnDashboard || true): // Forcing JS to always consider initialization.
 					?>
-			var uploadFolderId = null;
+			var uploadFolderId = <?php echo isset($folder) && is_object($folder) ? (int) $folder->getID() : 'null'; ?>;
+
 			<?php
 			if (is_object($dashboardUploadFolder) && method_exists($dashboardUploadFolder, 'getID')) {
 				echo "uploadFolderId = " . $dashboardUploadFolder->getID() . ";";
@@ -659,7 +682,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		echo '<div class="dashboard-main-content-wrapper" style="padding: 15px;">';
 
 		// Quick Upload section - The 'if' condition has been removed to make it always appear.
-		echo '<div class="dashboard-quick-upload-section">';
+		echo '<div class="dashboard-quick-upload-section" >';
 		$this->rowStart();
 		$this->columnStart(12);
 		//$this->contentHeading(getMLText("quick_upload", [], "Quick Upload"));
