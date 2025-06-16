@@ -2272,7 +2272,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 						foreach ($auditLogs as $log) {
 							$decrypted = $this->decrypt($log['user'], $encryption_key);
 							$user_log = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $log['user'] : $decrypted;
-							$old_value_decrypt = $this->fullyDecrypt($log['old_value'], $encryption_key);
+							$old_value_decrypt = $this->decrypt($log['old_value'], $encryption_key);
 							$old_value = ($old_value_decrypt === '[DECRYPTION FAILED]' || $old_value_decrypt === '[INVALID NAME]') ? $log['old_value'] : $old_value_decrypt;
 							$decrypted = $this->decrypt($log['new_value'], $encryption_key);
 							$new_value = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $log['new_value'] : $decrypted;
