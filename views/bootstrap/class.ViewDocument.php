@@ -1261,7 +1261,7 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 					$previewer->setConverters($previewconverters);
 				$this->showVersionDetails($latestContent, $previewer, true);
 				$this->contentContainerEnd();
-
+				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 				if ($accessobject->check_view_access($this, array('action' => 'statuslog'))) {
 					$this->contentHeading(getMLText("status"));
 					$this->contentContainerStart();
@@ -1274,7 +1274,17 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 							$fullname = htmlspecialchars($suser->getFullName());
 						else
 							$fullname = "--";
-						echo "<tr><td>" . getLongReadableDate($entry['date']) . "<br />" . $fullname . "</td><td>" . getOverallStatusText($entry['status']) . "</td><td>" . htmlspecialchars($entry['comment']) . "</td></tr>\n";
+						$decryptedComment = $this->decrypt($entry['comment'], $encryption_key);
+
+						// Use original comment if decryption failed or result is invalid
+						$commentText = (!in_array($decryptedComment, ['[DECRYPTION FAILED]', '[INVALID NAME]']))
+							? $decryptedComment
+							: $entry['comment'];
+						echo "<tr>
+        <td>" . getLongReadableDate($entry['date']) . "<br />" . htmlspecialchars($fullname) . "</td>
+        <td>" . getOverallStatusText($entry['status']) . "</td>
+        <td>" . htmlspecialchars($commentText) . "</td>
+      </tr>\n";
 					}
 					print "</tbody>\n</table>\n";
 					$this->contentContainerEnd();
