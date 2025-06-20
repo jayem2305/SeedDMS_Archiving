@@ -556,43 +556,37 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		if (typeof $.plot === 'undefined') {
 		console.error("Flot library ($.plot) is not loaded.");
 		$('.chart').html("<p style='color:red; text-align:center;'>Error: Charting library not loaded.</p>");
-				return;
-			}
+		return;
+		}
 		var allChartsDataFromPHP =
 		<?php echo json_encode($jsChartDataArray, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_NUMERIC_CHECK); ?>;
 		var noDataMessage = <?php echo json_encode($noDataText); ?>;
 		var monthNamesForFlot = <?php echo json_encode($monthNamesJs); ?>;
 
 		function pieLabelFormatter(label, series) {
-<<<<<<< Updated upstream
-		return `<div
-			style='font-size:8pt; line-height: 14px; text-align:center; padding:2px; color:black; background: white; border-radius: 5px;'>
-			${label}<br />${series.data[0][1]} (${Math.round(series.percent)}%)</div>`;
+		return '<div style=\'font-size:10pt; line-height: 16px; text-align:center; padding:4px; color:black; background: white;
+			border-radius: 5px; min-width:80px;\'>\${label}<br />\${series.data[0][1]} (\${Math.round(series.percent)}%)</div>';
 		}
-=======
-				return '<div style=\'font-size:10pt; line-height: 16px; text-align:center; padding:4px; color:black; background: white; border-radius: 5px; min-width:80px;\'>\${label}<br />\${series.data[0][1]} (\${Math.round(series.percent)}%)</div>';
-			}
->>>>>>> Stashed changes
 
-			var chartsToRender = allChartsDataFromPHP;
-			if (containerSelector) {
-				// Only render the chart(s) in the given container
-				var id = containerSelector.replace('#', '');
-				chartsToRender = allChartsDataFromPHP.filter(function(chartInfo) {
-					return chartInfo.divId === id || $(containerSelector + ' .chart').length > 0;
-				});
-			}
+		var chartsToRender = allChartsDataFromPHP;
+		if (containerSelector) {
+		// Only render the chart(s) in the given container
+		var id = containerSelector.replace('#', '');
+		chartsToRender = allChartsDataFromPHP.filter(function(chartInfo) {
+		return chartInfo.divId === id || $(containerSelector + ' .chart').length > 0;
+		});
+		}
 
-			if (!chartsToRender || chartsToRender.length === 0) {
-				if (containerSelector) {
-					$(containerSelector + ' .chart').html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+		if (!chartsToRender || chartsToRender.length === 0) {
+		if (containerSelector) {
+		$(containerSelector + ' .chart').html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
 		} else {
-					$('.chart').html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
-				}
-				return;
-			}
+		$('.chart').html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+		}
+		return;
+		}
 
-			chartsToRender.forEach(function(chartInfo) {
+		chartsToRender.forEach(function(chartInfo) {
 		var chartDivSelector = "#" + chartInfo.divId;
 		var phpStyleDataForChart = chartInfo.data;
 
@@ -612,7 +606,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		};
 		var flotDataSeries = [];
 
-				if (["docspermonth", "sizepermonth"].includes(chartInfo.type)) {
+		if (["docspermonth", "sizepermonth"].includes(chartInfo.type)) {
 		flotDataSeries = [phpStyleDataForChart];
 		plotOptions.xaxis = { mode: "categories", tickLength: 0 };
 		plotOptions.series = { bars: { show: true, align: "center", barWidth: 0.8 } };
@@ -626,84 +620,70 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$("#chart_tooltip").html(xLabel + ": " + yVal).css({ top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
 		}
 		});
-<<<<<<< Updated upstream
-		} else if (chartInfo.type === 'docsaccumulated') {
-=======
-<<<<<<< Updated upstream
-		} 
-		
-		/* else if (chartInfo.type === 'docsaccumulated') {
-=======
-		} else if (chartInfo.type === "docsaccumulated") {
->>>>>>> Stashed changes
->>>>>>> Stashed changes
-		flotDataSeries = [phpStyleDataForChart];
-		plotOptions.xaxis = { mode: "time", timeformat: "%d.%m.%y", monthNames: monthNamesForFlot };
-		plotOptions.series = { lines: { show: true, fill: 0.2 }, points: { show: true, radius: 3 } };
-		plotOptions.legend = { position: "nw" };
+		<<<<<<< Updated upstream } else if (chartInfo.type==='docsaccumulated' ) {=======<<<<<<< Updated upstream } /* else if
+			(chartInfo.type==='docsaccumulated' ) {=======} else if (chartInfo.type==="docsaccumulated" ) {>>>>>>> Stashed
+			changes
+			>>>>>>> Stashed changes
+			flotDataSeries = [phpStyleDataForChart];
+			plotOptions.xaxis = { mode: "time", timeformat: "%d.%m.%y", monthNames: monthNamesForFlot };
+			plotOptions.series = { lines: { show: true, fill: 0.2 }, points: { show: true, radius: 3 } };
+			plotOptions.legend = { position: "nw" };
 
-		$(chartDivSelector).bind("plothover", function(event, pos, item) {
-		$("#chart_tooltip").hide();
-		if (item) {
-		$("#chart_tooltip").html($.plot.formatDate(new Date(item.datapoint[0]), '%e. %b %Y') + ": " + item.datapoint[1]).css({
-		top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
-		}
-		});
-<<<<<<< Updated upstream
-		} else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
-=======
-<<<<<<< Updated upstream
-		} */
+			$(chartDivSelector).bind("plothover", function(event, pos, item) {
+			$("#chart_tooltip").hide();
+			if (item) {
+			$("#chart_tooltip").html($.plot.formatDate(new Date(item.datapoint[0]), '%e. %b %Y') + ": " +
+			item.datapoint[1]).css({
+			top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
+			}
+			});
+			<<<<<<< Updated upstream } else if (chartInfo.type==='docsperuser' || chartInfo.type==='docsperstatus' )
+				{=======<<<<<<< Updated upstream } */ else if (chartInfo.type==='docsperuser' ||
+				chartInfo.type==='docsperstatus' ) {=======} else if ( chartInfo.type==='docsperuser' ||
+				chartInfo.type==='foldersperuser' || chartInfo.type==='sizeperuser' || chartInfo.type==='docspermimetype' ||
+				chartInfo.type==='docspercategory' || chartInfo.type==='docsperstatus' ) {>>>>>>> Stashed changes
+				>>>>>>> Stashed changes
+				flotDataSeries = phpStyleDataForChart;
+				plotOptions.series = { pie: { show: true, radius: 1, label: { show: true, radius: 2 / 3, formatter:
+				pieLabelFormatter, threshold: 0.1, background: { opacity: 0.8 } } } };
 
-		else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
-=======
-				} else if (
-					chartInfo.type === 'docsperuser' ||
-					chartInfo.type === 'foldersperuser' ||
-					chartInfo.type === 'sizeperuser' ||
-					chartInfo.type === 'docspermimetype' ||
-					chartInfo.type === 'docspercategory' ||
-					chartInfo.type === 'docsperstatus'
+				var legendContainer = $('#legend_container_' + chartInfo.type);
+				plotOptions.legend = legendContainer.length ? { show: true, container: legendContainer, labelBoxBorderColor:
+				"none" } :
+				{ show: true, noColumns: 2, labelBoxBorderColor: "none" };
+
+				$(chartDivSelector).bind("plothover", function(event, pos, item) {
+				$("#chart_tooltip").hide();
+				if (item) {
+				$("#chart_tooltip").html(item.series.label + ": " + item.series.data[0][1] + " (" +
+				Math.round(item.series.percent) +
+				"%)").css({ top: pos.pageY - 35, left: pos.pageX + 5 }).fadeIn(200);
+				}
+				});
+				}
+
+				if (flotDataSeries && Array.isArray(flotDataSeries) && flotDataSeries.length > 0) {
+				if (
+				chartInfo.type === 'docsperuser' ||
+				chartInfo.type === 'foldersperuser' ||
+				chartInfo.type === 'sizeperuser' ||
+				chartInfo.type === 'docspermimetype' ||
+				chartInfo.type === 'docspercategory' ||
+				chartInfo.type === 'docsperstatus'
 				) {
->>>>>>> Stashed changes
->>>>>>> Stashed changes
-		flotDataSeries = phpStyleDataForChart;
-					plotOptions.series = { pie: { show: true, radius: 1, label: { show: true, radius: 2 / 3, formatter: pieLabelFormatter, threshold: 0.1, background: { opacity: 0.8 } } } };
-
-		var legendContainer = $('#legend_container_' + chartInfo.type);
-		plotOptions.legend = legendContainer.length ? { show: true, container: legendContainer, labelBoxBorderColor: "none" } :
-		{ show: true, noColumns: 2, labelBoxBorderColor: "none" };
-
-		$(chartDivSelector).bind("plothover", function(event, pos, item) {
-		$("#chart_tooltip").hide();
-		if (item) {
-		$("#chart_tooltip").html(item.series.label + ": " + item.series.data[0][1] + " (" + Math.round(item.series.percent) +
-		"%)").css({ top: pos.pageY - 35, left: pos.pageX + 5 }).fadeIn(200);
-		}
-		});
-		}
-
-		if (flotDataSeries && Array.isArray(flotDataSeries) && flotDataSeries.length > 0) {
-					if (
-						chartInfo.type === 'docsperuser' ||
-						chartInfo.type === 'foldersperuser' ||
-						chartInfo.type === 'sizeperuser' ||
-						chartInfo.type === 'docspermimetype' ||
-						chartInfo.type === 'docspercategory' ||
-						chartInfo.type === 'docsperstatus'
-					) {
-						let hasActualData = flotDataSeries.some(series => series.data && series.data.length > 0 && series.data[0].length > 1 && series.data[0][1] > 0);
-		if (!hasActualData && flotDataSeries.length > 0) {
-		$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
-		return;
-		}
-		}
-		$.plot($(chartDivSelector), flotDataSeries, plotOptions);
-		}
-		});
-		}
-		renderDashboardCharts();
-		<?php
+				let hasActualData = flotDataSeries.some(series => series.data && series.data.length > 0 && series.data[0].length
+				> 1 && series.data[0][1] > 0);
+				if (!hasActualData && flotDataSeries.length > 0) {
+				$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+				return;
+				}
+				}
+				$.plot($(chartDivSelector), flotDataSeries, plotOptions);
+				}
+				});
+				}
+				renderDashboardCharts();
+				<?php
 	}
 
 	// ========================================================================
@@ -723,7 +703,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		if (is_array($mlMonthNames) && count($mlMonthNames) == 12)
 			$monthNamesJs = array_values($mlMonthNames);
 
-		
+
 		$enableDropUploadOnDashboard = $this->params['enableDropUploadOnDashboard'] ?? false;
 
 		$httpRootForLibs = $this->params['settings']->_httpRoot ?? '../';
@@ -815,26 +795,26 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 			}
 			$colWidth = $numChartsInRow > 0 ? floor(12 / $numChartsInRow) : 12;
 
-		// Output a single container for the chart cards
-		$allChartTypes = $this->_dashboardChartTypes;
-		$jsChartDataArray = $this->prepareJsChartData();
-		$noDataText = getMLText('no_data_available', [], "No data available for this chart");
-		$monthNamesJs = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-		$mlMonthNames = getMLText("datetime_monthname_short");
-		if (is_array($mlMonthNames) && count($mlMonthNames) == 12)
-			$monthNamesJs = array_values($mlMonthNames);
+			// Output a single container for the chart cards
+			$allChartTypes = $this->_dashboardChartTypes;
+			$jsChartDataArray = $this->prepareJsChartData();
+			$noDataText = getMLText('no_data_available', [], "No data available for this chart");
+			$monthNamesJs = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+			$mlMonthNames = getMLText("datetime_monthname_short");
+			if (is_array($mlMonthNames) && count($mlMonthNames) == 12)
+				$monthNamesJs = array_values($mlMonthNames);
 
-		// Output a container for the chart cards
+			// Output a container for the chart cards
 
-		echo '<div class="charts-dashboard-container row" id="dashboard-charts-row"></div>';
+			echo '<div class="charts-dashboard-container row" id="dashboard-charts-row"></div>';
 
-		$jsAllChartTypes = json_encode($allChartTypes);
-		$jsChartData = json_encode($jsChartDataArray, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_NUMERIC_CHECK);
-		$jsNoDataText = json_encode($noDataText);
-		$jsMonthNames = json_encode($monthNamesJs);
+			$jsAllChartTypes = json_encode($allChartTypes);
+			$jsChartData = json_encode($jsChartDataArray, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_NUMERIC_CHECK);
+			$jsNoDataText = json_encode($noDataText);
+			$jsMonthNames = json_encode($monthNamesJs);
 
-		// Output the JS for rendering and swapping charts
-		echo <<<EOT
+			// Output the JS for rendering and swapping charts
+			echo <<<EOT
 		<script>
 		(function() {
 			var allChartTypes = $jsAllChartTypes;
@@ -1005,6 +985,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		</script>
 EOT;
 
+
+		} /* }}} */
 		// Document Lists Section
 		echo '<div class="dashboard-document-lists-section" style="margin-top: 30px;">';
 		$this->contentHeading(getMLText("recent_activity", [], "Recent Activity"));
@@ -1028,6 +1010,5 @@ EOT;
 
 		$this->contentEnd();
 		$this->htmlEndPage();
-	} /* }}} */
-}
+	}
 }
