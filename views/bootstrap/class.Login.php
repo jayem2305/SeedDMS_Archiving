@@ -99,7 +99,11 @@ $(document).ready( function() {
 		$this->htmlStartPage(getMLText("sign_in"), "login");
 		$this->globalBanner();
 		$this->contentStart();
-		echo "<div id=\"login_wrapper\">\n";
+		echo '<div class="dashboard-main-content-wrapper">';
+		echo '<div class="dashboard-card-container">';
+		echo '<div class="card" style="max-width: 400px; margin: 40px auto;">';
+		echo '<div class="card-body">';
+		echo '<div id="login_wrapper">';
 		$this->pageNavigation(getMLText("sign_in"));
 		if($msg)
 			$this->errorMsg(htmlspecialchars($msg));
@@ -194,11 +198,17 @@ $(document).ready( function() {
 		if ($enablepasswordforgotten)
 			$tmpfoot[] = "<a href=\"../out/out.PasswordForgotten.php\">" . getMLText("password_forgotten") . "</a>\n";
 		if($tmpfoot) {
-			print "<p>";
+			print "<p class=\"mt-3 text-center\">";
 			print implode(' | ', $tmpfoot);
 			print "</p>\n";
 		}
-		echo "</div>\n";
+		echo '</div>'; // #login_wrapper
+		// Close card structure
+
+		echo '</div>'; // card-body
+		echo '</div>'; // card
+		echo '</div>'; // dashboard-card-container
+		echo '</div>'; // dashboard-main-content-wrapper
 		$this->contentEnd();
 		$this->htmlEndPage();
 	} /* }}} */

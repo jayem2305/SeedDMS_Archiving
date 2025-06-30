@@ -1071,1190 +1071,1144 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 		$this->htmlStartPage(getMLText("document_title", array("documentname" => htmlspecialchars($document->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
-		$this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document);
-
-		echo $this->callHook('preContent');
-		if ($document->isLocked()) {
-			$lockingUser = $document->getLockingUser();
-			$txt = $this->callHook('documentIsLocked', $document, $lockingUser);
-			if (is_string($txt))
-				echo $txt;
-			else {
-				$this->warningMsg(getMLText("lock_message", array("email" => $lockingUser->getEmail(), "username" => htmlspecialchars($lockingUser->getFullName()))));
-			}
-		}
-
-		/* Retrieve latest content and  attacheѕ files */
-		$latestContent = $this->callHook('documentLatestContent', $document);
-		if ($latestContent === null)
-			$latestContent = $document->getLatestContent();
-		$files = $document->getDocumentFiles($latestContent->getVersion());
-		$files = SeedDMS_Core_DMS::filterDocumentFiles($user, $files);
-
-		/* Retrieve linked documents */
-		$links = $document->getDocumentLinks();
-		$links = SeedDMS_Core_DMS::filterDocumentLinks($user, $links, 'target');
-
-		/* Retrieve reverse linked documents */
-		$reverselinks = $document->getReverseDocumentLinks();
-		$reverselinks = SeedDMS_Core_DMS::filterDocumentLinks($user, $reverselinks, 'source');
-
-		$needwkflaction = false;
-		$transitions = array();
-		if ($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
-		} elseif ($workflowmode == 'advanced') {
-			$workflow = $latestContent->getWorkflow();
-			if ($workflow) {
-				if ($workflowstate = $latestContent->getWorkflowState()) {
-					$transitions = $workflow->getNextTransitions($workflowstate);
-					$needwkflaction = $latestContent->needsWorkflowAction($user);
-				} else {
-					$this->warningMsg(getMLText('workflow_in_unknown_state'));
-				}
-			}
-		}
-
-		if ($needwkflaction) {
-			$this->infoMsg(getMLText('needs_workflow_action'));
-		}
-
-		$reviewStatus = $latestContent->getReviewStatus();
-		$approvalStatus = $latestContent->getApprovalStatus();
-		$receiptStatus = $latestContent->getReceiptStatus();
-		$revisionStatus = $latestContent->getRevisionStatus();
-
-		$this->rowStart();
-		$this->columnStart(4);
-		$txt = $this->callHook('startLeftColumn', $document);
-		if (is_string($txt))
-			echo $txt;
-		$this->documentInfos();
-		if ($accessobject->check_controller_access('ViewOnline', array('action' => 'run'))) {
-			$this->preview();
-		}
-		$this->columnEnd();
-		$this->columnStart(8);
-
-		$txt = $this->callHook('startRightColumn', $document);
-		if (is_string($txt))
-			echo $txt;
 		?>
-		<ul class="nav nav-pills" id="docinfotab" role="tablist">
-			<li class="nav-item <?php if (!$currenttab || $currenttab == 'docinfo')
-				echo 'active'; ?>"><a class="nav-link <?php if (!$currenttab || $currenttab == 'docinfo')
-					  echo 'active'; ?>" data-target="#docinfo" data-toggle="tab"
-					role="button"><?php printMLText('current_version'); ?></a></li>
-			<?php if (count($versions) > 1 && $accessobject->check_view_access($this, array('action' => 'previous'))) { ?>
-				<li class="nav-item <?php if ($currenttab == 'previous')
-					echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'previous')
-						  echo 'active'; ?>" data-target="#previous" data-toggle="tab"
-						role="button"><?php printMLText('previous_versions'); ?></a></li>
-				<?php
-			}
-			if ($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
-				if (
-					(is_array($reviewStatus) && count($reviewStatus) > 0) ||
-					(is_array($approvalStatus) && count($approvalStatus) > 0)
-				) {
-					?>
-					<li class="nav-item <?php if ($currenttab == 'revapp')
-						echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'revapp')
-							  echo 'active'; ?>" data-target="#revapp" data-toggle="tab" role="button"><?php if ($workflowmode == 'traditional')
-									echo getMLText('reviewers') . "/";
-								echo getMLText('approvers'); ?></a>
-					</li>
-					<?php
-				}
-			} elseif ($workflowmode == 'advanced') {
-				if ($workflow) {
-					?>
-					<li class="nav-item <?php if ($currenttab == 'workflow')
-						echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'workflow')
-							  echo 'active'; ?>" data-target="#workflow" data-toggle="tab"
-							role="button"><?php echo getMLText('workflow'); ?></a></li>
-					<?php
-				}
-			}
-			if (is_array($receiptStatus) && count($receiptStatus) > 0 && $accessobject->check_view_access($this, array('action' => 'recipients'))) {
-				?>
-				<li class="nav-item <?php if ($currenttab == 'recipients')
-					echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'recipients')
-						  echo 'active'; ?>" data-target="#recipients" data-toggle="tab"
-						role="button"><?php echo getMLText('recipients'); ?></a></li>
-				<?php
-			}
-			if (is_array($revisionStatus) && count($revisionStatus) > 0 && $accessobject->check_view_access($this, array('action' => 'revision'))) {
-				?>
-				<li class="nav-item <?php if ($currenttab == 'revision')
-					echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'revision')
-						  echo 'active'; ?>" data-target="#revision" data-toggle="tab"
-						role="button"><?php echo getMLText('revise_document'); ?></a></li>
-				<?php
-			}
-			if ($accessobject->check_view_access($this, array('action' => 'attachments'))) {
-				?>
-				<li class="nav-item <?php if ($currenttab == 'attachments')
-					echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'attachments')
-						  echo 'active'; ?>" data-target="#attachments" data-toggle="tab" role="button"><?php printMLText('linked_files');
-							echo (count($files)) ? " (" . count($files) . ")" : ""; ?></a>
-				</li>
-				<?php
-			}
-			if ($accessobject->check_view_access($this, array('action' => 'links'))) {
-				?>
-				<li class="nav-item <?php if ($currenttab == 'links')
-					echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'links')
-						  echo 'active'; ?>" data-target="#links" data-toggle="tab"
-						role="button"><?php printMLText('linked_documents');
-						echo (count($links) || count($reverselinks)) ? " (" . count($links) . "/" . count($reverselinks) . ")" : ""; ?></a>
-				</li>
+		<div class="dashboard-main-content-wrapper">
+		  <div class="dashboard-card-container">
+		    <div class="card">
+		      <div class="card-body">
+		        <?php $this->pageNavigation($this->getFolderPathHTML($folder, true, $document), "view_document", $document); ?>
+		        <?php echo $this->callHook('preContent'); ?>
+		        <?php if ($document->isLocked()) {
+		          $lockingUser = $document->getLockingUser();
+		          $txt = $this->callHook('documentIsLocked', $document, $lockingUser);
+		          if (is_string($txt))
+		            echo $txt;
+		          else {
+		            $this->warningMsg(getMLText("lock_message", array("email" => $lockingUser->getEmail(), "username" => htmlspecialchars($lockingUser->getFullName()))));
+		          }
+		        } ?>
+		        <div class="row">
+		          <div class="col-md-4">
+		            <?php $txt = $this->callHook('startLeftColumn', $document); if (is_string($txt)) echo $txt; $this->documentInfos(); if ($accessobject->check_controller_access('ViewOnline', array('action' => 'run'))) { $this->preview(); } ?>
+		          </div>
+		          <div class="col-md-8">
+		            <?php $txt = $this->callHook('startRightColumn', $document); if (is_string($txt)) echo $txt; ?>
+		            <ul class="nav nav-pills mb-3" id="docinfotab" role="tablist">
+		              <li class="nav-item <?php if (!$currenttab || $currenttab == 'docinfo')
+		              	echo 'active'; ?>"><a class="nav-link <?php if (!$currenttab || $currenttab == 'docinfo')
+		              			echo 'active'; ?>" data-target="#docinfo" data-toggle="tab"
+		              		role="button"><?php printMLText('current_version'); ?></a></li>
+		              <?php if (count($versions) > 1 && $accessobject->check_view_access($this, array('action' => 'previous'))) { ?>
+		                <li class="nav-item <?php if ($currenttab == 'previous')
+		                	echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'previous')
+		                			echo 'active'; ?>" data-target="#previous" data-toggle="tab"
+		                		role="button"><?php printMLText('previous_versions'); ?></a></li>
+		                <?php
+		              }
+		              if ($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
+		                if (
+		                  (is_array($reviewStatus) && count($reviewStatus) > 0) ||
+		                  (is_array($approvalStatus) && count($approvalStatus) > 0)
+		                ) {
+		                  ?>
+		                  <li class="nav-item <?php if ($currenttab == 'revapp')
+		                  	echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'revapp')
+		                  			echo 'active'; ?>" data-target="#revapp" data-toggle="tab" role="button"><?php if ($workflowmode == 'traditional')
+		                  				echo getMLText('reviewers') . "/";
+		                  			echo getMLText('approvers'); ?></a>
+		                  </li>
+		                  <?php
+		                }
+		              } elseif ($workflowmode == 'advanced') {
+		                if ($workflow) {
+		                  ?>
+		                  <li class="nav-item <?php if ($currenttab == 'workflow')
+		                  	echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'workflow')
+		                  			echo 'active'; ?>" data-target="#workflow" data-toggle="tab"
+		                  		role="button"><?php echo getMLText('workflow'); ?></a></li>
+		                  <?php
+		                }
+		              }
+		              if (is_array($receiptStatus) && count($receiptStatus) > 0 && $accessobject->check_view_access($this, array('action' => 'recipients'))) {
+		                ?>
+		                <li class="nav-item <?php if ($currenttab == 'recipients')
+		                	echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'recipients')
+		                			echo 'active'; ?>" data-target="#recipients" data-toggle="tab"
+		                		role="button"><?php echo getMLText('recipients'); ?></a></li>
+		                <?php
+		              }
+		              if (is_array($revisionStatus) && count($revisionStatus) > 0 && $accessobject->check_view_access($this, array('action' => 'revision'))) {
+		                ?>
+		                <li class="nav-item <?php if ($currenttab == 'revision')
+		                	echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'revision')
+		                			echo 'active'; ?>" data-target="#revision" data-toggle="tab"
+		                		role="button"><?php echo getMLText('revise_document'); ?></a></li>
+		                <?php
+		              }
+		              if ($accessobject->check_view_access($this, array('action' => 'attachments'))) {
+		                ?>
+		                <li class="nav-item <?php if ($currenttab == 'attachments')
+		                	echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'attachments')
+		                			echo 'active'; ?>" data-target="#attachments" data-toggle="tab" role="button"><?php printMLText('linked_files');
+		                			echo (count($files)) ? " (" . count($files) . ")" : ""; ?></a>
+		                </li>
+		                <?php
+		              }
+		              if ($accessobject->check_view_access($this, array('action' => 'links'))) {
+		                ?>
+		                <li class="nav-item <?php if ($currenttab == 'links')
+		                	echo 'active'; ?>"><a class="nav-link <?php if ($currenttab == 'links')
+		                			echo 'active'; ?>" data-target="#links" data-toggle="tab"
+		                		role="button"><?php printMLText('linked_documents');
+		                		echo (count($links) || count($reverselinks)) ? " (" . count($links) . "/" . count($reverselinks) . ")" : ""; ?></a>
+		                </li>
 
-				<?php
-			}
+		                <?php
+		              }
 
-			// Always show Audit Log tab
-			?>
-			<li class="nav-item <?php if ($currenttab == 'auditlog')
-				echo 'active'; ?>">
-				<a class="nav-link <?php if ($currenttab == 'auditlog')
-					echo 'active'; ?>" data-target="#auditlog" data-toggle="tab" role="button">
-					Audit Log
-				</a>
-			</li>
-			<?php
+		              // Always show Audit Log tab
+		              ?>
+		              <li class="nav-item <?php if ($currenttab == 'auditlog')
+		              	echo 'active'; ?>">
+		                <a class="nav-link <?php if ($currenttab == 'auditlog')
+		                	echo 'active'; ?>" data-target="#auditlog" data-toggle="tab" role="button">
+		                  Audit Log
+		                </a>
+		              </li>
+		              <?php
 
-			$tabs = $this->callHook('extraTabs', $document);
-			if ($tabs) {
-				foreach ($tabs as $tabid => $tab) {
-					echo '<li class="nav-item ' . ($currenttab == $tabid ? 'active' : '') . '"><a class="nav-link ' . ($currenttab == $tabid ? 'active' : '') . '" data-target="#' . $tabid . '" data-toggle="tab" role="button">' . $tab['title'] . '</a></li>';
-				}
-			}
-			?>
-		</ul>
-		<div class="tab-content">
-			<div class="tab-pane <?php if (!$currenttab || $currenttab == 'docinfo')
-				echo 'active'; ?>" id="docinfo" role="tabpanel">
-				<?php
-				if (!$latestContent) {
-					$this->contentContainerStart();
-					print getMLText('document_content_missing');
-					$this->contentContainerEnd();
-					$this->contentEnd();
-					$this->htmlEndPage();
-					exit;
-				}
+		              $tabs = $this->callHook('extraTabs', $document);
+		              if ($tabs) {
+		                foreach ($tabs as $tabid => $tab) {
+		                  echo '<li class="nav-item ' . ($currenttab == $tabid ? 'active' : '') . '"><a class="nav-link ' . ($currenttab == $tabid ? 'active' : '') . '" data-target="#' . $tabid . '" data-toggle="tab" role="button">' . $tab['title'] . '</a></li>';
+		                }
+		              }
+		              ?>
+		            </ul>
+		            <div class="tab-content">
+		              <div class="tab-pane <?php if (!$currenttab || $currenttab == 'docinfo')
+		              	echo 'active'; ?>" id="docinfo" role="tabpanel">
+		                <?php
+		                if (!$latestContent) {
+		                  $this->contentContainerStart();
+		                  print getMLText('document_content_missing');
+		                  $this->contentContainerEnd();
+		                  $this->contentEnd();
+		                  $this->htmlEndPage();
+		                  exit;
+		                }
 
-				$checksum = $latestContent->getRealChecksum($latestContent);
-				if ($checksum != $latestContent->getChecksum()) {
-					$this->errorMsg(getMLText('wrong_checksum'));
-				}
+		                $checksum = $latestContent->getRealChecksum($latestContent);
+		                if ($checksum != $latestContent->getChecksum()) {
+		                  $this->errorMsg(getMLText('wrong_checksum'));
+		                }
 
-				$txt = $this->callHook('preLatestVersionTab', $latestContent);
-				if (is_string($txt))
-					echo $txt;
+		                $txt = $this->callHook('preLatestVersionTab', $latestContent);
+		                if (is_string($txt))
+		                  echo $txt;
 
-				$this->contentContainerStart();
-				$previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidthdetail, $timeout, $xsendfile);
-				if ($conversionmgr)
-					$previewer->setConversionMgr($conversionmgr);
-				else
-					$previewer->setConverters($previewconverters);
-				$this->showVersionDetails($latestContent, $previewer, true);
-				$this->contentContainerEnd();
-				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-				if ($accessobject->check_view_access($this, array('action' => 'statuslog'))) {
-					$this->contentHeading(getMLText("status"));
-					$this->contentContainerStart();
-					$statuslog = $latestContent->getStatusLog();
-					echo "<table class=\"table table-condensed table-sm\"><thead>";
-					echo "<th>" . getMLText('date') . "/" . getMLText('user') . "</th><th>" . getMLText('status') . "</th><th>" . getMLText('comment') . "</th></tr>\n";
-					echo "</thead><tbody>";
-					foreach ($statuslog as $entry) {
-						if ($suser = $dms->getUser($entry['userID']))
-							$fullname = htmlspecialchars($suser->getFullName());
-						else
-							$fullname = "--";
-						$decryptedComment = $this->decrypt($entry['comment'], $encryption_key);
+		                $this->contentContainerStart();
+		                $previewer = new SeedDMS_Preview_Previewer($cachedir, $previewwidthdetail, $timeout, $xsendfile);
+		                if ($conversionmgr)
+		                  $previewer->setConversionMgr($conversionmgr);
+		                else
+		                  $previewer->setConverters($previewconverters);
+		                $this->showVersionDetails($latestContent, $previewer, true);
+		                $this->contentContainerEnd();
+		                $encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+		                if ($accessobject->check_view_access($this, array('action' => 'statuslog'))) {
+		                  $this->contentHeading(getMLText("status"));
+		                  $this->contentContainerStart();
+		                  $statuslog = $latestContent->getStatusLog();
+		                  echo "<table class=\"table table-condensed table-sm\"><thead>";
+		                  echo "<th>" . getMLText('date') . "/" . getMLText('user') . "</th><th>" . getMLText('status') . "</th><th>" . getMLText('comment') . "</th></tr>\n";
+		                  echo "</thead><tbody>";
+		                  foreach ($statuslog as $entry) {
+		                    if ($suser = $dms->getUser($entry['userID']))
+		                      $fullname = htmlspecialchars($suser->getFullName());
+		                    else
+		                      $fullname = "--";
+		                    $decryptedComment = $this->decrypt($entry['comment'], $encryption_key);
 
-						// Use original comment if decryption failed or result is invalid
-						$commentText = (!in_array($decryptedComment, ['[DECRYPTION FAILED]', '[INVALID NAME]']))
-							? $decryptedComment
-							: $entry['comment'];
-						echo "<tr>
+		                    // Use original comment if decryption failed or result is invalid
+		                    $commentText = (!in_array($decryptedComment, ['[DECRYPTION FAILED]', '[INVALID NAME]']))
+		                      ? $decryptedComment
+		                      : $entry['comment'];
+		                    echo "<tr>
         <td>" . getLongReadableDate($entry['date']) . "<br />" . htmlspecialchars($fullname) . "</td>
         <td>" . getOverallStatusText($entry['status']) . "</td>
         <td>" . htmlspecialchars($commentText) . "</td>
       </tr>\n";
-					}
-					print "</tbody>\n</table>\n";
-					$this->contentContainerEnd();
-				}
+		                  }
+		                  print "</tbody>\n</table>\n";
+		                  $this->contentContainerEnd();
+		                }
 
-				if ($workflowmode == 'advanced' && !$workflow) {
-					if ($accessobject->check_view_access($this, array('action' => 'finished_workflowlog'))) {
-						$wkfalllogs = $latestContent->getWorkflowLog();
-						if ($wkfalllogs) {
-							$this->contentHeading(getMLText("finished_workflow_log"));
-							foreach ($wkfalllogs as $wkflogs) {
-								$this->rowStart();
-								$this->columnStart(12);
-								$this->printWorkflowLog($wkflogs);
-								$this->columnEnd();
-								$this->rowEnd();
-							}
-						}
-					}
-				}
-				?>
-			</div>
-			<?php
-			if ($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
-				if (
-					(is_array($reviewStatus) && count($reviewStatus) > 0) ||
-					(is_array($approvalStatus) && count($approvalStatus) > 0)
-				) {
-					?>
-					<div class="tab-pane <?php if ($currenttab == 'revapp')
-						echo 'active'; ?>" id="revapp" role="tabpanel">
-						<?php
-						if ($document->hasExpired())
-							$this->warningMsg(getMLText('cannot_revapp_expired_docs'));
-						$this->rowStart();
-						/* Just check fo an exting reviewStatus, even workflow mode is set
-						 * to traditional_only_approval. There may be old documents which
-						 * are still in S_DRAFT_REV.
-						 */
-						if (/*$workflowmode != 'traditional_only_approval' &&*/ is_array($reviewStatus) && count($reviewStatus) > 0) {
+		                if ($workflowmode == 'advanced' && !$workflow) {
+		                  if ($accessobject->check_view_access($this, array('action' => 'finished_workflowlog'))) {
+		                    $wkfalllogs = $latestContent->getWorkflowLog();
+		                    if ($wkfalllogs) {
+		                      $this->contentHeading(getMLText("finished_workflow_log"));
+		                      foreach ($wkfalllogs as $wkflogs) {
+		                        $this->rowStart();
+		                        $this->columnStart(12);
+		                        $this->printWorkflowLog($wkflogs);
+		                        $this->columnEnd();
+		                        $this->rowEnd();
+		                      }
+		                    }
+		                  }
+		                }
+		                ?>
+		            </div>
+		            <?php
+		            if ($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
+		              if (
+		                (is_array($reviewStatus) && count($reviewStatus) > 0) ||
+		                (is_array($approvalStatus) && count($approvalStatus) > 0)
+		              ) {
+		                  ?>
+		                  <div class="tab-pane <?php if ($currenttab == 'revapp')
+		                  	echo 'active'; ?>" id="revapp" role="tabpanel">
+		                    <?php
+		                    if ($document->hasExpired())
+		                      $this->warningMsg(getMLText('cannot_revapp_expired_docs'));
+		                    $this->rowStart();
+		                    /* Just check fo an exting reviewStatus, even workflow mode is set
+		                     * to traditional_only_approval. There may be old documents which
+		                     * are still in S_DRAFT_REV.
+		                     */
+		                    if (/*$workflowmode != 'traditional_only_approval' &&*/ is_array($reviewStatus) && count($reviewStatus) > 0) {
 
-							$this->columnStart(6);
-							//		$this->contentContainerStart();
-							print "<legend>" . getMLText('reviewers') . "</legend>";
-							print "<table class=\"table table-condensed table-sm\">\n";
+		                      $this->columnStart(6);
+		                      //		$this->contentContainerStart();
+		                      print "<legend>" . getMLText('reviewers') . "</legend>";
+		                      print "<table class=\"table table-condensed table-sm\">\n";
 
-							print "<tr>\n";
-							print "<th>" . getMLText("name") . "</th>\n";
-							print "<th>" . getMLText("last_update") . ", " . getMLText("comment") . "</th>\n";
-							//			print "<td width='25%'><b>".getMLText("comment")."</b></td>";
-							print "<th>" . getMLText("status") . "</th>\n";
-							print "<th></th>\n";
-							print "</tr>\n";
+		                      print "<tr>\n";
+		                      print "<th>" . getMLText("name") . "</th>\n";
+		                      print "<th>" . getMLText("last_update") . ", " . getMLText("comment") . "</th>\n";
+		                      //			print "<td width='25%'><b>".getMLText("comment")."</b></td>";
+		                      print "<th>" . getMLText("status") . "</th>\n";
+		                      print "<th></th>\n";
+		                      print "</tr>\n";
 
-							foreach ($reviewStatus as $r) {
-								$class = '';
-								switch ($r['status']) {
-									case '-1':
-										$class = 'error';
-										break;
-									case '1':
-										$class = 'success';
-										break;
-								}
-								$required = null;
-								$is_reviewer = false;
-								$accesserr = '';
-								switch ($r["type"]) {
-									case 0: // Reviewer is an individual.
-										$required = $dms->getUser($r["required"]);
-										if (!is_object($required)) {
-											$reqName = getMLText("unknown_user") . " '" . $r["required"] . "'";
-										} else {
-											$reqName = "<i class=\"fa fa-user\"></i> " . htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
-											if ($user->isAdmin()) {
-												if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
-													$accesserr = getMLText("access_denied");
-												elseif (is_object($required) && $required->isDisabled())
-													$accesserr = getMLText("login_disabled_title");
-											}
-											if ($required->getId() == $user->getId()/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
-												$is_reviewer = true;
-										}
-										break;
-									case 1: // Reviewer is a group.
-										$required = $dms->getGroup($r["required"]);
-										if (!is_object($required)) {
-											$reqName = getMLText("unknown_group") . " '" . $r["required"] . "'";
-										} else {
-											$reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
-											if ($user->isAdmin()) {
-												$grpusers = $required->getUsers();
-												if (!$grpusers)
-													$accesserr = getMLText("no_group_members");
-											}
-											if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
-												$is_reviewer = true;
-										}
-										break;
-								}
-								if ($user->isAdmin() || $r["status"] > -2) {
-									print "<tr>\n";
-									print "<td>" . $reqName . "</td>\n";
-									print "<td><i style=\"font-size: 80%;\">" . getLongReadableDate($r["date"]) . " - ";
-									/* $updateUser is the user who has done the review */
-									$updateUser = $dms->getUser($r["userID"]);
-									print (is_object($updateUser) ? htmlspecialchars($updateUser->getFullName() . " (" . $updateUser->getLogin() . ")") : "unknown user id '" . $r["userID"] . "'") . "</i><br />";
-									print htmlspecialchars($r["comment"]);
-									if ($r['file']) {
-										echo "<br />";
-										if ($accessobject->check_controller_access('Download', array('action' => 'run'))) {
-											echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $latestContent->getDocument()->getId() . "&reviewlogid=" . $r['reviewLogID'] . "\" class=\"btn btn-secondary btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
-										}
-									}
-									print "</td>\n";
-									print "<td>";
-									if ($class)
-										echo "<i class=\"fa fa-circle text-" . $class . "\"></i> ";
-									print getReviewStatusText($r["status"]) . "</td>\n";
-									print "<td><ul class=\"actions unstyled\">";
-									if ($accesserr)
-										echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
+		                      foreach ($reviewStatus as $r) {
+		                        $class = '';
+		                        switch ($r['status']) {
+		                          case '-1':
+		                            $class = 'error';
+		                            break;
+		                          case '1':
+		                            $class = 'success';
+		                            break;
+		                        }
+		                        $required = null;
+		                        $is_reviewer = false;
+		                        $accesserr = '';
+		                        switch ($r["type"]) {
+		                          case 0: // Reviewer is an individual.
+		                            $required = $dms->getUser($r["required"]);
+		                            if (!is_object($required)) {
+		                              $reqName = getMLText("unknown_user") . " '" . $r["required"] . "'";
+		                            } else {
+		                              $reqName = "<i class=\"fa fa-user\"></i> " . htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
+		                              if ($user->isAdmin()) {
+		                                if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
+		                                  $accesserr = getMLText("access_denied");
+		                                elseif (is_object($required) && $required->isDisabled())
+		                                  $accesserr = getMLText("login_disabled_title");
+		                              }
+		                              if ($required->getId() == $user->getId()/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
+		                                $is_reviewer = true;
+		                            }
+		                            break;
+		                          case 1: // Reviewer is a group.
+		                            $required = $dms->getGroup($r["required"]);
+		                            if (!is_object($required)) {
+		                              $reqName = getMLText("unknown_group") . " '" . $r["required"] . "'";
+		                            } else {
+		                              $reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
+		                              if ($user->isAdmin()) {
+		                                $grpusers = $required->getUsers();
+		                                if (!$grpusers)
+		                                  $accesserr = getMLText("no_group_members");
+		                              }
+		                              if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
+		                                $is_reviewer = true;
+		                            }
+		                            break;
+		                        }
+		                        if ($user->isAdmin() || $r["status"] > -2) {
+		                          print "<tr>\n";
+		                          print "<td>" . $reqName . "</td>\n";
+		                          print "<td><i style=\"font-size: 80%;\">" . getLongReadableDate($r["date"]) . " - ";
+		                          /* $updateUser is the user who has done the review */
+		                          $updateUser = $dms->getUser($r["userID"]);
+		                          print (is_object($updateUser) ? htmlspecialchars($updateUser->getFullName() . " (" . $updateUser->getLogin() . ")") : "unknown user id '" . $r["userID"] . "'") . "</i><br />";
+		                          print htmlspecialchars($r["comment"]);
+		                          if ($r['file']) {
+		                            echo "<br />";
+		                            if ($accessobject->check_controller_access('Download', array('action' => 'run'))) {
+		                              echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $latestContent->getDocument()->getId() . "&reviewlogid=" . $r['reviewLogID'] . "\" class=\"btn btn-secondary btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
+		                            }
+		                          }
+		                          print "</td>\n";
+		                          print "<td>";
+		                          if ($class)
+		                            echo "<i class=\"fa fa-circle text-" . $class . "\"></i> ";
+		                          print getReviewStatusText($r["status"]) . "</td>\n";
+		                          print "<td><ul class=\"actions unstyled\">";
+		                          if ($accesserr)
+		                            echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
 
-									if ($accessobject->mayReview($latestContent->getDocument())) {
-										if ($is_reviewer) {
-											if ($r["status"] == 0) {
-												print $this->html_link('ReviewDocument', array('documentid' => $latestContent->getDocument()->getId(), 'version' => $latestContent->getVersion(), 'reviewid' => $r['reviewID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_review"), false, true, array('<li>', '</li>'));
-											} elseif ($accessobject->mayUpdateReview($latestContent->getDocument(), $updateUser) && (($r["status"] == 1) || ($r["status"] == -1))) {
-												print $this->html_link('ReviewDocument', array('documentid' => $latestContent->getDocument()->getId(), 'version' => $latestContent->getVersion(), 'reviewid' => $r['reviewID']), array('class' => 'btn btn-mini btn-primary'), getMLText("edit"), false, true, array('<li>', '</li>'));
-											}
-										}
-									}
-									if ($enableremoverevapp && $user->isAdmin() && ($r['status'] == 1 || $r['status'] == -1))
-										echo '<li><a href="' . $this->html_url('RemoveReviewLog', array('documentid' => $document->getID(), 'version' => $latestContent->getVersion(), 'reviewid' => $r['reviewID'])) . '" title="' . getMLText('remove_review_log') . '"><i class="fa fa-remove"></i></a></li>';
+		                          if ($accessobject->mayReview($latestContent->getDocument())) {
+		                            if ($is_reviewer) {
+		                              if ($r["status"] == 0) {
+		                                print $this->html_link('ReviewDocument', array('documentid' => $latestContent->getDocument()->getId(), 'version' => $latestContent->getVersion(), 'reviewid' => $r['reviewID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_review"), false, true, array('<li>', '</li>'));
+		                              } elseif ($accessobject->mayUpdateReview($latestContent->getDocument(), $updateUser) && (($r["status"] == 1) || ($r["status"] == -1))) {
+		                                print $this->html_link('ReviewDocument', array('documentid' => $latestContent->getDocument()->getId(), 'version' => $latestContent->getVersion(), 'reviewid' => $r['reviewID']), array('class' => 'btn btn-mini btn-primary'), getMLText("edit"), false, true, array('<li>', '</li>'));
+		                              }
+		                            }
+		                          }
+		                          if ($enableremoverevapp && $user->isAdmin() && ($r['status'] == 1 || $r['status'] == -1))
+		                            echo '<li><a href="' . $this->html_url('RemoveReviewLog', array('documentid' => $document->getID(), 'version' => $latestContent->getVersion(), 'reviewid' => $r['reviewID'])) . '" title="' . getMLText('remove_review_log') . '"><i class="fa fa-remove"></i></a></li>';
 
-									print "</ul></td>\n";
-									print "</tr>\n";
-								}
-							}
-							print "</table>";
-							//		$this->contentContainerEnd();
-		
-							$this->columnEnd();
-						}
-						$this->columnStart(6);
-						//		$this->contentContainerStart();
-						print "<legend>" . getMLText('approvers') . "</legend>";
-						print "<table class=\"table table-condensed table-sm\">\n";
-						if (is_array($approvalStatus) && count($approvalStatus) > 0) {
+		                          print "</ul></td>\n";
+		                          print "</tr>\n";
+		                        }
+		                      }
+		                      print "</table>";
+		                      //		$this->contentContainerEnd();
 
-							print "<tr>\n";
-							print "<th>" . getMLText("name") . "</th>\n";
-							print "<th>" . getMLText("last_update") . ", " . getMLText("comment") . "</th>\n";
-							//			print "<td width='25%'><b>".getMLText("comment")."</b></td>";
-							print "<th>" . getMLText("status") . "</th>\n";
-							print "<th></th>\n";
-							print "</tr>\n";
+		                      $this->columnEnd();
+		                    }
+		                    $this->columnStart(6);
+		                    //		$this->contentContainerStart();
+		                    print "<legend>" . getMLText('approvers') . "</legend>";
+		                    print "<table class=\"table table-condensed table-sm\">\n";
+		                    if (is_array($approvalStatus) && count($approvalStatus) > 0) {
 
-							foreach ($approvalStatus as $a) {
-								$class = '';
-								switch ($a['status']) {
-									case '-1':
-										$class = 'error';
-										break;
-									case '1':
-										$class = 'success';
-										break;
-								}
-								$required = null;
-								$is_approver = false;
-								$accesserr = '';
-								switch ($a["type"]) {
-									case 0: // Approver is an individual.
-										$required = $dms->getUser($a["required"]);
-										if (!is_object($required)) {
-											$reqName = getMLText("unknown_user") . " '" . $a["required"] . "'";
-										} else {
-											$reqName = "<i class=\"fa fa-user\"></i> " . htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
-											if ($user->isAdmin()) {
-												if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
-													$accesserr = getMLText("access_denied");
-												elseif (is_object($required) && $required->isDisabled())
-													$accesserr = getMLText("login_disabled_title");
-											}
-											if ($required->getId() == $user->getId())
-												$is_approver = true;
-										}
-										break;
-									case 1: // Approver is a group.
-										$required = $dms->getGroup($a["required"]);
-										if (!is_object($required)) {
-											$reqName = getMLText("unknown_group") . " '" . $a["required"] . "'";
-										} else {
-											$reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
-											if ($user->isAdmin()) {
-												$grpusers = $required->getUsers();
-												if (!$grpusers)
-													$accesserr = getMLText("no_group_members");
-											}
-											if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
-												$is_approver = true;
-										}
-										break;
-								}
-								if ($user->isAdmin() || $a["status"] > -2) {
-									print "<tr>\n";
-									print "<td>" . $reqName . "</td>\n";
-									print "<td><i style=\"font-size: 80%;\">" . getLongReadableDate($a["date"]) . " - ";
-									/* $updateUser is the user who has done the approval */
-									$updateUser = $dms->getUser($a["userID"]);
-									print (is_object($updateUser) ? htmlspecialchars($updateUser->getFullName() . " (" . $updateUser->getLogin() . ")") : "unknown user id '" . $a["userID"] . "'") . "</i><br />";
-									print htmlspecialchars($a["comment"]);
-									if ($a['file']) {
-										echo "<br />";
-										if ($accessobject->check_controller_access('Download', array('action' => 'run'))) {
-											echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $latestContent->getDocument()->getId() . "&approvelogid=" . $a['approveLogID'] . "\" class=\"btn btn-secondary btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
-										}
-									}
-									echo "</td>\n";
-									print "<td>";
-									if ($class)
-										echo "<i class=\"fa fa-circle text-" . $class . "\"></i> ";
-									print getApprovalStatusText($a["status"]) . "</td>\n";
-									print "<td><ul class=\"actions unstyled\">";
-									if ($accesserr)
-										echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
+		                      print "<tr>\n";
+		                      print "<th>" . getMLText("name") . "</th>\n";
+		                      print "<th>" . getMLText("last_update") . ", " . getMLText("comment") . "</th>\n";
+		                      //			print "<td width='25%'><b>".getMLText("comment")."</b></td>";
+		                      print "<th>" . getMLText("status") . "</th>\n";
+		                      print "<th></th>\n";
+		                      print "</tr>\n";
 
-									if ($accessobject->mayApprove($latestContent->getDocument())) {
-										if ($is_approver) {
-											if ($a['status'] == 0) {
-												print $this->html_link('ApproveDocument', array('documentid' => $latestContent->getDocument()->getId(), 'version' => $latestContent->getVersion(), 'approveid' => $a['approveID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_approval"), false, true, array('<li>', '</li>'));
-											} elseif ($accessobject->mayUpdateApproval($latestContent->getDocument(), $updateUser) && (($a["status"] == 1) || ($a["status"] == -1))) {
-												print $this->html_link('ApproveDocument', array('documentid' => $latestContent->getDocument()->getId(), 'version' => $latestContent->getVersion(), 'approveid' => $a['approveID']), array('class' => 'btn btn-mini btn-primary'), getMLText("edit"), false, true, array('<li>', '</li>'));
-											}
-										}
-									}
-									if ($enableremoverevapp && $user->isAdmin() && ($a['status'] == 1 || $a['status'] == -1))
-										echo '<li><a href="' . $this->html_url('RemoveApprovalLog', array('documentid' => $document->getID(), 'version' => $latestContent->getVersion(), 'approveid' => $a['approveID'])) . '" title="' . getMLText('remove_approval_log') . '"><i class="fa fa-remove"></i></a></li>';
+		                      foreach ($approvalStatus as $a) {
+		                        $class = '';
+		                        switch ($a['status']) {
+		                          case '-1':
+		                            $class = 'error';
+		                            break;
+		                          case '1':
+		                            $class = 'success';
+		                            break;
+		                        }
+		                        $required = null;
+		                        $is_approver = false;
+		                        $accesserr = '';
+		                        switch ($a["type"]) {
+		                          case 0: // Approver is an individual.
+		                            $required = $dms->getUser($a["required"]);
+		                            if (!is_object($required)) {
+		                              $reqName = getMLText("unknown_user") . " '" . $a["required"] . "'";
+		                            } else {
+		                              $reqName = "<i class=\"fa fa-user\"></i> " . htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
+		                              if ($user->isAdmin()) {
+		                                if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
+		                                  $accesserr = getMLText("access_denied");
+		                                elseif (is_object($required) && $required->isDisabled())
+		                                  $accesserr = getMLText("login_disabled_title");
+		                              }
+		                              if ($required->getId() == $user->getId())
+		                                $is_approver = true;
+		                            }
+		                            break;
+		                          case 1: // Approver is a group.
+		                            $required = $dms->getGroup($a["required"]);
+		                            if (!is_object($required)) {
+		                              $reqName = getMLText("unknown_group") . " '" . $a["required"] . "'";
+		                            } else {
+		                              $reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
+		                              if ($user->isAdmin()) {
+		                                $grpusers = $required->getUsers();
+		                                if (!$grpusers)
+		                                  $accesserr = getMLText("no_group_members");
+		                              }
+		                              if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
+		                                $is_approver = true;
+		                            }
+		                            break;
+		                        }
+		                        if ($user->isAdmin() || $a["status"] > -2) {
+		                          print "<tr>\n";
+		                          print "<td>" . $reqName . "</td>\n";
+		                          print "<td><i style=\"font-size: 80%;\">" . getLongReadableDate($a["date"]) . " - ";
+		                          /* $updateUser is the user who has done the approval */
+		                          $updateUser = $dms->getUser($a["userID"]);
+		                          print (is_object($updateUser) ? htmlspecialchars($updateUser->getFullName() . " (" . $updateUser->getLogin() . ")") : "unknown user id '" . $a["userID"] . "'") . "</i><br />";
+		                          print htmlspecialchars($a["comment"]);
+		                          if ($a['file']) {
+		                            echo "<br />";
+		                            if ($accessobject->check_controller_access('Download', array('action' => 'run'))) {
+		                              echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $latestContent->getDocument()->getId() . "&approvelogid=" . $a['approveLogID'] . "\" class=\"btn btn-secondary btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
+		                            }
+		                          }
+		                          echo "</td>\n";
+		                          print "<td>";
+		                          if ($class)
+		                            echo "<i class=\"fa fa-circle text-" . $class . "\"></i> ";
+		                          print getApprovalStatusText($a["status"]) . "</td>\n";
+		                          print "<td><ul class=\"actions unstyled\">";
+		                          if ($accesserr)
+		                            echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
 
-									print "</ul>";
-									print "</td>\n";
-									print "</tr>\n";
-								}
-							}
-						}
+		                          if ($accessobject->mayApprove($latestContent->getDocument())) {
+		                            if ($is_approver) {
+		                              if ($a['status'] == 0) {
+		                                print $this->html_link('ApproveDocument', array('documentid' => $latestContent->getDocument()->getId(), 'version' => $latestContent->getVersion(), 'approveid' => $a['approveID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_approval"), false, true, array('<li>', '</li>'));
+		                              } elseif ($accessobject->mayUpdateApproval($latestContent->getDocument(), $updateUser) && (($a["status"] == 1) || ($a["status"] == -1))) {
+		                                print $this->html_link('ApproveDocument', array('documentid' => $latestContent->getDocument()->getId(), 'version' => $latestContent->getVersion(), 'approveid' => $a['approveID']), array('class' => 'btn btn-mini btn-primary'), getMLText("edit"), false, true, array('<li>', '</li>'));
+		                              }
+		                            }
+		                          }
+		                          if ($enableremoverevapp && $user->isAdmin() && ($a['status'] == 1 || $a['status'] == -1))
+		                            echo '<li><a href="' . $this->html_url('RemoveApprovalLog', array('documentid' => $document->getID(), 'version' => $latestContent->getVersion(), 'approveid' => $a['approveID'])) . '" title="' . getMLText('remove_approval_log') . '"><i class="fa fa-remove"></i></a></li>';
 
-						print "</table>\n";
-						//		$this->contentContainerEnd();
-						$this->columnEnd();
-						$this->rowEnd();
+		                          print "</ul>";
+		                          print "</td>\n";
+		                          print "</tr>\n";
+		                        }
+		                      }
+		                    }
 
-						if ($user->isAdmin() || $user->getId() == $document->getOwner()->getId()) {
-							$this->rowStart();
-							/* Check for an existing review log, even if the workflowmode
-							 * is set to traditional_only_approval. There may be old documents
-							 * that still have a review log if the workflow mode has been
-							 * changed afterwards.
-							 */
-							if ($latestContent->getReviewStatus(10) /*$workflowmode != 'traditional_only_approval'*/) {
-								$this->columnStart(6);
-								$this->printProtocol($latestContent, 'review');
-								$this->columnEnd();
-							}
-							$this->columnStart(6);
-							$this->printProtocol($latestContent, 'approval');
-							$this->columnEnd();
-							$this->rowEnd();
-						}
-						?>
-					</div>
-					<?php
-				}
-			} elseif ($workflowmode == 'advanced') {
-				if ($workflow) {
-					/* Check if user is involved in workflow */
-					$user_is_involved = false;
-					foreach ($transitions as $transition) {
-						if ($latestContent->triggerWorkflowTransitionIsAllowed($user, $transition)) {
-							$user_is_involved = true;
-						}
-					}
-					?>
-					<div class="tab-pane <?php if ($currenttab == 'workflow')
-						echo 'active'; ?>" id="workflow" role="tabpanel">
-						<?php
-						$this->rowStart();
-						if ($user_is_involved && $accessobject->check_view_access('WorkflowGraph'))
-							$this->columnStart(6);
-						else
-							$this->columnStart(12);
-						$this->contentContainerStart();
-						if ($user->isAdmin()) {
-							if (!$workflowstate || SeedDMS_Core_DMS::checkIfEqual($workflow->getInitState(), $workflowstate)) {
-								print "<form action=\"" . $this->html_url("RemoveWorkflowFromDocument") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><button type=\"submit\" class=\"btn btn-danger\"><i class=\"fa fa-remove\"></i> " . getMLText('rm_workflow') . "</button></form>";
-							} else {
-								print "<form action=\"" . $this->html_url("RewindWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><button type=\"submit\" class=\"btn btn-danger\"><i class=\"fa fa-refresh\"></i> " . getMLText('rewind_workflow') . "</button></form>";
-							}
-						}
+		                    print "</table>\n";
+		                    //		$this->contentContainerEnd();
+		                    $this->columnEnd();
+		                    $this->rowEnd();
 
-						echo "<h4>" . htmlspecialchars($workflow->getName()) . "</h4>";
-						if ($parentworkflow = $latestContent->getParentWorkflow()) {
-							echo "<p>Sub workflow of '" . htmlspecialchars($parentworkflow->getName()) . "'</p>";
-						}
-						echo "<h5>" . getMLText('current_state') . ": " . ($workflowstate ? htmlspecialchars($workflowstate->getName()) : htmlspecialchars(getMLText('workflow_in_unknown_state'))) . "</h5>";
-						echo "<table class=\"table table-condensed table-sm\">\n";
-						echo "<tr>";
-						echo "<td>" . getMLText('next_state') . ":</td>";
-						foreach ($transitions as $transition) {
-							$nextstate = $transition->getNextState();
-							$docstatus = $nextstate->getDocumentStatus();
-							echo "<td><i class=\"fa fa-circle" . ($docstatus == S_RELEASED ? " released" : ($docstatus == S_REJECTED ? " rejected" : " in-workflow")) . "\"></i> " . htmlspecialchars($nextstate->getName()) . "</td>";
-						}
-						echo "</tr>";
-						echo "<tr>";
-						echo "<td>" . getMLText('action') . ":</td>";
-						foreach ($transitions as $transition) {
-							$action = $transition->getAction();
-							echo "<td>" . getMLText('action_' . strtolower($action->getName()), array(), htmlspecialchars($action->getName())) . "</td>";
-						}
-						echo "</tr>";
-						echo "<tr>";
-						echo "<td>" . getMLText('users') . ":</td>";
-						foreach ($transitions as $transition) {
-							$transusers = $transition->getUsers();
-							echo "<td>";
-							foreach ($transusers as $transuser) {
-								$u = $transuser->getUser();
-								echo htmlspecialchars($u->getFullName());
-								if ($document->getAccessMode($u) < M_READ) {
-									echo " (no access)";
-								}
-								echo "<br />";
-							}
-							echo "</td>";
-						}
-						echo "</tr>";
-						echo "<tr>";
-						echo "<td>" . getMLText('groups') . ":</td>";
-						foreach ($transitions as $transition) {
-							$transgroups = $transition->getGroups();
-							echo "<td>";
-							foreach ($transgroups as $transgroup) {
-								$g = $transgroup->getGroup();
-								echo getMLText(
-									'at_least_n_users_of_group',
-									array(
-										"number_of_users" => $transgroup->getNumOfUsers(),
-										"group" => htmlspecialchars($g->getName())
-									)
-								);
-								if ($document->getGroupAccessMode($g) < M_READ) {
-									echo " (no access)";
-								}
-								echo "<br />";
-							}
-							echo "</td>";
-						}
-						echo "</tr>";
-						echo "<tr class=\"success\">";
-						echo "<td>" . getMLText('users_done_work') . ":</td>";
-						foreach ($transitions as $transition) {
-							echo "<td>";
-							if ($latestContent->executeWorkflowTransitionIsAllowed($transition)) {
-								/* If this is reached, then the transition should have been executed
-								 * but for some reason the next state hasn't been reached. This can
-								 * be caused, if a transition which was previously already executed
-								 * is about to be executed again. E.g. there was already a transition
-								 * T1 from state S1 to S2 triggered by user U1.
-								 * Then there was a second transition T2 from
-								 * S2 back to S1. If the state S1 has been reached again, then
-								 * executeWorkflowTransitionIsAllowed() will think that T1 could be
-								 * executed because there is already a log entry saying, that U1
-								 * has triggered the workflow.
-								 */
-								echo "Done ";
-							}
-							$wkflogs = $latestContent->getWorkflowLog($transition);
-							foreach ($wkflogs as $wkflog) {
-								$loguser = $wkflog->getUser();
-								echo htmlspecialchars($loguser->getFullName());
-								$names = array();
-								foreach ($loguser->getGroups() as $loggroup) {
-									$names[] = htmlspecialchars($loggroup->getName());
-								}
-								if ($names)
-									echo " (" . implode(", ", $names) . ")";
-								echo " - ";
-								echo getLongReadableDate($wkflog->getDate());
-								echo "<br />";
-							}
-							echo "</td>";
-						}
-						echo "</tr>";
-						echo "<tr>";
-						echo "<td></td>";
-						$allowedtransitions = array();
-						foreach ($transitions as $transition) {
-							echo "<td>";
-							if ($latestContent->triggerWorkflowTransitionIsAllowed($user, $transition)) {
-								$action = $transition->getAction();
-								print "<form action=\"" . $this->html_url("TriggerWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><input type=\"hidden\" name=\"transition\" value=\"" . $transition->getID() . "\" /><input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('action_' . strtolower($action->getName()), array(), htmlspecialchars($action->getName())) . "\" /></form>";
-								$allowedtransitions[] = $transition;
-							}
-							echo "</td>";
-						}
-						echo "</tr>";
-						echo "</table>";
+		                    if ($user->isAdmin() || $user->getId() == $document->getOwner()->getId()) {
+		                      $this->rowStart();
+		                      /* Check for an existing review log, even if the workflowmode
+		                       * is set to traditional_only_approval. There may be old documents
+		                       * that still have a review log if the workflow mode has been
+		                       * changed afterwards.
+		                       */
+		                      if ($latestContent->getReviewStatus(10) /*$workflowmode != 'traditional_only_approval'*/) {
+		                        $this->columnStart(6);
+		                        $this->printProtocol($latestContent, 'review');
+		                        $this->columnEnd();
+		                      }
+		                      $this->columnStart(6);
+		                      $this->printProtocol($latestContent, 'approval');
+		                      $this->columnEnd();
+		                      $this->rowEnd();
+		                    }
+		                    ?>
+		                  </div>
+		                  <?php
+		                }
+		              } elseif ($workflowmode == 'advanced') {
+		                if ($workflow) {
+		                  /* Check if user is involved in workflow */
+		                  $user_is_involved = false;
+		                  foreach ($transitions as $transition) {
+		                    if ($latestContent->triggerWorkflowTransitionIsAllowed($user, $transition)) {
+		                      $user_is_involved = true;
+		                    }
+		                  }
+		                  ?>
+		                  <div class="tab-pane <?php if ($currenttab == 'workflow')
+		                  	echo 'active'; ?>" id="workflow" role="tabpanel">
+		                    <?php
+		                    $this->rowStart();
+		                    if ($user_is_involved && $accessobject->check_view_access('WorkflowGraph'))
+		                      $this->columnStart(6);
+		                    else
+		                      $this->columnStart(12);
+		                    $this->contentContainerStart();
+		                    if ($user->isAdmin()) {
+		                      if (!$workflowstate || SeedDMS_Core_DMS::checkIfEqual($workflow->getInitState(), $workflowstate)) {
+		                        print "<form action=\"" . $this->html_url("RemoveWorkflowFromDocument") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><button type=\"submit\" class=\"btn btn-danger\"><i class=\"fa fa-remove\"></i> " . getMLText('rm_workflow') . "</button></form>";
+		                      } else {
+		                        print "<form action=\"" . $this->html_url("RewindWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><button type=\"submit\" class=\"btn btn-danger\"><i class=\"fa fa-refresh\"></i> " . getMLText('rewind_workflow') . "</button></form>";
+		                      }
+		                    }
 
-						$workflows = $dms->getAllWorkflows();
-						if ($workflows) {
-							$subworkflows = array();
-							foreach ($workflows as $wkf) {
-								if ($workflowstate && ($wkf->getInitState()->getID() == $workflowstate->getID())) {
-									if ($workflow->getID() != $wkf->getID()) {
-										$subworkflows[] = $wkf;
-									}
-								}
-							}
-							if ($subworkflows) {
-								echo "<form class=\"form-inline\" action=\"" . $this->html_url("RunSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" />";
-								echo "<select name=\"subworkflow\" class=\"form-control\">";
-								foreach ($subworkflows as $subworkflow) {
-									echo "<option value=\"" . $subworkflow->getID() . "\">" . htmlspecialchars($subworkflow->getName()) . "</option>";
-								}
-								echo "</select>";
-								echo "<label class=\"inline\">";
-								echo "<input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('run_subworkflow') . "\" />";
-								echo "</label>";
-								echo "</form>";
-							}
-						}
-						/* If in a sub workflow, the check if return the parent workflow
-						 * is possible.
-						 */
-						if ($parentworkflow = $latestContent->getParentWorkflow()) {
-							$states = $parentworkflow->getStates();
-							foreach ($states as $state) {
-								/* Check if the current workflow state is also a state in the
-								 * parent workflow
-								 */
-								if ($latestContent->getWorkflowState()->getID() == $state->getID()) {
-									echo "Switching from sub workflow '" . htmlspecialchars($workflow->getName()) . "' into state " . $state->getName() . " of parent workflow '" . htmlspecialchars($parentworkflow->getName()) . "' is possible<br />";
-									/* Check if the transition from the state where the sub workflow
-									 * starts into the current state is also allowed in the parent
-									 * workflow. Checking at this point is actually too late, because
-									 * the sub workflow shouldn't be entered in the first place,
-									 * but that is difficult to check.
-									 */
-									/* If the init state has not been left, return is always possible */
-									if ($workflow->getInitState()->getID() == $latestContent->getWorkflowState()->getID()) {
-										echo "Initial state of sub workflow has not been left. Return to parent workflow is possible<br />";
-										echo "<form action=\"" . $this->html_url("ReturnFromSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('return_from_subworkflow') . "\" />";
-										echo "</form>";
-									} else {
-										/* Get a transition from the last state in the parent workflow
-										 * (which is the initial state of the sub workflow) into
-										 * current state.
-										 */
-										echo "Check for transition from " . $workflow->getInitState()->getName() . " into " . $latestContent->getWorkflowState()->getName() . " is possible in parentworkflow " . $parentworkflow->getID() . "<br />";
-										$transitions = $parentworkflow->getTransitionsByStates($workflow->getInitState(), $latestContent->getWorkflowState());
-										if ($transitions) {
-											echo "Found transitions in workflow " . $parentworkflow->getID() . "<br />";
-											foreach ($transitions as $transition) {
-												if ($latestContent->triggerWorkflowTransitionIsAllowed($user, $transition)) {
-													echo "Triggering transition is allowed<br />";
-													echo "<form action=\"" . $this->html_url("ReturnFromSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><input type=\"hidden\" name=\"transition\" value=\"" . $transition->getID() . "\" />";
-													echo "<input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('return_from_subworkflow') . "\" />";
-													echo "</form>";
+		                    echo "<h4>" . htmlspecialchars($workflow->getName()) . "</h4>";
+		                    if ($parentworkflow = $latestContent->getParentWorkflow()) {
+		                      echo "<p>Sub workflow of '" . htmlspecialchars($parentworkflow->getName()) . "'</p>";
+		                    }
+		                    echo "<h5>" . getMLText('current_state') . ": " . ($workflowstate ? htmlspecialchars($workflowstate->getName()) : htmlspecialchars(getMLText('workflow_in_unknown_state'))) . "</h5>";
+		                    echo "<table class=\"table table-condensed table-sm\">\n";
+		                    echo "<tr>";
+		                    echo "<td>" . getMLText('next_state') . ":</td>";
+		                    foreach ($transitions as $transition) {
+		                      $nextstate = $transition->getNextState();
+		                      $docstatus = $nextstate->getDocumentStatus();
+		                      echo "<td><i class=\"fa fa-circle" . ($docstatus == S_RELEASED ? " released" : ($docstatus == S_REJECTED ? " rejected" : " in-workflow")) . "\"></i> " . htmlspecialchars($nextstate->getName()) . "</td>";
+		                    }
+		                    echo "</tr>";
+		                    echo "<tr>";
+		                    echo "<td>" . getMLText('action') . ":</td>";
+		                    foreach ($transitions as $transition) {
+		                      $action = $transition->getAction();
+		                      echo "<td>" . getMLText('action_' . strtolower($action->getName()), array(), htmlspecialchars($action->getName())) . "</td>";
+		                    }
+		                    echo "</tr>";
+		                    echo "<tr>";
+		                    echo "<td>" . getMLText('users') . ":</td>";
+		                    foreach ($transitions as $transition) {
+		                      $transusers = $transition->getUsers();
+		                      echo "<td>";
+		                      foreach ($transusers as $transuser) {
+		                        $u = $transuser->getUser();
+		                        echo htmlspecialchars($u->getFullName());
+		                        if ($document->getAccessMode($u) < M_READ) {
+		                          echo " (no access)";
+		                        }
+		                        echo "<br />";
+		                      }
+		                      echo "</td>";
+		                    }
+		                    echo "</tr>";
+		                    echo "<tr>";
+		                    echo "<td>" . getMLText('groups') . ":</td>";
+		                    foreach ($transitions as $transition) {
+		                      $transgroups = $transition->getGroups();
+		                      echo "<td>";
+		                      foreach ($transgroups as $transgroup) {
+		                        $g = $transgroup->getGroup();
+		                        echo getMLText(
+		                          'at_least_n_users_of_group',
+		                          array(
+		                            "number_of_users" => $transgroup->getNumOfUsers(),
+		                            "group" => htmlspecialchars($g->getName())
+		                          )
+		                        );
+		                        if ($document->getGroupAccessMode($g) < M_READ) {
+		                          echo " (no access)";
+		                        }
+		                        echo "<br />";
+		                      }
+		                      echo "</td>";
+		                    }
+		                    echo "</tr>";
+		                    echo "<tr class=\"success\">";
+		                    echo "<td>" . getMLText('users_done_work') . ":</td>";
+		                    foreach ($transitions as $transition) {
+		                      echo "<td>";
+		                      if ($latestContent->executeWorkflowTransitionIsAllowed($transition)) {
+		                        /* If this is reached, then the transition should have been executed
+		                         * but for some reason the next state hasn't been reached. This can
+		                         * be caused, if a transition which was previously already executed
+		                         * is about to be executed again. E.g. there was already a transition
+		                         * T1 from state S1 to S2 triggered by user U1.
+		                         * Then there was a second transition T2 from
+		                         * S2 back to S1. If the state S1 has been reached again, then
+		                         * executeWorkflowTransitionIsAllowed() will think that T1 could be
+		                         * executed because there is already a log entry saying, that U1
+		                         * has triggered the workflow.
+		                         */
+		                        echo "Done ";
+		                      }
+		                      $wkflogs = $latestContent->getWorkflowLog($transition);
+		                      foreach ($wkflogs as $wkflog) {
+		                        $loguser = $wkflog->getUser();
+		                        echo htmlspecialchars($loguser->getFullName());
+		                        $names = array();
+		                        foreach ($loguser->getGroups() as $loggroup) {
+		                          $names[] = htmlspecialchars($loggroup->getName());
+		                        }
+		                        if ($names)
+		                          echo " (" . implode(", ", $names) . ")";
+		                        echo " - ";
+		                        echo getLongReadableDate($wkflog->getDate());
+		                        echo "<br />";
+		                      }
+		                      echo "</td>";
+		                    }
+		                    echo "</tr>";
+		                    echo "<tr>";
+		                    echo "<td></td>";
+		                    $allowedtransitions = array();
+		                    foreach ($transitions as $transition) {
+		                      echo "<td>";
+		                      if ($latestContent->triggerWorkflowTransitionIsAllowed($user, $transition)) {
+		                        $action = $transition->getAction();
+		                        print "<form action=\"" . $this->html_url("TriggerWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><input type=\"hidden\" name=\"transition\" value=\"" . $transition->getID() . "\" /><input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('action_' . strtolower($action->getName()), array(), htmlspecialchars($action->getName())) . "\" /></form>";
+		                        $allowedtransitions[] = $transition;
+		                      }
+		                      echo "</td>";
+		                    }
+		                    echo "</tr>";
+		                    echo "</table>";
 
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-						$this->contentContainerEnd();
-						$this->columnEnd();
-						if ($user_is_involved && $accessobject->check_view_access('WorkflowGraph')) {
-							$this->columnStart(6);
-							?>
-							<iframe src="out.WorkflowGraph.php?workflow=<?php echo $workflow->getID(); ?><?php if ($allowedtransitions)
-								   foreach ($allowedtransitions as $tr) {
-									   echo "&transitions[]=" . $tr->getID();
-								   } ?>" width="99%" height="661" style="border: 1px solid #AAA;"></iframe>
-							<?php
-							$this->columnEnd();
-						}
-						$this->rowEnd();
+		                    $workflows = $dms->getAllWorkflows();
+		                    if ($workflows) {
+		                      $subworkflows = array();
+		                      foreach ($workflows as $wkf) {
+		                        if ($workflowstate && ($wkf->getInitState()->getID() == $workflowstate->getID())) {
+		                          if ($workflow->getID() != $wkf->getID()) {
+		                            $subworkflows[] = $wkf;
+		                          }
+		                        }
+		                      }
+		                      if ($subworkflows) {
+		                        echo "<form class=\"form-inline\" action=\"" . $this->html_url("RunSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" />";
+		                        echo "<select name=\"subworkflow\" class=\"form-control\">";
+		                        foreach ($subworkflows as $subworkflow) {
+		                          echo "<option value=\"" . $subworkflow->getID() . "\">" . htmlspecialchars($subworkflow->getName()) . "</option>";
+		                        }
+		                        echo "</select>";
+		                        echo "<label class=\"inline\">";
+		                        echo "<input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('run_subworkflow') . "\" />";
+		                        echo "</label>";
+		                        echo "</form>";
+		                      }
+		                    }
+		                    /* If in a sub workflow, the check if return the parent workflow
+		                     * is possible.
+		                     */
+		                    if ($parentworkflow = $latestContent->getParentWorkflow()) {
+		                      $states = $parentworkflow->getStates();
+		                      foreach ($states as $state) {
+		                        /* Check if the current workflow state is also a state in the
+		                         * parent workflow
+		                         */
+		                        if ($latestContent->getWorkflowState()->getID() == $state->getID()) {
+		                          echo "Switching from sub workflow '" . htmlspecialchars($workflow->getName()) . "' into state " . $state->getName() . " of parent workflow '" . htmlspecialchars($parentworkflow->getName()) . "' is possible<br />";
+		                          /* Check if the transition from the state where the sub workflow
+		                           * starts into the current state is also allowed in the parent
+		                           * workflow. Checking at this point is actually too late, because
+		                           * the sub workflow shouldn't be entered in the first place,
+		                           * but that is difficult to check.
+		                           */
+		                          /* If the init state has not been left, return is always possible */
+		                          if ($workflow->getInitState()->getID() == $latestContent->getWorkflowState()->getID()) {
+		                            echo "Initial state of sub workflow has not been left. Return to parent workflow is possible<br />";
+		                            echo "<form action=\"" . $this->html_url("ReturnFromSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('return_from_subworkflow') . "\" />";
+		                            echo "</form>";
+		                          } else {
+		                            /* Get a transition from the last state in the parent workflow
+		                             * (which is the initial state of the sub workflow) into
+		                             * current state.
+		                             */
+		                            echo "Check for transition from " . $workflow->getInitState()->getName() . " into " . $latestContent->getWorkflowState()->getName() . " is possible in parentworkflow " . $parentworkflow->getID() . "<br />";
+		                            $transitions = $parentworkflow->getTransitionsByStates($workflow->getInitState(), $latestContent->getWorkflowState());
+		                            if ($transitions) {
+		                              echo "Found transitions in workflow " . $parentworkflow->getID() . "<br />";
+		                              foreach ($transitions as $transition) {
+		                                if ($latestContent->triggerWorkflowTransitionIsAllowed($user, $transition)) {
+		                                  echo "Triggering transition is allowed<br />";
+		                                  echo "<form action=\"" . $this->html_url("ReturnFromSubWorkflow") . "\" method=\"get\"><input type=\"hidden\" name=\"documentid\" value=\"" . $latestContent->getDocument()->getId() . "\" /><input type=\"hidden\" name=\"version\" value=\"" . $latestContent->getVersion() . "\" /><input type=\"hidden\" name=\"transition\" value=\"" . $transition->getID() . "\" />";
+		                                  echo "<input type=\"submit\" class=\"btn btn-primary\" value=\"" . getMLText('return_from_subworkflow') . "\" />";
+		                                  echo "</form>";
 
-						$wkflogs = $latestContent->getWorkflowLog();
-						if ($wkflogs) {
-							$this->rowStart();
-							$this->columnStart(12);
-							$this->contentHeading(getMLText("workflow_log"));
-							$this->printWorkflowLog($wkflogs);
-							$this->columnEnd();
-							$this->rowEnd();
-						}
-						?>
-					</div>
-					<?php
-				}
-			}
-			if (is_array($receiptStatus) && count($receiptStatus) > 0 && $accessobject->check_view_access($this, array('action' => 'recipients'))) {
-				?>
-				<div class="tab-pane <?php if ($currenttab == 'recipients')
-					echo 'active'; ?>" id="recipients">
-					<?php
-					$status = $latestContent->getStatus();
-					if ($status["status"] != S_RELEASED)
-						echo "<div class=\"alert alert-warning\">" . getMLText('info_recipients_tab_not_released') . "</div>";
+		                                }
+		                              }
+		                            }
+		                          }
+		                        }
+		                      }
+		                    }
+		                    $this->contentContainerEnd();
+		                    $this->columnEnd();
+		                    if ($user_is_involved && $accessobject->check_view_access('WorkflowGraph')) {
+		                      $this->columnStart(6);
+		                      ?>
+		                      <iframe src="out.WorkflowGraph.php?workflow=<?php echo $workflow->getID(); ?><?php if ($allowedtransitions)
+		                      	   foreach ($allowedtransitions as $tr) {
+		                      		   echo "&transitions[]=" . $tr->getID();
+		                      	   } ?>" width="99%" height="661" style="border: 1px solid #AAA;"></iframe>
+		                      <?php
+		                      $this->columnEnd();
+		                    }
+		                    $this->rowEnd();
 
-					$txt = $this->callHook('preRecipientsTab', $receiptStatus);
-					if (is_string($txt))
-						echo $txt;
+		                    $wkflogs = $latestContent->getWorkflowLog();
+		                    if ($wkflogs) {
+		                      $this->rowStart();
+		                      $this->columnStart(12);
+		                      $this->contentHeading(getMLText("workflow_log"));
+		                      $this->printWorkflowLog($wkflogs);
+		                      $this->columnEnd();
+		                      $this->rowEnd();
+		                    }
+		                    ?>
+		                  </div>
+		                  <?php
+		                }
+		              }
+		              if (is_array($receiptStatus) && count($receiptStatus) > 0 && $accessobject->check_view_access($this, array('action' => 'recipients'))) {
+		                ?>
+		                <div class="tab-pane <?php if ($currenttab == 'recipients')
+		                	echo 'active'; ?>" id="recipients">
+		                  <?php
+		                  $status = $latestContent->getStatus();
+		                  if ($status["status"] != S_RELEASED)
+		                    echo "<div class=\"alert alert-warning\">" . getMLText('info_recipients_tab_not_released') . "</div>";
 
-					print "<table id=\"filterRecipientsTable\" class=\"table table-condensed table-sm\">\n";
+		                  $txt = $this->callHook('preRecipientsTab', $receiptStatus);
+		                  if (is_string($txt))
+		                    echo $txt;
 
-					print "<thead>\n";
-					print "<tr>\n";
-					print "<th width='20%'>" . ((count($receiptStatus) > 10) ? '<input class="form-control" type="text" id="filterRecipientsInput" placeholder="' . getMLText('type_to_filter') . '">' : getMLText('name')) . "</th>\n";
-					print "<th width='20%'>" . getMLText("last_update") . "</th>\n";
-					print "<th width='25%'>" . getMLText("comment") . "</th>";
-					print "<th width='15%'>" . getMLText("status") . "</th>\n";
-					print "<th width='20%'></th>\n";
-					print "</tr>\n";
-					print "</thead>\n";
-					print "<tbody>\n";
+		                  print "<table id=\"filterRecipientsTable\" class=\"table table-condensed table-sm\">\n";
 
-					$stat = array('-1' => 0, '0' => 0, '1' => 0, '-2' => 0);
-					$disabledcount = 0;
-					$removedusers = '';
-					foreach ($receiptStatus as $r) {
-						$required = null;
-						$is_recipient = false;
-						$stat['' . $r['status']]++;
-						$accesserr = '';
-						switch ($r["type"]) {
-							case 0: // Recipient is an individual.
-								$required = $dms->getUser($r["required"]);
-								if (!is_object($required)) {
-									$reqName = getMLText("unknown_user") . " '" . $r["required"] . "'";
-								} else {
-									$reqName = "<i class=\"fa fa-user\"></i> " . htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
-									if ($user->isAdmin()) {
-										if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
-											$accesserr = getMLText("access_denied");
-										elseif (is_object($required) && $required->isDisabled()) {
-											$disabledcount++;
-											$accesserr = getMLText("login_disabled_title");
-										}
-									}
-								}
-								if ($r["required"] == $user->getId()/* && ($user->getId() != $owner->getId() || $enableownerreceipt == 1)*/)
-									$is_recipient = true;
-								break;
-							case 1: // Recipient is a group.
-								$required = $dms->getGroup($r["required"]);
-								if (!is_object($required)) {
-									$reqName = getMLText("unknown_group") . " '" . $r["required"] . "'";
-								} else {
-									$reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
-									if ($user->isAdmin()) {
-										$grpusers = $required->getUsers();
-										if (!$grpusers)
-											$accesserr = getMLText("no_group_members");
-									}
-									if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerreceipt == 1)*/)
-										$is_recipient = true;
-								}
-								break;
-						}
-						/* Do not list users that have been removed from the list of recipients
-						 * unless admin is logged in.
-						 */
-						if ($user->isAdmin() || $r["status"] > -2) {
-							$class = '';
-							switch ($r['status']) {
-								case '-1':
-									$class = 'error';
-									break;
-								case '1':
-									$class = 'success';
-									break;
-							}
-							print "<tr>\n";
-							print "<td>" . $reqName . "</td>\n";
-							print "<td>" . getLongReadableDate($r["date"]) . "<br />";
-							/* $updateUser is the user who has done the receipt */
-							$updateUser = $dms->getUser($r["userID"]);
-							print (is_object($updateUser) ? htmlspecialchars($updateUser->getFullName() . " (" . $updateUser->getLogin() . ")") : "unknown user id '" . $r["userID"] . "'");
-							print "</td>";
-							print "<td>" . htmlspecialchars($r["comment"]) . "</td>\n";
-							print "<td>";
-							if ($class)
-								echo "<i class=\"fa fa-circle text-" . $class . "\"></i> ";
-							print getReceiptStatusText($r["status"]) . "</td>\n";
-							print "<td><ul class=\"actions unstyled\">";
-							if ($accesserr)
-								echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
-							if ($accessobject->mayReceipt($document)) {
-								if ($is_recipient) {
-									if ($r["status"] == 0) {
-										print $this->html_link('ReceiptDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'receiptid' => $r['receiptID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_receipt"), false, true, array('<li>', '</li>'));
-									} elseif ($accessobject->mayUpdateReceipt($document, $updateUser) && (($r["status"] == 1 && $enablereceiptreject) || ($r["status"] == -1))) {
-										print $this->html_link('ReceiptDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'receiptid' => $r['receiptID']), array('class' => 'btn btn-mini btn-primary'), getMLText("edit"), false, true, array('<li>', '</li>'));
-									}
-								}
-							}
+		                  print "<thead>\n";
+		                  print "<tr>\n";
+		                  print "<th width='20%'>" . ((count($receiptStatus) > 10) ? '<input class="form-control" type="text" id="filterRecipientsInput" placeholder="' . getMLText('type_to_filter') . '">' : getMLText('name')) . "</th>\n";
+		                  print "<th width='20%'>" . getMLText("last_update") . "</th>\n";
+		                  print "<th width='25%'>" . getMLText("comment") . "</th>";
+		                  print "<th width='15%'>" . getMLText("status") . "</th>\n";
+		                  print "<th width='20%'></th>\n";
+		                  print "</tr>\n";
+		                  print "</thead>\n";
+		                  print "<tbody>\n";
 
-							print "</ul></td>\n";
-							print "</tr>\n";
-						}
-					}
-					?>
-					<tbody>
-						</table>
-						<?php
-						if ($disabledcount) {
-							$this->warningMsg(getMLText('list_of_recipients_has_disabled_users'));
-						}
-						//			$this->contentContainerEnd();
-						if ($accessobject->check_view_access('ViewDocument', array('action' => 'receptionBar'))/* $user->isAdmin() || $user->getId() == $document->getOwner()->getId()*/) {
-							/* Do not count entries '-2' as they are removed userѕ */
-							$totalreceipts = $stat['-1'] + $stat['0'] + $stat['1'];
-							?>
-							<div class="row-fluid">
-								<div class="span12">
-									<div class="progress">
-										<div class="progress-bar bar bar-success bg-success"
-											style="width: <?= $totalreceipts ? round($stat['1'] / $totalreceipts * 100) : 0 ?>%;">
-											<?php echo ($stat['1'] ? $stat['1'] . "/" . $totalreceipts : ''); ?>
-										</div>
-										<!-- div class="bar bar-warning" style="width: <?= $totalreceipts ? round($stat['0'] / $totalreceipts * 100) : 0 ?>%;"></div -->
-										<div class="progress-bar bar bar-danger bg-danger"
-											style="width: <?= $totalreceipts ? round($stat['-1'] / $totalreceipts * 100) : 0 ?>%;">
-											<?php echo ($stat['-1'] ? $stat['-1'] . "/" . $totalreceipts : ''); ?>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="row-fluid">
-								<div class="span12">
-									<?php
-									$this->printProtocol($latestContent, 'receipt');
-									?>
-								</div>
-							</div>
-							<?php
-						}
-						?>
-				</div>
-				<?php
-			}
-			if (is_array($revisionStatus) && count($revisionStatus) > 0 && $accessobject->check_view_access($this, array('action' => 'revision'))) {
-				?>
-				<div class="tab-pane <?php if ($currenttab == 'revision')
-					echo 'active'; ?>" id="revision">
-					<?php
-					$status = $latestContent->getStatus();
-					if (in_array($status['status'], [S_RELEASED, S_EXPIRED])) {
-						if ($latestContent->getRevisionDate()) {
-							$this->warningMsg(getMLText('revise_document_on', array('date' => getReadableDate($latestContent->getRevisionDate()))));
-						} else {
-							$this->errorMsg(getMLText('no_revision_date'));
-						}
-					} elseif ($status['status'] != S_IN_REVISION) {
-						$this->infoMsg(getMLText('no_revision_planed'));
-					}
-					//			$this->contentContainerStart();
-					print "<table class=\"table table-condensed table-sm\">\n";
+		                  $stat = array('-1' => 0, '0' => 0, '1' => 0, '-2' => 0);
+		                  $disabledcount = 0;
+		                  $removedusers = '';
+		                  foreach ($receiptStatus as $r) {
+		                    $required = null;
+		                    $is_recipient = false;
+		                    $stat['' . $r['status']]++;
+		                    $accesserr = '';
+		                    switch ($r["type"]) {
+		                      case 0: // Recipient is an individual.
+		                        $required = $dms->getUser($r["required"]);
+		                        if (!is_object($required)) {
+		                          $reqName = getMLText("unknown_user") . " '" . $r["required"] . "'";
+		                        } else {
+		                          $reqName = "<i class=\"fa fa-user\"></i> " . htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
+		                          if ($user->isAdmin()) {
+		                            if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
+		                              $accesserr = getMLText("access_denied");
+		                            elseif (is_object($required) && $required->isDisabled()) {
+		                              $disabledcount++;
+		                              $accesserr = getMLText("login_disabled_title");
+		                            }
+		                          }
+		                        }
+		                        if ($r["required"] == $user->getId()/* && ($user->getId() != $owner->getId() || $enableownerreceipt == 1)*/)
+		                          $is_recipient = true;
+		                        break;
+		                      case 1: // Recipient is a group.
+		                        $required = $dms->getGroup($r["required"]);
+		                        if (!is_object($required)) {
+		                          $reqName = getMLText("unknown_group") . " '" . $r["required"] . "'";
+		                        } else {
+		                          $reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
+		                          if ($user->isAdmin()) {
+		                            $grpusers = $required->getUsers();
+		                            if (!$grpusers)
+		                              $accesserr = getMLText("no_group_members");
+		                          }
+		                          if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerreceipt == 1)*/)
+		                            $is_recipient = true;
+		                        }
+		                        break;
+		                    }
+		                    /* Do not list users that have been removed from the list of recipients
+		                     * unless admin is logged in.
+		                     */
+		                    if ($user->isAdmin() || $r["status"] > -2) {
+		                      $class = '';
+		                      switch ($r['status']) {
+		                        case '-1':
+		                          $class = 'error';
+		                          break;
+		                        case '1':
+		                          $class = 'success';
+		                          break;
+		                      }
+		                      print "<tr>\n";
+		                      print "<td>" . $reqName . "</td>\n";
+		                      print "<td>" . getLongReadableDate($r["date"]) . "<br />";
+		                      /* $updateUser is the user who has done the receipt */
+		                      $updateUser = $dms->getUser($r["userID"]);
+		                      print (is_object($updateUser) ? htmlspecialchars($updateUser->getFullName() . " (" . $updateUser->getLogin() . ")") : "unknown user id '" . $r["userID"] . "'");
+		                      print "</td>";
+		                      print "<td>" . htmlspecialchars($r["comment"]) . "</td>\n";
+		                      print "<td>";
+		                      if ($class)
+		                        echo "<i class=\"fa fa-circle text-" . $class . "\"></i> ";
+		                      print getReceiptStatusText($r["status"]) . "</td>\n";
+		                      print "<td><ul class=\"actions unstyled\">";
+		                      if ($accesserr)
+		                        echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
+		                      if ($accessobject->mayReceipt($document)) {
+		                        if ($is_recipient) {
+		                          if ($r["status"] == 0) {
+		                            print $this->html_link('ReceiptDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'receiptid' => $r['receiptID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_receipt"), false, true, array('<li>', '</li>'));
+		                          } elseif ($accessobject->mayUpdateReceipt($document, $updateUser) && (($r["status"] == 1 && $enablereceiptreject) || ($r["status"] == -1))) {
+		                            print $this->html_link('ReceiptDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'receiptid' => $r['receiptID']), array('class' => 'btn btn-mini btn-primary'), getMLText("edit"), false, true, array('<li>', '</li>'));
+		                          }
+		                        }
+		                      }
 
-					print "<tr>\n";
-					print "<td width='20%'><b>" . getMLText("name") . "</b></td>\n";
-					print "<td width='20%'><b>" . getMLText("last_update") . "</b></td>\n";
-					print "<td width='25%'><b>" . getMLText("comment") . "</b></td>";
-					print "<td width='15%'><b>" . getMLText("status") . "</b></td>\n";
-					print "<td width='20%'></td>\n";
-					print "</tr>\n";
+		                      print "</ul></td>\n";
+		                      print "</tr>\n";
+		                    }
+		                  }
+		                  ?>
+		                  <tbody>
+		                    </table>
+		                    <?php
+		                    if ($disabledcount) {
+		                      $this->warningMsg(getMLText('list_of_recipients_has_disabled_users'));
+		                    }
+		                    //			$this->contentContainerEnd();
+		                    if ($accessobject->check_view_access('ViewDocument', array('action' => 'receptionBar'))/* $user->isAdmin() || $user->getId() == $document->getOwner()->getId()*/) {
+		                      /* Do not count entries '-2' as they are removed userѕ */
+		                      $totalreceipts = $stat['-1'] + $stat['0'] + $stat['1'];
+		                      ?>
+		                      <div class="row-fluid">
+		                        <div class="span12">
+		                          <div class="progress">
+		                            <div class="progress-bar bar bar-success bg-success"
+		                              style="width: <?= $totalreceipts ? round($stat['1'] / $totalreceipts * 100) : 0 ?>%;">
+		                              <?php echo ($stat['1'] ? $stat['1'] . "/" . $totalreceipts : ''); ?>
+		                            </div>
+		                            <!-- div class="bar bar-warning" style="width: <?= $totalreceipts ? round($stat['0'] / $totalreceipts * 100) : 0 ?>%;"></div -->
+		                            <div class="progress-bar bar bar-danger bg-danger"
+		                              style="width: <?= $totalreceipts ? round($stat['-1'] / $totalreceipts * 100) : 0 ?>%;">
+		                              <?php echo ($stat['-1'] ? $stat['-1'] . "/" . $totalreceipts : ''); ?>
+		                            </div>
+		                          </div>
+		                        </div>
+		                      </div>
+		                      <div class="row-fluid">
+		                        <div class="span12">
+		                          <?php
+		                          $this->printProtocol($latestContent, 'receipt');
+		                          ?>
+		                        </div>
+		                      </div>
+		                      <?php
+		                    }
+		                    ?>
+		                </div>
+		                <?php
+		              }
+		              if (is_array($revisionStatus) && count($revisionStatus) > 0 && $accessobject->check_view_access($this, array('action' => 'revision'))) {
+		                ?>
+		                <div class="tab-pane <?php if ($currenttab == 'revision')
+		                	echo 'active'; ?>" id="revision">
+		                  <?php
+		                  $status = $latestContent->getStatus();
+		                  if (in_array($status['status'], [S_RELEASED, S_EXPIRED])) {
+		                    if ($latestContent->getRevisionDate()) {
+		                      $this->warningMsg(getMLText('revise_document_on', array('date' => getReadableDate($latestContent->getRevisionDate()))));
+		                    } else {
+		                      $this->errorMsg(getMLText('no_revision_date'));
+		                    }
+		                  } elseif ($status['status'] != S_IN_REVISION) {
+		                    $this->infoMsg(getMLText('no_revision_planed'));
+		                  }
+		                  //			$this->contentContainerStart();
+		                  print "<table class=\"table table-condensed table-sm\">\n";
 
-					foreach ($revisionStatus as $r) {
-						$class = '';
-						switch ($r['status']) {
-							case '-1':
-								$class = 'error';
-								break;
-							case '1':
-								$class = 'success';
-								break;
-						}
-						$required = null;
-						$is_recipient = false;
-						$accesserr = '';
-						switch ($r["type"]) {
-							case 0: // Reviewer is an individual.
-								$required = $dms->getUser($r["required"]);
-								if (!is_object($required)) {
-									$reqName = getMLText("unknown_user") . " '" . $r["required"] . "'";
-								} else {
-									$reqName = "<i class=\"fa fa-user\"></i> " . htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
-									if ($user->isAdmin()) {
-										if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
-											$accesserr = getMLText("access_denied");
-									}
-								}
-								if ($r["required"] == $user->getId()/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
-									$is_recipient = true;
-								break;
-							case 1: // Reviewer is a group.
-								$required = $dms->getGroup($r["required"]);
-								if (!is_object($required)) {
-									$reqName = getMLText("unknown_group") . " '" . $r["required"] . "'";
-								} else {
-									$reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
-									if ($user->isAdmin()) {
-										$grpusers = $required->getUsers();
-										if (!$grpusers)
-											$accesserr = getMLText("no_group_members");
-									}
-									if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
-										$is_recipient = true;
-								}
-								break;
-						}
-						if ($user->isAdmin() || $r["status"] != -2) {
-							print "<tr>\n";
-							print "<td>" . $reqName . "</td>\n";
-							print "<td><ul class=\"actions unstyled\"><li>" . getLongReadableDate($r["date"]) . "</li>";
-							/* $updateUser is the user who has done the revision */
-							$updateUser = null;
-							if ($r['status'] != 0) {
-								$updateUser = $dms->getUser($r["userID"]);
-								print "<li>" . (is_object($updateUser) ? htmlspecialchars($updateUser->getFullName() . " (" . $updateUser->getLogin() . ")") : "unknown user id '" . $r["userID"] . "'") . "</li>";
-							}
-							print "</ul></td>";
-							print "<td>" . htmlspecialchars($r["comment"]) . "</td>\n";
-							print "<td>";
-							if ($class)
-								echo "<i class=\"fa fa-circle text-" . $class . "\"></i> ";
-							print getRevisionStatusText($r["status"]) . "</td>\n";
-							print "<td><ul class=\"actions unstyled\">";
-							if ($accesserr)
-								echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
-							if ($accessobject->mayRevise($document)) {
-								if ($is_recipient && $r["status"] == 0) {
-									print $this->html_link('ReviseDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'revisionid' => $r['revisionID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_revision"), false, true, array('<li>', '</li>'));
-								} elseif (($updateUser == $user) && (($r["status"] == 1) || ($r["status"] == -1)) && (!$document->hasExpired())) {
-									print $this->html_link('ReviseDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'revisionid' => $r['revisionID']), array('class' => 'btn btn-mini btn-primary'), getMLText("edit"), false, true, array('<li>', '</li>'));
-								}
-							}
+		                  print "<tr>\n";
+		                  print "<td width='20%'><b>" . getMLText("name") . "</b></td>\n";
+		                  print "<td width='20%'><b>" . getMLText("last_update") . "</b></td>\n";
+		                  print "<td width='25%'><b>" . getMLText("comment") . "</b></td>";
+		                  print "<td width='15%'><b>" . getMLText("status") . "</b></td>\n";
+		                  print "<td width='20%'></td>\n";
+		                  print "</tr>\n";
 
-							print "</ul></td>\n";
-							print "</tr>\n";
-						}
-					}
-					?>
-					</table>
-					<?php
-					//		$this->contentContainerEnd();
-					if ($user->isAdmin() || $user->getId() == $document->getOwner()->getId()) {
-						?>
-						<div class="row-fluid">
-							<div class="span12">
-								<?php
-								$this->printProtocol($latestContent, 'revision');
-								?>
-							</div>
-						</div>
-						<?php
-					}
-					?>
-				</div>
-				<?php
-			}
-			if (count($versions) > 1 && $accessobject->check_view_access($this, array('action' => 'previous'))) {
-				?>
-				<div class="tab-pane <?php if ($currenttab == 'previous')
-					echo 'active'; ?>" id="previous" role="tabpanel">
-					<?php
-					$txt = $this->callHook('prePreviousVersionsTab', $versions);
-					if (is_string($txt))
-						echo $txt;
+		                  foreach ($revisionStatus as $r) {
+		                    $class = '';
+		                    switch ($r['status']) {
+		                      case '-1':
+		                        $class = 'error';
+		                        break;
+		                      case '1':
+		                        $class = 'success';
+		                        break;
+		                    }
+		                    $required = null;
+		                    $is_recipient = false;
+		                    $accesserr = '';
+		                    switch ($r["type"]) {
+		                      case 0: // Reviewer is an individual.
+		                        $required = $dms->getUser($r["required"]);
+		                        if (!is_object($required)) {
+		                          $reqName = getMLText("unknown_user") . " '" . $r["required"] . "'";
+		                        } else {
+		                          $reqName = "<i class=\"fa fa-user\"></i> " . htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
+		                          if ($user->isAdmin()) {
+		                            if ($document->getAccessMode($required) < M_READ || $latestContent->getAccessMode($required) < M_READ)
+		                              $accesserr = getMLText("access_denied");
+		                          }
+		                        }
+		                        if ($r["required"] == $user->getId()/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
+		                          $is_recipient = true;
+		                        break;
+		                      case 1: // Reviewer is a group.
+		                        $required = $dms->getGroup($r["required"]);
+		                        if (!is_object($required)) {
+		                          $reqName = getMLText("unknown_group") . " '" . $r["required"] . "'";
+		                        } else {
+		                          $reqName = "<i class=\"fa fa-group\"></i> " . htmlspecialchars($required->getName());
+		                          if ($user->isAdmin()) {
+		                            $grpusers = $required->getUsers();
+		                            if (!$grpusers)
+		                              $accesserr = getMLText("no_group_members");
+		                          }
+		                          if ($required->isMember($user)/* && ($user->getId() != $owner->getId() || $enableownerrevapp == 1)*/)
+		                            $is_recipient = true;
+		                        }
+		                        break;
+		                    }
+		                    if ($user->isAdmin() || $r["status"] != -2) {
+		                      print "<tr>\n";
+		                      print "<td>" . $reqName . "</td>\n";
+		                      print "<td><ul class=\"actions unstyled\"><li>" . getLongReadableDate($r["date"]) . "</li>";
+		                      /* $updateUser is the user who has done the revision */
+		                      $updateUser = null;
+		                      if ($r['status'] != 0) {
+		                        $updateUser = $dms->getUser($r["userID"]);
+		                        print "<li>" . (is_object($updateUser) ? htmlspecialchars($updateUser->getFullName() . " (" . $updateUser->getLogin() . ")") : "unknown user id '" . $r["userID"] . "'") . "</li>";
+		                      }
+		                      print "</ul></td>";
+		                      print "<td>" . htmlspecialchars($r["comment"]) . "</td>\n";
+		                      print "<td>";
+		                      if ($class)
+		                        echo "<i class=\"fa fa-circle text-" . $class . "\"></i> ";
+		                      print getRevisionStatusText($r["status"]) . "</td>\n";
+		                      print "<td><ul class=\"actions unstyled\">";
+		                      if ($accesserr)
+		                        echo "<li><span class=\"text-error text-danger\">" . $accesserr . "</span></li>";
+		                      if ($accessobject->mayRevise($document)) {
+		                        if ($is_recipient && $r["status"] == 0) {
+		                          print $this->html_link('ReviseDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'revisionid' => $r['revisionID']), array('class' => 'btn btn-mini btn-primary'), getMLText("add_revision"), false, true, array('<li>', '</li>'));
+		                        } elseif (($updateUser == $user) && (($r["status"] == 1) || ($r["status"] == -1)) && (!$document->hasExpired())) {
+		                          print $this->html_link('ReviseDocument', array('documentid' => $documentid, 'version' => $latestContent->getVersion(), 'revisionid' => $r['revisionID']), array('class' => 'btn btn-mini btn-primary'), getMLText("edit"), false, true, array('<li>', '</li>'));
+		                        }
+		                      }
 
-					for ($i = count($versions) - 2; $i >= 0; $i--) {
-						$version = $versions[$i];
-						$this->contentContainerStart();
-						$this->showVersionDetails($version, $previewer, false);
-						$this->contentContainerEnd();
-					}
-					?>
-				</div>
-				<?php
-			}
-			if ($accessobject->check_view_access($this, array('action' => 'attachments'))) {
-				?>
-				<div class="tab-pane <?php if ($currenttab == 'attachments')
-					echo 'active'; ?>" id="attachments" role="tabpanel">
-					<?php
-					$this->rowStart();
-					$this->columnStart(12);
+		                      print "</ul></td>\n";
+		                      print "</tr>\n";
+		                    }
+		                  }
+		                  ?>
+		                  </table>
+		                  <?php
+		                  //		$this->contentContainerEnd();
+		                  if ($user->isAdmin() || $user->getId() == $document->getOwner()->getId()) {
+		                    ?>
+		                    <div class="row-fluid">
+		                      <div class="span12">
+		                        <?php
+		                        $this->printProtocol($latestContent, 'revision');
+		                        ?>
+		                      </div>
+		                    </div>
+		                    <?php
+		                  }
+		                  ?>
+		                </div>
+		                <?php
+		              }
+		              if (count($versions) > 1 && $accessobject->check_view_access($this, array('action' => 'previous'))) {
+		                ?>
+		                <div class="tab-pane <?php if ($currenttab == 'previous')
+		                	echo 'active'; ?>" id="previous" role="tabpanel">
+		                  <?php
+		                  $txt = $this->callHook('prePreviousVersionsTab', $versions);
+		                  if (is_string($txt))
+		                    echo $txt;
 
-					if ($accessobject->check_controller_access('AddFile')) {
-						if ($document->getAccessMode($user) >= M_READWRITE) {
-							if ($enableDropUpload) {
-								?>
-								<div id="draganddrophandler" class="well alert alert-warning"
-									style="min-height: 250px; padding: 40px; font-size: 18px; text-align: center; border: 2px dashed #aaa;"
-									data-droptarget="attachment_<?= $document->getID(); ?>" data-target="<?= $document->getID(); ?>"
-									data-uploadformtoken="<?= createFormKey('addfile'); ?>">
-									<div>
-										<!-- Upload icon -->
-										<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none"
-											stroke="black" stroke-width=".2" stroke-linecap="round" stroke-linejoin="round"
-											style="transform: scale(1);">
-											<path
-												d="M19.35 10.04C18.67 6.59 15.64 4 12 4a6.994 6.994 0 00-6.92 6H4a4 4 0 000 8h16a4 4 0 00-.65-7.96z" />
-											<path d="M13 12v4h-2v-4H8l4-4 4 4h-3z" />
-										</svg>
-									</div>
+		                  for ($i = count($versions) - 2; $i >= 0; $i--) {
+		                    $version = $versions[$i];
+		                    $this->contentContainerStart();
+		                    $this->showVersionDetails($version, $previewer, false);
+		                    $this->contentContainerEnd();
+		                  }
+		                  ?>
+		                </div>
+		                <?php
+		              }
+		              if ($accessobject->check_view_access($this, array('action' => 'attachments'))) {
+		                ?>
+		                <div class="tab-pane <?php if ($currenttab == 'attachments')
+		                	echo 'active'; ?>" id="attachments" role="tabpanel">
+		                  <?php
+		                  $this->rowStart();
+		                  $this->columnStart(12);
 
-									<!-- Upload link -->
-									<?php echo $this->html_link('AddFile', array('documentid' => $documentid), array('style' => 'font-size: 20px; font-weight: bold;'), getMLText('drop_files_here_or_click'), false, true); ?>
-								</div>
-								<?php
-							} else {
-								print $this->html_link('AddFile', array('documentid' => $documentid), array('class' => 'btn btn-primary btn-lg'), getMLText("add"), false, true) . "\n";
-							}
-						}
-					}
+		                  if ($accessobject->check_controller_access('AddFile')) {
+		                    if ($document->getAccessMode($user) >= M_READWRITE) {
+		                      if ($enableDropUpload) {
+		                        ?>
+		                        <div id="draganddrophandler" class="well alert alert-warning"
+		                          style="min-height: 250px; padding: 40px; font-size: 18px; text-align: center; border: 2px dashed #aaa;"
+		                          data-droptarget="attachment_<?= $document->getID(); ?>" data-target="<?= $document->getID(); ?>"
+		                          data-uploadformtoken="<?= createFormKey('addfile'); ?>">
+		                          <div>
+		                            <!-- Upload icon -->
+		                            <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none"
+		                              stroke="black" stroke-width=".2" stroke-linecap="round" stroke-linejoin="round"
+		                              style="transform: scale(1);">
+		                              <path
+		                                d="M19.35 10.04C18.67 6.59 15.64 4 12 4a6.994 6.994 0 00-6.92 6H4a4 4 0 000 8h16a4 4 0 00-.65-7.96z" />
+		                              <path d="M13 12v4h-2v-4H8l4-4 4 4h-3z" />
+		                            </svg>
+		                          </div>
+
+		                          <!-- Upload link -->
+		                          <?php echo $this->html_link('AddFile', array('documentid' => $documentid), array('style' => 'font-size: 20px; font-weight: bold;'), getMLText('drop_files_here_or_click'), false, true); ?>
+		                        </div>
+		                        <?php
+		                      } else {
+		                        print $this->html_link('AddFile', array('documentid' => $documentid), array('class' => 'btn btn-primary btn-lg'), getMLText("add"), false, true) . "\n";
+		                      }
+		                    }
+		                  }
 
 
-					$this->columnEnd();
-					$this->columnStart(12);
-					?>
-					<div class="ajax" data-view="ViewDocument" data-action="documentFiles" data-no-spinner="true" <?php echo ($document ? "data-query=\"documentid=" . $document->getID() . "\"" : "") ?>></div>
-					<?php
-					$this->columnEnd();
+		                  $this->columnEnd();
+		                  $this->columnStart(12);
+		                  ?>
+		                  <div class="ajax" data-view="ViewDocument" data-action="documentFiles" data-no-spinner="true" <?php echo ($document ? "data-query=\"documentid=" . $document->getID() . "\"" : "") ?>></div>
+		                  <?php
+		                  $this->columnEnd();
 
-					$this->rowEnd();
-					?>
-				</div>
-				<?php
-			}
-			if ($accessobject->check_view_access($this, array('action' => 'links'))) {
-				?>
-				<div class="tab-pane <?php if ($currenttab == 'links')
-					echo 'active'; ?>" id="links" role="tabpanel">
-					<?php
-					if (count($links) > 0) {
+		                  $this->rowEnd();
+		                  ?>
+		                </div>
+		                <?php
+		              }
+		              if ($accessobject->check_view_access($this, array('action' => 'links'))) {
+		                ?>
+		                <div class="tab-pane <?php if ($currenttab == 'links')
+		                	echo 'active'; ?>" id="links" role="tabpanel">
+		                  <?php
+		                  if (count($links) > 0) {
 
-						print "<table id=\"viewfolder-table\" class=\"table table-condensed table-sm table-hover\">";
-						print "<thead>\n<tr>\n";
-						print "<th></th>\n";
-						print "<th>" . getMLText("name") . "</th>\n";
-						print "<th>" . getMLText("status") . "</th>\n";
-						print "<th>" . getMLText("action") . "</th>\n";
-						print "<th></th>\n";
-						print "</tr>\n</thead>\n<tbody>\n";
+		                    print "<table id=\"viewfolder-table\" class=\"table table-condensed table-sm table-hover\">";
+		                    print "<thead>\n<tr>\n";
+		                    print "<th></th>\n";
+		                    print "<th>" . getMLText("name") . "</th>\n";
+		                    print "<th>" . getMLText("status") . "</th>\n";
+		                    print "<th>" . getMLText("action") . "</th>\n";
+		                    print "<th></th>\n";
+		                    print "</tr>\n</thead>\n<tbody>\n";
 
-						foreach ($links as $link) {
-							$responsibleUser = $link->getUser();
-							$targetDoc = $link->getTarget();
+		                    foreach ($links as $link) {
+		                      $responsibleUser = $link->getUser();
+		                      $targetDoc = $link->getTarget();
 
-							echo $this->documentListRowStart($targetDoc);
-							$targetDoc->verifyLastestContentExpriry();
-							$txt = $this->callHook('documentListItem', $targetDoc, $previewer, false, 'reverselinks');
-							if (is_string($txt))
-								echo $txt;
-							else {
-								$extracontent = array();
-								$extracontent['below_title'] = $this->getListRowPath($targetDoc);
-								echo $this->documentListRow($targetDoc, $previewer, true, 0, $extracontent);
-							}
-							print "<td><span class=\"actions\">";
-							print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
-							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL)) {
-								print "<br />" . getMLText("document_link_public") . ": " . (($link->isPublic()) ? getMLText("yes") : getMLText("no"));
-								print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $documentid . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
-							}
-							print "</span></td>";
-							echo $this->documentListRowEnd($targetDoc);
-						}
-						print "</tbody>\n</table>\n";
-					} else
-						$this->infoMsg(getMLText("no_linked_files"));
+		                      echo $this->documentListRowStart($targetDoc);
+		                      $targetDoc->verifyLastestContentExpriry();
+		                      $txt = $this->callHook('documentListItem', $targetDoc, $previewer, false, 'reverselinks');
+		                      if (is_string($txt))
+		                        echo $txt;
+		                      else {
+		                        $extracontent = array();
+		                        $extracontent['below_title'] = $this->getListRowPath($targetDoc);
+		                        echo $this->documentListRow($targetDoc, $previewer, true, 0, $extracontent);
+		                      }
+		                      print "<td><span class=\"actions\">";
+		                      print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
+		                      if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL)) {
+		                        print "<br />" . getMLText("document_link_public") . ": " . (($link->isPublic()) ? getMLText("yes") : getMLText("no"));
+		                        print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $documentid . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
+		                      }
+		                      print "</span></td>";
+		                      echo $this->documentListRowEnd($targetDoc);
+		                    }
+		                    print "</tbody>\n</table>\n";
+		                  } else
+		                    $this->infoMsg(getMLText("no_linked_files"));
 
-					if ($accessobject->check_view_access('AddDocumentLink')) {
-						?>
-						<br>
-						<form action="<?= $this->params['settings']->_httpRoot ?>op/op.AddDocumentLink.php" id="form1" name="form1"
-							class="form-horizontal">
-							<input type="hidden" name="documentid" value="<?php print $documentid; ?>">
-							<?php echo createHiddenFieldWithKey('adddocumentlink'); ?>
-							<?php $this->contentContainerStart(); ?>
-							<?php $this->formField(getMLText("add_document_link"), $this->getDocumentChooserHtml("form1")); ?>
-							<?php
-							if ($document->getAccessMode($user) >= M_READWRITE) {
-								$this->formField(
-									getMLText("document_link_public"),
-									array(
-										'element' => 'input',
-										'type' => 'checkbox',
-										'name' => 'public',
-										'value' => 'true',
-										'checked' => true
-									)
-								);
-							}
-							$this->contentContainerEnd();
-							$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('save'));
-							?>
-						</form>
-						<?php
-					}
+		                  if ($accessobject->check_view_access('AddDocumentLink')) {
+		                    ?>
+		                    <br>
+		                    <form action="<?= $this->params['settings']->_httpRoot ?>op/op.AddDocumentLink.php" id="form1" name="form1"
+		                      class="form-horizontal">
+		                      <input type="hidden" name="documentid" value="<?php print $documentid; ?>">
+		                      <?php echo createHiddenFieldWithKey('adddocumentlink'); ?>
+		                      <?php $this->contentContainerStart(); ?>
+		                      <?php $this->formField(getMLText("add_document_link"), $this->getDocumentChooserHtml("form1")); ?>
+		                      <?php
+		                      if ($document->getAccessMode($user) >= M_READWRITE) {
+		                        $this->formField(
+		                          getMLText("document_link_public"),
+		                          array(
+		                            'element' => 'input',
+		                            'type' => 'checkbox',
+		                            'name' => 'public',
+		                            'value' => 'true',
+		                            'checked' => true
+		                          )
+		                        );
+		                      }
+		                      $this->contentContainerEnd();
+		                      $this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('save'));
+		                      ?>
+		                    </form>
+		                    <?php
+		                  }
 
-					if (count($reverselinks) > 0) {
-						$this->contentHeading(getMLText("reverse_links"));
-						//			$this->contentContainerStart();
-		
-						print "<table id=\"viewfolder-table\" class=\"table table-condensed table-sm table-hover\">";
-						print "<thead>\n<tr>\n";
-						print "<th></th>\n";
-						print "<th>" . getMLText("name") . "</th>\n";
-						print "<th>" . getMLText("status") . "</th>\n";
-						print "<th>" . getMLText("action") . "</th>\n";
-						print "<th></th>\n";
-						print "</tr>\n</thead>\n<tbody>\n";
+		                  if (count($reverselinks) > 0) {
+		                    $this->contentHeading(getMLText("reverse_links"));
+		                    //			$this->contentContainerStart();
 
-						foreach ($reverselinks as $link) {
-							$responsibleUser = $link->getUser();
-							$sourceDoc = $link->getDocument();
+		                    print "<table id=\"viewfolder-table\" class=\"table table-condensed table-sm table-hover\">";
+		                    print "<thead>\n<tr>\n";
+		                    print "<th></th>\n";
+		                    print "<th>" . getMLText("name") . "</th>\n";
+		                    print "<th>" . getMLText("status") . "</th>\n";
+		                    print "<th>" . getMLText("action") . "</th>\n";
+		                    print "<th></th>\n";
+		                    print "</tr>\n</thead>\n<tbody>\n";
 
-							echo $this->documentListRowStart($sourceDoc);
-							$sourceDoc->verifyLastestContentExpriry();
-							$txt = $this->callHook('documentListItem', $sourceDoc, $previewer, false, 'reverselinks');
-							if (is_string($txt))
-								echo $txt;
-							else {
-								$extracontent = array();
-								$extracontent['below_title'] = $this->getListRowPath($sourceDoc);
-								echo $this->documentListRow($sourceDoc, $previewer, true, 0, $extracontent);
-							}
-							print "<td><span class=\"actions\">";
-							if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL)) {
-								print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
-								print "<br />" . getMLText("document_link_public") . ": " . (($link->isPublic()) ? getMLText("yes") : getMLText("no"));
-								print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $sourceDoc->getId() . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
-							}
-							print "</span></td>";
-							echo $this->documentListRowEnd($sourceDoc);
-						}
-						print "</tbody>\n</table>\n";
-						//			$this->contentContainerEnd();
-					}
-					?>
-				</div>
-				<?php
-			}
-			if ($accessobject->check_view_access($this, ['action' => 'auditlog'])) {
-				echo '<div class="tab-pane ' . ($currenttab == 'auditlog' ? 'active' : '') . '" id="auditlog" role="tabpanel">';
-				try {
-					// Fetch audit logs from the database for the current document
-					$db = $dms->getDB();
-					$documentId = $document->getId();
-					$query = "SELECT created_at, user, old_value, new_value FROM audit_logs WHERE document_id = " . intval($documentId) . " ORDER BY created_at DESC";
-					$auditLogs = $db->getResultArray($query);
+		                    foreach ($reverselinks as $link) {
+		                      $responsibleUser = $link->getUser();
+		                      $sourceDoc = $link->getDocument();
 
-					echo '<div id="auditlog-controls" class="d-flex justify-content-between align-items-center mb-2">';
-					// Search box (top left)  
+		                      echo $this->documentListRowStart($sourceDoc);
+		                      $sourceDoc->verifyLastestContentExpriry();
+		                      $txt = $this->callHook('documentListItem', $sourceDoc, $previewer, false, 'reverselinks');
+		                      if (is_string($txt))
+		                        echo $txt;
+		                      else {
+		                        $extracontent = array();
+		                        $extracontent['below_title'] = $this->getListRowPath($sourceDoc);
+		                        echo $this->documentListRow($sourceDoc, $previewer, true, 0, $extracontent);
+		                      }
+		                      print "<td><span class=\"actions\">";
+		                      if (($user->getID() == $responsibleUser->getID()) || ($document->getAccessMode($user) == M_ALL)) {
+		                        print getMLText("document_link_by") . " " . htmlspecialchars($responsibleUser->getFullName());
+		                        print "<br />" . getMLText("document_link_public") . ": " . (($link->isPublic()) ? getMLText("yes") : getMLText("no"));
+		                        print "<form action=\"" . $this->params['settings']->_httpRoot . "op/op.RemoveDocumentLink.php\" method=\"post\">" . createHiddenFieldWithKey('removedocumentlink') . "<input type=\"hidden\" name=\"documentid\" value=\"" . $sourceDoc->getId() . "\" /><input type=\"hidden\" name=\"linkid\" value=\"" . $link->getID() . "\" /><button type=\"submit\" class=\"btn btn-danger btn-mini btn-sm\"><i class=\"fa fa-remove\"></i> " . getMLText("delete") . "</button></form>";
+		                      }
+		                      print "</span></td>";
+		                      echo $this->documentListRowEnd($sourceDoc);
+		                    }
+		                    print "</tbody>\n</table>\n";
+		                    //			$this->contentContainerEnd();
+		                  }
+		                  ?>
+		                </div>
+		                <?php
+		              }
+		              if ($accessobject->check_view_access($this, ['action' => 'auditlog'])) {
+		                echo '<div class="tab-pane ' . ($currenttab == 'auditlog' ? 'active' : '') . '" id="auditlog" role="tabpanel">';
+		                try {
+		                  // Fetch audit logs from the database for the current document
+		                  $db = $dms->getDB();
+		                  $documentId = $document->getId();
+		                  $query = "SELECT created_at, user, old_value, new_value FROM audit_logs WHERE document_id = " . intval($documentId) . " ORDER BY created_at DESC";
+		                  $auditLogs = $db->getResultArray($query);
+
+		                  echo '<div id="auditlog-controls" class="d-flex justify-content-between align-items-center mb-2">';
+		                  // Search box (top left)  
 					echo '<div><input type="text" id="auditlog-search" class="form-control form-control-sm d-inline-block" style="width:200px;" placeholder="Search users, values..."> <button id="auditlog-search-btn" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button></div>';
 
 					// Export button (top right)

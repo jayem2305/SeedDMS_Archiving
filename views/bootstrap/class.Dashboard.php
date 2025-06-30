@@ -159,6 +159,13 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 			}
 			$phpDataForType = $allChartDataPHP[$type];
 			$jsFormattedData = $this->getJsDataForChartType($type, $phpDataForType);
+			
+			// Debug output for docspermimetype
+			if ($type == 'docspermimetype') {
+				error_log("Dashboard View: docspermimetype PHP data: " . print_r($phpDataForType, true));
+				error_log("Dashboard View: docspermimetype JS formatted data: " . print_r($jsFormattedData, true));
+			}
+			
 			$jsChartDataArray[] = [
 				'type' => $type,
 				'data' => $jsFormattedData,
@@ -204,8 +211,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$this->columnStart($chartColumnWidth);
 		$this->contentContainerStart('chart-plot-area-' . $chartType, '', 'background-color:#fff; padding:10px; border:1px solid #e0e0e0; border-radius:4px; min-height:420px;');
 		?>
-		<div id="chart_<?php echo htmlspecialchars($chartType); ?>" style="height:400px; width:100%;" class="chart">
-			<p style="text-align:center; padding-top:180px; color:#777;">Loading chart...</p>
+		<div id="chart_<?php echo htmlspecialchars($chartType); ?>" style="height:600px; width:100%;" class="chart">
+			<p style="text-align:center; padding-top:280px; color:#777;">Loading chart...</p>
 		</div>
 		<?php
 		$this->contentContainerEnd();
@@ -214,58 +221,77 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		if ($isPieChart && !$isBarOrLineChart) {
 			$this->columnStart(4);
 			$this->contentHeading(getMLText('legend', [], "Legend"));
-			$this->contentContainerStart('', 'legend_container_' . $chartType, 'background-color:#fff; padding:10px; border:1px solid #e0e0e0; border-radius:4px; min-height:420px; max-height: 420px; overflow-y: auto;');
+			$this->contentContainerStart('', 'legend_container_' . $chartType, 'background-color:#fff; padding:10px; border:1px solid #e0e0e0; border-radius:4px; min-height:420px; max-height: 600px; overflow-y: auto;');
 			$this->contentContainerEnd();
 			$this->columnEnd();
 		}
 		$this->rowEnd();
 
 		if (!empty($currentChartDataForTable)) {
+			if (in_array($chartType, ['docspermonth', 'sizepermonth'])) {
+				echo "<div style='color:red;font-weight:bold;'>DEBUG: Custom table logic for $chartType is running</div>";
+			} else {
+				echo "<div style='color:blue;'>DEBUG: Default table logic for $chartType</div>";
+			}
 			$this->rowStart('style="margin-top:20px;"');
 			$this->columnStart(12);
 			echo "<div class='table-responsive'><table class=\"table table-condensed table-sm table-hover\" style=\"margin-bottom:0; background-color:#fff;\">";
 			echo "<thead class=\"thead-light\"><tr>";
-			echo "<th>" . htmlspecialchars(getMLText('chart_table_header_key', [], 'Key')) . "</th>";
-			echo "<th class='text-right'>" . htmlspecialchars(getMLText('total', [], 'Total')) . "</th>";
-			if (in_array($chartType, ['docspermonth'])) {
-				echo "<th class='text-right'>" . htmlspecialchars(getMLText('change', [], 'Change')) . "</th>";
+			if (in_array($chartType, ['docspermonth', 'sizepermonth'])) {
+				echo "<th>" . htmlspecialchars(getMLText('chart_table_header_key', [], 'Month')) . "</th>";
+				echo "<th class='text-right'>" . htmlspecialchars(getMLText('total', [], 'Total')) . "</th>";
+				if ($chartType === 'docspermonth') {
+					echo "<th class='text-right'>" . htmlspecialchars(getMLText('change', [], 'Change')) . "</th>";
+				}
+			} else {
+				echo "<th>" . htmlspecialchars(getMLText('chart_table_header_key', [], 'Key')) . "</th>";
+				echo "<th class='text-right'>" . htmlspecialchars(getMLText('total', [], 'Total')) . "</th>";
 			}
 			echo "</tr></thead><tbody>";
 			$grandTotal = 0;
 			$oldtotal = 0;
+			$debugRowAdded = false;
 			foreach ($currentChartDataForTable as $item) {
 				echo "<tr>";
 				$itemKey = $item['key'] ?? 'N/A';
 				$itemTotal = $item['total'] ?? 0;
-				if ($chartType == 'docsaccumulated') {
-					$dateDisplay = getReadableDate($itemKey / 1000, $this->params['settings']->_dateformat ?? 'd.m.Y');
-					echo "<td>" . htmlspecialchars($dateDisplay) . "</td>";
+				if (in_array($chartType, ['docspermonth', 'sizepermonth'])) {
+					echo "<td>" . htmlspecialchars($itemKey) . "</td>";
+					if ($chartType === 'sizepermonth') {
+						echo "<td class='text-right'>" . SeedDMS_Core_File::format_filesize((int) $itemTotal) . "</td>";
+					} else {
+						echo "<td class='text-right'>" . (int) $itemTotal . "</td>";
+					}
+					if ($chartType === 'docspermonth') {
+						echo "<td class='text-right'>" . sprintf('%+d', (int) $itemTotal - (int) $oldtotal) . "</td>";
+					}
+					if (!$debugRowAdded) {
+						echo "<td colspan='3' style='color:red;font-weight:bold;'>DEBUG ROW: $chartType table logic is active</td>";
+						$debugRowAdded = true;
+					}
 				} else {
 					echo "<td>" . htmlspecialchars($itemKey) . "</td>";
-				}
-				if (in_array($chartType, ['sizeperuser', 'sizepermonth'])) {
-					echo "<td class='text-right'>" . SeedDMS_Core_File::format_filesize((int) $itemTotal) . "</td>";
-				} else {
 					echo "<td class='text-right'>" . (int) $itemTotal . "</td>";
-				}
-				if (in_array($chartType, ['docspermonth'])) {
-					echo "<td class='text-right'>" . sprintf('%+d', (int) $itemTotal - (int) $oldtotal) . "</td>";
 				}
 				$oldtotal = $itemTotal;
 				$grandTotal += (float) $itemTotal;
 				echo "</tr>";
 			}
-			echo "</tbody><tfoot><tr class='font-weight-bold table-info'><td>" . htmlspecialchars(getMLText('total_overall', [], 'Overall Total')) . "</td><td class='text-right'>";
-			if (in_array($chartType, ['sizeperuser', 'sizepermonth'])) {
-				echo SeedDMS_Core_File::format_filesize($grandTotal);
-			} elseif ($chartType == 'docsaccumulated') {
-				echo (int) $oldtotal;
+			echo "</tbody><tfoot><tr class='font-weight-bold table-info'>";
+			if (in_array($chartType, ['docspermonth', 'sizepermonth'])) {
+				echo "<td>" . htmlspecialchars(getMLText('total_overall', [], 'Overall Total')) . "</td>";
+				if ($chartType === 'sizepermonth') {
+					echo "<td class='text-right'>" . SeedDMS_Core_File::format_filesize($grandTotal) . "</td>";
+				} else {
+					echo "<td class='text-right'>" . (int) $grandTotal . "</td>";
+				}
+				if ($chartType === 'docspermonth') {
+					echo "<td></td>";
+				}
 			} else {
-				echo (int) $grandTotal;
+				echo "<td>" . htmlspecialchars(getMLText('total_overall', [], 'Overall Total')) . "</td>";
+				echo "<td class='text-right'>" . (int) $grandTotal . "</td>";
 			}
-			echo "</td>";
-			if (in_array($chartType, ['docspermonth']))
-				echo "<td></td>";
 			echo "</tr></tfoot></table></div>";
 			$this->columnEnd();
 			$this->rowEnd();
@@ -276,6 +302,44 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 			$this->columnEnd();
 			$this->rowEnd();
 		}
+
+		// Calculate total for the current chart (PHP)
+		$totalValue = 0;
+		if (!empty($currentChartDataForTable) && is_array($currentChartDataForTable)) {
+			foreach ($currentChartDataForTable as $item) {
+				$totalValue += isset($item['total']) ? (float)$item['total'] : 0;
+			}
+		}
+		// Output the total below the chart
+		if ($totalValue > 0 || $totalValue === 0) {
+			echo "<div class='chart-total-summary' style='margin-top:10px; font-weight:bold; color:#333; background:#f8f9fa; border:1px solid #e0e0e0; border-radius:4px; padding:8px 12px; display:inline-block;'>";
+			echo htmlspecialchars(getMLText('total', [], 'Total')) . ": ";
+			if (in_array($chartType, ['sizepermonth'])) {
+				echo SeedDMS_Core_File::format_filesize($totalValue);
+			} else {
+				echo (int)$totalValue;
+			}
+			echo "</div>";
+		}
+
+		// After rendering the chart and before the data table, build the legend HTML and inject it into the legend container
+		$legendHtml = "<div class='custom-legend' style='font-size:14px;'><b>Legend</b><ul style='list-style:none; padding-left:0;'>";
+		foreach ($currentChartDataForTable as $item) {
+			$grandTotal += isset($item['total']) ? (float)$item['total'] : 0;
+		}
+		foreach ($currentChartDataForTable as $item) {
+			$label = isset($item['key']) ? htmlspecialchars($item['key']) : '';
+			$value = isset($item['total']) ? (float)$item['total'] : 0;
+			$percent = ($grandTotal > 0) ? round(($value / $grandTotal) * 100) : 0;
+			if ($isPieChart) {
+				$legendHtml .= "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:#ccc;margin-right:6px;vertical-align:middle;'></span> $label: <b>$value</b> ($percent%)</li>";
+			} else {
+				$legendHtml .= "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:#ccc;margin-right:6px;vertical-align:middle;'></span> $label: <b>$value</b></li>";
+			}
+		}
+		$legendHtml .= "</ul></div>";
+		echo "<script>document.getElementById('legend_container_" . htmlspecialchars($chartType) . "').innerHTML = " . json_encode($legendHtml) . ";</script>";
+
 		echo '</div>';
 	}
 
@@ -564,15 +628,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		var monthNamesForFlot = <?php echo json_encode($monthNamesJs); ?>;
 
 		function pieLabelFormatter(label, series) {
-<<<<<<< Updated upstream
-		return `<div
-			style='font-size:8pt; line-height: 14px; text-align:center; padding:2px; color:black; background: white; border-radius: 5px;'>
-			${label}<br />${series.data[0][1]} (${Math.round(series.percent)}%)</div>`;
-		}
-=======
 				return '<div style=\'font-size:10pt; line-height: 16px; text-align:center; padding:4px; color:black; background: white; border-radius: 5px; min-width:80px;\'>\${label}<br />\${series.data[0][1]} (\${Math.round(series.percent)}%)</div>';
 			}
->>>>>>> Stashed changes
 
 			var chartsToRender = allChartsDataFromPHP;
 			if (containerSelector) {
@@ -616,7 +673,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		flotDataSeries = [phpStyleDataForChart];
 		plotOptions.xaxis = { mode: "categories", tickLength: 0 };
 		plotOptions.series = { bars: { show: true, align: "center", barWidth: 0.8 } };
-		plotOptions.legend = { show: false };
+		plotOptions.legend = { show: true, container: $('#legend_container_' + chartInfo.type), labelBoxBorderColor: 'none' };
 
 		$(chartDivSelector).bind("plothover", function(event, pos, item) {
 		$("#chart_tooltip").hide();
@@ -626,21 +683,11 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$("#chart_tooltip").html(xLabel + ": " + yVal).css({ top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
 		}
 		});
-<<<<<<< Updated upstream
 		} else if (chartInfo.type === 'docsaccumulated') {
-=======
-<<<<<<< Updated upstream
-		} 
-		
-		/* else if (chartInfo.type === 'docsaccumulated') {
-=======
-		} else if (chartInfo.type === "docsaccumulated") {
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 		flotDataSeries = [phpStyleDataForChart];
 		plotOptions.xaxis = { mode: "time", timeformat: "%d.%m.%y", monthNames: monthNamesForFlot };
 		plotOptions.series = { lines: { show: true, fill: 0.2 }, points: { show: true, radius: 3 } };
-		plotOptions.legend = { position: "nw" };
+		plotOptions.legend = { show: true, container: $('#legend_container_' + chartInfo.type), labelBoxBorderColor: 'none' };
 
 		$(chartDivSelector).bind("plothover", function(event, pos, item) {
 		$("#chart_tooltip").hide();
@@ -649,37 +696,56 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
 		}
 		});
-<<<<<<< Updated upstream
 		} else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
-=======
-<<<<<<< Updated upstream
-		} */
-
-		else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
-=======
-				} else if (
-					chartInfo.type === 'docsperuser' ||
-					chartInfo.type === 'foldersperuser' ||
-					chartInfo.type === 'sizeperuser' ||
-					chartInfo.type === 'docspermimetype' ||
-					chartInfo.type === 'docspercategory' ||
-					chartInfo.type === 'docsperstatus'
-				) {
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 		flotDataSeries = phpStyleDataForChart;
-					plotOptions.series = { pie: { show: true, radius: 1, label: { show: true, radius: 2 / 3, formatter: pieLabelFormatter, threshold: 0.1, background: { opacity: 0.8 } } } };
-
-		var legendContainer = $('#legend_container_' + chartInfo.type);
-		plotOptions.legend = legendContainer.length ? { show: true, container: legendContainer, labelBoxBorderColor: "none" } :
-		{ show: true, noColumns: 2, labelBoxBorderColor: "none" };
-
-		$(chartDivSelector).bind("plothover", function(event, pos, item) {
-		$("#chart_tooltip").hide();
-		if (item) {
-		$("#chart_tooltip").html(item.series.label + ": " + item.series.data[0][1] + " (" + Math.round(item.series.percent) +
-		"%)").css({ top: pos.pageY - 35, left: pos.pageX + 5 }).fadeIn(200);
+		// Check for only one data point
+		let isSingleSlice = false;
+		if (flotDataSeries.length === 1 && flotDataSeries[0].data && flotDataSeries[0].data.length === 1) {
+			isSingleSlice = true;
 		}
+		if (chartInfo.type === 'docspermimetype') {
+			plotOptions.series = {
+				pie: {
+					show: true,
+					radius: 1,
+					label: {
+						show: false
+					},
+					combine: {
+						threshold: 0,
+						color: null
+					}
+				}
+			};
+		} else {
+			plotOptions.series = {
+				pie: {
+					show: true,
+					radius: 1,
+					label: {
+						show: true,
+						radius: 0.7,
+						formatter: function(label, series) {
+							return '<div style="font-size:12px;text-align:center;">' +
+								label + '<br>' +
+								series.data[0][1] + ' (' + Math.round(series.percent) + '%)</div>';
+						},
+						threshold: 0.01
+					},
+					combine: {
+						threshold: 0,
+						color: null
+					}
+				}
+			};
+		}
+		var legendContainer = $('#legend_container_' + chartInfo.type);
+		plotOptions.legend = legendContainer.length ? { show: true, container: legendContainer, labelBoxBorderColor: "none" } : { show: true, noColumns: 2, labelBoxBorderColor: "none" };
+		$(chartDivSelector).bind("plothover", function(event, pos, item) {
+			$("#chart_tooltip").hide();
+			if (item) {
+				$("#chart_tooltip").html(item.series.label + ": " + item.series.data[0][1] + " (" + Math.round(item.series.percent) + "%").css({ top: pos.pageY - 35, left: pos.pageX + 5 }).fadeIn(200);
+			}
 		});
 		}
 
@@ -698,13 +764,42 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		return;
 		}
 		}
+		// Debug: Log the data being sent to Flot
+		console.log('Pie chart data for', chartInfo.type, JSON.stringify(flotDataSeries), plotOptions);
 		$.plot($(chartDivSelector), flotDataSeries, plotOptions);
+
+		// After each $.plot call in renderDashboardCharts, add:
+		if ($(chartDivSelector).length && $(chartDivSelector).data('plot')) {
+			var plot = $(chartDivSelector).data('plot');
+			var legendHtml = "<div class='custom-legend' style='font-size:14px;'><b>Legend</b><ul style='list-style:none; padding-left:0;'>";
+			var total = 0;
+			if (plot.getData) {
+				var data = plot.getData();
+				data.forEach(function(series) {
+					if (series.data && series.data.length > 0) {
+						total += series.data[0][1];
+					}
+				});
+				data.forEach(function(series) {
+					var color = series.color || '#ccc';
+					var label = series.label || '';
+					var value = (series.data && series.data.length > 0) ? series.data[0][1] : 0;
+					var percent = (total > 0) ? Math.round((value / total) * 100) : 0;
+					if (plot.getOptions().series.pie && plot.getOptions().series.pie.show) {
+						legendHtml += "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span> " + label + ": <b>" + value + "</b> (" + percent + "%)</li>";
+					} else {
+						legendHtml += "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span> " + label + ": <b>" + value + "</b></li>";
+					}
+				});
+			}
+			legendHtml += "</ul></div>";
+			$('#legend_container_' + chartInfo.type).html(legendHtml);
 		}
 		});
 		}
 		renderDashboardCharts();
 		<?php
-	}
+	} /* }}} */
 
 	// ========================================================================
 	// MAIN PAGE RENDERER
@@ -801,8 +896,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		// Charts Section
 		echo '<div class="charts-dashboard-container">';
 		$dashboardChartLayout = [
-			['docspermonth', 'docsperuser'],
-			['docsaccumulated', 'docsperstatus']
+			['docspermonth', 'sizepermonth'],
+			['docsaccumulated', 'docspermimetype']
 		];
 		$chartsActuallyRendered = 0;
 		foreach ($dashboardChartLayout as $rowChartTypes) {
@@ -832,6 +927,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$jsChartData = json_encode($jsChartDataArray, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_NUMERIC_CHECK);
 		$jsNoDataText = json_encode($noDataText);
 		$jsMonthNames = json_encode($monthNamesJs);
+		$jsDashboardChartLayout = json_encode($dashboardChartLayout);
 
 		// Output the JS for rendering and swapping charts
 		echo <<<EOT
@@ -841,8 +937,22 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 			var allChartsDataFromPHP = $jsChartData;
 			var noDataMessage = $jsNoDataText;
 			var monthNamesForFlot = $jsMonthNames;
-			// Start with the first 4 chart types as visible
-			var visibleCharts = allChartTypes.slice(0, 4);
+			var dashboardChartLayout = $jsDashboardChartLayout;
+			
+			// Create visibleCharts from the dashboard layout
+			var visibleCharts = [];
+			dashboardChartLayout.forEach(function(row) {
+				row.forEach(function(chartType) {
+					if (visibleCharts.indexOf(chartType) === -1) {
+						visibleCharts.push(chartType);
+					}
+				});
+			});
+			
+			// If no charts from layout, fall back to first 4
+			if (visibleCharts.length === 0) {
+				visibleCharts = allChartTypes.slice(0, 4);
+			}
 
 			// Helper: get chart data by type
 			function getChartDataByType(type) {
@@ -891,7 +1001,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 									'</div>' +
 								'</div>' +
 								'<div class="card-body p-3">' +
-									'<div id="chart_' + chartType + '" class="chart" style="height:400px; width:100%;"><p style="text-align:center; padding-top:180px; color:#777;">Loading chart...</p></div>' +
+									'<div id="chart_' + chartType + '" class="chart" style="height:600px; width:100%;"><p style="text-align:center; padding-top:280px; color:#777;">Loading chart...</p></div>' +
 									'<div id="legend_container_' + chartType + '"></div>' +
 								'</div>' +
 							'</div>' +
@@ -955,7 +1065,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 						flotDataSeries = [phpStyleDataForChart];
 						plotOptions.xaxis = { mode: "categories", tickLength: 0 };
 						plotOptions.series = { bars: { show: true, align: "center", barWidth: 0.8 } };
-						plotOptions.legend = { show: false };
+						plotOptions.legend = { show: true, container: $('#legend_container_' + chartType), labelBoxBorderColor: 'none' };
 						$(chartDivSelector).bind("plothover", function(event, pos, item) {
 							$("#chart_tooltip").hide();
 							if (item) {
@@ -968,7 +1078,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 						flotDataSeries = [phpStyleDataForChart];
 						plotOptions.xaxis = { mode: "time", timeformat: "%d.%m.%y", monthNames: monthNamesForFlot };
 						plotOptions.series = { lines: { show: true, fill: 0.2 }, points: { show: true, radius: 3 } };
-						plotOptions.legend = { position: "nw" };
+						plotOptions.legend = { show: true, container: $('#legend_container_' + chartType), labelBoxBorderColor: 'none' };
 						$(chartDivSelector).bind("plothover", function(event, pos, item) {
 							$("#chart_tooltip").hide();
 							if (item) {
@@ -977,7 +1087,47 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 						});
 					} else {
 						flotDataSeries = phpStyleDataForChart;
-						plotOptions.series = { pie: { show: true, radius: 1, label: { show: true, radius: 2/3, formatter: pieLabelFormatter, threshold: 0.1, background: { opacity: 0.8 } } } };
+						// Check for only one data point
+						let isSingleSlice = false;
+						if (flotDataSeries.length === 1 && flotDataSeries[0].data && flotDataSeries[0].data.length === 1) {
+							isSingleSlice = true;
+						}
+						if (chartType === 'docspermimetype') {
+							plotOptions.series = {
+								pie: {
+									show: true,
+									radius: 1,
+									label: {
+										show: false
+									},
+									combine: {
+										threshold: 0,
+										color: null
+									}
+								}
+							};
+						} else {
+							plotOptions.series = {
+								pie: {
+									show: true,
+									radius: 1,
+									label: {
+										show: true,
+										radius: 0.7,
+										formatter: function(label, series) {
+											return '<div style="font-size:12px;text-align:center;">' +
+												label + '<br>' +
+												series.data[0][1] + ' (' + Math.round(series.percent) + '%)</div>';
+										},
+										threshold: 0.01
+									},
+									combine: {
+										threshold: 0,
+										color: null
+									}
+								}
+							};
+						}
 						var legendContainer = $('#legend_container_' + chartType);
 						plotOptions.legend = legendContainer.length ? { show: true, container: legendContainer, labelBoxBorderColor: "none" } : { show: true, noColumns: 2, labelBoxBorderColor: "none" };
 						$(chartDivSelector).bind("plothover", function(event, pos, item) {
@@ -995,7 +1145,37 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 								return;
 							}
 						}
+						// Debug: Log the data being sent to Flot
+						console.log('Pie chart data for', chartType, JSON.stringify(flotDataSeries), plotOptions);
 						$.plot($(chartDivSelector), flotDataSeries, plotOptions);
+					}
+
+					// After each $.plot call in renderDashboardCharts, add:
+					if ($(chartDivSelector).length && $(chartDivSelector).data('plot')) {
+						var plot = $(chartDivSelector).data('plot');
+						var legendHtml = "<div class='custom-legend' style='font-size:14px;'><b>Legend</b><ul style='list-style:none; padding-left:0;'>";
+						var total = 0;
+						if (plot.getData) {
+							var data = plot.getData();
+							data.forEach(function(series) {
+								if (series.data && series.data.length > 0) {
+									total += series.data[0][1];
+								}
+							});
+							data.forEach(function(series) {
+								var color = series.color || '#ccc';
+								var label = series.label || '';
+								var value = (series.data && series.data.length > 0) ? series.data[0][1] : 0;
+								var percent = (total > 0) ? Math.round((value / total) * 100) : 0;
+								if (plot.getOptions().series.pie && plot.getOptions().series.pie.show) {
+									legendHtml += "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span> " + label + ": <b>" + value + "</b> (" + percent + "%)</li>";
+								} else {
+									legendHtml += "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span> " + label + ": <b>" + value + "</b></li>";
+								}
+							});
+						}
+						legendHtml += "</ul></div>";
+						$('#legend_container_' + chartType).html(legendHtml);
 					}
 				});
 			}
@@ -1005,7 +1185,8 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		</script>
 EOT;
 
-		// Document Lists Section
+		echo '</div>'; // End charts-dashboard-container
+
 		echo '<div class="dashboard-document-lists-section" style="margin-top: 30px;">';
 		$this->contentHeading(getMLText("recent_activity", [], "Recent Activity"));
 		$this->rowStart();

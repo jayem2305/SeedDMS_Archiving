@@ -204,665 +204,667 @@ class SeedDMS_View_AddDocument extends SeedDMS_Theme_Style
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
-		$this->pageNavigation($this->getFolderPathHTML($folder, true), "view_folder", $folder);
-
-		$msg = getMLText("max_upload_size") . ": " . SeedDMS_Core_File::format_filesize($maxuploadsize);
-		$this->warningMsg($msg);
-		$this->contentHeading(getMLText("add_document"));
-
-		// Retrieve a list of all users and groups that have review / approve
-		// privileges.
-		$docAccess = $folder->getReadAccessList($enableadminrevapp, $enableownerrevapp);
-
-		$txt = $this->callHook('addDocumentPreForm');
-		if (is_string($txt))
-			echo $txt;
+		$this->pageSidebar();
 		?>
-		<form class="form-horizontal" action="../op/op.AddDocument.php" enctype="multipart/form-data" method="post"
-			id="adddocform" name="adddocform">
-			<?php echo createHiddenFieldWithKey('adddocument'); ?>
-			<input type="hidden" name="folderid" value="<?php print $folderid; ?>">
-			<input type="hidden" name="showtree" value="<?php echo showtree(); ?>">
-			<?php
-			$this->rowStart();
-			$this->columnStart(6);
-			$this->contentSubHeading(getMLText("document_infos"));
-			$this->contentContainerStart();
-			$this->formField(
-				getMLText("name"),
-				array(
-					'element' => 'input',
-					'type' => 'text',
-					'id' => 'name',
-					'name' => 'name',
-					'required' => false
-				)
-			);
-			if (!$nodocumentformfields || !in_array('comment', $nodocumentformfields))
-				$this->formField(
-					getMLText("comment"),
-					array(
-						'element' => 'textarea',
-						'name' => 'comment',
-						'rows' => 4,
-						'cols' => 80,
-						'required' => $strictformcheck
-					)
-				);
-			if (!$nodocumentformfields || !in_array('keywords', $nodocumentformfields))
-				$this->formField(
-					getMLText("keywords"),
-					$this->getKeywordChooserHtml('adddocform')
-				);
-			$categories = $dms->getDocumentCategories();
-			if ($categories) {
-				if (!$nodocumentformfields || !in_array('categories', $nodocumentformfields)) {
-					$options = array();
-					foreach ($categories as $category) {
-						$options[] = array($category->getID(), htmlspecialchars($category->getName()));
-					}
-					$this->formField(
-						getMLText("categories"),
-						array(
-							'element' => 'select',
-							'class' => 'chzn-select',
-							'name' => 'categories[]',
-							'multiple' => true,
-							'attributes' => array(array('data-placeholder', getMLText('select_category'), array('data-no_results_text', getMLText('unknown_document_category')))),
-							'options' => $options
-						)
-					);
-				}
-			}
-			if (!$nodocumentformfields || !in_array('sequence', $nodocumentformfields)) {
-				$this->formField(getMLText("sequence"), $this->getSequenceChooser($folder, 'd') . ($orderby != 's' ? "<br />" . getMLText('order_by_sequence_off') : ''));
-			} else {
-				$minmax = $folder->getDocumentsMinMax();
-				if ($this->params['defaultposition'] == 'start') {
-					$seq = $minmax['min'] - 1;
-				} else {
-					$seq = $minmax['max'] + 1;
-				}
-				$this->formField(
-					null,
-					array(
-						'element' => 'input',
-						'type' => 'hidden',
-						'name' => 'sequence',
-						'value' => (string) $seq,
-					)
-				);
-			}
-			if (!$nodocumentformfields || !in_array('expires', $nodocumentformfields)) {
-				if ($presetexpiration) {
-					if (!($expts = strtotime($presetexpiration)))
-						$expts = false;
-				} else {
-					$expts = false;
-				}
-				$options = array();
-				$options[] = array('never', getMLText('does_not_expire'));
-				$options[] = array('date', getMLText('expire_by_date'), $expts);
-				$options[] = array('1w', getMLText('expire_in_1w'));
-				$options[] = array('1m', getMLText('expire_in_1m'));
-				$options[] = array('1y', getMLText('expire_in_1y'));
-				$options[] = array('2y', getMLText('expire_in_2y'));
-				$this->formField(
-					getMLText("preset_expires"),
-					array(
-						'element' => 'select',
-						'id' => 'presetexpdate',
-						'name' => 'presetexpdate',
-						'options' => $options
-					)
-				);
-				$this->formField(
-					getMLText("expires"),
-					$this->getDateChooser(($expts ? getReadableDate($expts) : ''), "expdate", $this->params['session']->getLanguage())
-				);
-			}
-			if ($accessop->check_controller_access('AddDocument', array('action' => 'setOwner'))) {
-				$options = array();
-				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-				$allUsers = $dms->getAllUsers($sortusersinlist);
+		<div class="dashboard-main-content-wrapper" style="min-height: 80vh;">
+			<div class="dashboard-card-container" style="width: 100%; margin: 0;">
+				<div class="card" style="width: 100%;">
+					<div class="card-body">
+						<?php $this->pageNavigation($this->getFolderPathHTML($folder, true), "view_folder", $folder); ?>
+						<?php $this->contentHeading(getMLText("add_document")); ?>
+						<form class="form-horizontal" action="../op/op.AddDocument.php" enctype="multipart/form-data" method="post" id="adddocform" name="adddocform">
+							<?php echo createHiddenFieldWithKey('adddocument'); ?>
+							<input type="hidden" name="folderid" value="<?php print $folderid; ?>">
+							<input type="hidden" name="showtree" value="<?php echo showtree(); ?>">
+							<?php
+							$this->rowStart();
+							$this->columnStart(6);
+							$this->contentSubHeading(getMLText("document_infos"));
+							$this->contentContainerStart();
+							$this->formField(
+								getMLText("name"),
+								array(
+									'element' => 'input',
+									'type' => 'text',
+									'id' => 'name',
+									'name' => 'name',
+									'required' => false
+								)
+							);
+							if (!$nodocumentformfields || !in_array('comment', $nodocumentformfields))
+								$this->formField(
+									getMLText("comment"),
+									array(
+										'element' => 'textarea',
+										'name' => 'comment',
+										'rows' => 4,
+										'cols' => 80,
+										'required' => $strictformcheck
+									)
+								);
+							if (!$nodocumentformfields || !in_array('keywords', $nodocumentformfields))
+								$this->formField(
+									getMLText("keywords"),
+									$this->getKeywordChooserHtml('adddocform')
+								);
+							$categories = $dms->getDocumentCategories();
+							if ($categories) {
+								if (!$nodocumentformfields || !in_array('categories', $nodocumentformfields)) {
+									$options = array();
+									foreach ($categories as $category) {
+										$options[] = array($category->getID(), htmlspecialchars($category->getName()));
+									}
+									$this->formField(
+										getMLText("categories"),
+										array(
+											'element' => 'select',
+											'class' => 'chzn-select',
+											'name' => 'categories[]',
+											'multiple' => true,
+											'attributes' => array(array('data-placeholder', getMLText('select_category'), array('data-no_results_text', getMLText('unknown_document_category')))),
+											'options' => $options
+										)
+									);
+								}
+							}
+							if (!$nodocumentformfields || !in_array('sequence', $nodocumentformfields)) {
+								$this->formField(getMLText("sequence"), $this->getSequenceChooser($folder, 'd') . ($orderby != 's' ? "<br />" . getMLText('order_by_sequence_off') : ''));
+							} else {
+								$minmax = $folder->getDocumentsMinMax();
+								if ($this->params['defaultposition'] == 'start') {
+									$seq = $minmax['min'] - 1;
+								} else {
+									$seq = $minmax['max'] + 1;
+								}
+								$this->formField(
+									null,
+									array(
+										'element' => 'input',
+										'type' => 'hidden',
+										'name' => 'sequence',
+										'value' => (string) $seq,
+									)
+								);
+							}
+							if (!$nodocumentformfields || !in_array('expires', $nodocumentformfields)) {
+								if ($presetexpiration) {
+									if (!($expts = strtotime($presetexpiration)))
+										$expts = false;
+								} else {
+									$expts = false;
+								}
+								$options = array();
+								$options[] = array('never', getMLText('does_not_expire'));
+								$options[] = array('date', getMLText('expire_by_date'), $expts);
+								$options[] = array('1w', getMLText('expire_in_1w'));
+								$options[] = array('1m', getMLText('expire_in_1m'));
+								$options[] = array('1y', getMLText('expire_in_1y'));
+								$options[] = array('2y', getMLText('expire_in_2y'));
+								$this->formField(
+									getMLText("preset_expires"),
+									array(
+										'element' => 'select',
+										'id' => 'presetexpdate',
+										'name' => 'presetexpdate',
+										'options' => $options
+									)
+								);
+								$this->formField(
+									getMLText("expires"),
+									$this->getDateChooser(($expts ? getReadableDate($expts) : ''), "expdate", $this->params['session']->getLanguage())
+								);
+							}
+							if ($accessop->check_controller_access('AddDocument', array('action' => 'setOwner'))) {
+								$options = array();
+								$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+								$allUsers = $dms->getAllUsers($sortusersinlist);
 
-				foreach ($allUsers as $currUser) {
-					if (!$currUser->isGuest()) {
-						$decrypted = $this->decrypt($currUser->getFullName(), $encryption_key);
-						$fullname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $currUser->getFullName() : $decrypted;
-						$decryptedlogin = $this->decrypt($currUser->getLogin(), $encryption_key);
-						$login = ($decryptedlogin === '[DECRYPTION FAILED]' || $decryptedlogin === '[INVALID NAME]') ? $currUser->getLogin() : $decryptedlogin;
-						$decryptedemail = $this->decrypt($currUser->getEmail(), $encryption_key);
-						$email = ($decryptedemail === '[DECRYPTION FAILED]' || $decryptedemail === '[INVALID NAME]') ? $currUser->getEmail() : $decryptedemail;
-					} else {
-						$fullname = $currUser->getFullName(); // Use as-is if guest
-						$login = $currUser->getLogin(); // Use as-is if guest
-						$email = $currUser->getEmail(); // Use as-is if guest
-					}
+								foreach ($allUsers as $currUser) {
+									if (!$currUser->isGuest()) {
+										$decrypted = $this->decrypt($currUser->getFullName(), $encryption_key);
+										$fullname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $currUser->getFullName() : $decrypted;
+										$decryptedlogin = $this->decrypt($currUser->getLogin(), $encryption_key);
+										$login = ($decryptedlogin === '[DECRYPTION FAILED]' || $decryptedlogin === '[INVALID NAME]') ? $currUser->getLogin() : $decryptedlogin;
+										$decryptedemail = $this->decrypt($currUser->getEmail(), $encryption_key);
+										$email = ($decryptedemail === '[DECRYPTION FAILED]' || $decryptedemail === '[INVALID NAME]') ? $currUser->getEmail() : $decryptedemail;
+									} else {
+										$fullname = $currUser->getFullName(); // Use as-is if guest
+										$login = $currUser->getLogin(); // Use as-is if guest
+										$email = $currUser->getEmail(); // Use as-is if guest
+									}
 
-					$options[] = array(
-						$currUser->getID(),
-						htmlspecialchars($login . ' - ' . $fullname),
-						($currUser->getID() == $user->getID()),
-						array(array('data-subtitle', htmlspecialchars($email)))
-					);
-				}
+									$options[] = array(
+										$currUser->getID(),
+										htmlspecialchars($login . ' - ' . $fullname),
+										($currUser->getID() == $user->getID()),
+										array(array('data-subtitle', htmlspecialchars($email)))
+									);
+								}
 
-				$this->formField(
-					getMLText("owner"),
-					array(
-						'element' => 'select',
-						'id' => 'ownerid',
-						'name' => 'ownerid',
-						'class' => 'chzn-select',
-						'options' => $options
-					)
-				);
-			}
+								$this->formField(
+									getMLText("owner"),
+									array(
+										'element' => 'select',
+										'id' => 'ownerid',
+										'name' => 'ownerid',
+										'class' => 'chzn-select',
+										'options' => $options
+									)
+								);
+							}
 
-			$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_document, SeedDMS_Core_AttributeDefinition::objtype_all));
-			if ($attrdefs) {
-				foreach ($attrdefs as $attrdef) {
-					$arr = $this->callHook('addDocumentAttribute', null, $attrdef);
-					if (is_array($arr)) {
-						if ($arr) {
-							$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
-						}
-					} elseif (is_string($arr)) {
-						echo $arr;
-					} else {
-						$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, ''));
-					}
-				}
-			}
-			$arrs = $this->callHook('addDocumentAttributes', null);
-			if (is_array($arrs)) {
-				foreach ($arrs as $arr) {
-					$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
-				}
-			} elseif (is_string($arrs)) {
-				echo $arrs;
-			}
+							$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_document, SeedDMS_Core_AttributeDefinition::objtype_all));
+							if ($attrdefs) {
+								foreach ($attrdefs as $attrdef) {
+									$arr = $this->callHook('addDocumentAttribute', null, $attrdef);
+									if (is_array($arr)) {
+										if ($arr) {
+											$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+										}
+									} elseif (is_string($arr)) {
+										echo $arr;
+									} else {
+										$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, ''));
+									}
+								}
+							}
+							$arrs = $this->callHook('addDocumentAttributes', null);
+							if (is_array($arrs)) {
+								foreach ($arrs as $arr) {
+									$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+								}
+							} elseif (is_string($arrs)) {
+								echo $arrs;
+							}
 
-			$this->contentContainerEnd();
-			if (!$nodocumentformfields || !in_array('notification', $nodocumentformfields)) {
-				$this->contentSubHeading(getMLText("add_document_notify"));
-				$this->contentContainerStart();
+							$this->contentContainerEnd();
+							if (!$nodocumentformfields || !in_array('notification', $nodocumentformfields)) {
+								$this->contentSubHeading(getMLText("add_document_notify"));
+								$this->contentContainerStart();
 
-				$options = array();
-				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-				$allUsers = $dms->getAllUsers($sortusersinlist);
+								$options = array();
+								$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+								$allUsers = $dms->getAllUsers($sortusersinlist);
 
-				foreach ($allUsers as $userObj) {
-					if (!$userObj->isGuest() && $folder->getAccessMode($userObj) >= M_READ) {
-						$decrypted = $this->decrypt($userObj->getFullName(), $encryption_key);
-						$fullname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $userObj->getFullName() : $decrypted;
+								foreach ($allUsers as $userObj) {
+									if (!$userObj->isGuest() && $folder->getAccessMode($userObj) >= M_READ) {
+										$decrypted = $this->decrypt($userObj->getFullName(), $encryption_key);
+										$fullname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $userObj->getFullName() : $decrypted;
 
-						$decrypted = $this->decrypt($userObj->getLogin(), $encryption_key);
-						$login = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $userObj->getLogin() : $decrypted;
-
-
-						$options[] = array(
-							$userObj->getID(),
-							htmlspecialchars($login . " - " . $fullname)
-						);
-					}
-				}
-
-				$this->formField(
-					getMLText("individuals"),
-					array(
-						'element' => 'select',
-						'name' => 'notification_users[]',
-						'class' => 'chzn-select',
-						'attributes' => array(array('data-placeholder', getMLText('select_ind_notification'))),
-						'multiple' => true,
-						'options' => $options
-					)
-				);
-
-				$options = array();
-				$allGroups = $dms->getAllGroups();
-				foreach ($allGroups as $groupObj) {
-					if ($folder->getGroupAccessMode($groupObj) >= M_READ) {
-						$decrypted = $this->decrypt($groupObj->getName(), $encryption_key);
-						$groupName = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $groupObj->getName() : $decrypted;
-						$options[] = array($groupObj->getID(), htmlspecialchars($groupName));
-					}
-					echo "<script>console.log('GROUP NAME RAW: " . $groupObj->getName() . "');</script>";
-					echo "<script>console.log('GROUP NAME DECRYPTED: " . $groupName . "');</script>";
+										$decrypted = $this->decrypt($userObj->getLogin(), $encryption_key);
+										$login = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $userObj->getLogin() : $decrypted;
 
 
-				}
+										$options[] = array(
+											$userObj->getID(),
+											htmlspecialchars($login . " - " . $fullname)
+										);
+									}
+								}
 
-				$this->formField(
-					getMLText("groups"),
-					array(
-						'element' => 'select',
-						'name' => 'notification_groups[]',
-						'class' => 'chzn-select',
-						'attributes' => array(array('data-placeholder', getMLText('select_grp_notification'))),
-						'multiple' => true,
-						'options' => $options
-					)
-				);
-				$this->contentContainerEnd();
-			}
-			$this->columnEnd();
-			$this->columnStart(6);
-			$this->contentSubHeading(getMLText("version_info"));
-			$this->contentContainerStart();
-			if (!$nodocumentformfields || !in_array('version', $nodocumentformfields)) {
-				$this->formField(
-					getMLText("version"),
-					array(
-						'element' => 'input',
-						'type' => 'text',
-						'id' => 'reqversion',
-						'name' => 'reqversion',
-						'value' => 1
-					)
-				);
-			}
-			$this->formField(
-				getMLText("local_file"),
-				$enablelargefileupload ? $this->getFineUploaderHtml() : $this->getFileChooserHtml('userfile[]', $enablemultiupload, $accept) . ($enablemultiupload ? '<a class="" id="new-file"><?php printMLtext("add_multiple_files") ?></a>' : '')
-			);
-			if ($dropfolderdir) {
-				$this->formField(
-					getMLText("dropfolder_file"),
-					$this->getDropFolderChooserHtml("adddocform", $dropfolderfile)
-				);
-			}
-			if ($libraryfolder) {
-				$this->formField(
-					getMLText("librarydoc"),
-					$this->getDocumentChooserHtml("adddocform", M_READ, -1, null, 'librarydoc', $libraryfolder, 1)
-				);
-			}
-			if ($arr = $this->callHook('addDocumentContentFile', 'add')) {
-				foreach ($arr as $ar)
-					if (is_array($ar)) {
-						$this->formField($ar[0], $ar[1], isset($ar[2]) ? $ar[2] : null);
-					} elseif (is_string($ar)) {
-						echo $ar;
-					}
-			}
-			if (!$nodocumentformfields || !in_array('version_comment', $nodocumentformfields)) {
-				$this->formField(
-					getMLText("comment_for_current_version"),
-					array(
-						'element' => 'textarea',
-						'name' => 'version_comment',
-						'rows' => 4,
-						'cols' => 80
-					)
-				);
-				$this->formField(
-					getMLText("use_comment_of_document"),
-					array(
-						'element' => 'input',
-						'type' => 'checkbox',
-						'name' => 'use_comment',
-						'value' => 1
-					)
-				);
-			}
-			$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_documentcontent, SeedDMS_Core_AttributeDefinition::objtype_all));
-			if ($attrdefs) {
-				foreach ($attrdefs as $attrdef) {
-					$arr = $this->callHook('addDocumentContentAttribute', null, $attrdef);
-					if (is_array($arr)) {
-						$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
-					} elseif (is_string($arr)) {
-						echo $arr;
-					} else {
-						$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, '', 'attributes_version'));
-					}
-				}
-			}
+								$this->formField(
+									getMLText("individuals"),
+									array(
+										'element' => 'select',
+										'name' => 'notification_users[]',
+										'class' => 'chzn-select',
+										'attributes' => array(array('data-placeholder', getMLText('select_ind_notification'))),
+										'multiple' => true,
+										'options' => $options
+									)
+								);
 
-			$arrs = $this->callHook('addDocumentContentAttributes', $folder);
-			if (is_array($arrs)) {
-				foreach ($arrs as $arr) {
-					$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
-				}
-			} elseif (is_string($arrs)) {
-				echo $arrs;
-			}
+								$options = array();
+								$allGroups = $dms->getAllGroups();
+								foreach ($allGroups as $groupObj) {
+									if ($folder->getGroupAccessMode($groupObj) >= M_READ) {
+										$decrypted = $this->decrypt($groupObj->getName(), $encryption_key);
+										$groupName = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]') ? $groupObj->getName() : $decrypted;
+										$options[] = array($groupObj->getID(), htmlspecialchars($groupName));
+									}
+									echo "<script>console.log('GROUP NAME RAW: " . $groupObj->getName() . "');</script>";
+									echo "<script>console.log('GROUP NAME DECRYPTED: " . $groupName . "');</script>";
 
-			if ($workflowmode == 'advanced') {
-				$mandatoryworkflows = $user->getMandatoryWorkflows();
-				if ($mandatoryworkflows) {
-					if (count($mandatoryworkflows) == 1) {
-						$this->formField(
-							getMLText("workflow"),
-							htmlspecialchars($mandatoryworkflows[0]->getName()) . '<input type="hidden" name="workflow" value="' . $mandatoryworkflows[0]->getID() . '">'
-						);
-					} else {
-						$options = array();
-						foreach ($mandatoryworkflows as $workflow) {
-							$options[] = array($workflow->getID(), htmlspecialchars($workflow->getName()));
-						}
-						$this->formField(
-							getMLText("workflow"),
-							array(
-								'element' => 'select',
-								'id' => 'workflow',
-								'name' => 'workflow',
-								'class' => 'chzn-select',
-								'attributes' => array(array('data-placeholder', getMLText('select_workflow'))),
-								'options' => $options
-							)
-						);
-					}
-				} else {
-					$options = array();
-					$options[] = array('', '');
-					$workflows = $dms->getAllWorkflows();
-					foreach ($workflows as $workflow) {
-						$options[] = array($workflow->getID(), htmlspecialchars($workflow->getName()));
-					}
-					$this->formField(
-						getMLText("workflow"),
-						array(
-							'element' => 'select',
-							'id' => 'workflow',
-							'name' => 'workflow',
-							'class' => 'chzn-select',
-							'attributes' => array(array('data-allow-clear', 'true'), array('data-placeholder', getMLText('select_workflow'))),
-							'options' => $options
-						)
-					);
-				}
-				if ($settings->_initialDocumentStatus == S_RELEASED)
-					$this->warningMsg(getMLText("add_doc_workflow_warning"));
-				$this->contentContainerEnd();
-			} elseif ($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
-				$this->contentContainerEnd();
-				if ($workflowmode == 'traditional') {
-					$this->contentSubHeading(getMLText("assign_reviewers"));
-					$this->contentContainerStart();
 
-					$mreviewers = getMandatoryReviewers($folder, null, $user);
+								}
 
-					/* List all mandatory reviewers */
-					$tmp = array();
-					foreach ($mreviewers['i'] as $r) {
-						$u = $dms->getUser($r);
-						$tmp[] = htmlspecialchars($u->getFullName() . ' (' . $u->getLogin() . ')');
-					}
+								$this->formField(
+									getMLText("groups"),
+									array(
+										'element' => 'select',
+										'name' => 'notification_groups[]',
+										'class' => 'chzn-select',
+										'attributes' => array(array('data-placeholder', getMLText('select_grp_notification'))),
+										'multiple' => true,
+										'options' => $options
+									)
+								);
+								$this->contentContainerEnd();
+							}
+							$this->columnEnd();
+							$this->columnStart(6);
+							$this->contentSubHeading(getMLText("version_info"));
+							$this->contentContainerStart();
+							if (!$nodocumentformfields || !in_array('version', $nodocumentformfields)) {
+								$this->formField(
+									getMLText("version"),
+									array(
+										'element' => 'input',
+										'type' => 'text',
+										'id' => 'reqversion',
+										'name' => 'reqversion',
+										'value' => 1
+									)
+								);
+							}
+							$this->formField(
+								getMLText("local_file"),
+								$enablelargefileupload ? $this->getFineUploaderHtml() : $this->getFileChooserHtml('userfile[]', $enablemultiupload, $accept) . ($enablemultiupload ? '<a class="" id="new-file"><?php printMLtext("add_multiple_files") ?></a>' : '')
+							);
+							if ($dropfolderdir) {
+								$this->formField(
+									getMLText("dropfolder_file"),
+									$this->getDropFolderChooserHtml("adddocform", $dropfolderfile)
+								);
+							}
+							if ($libraryfolder) {
+								$this->formField(
+									getMLText("librarydoc"),
+									$this->getDocumentChooserHtml("adddocform", M_READ, -1, null, 'librarydoc', $libraryfolder, 1)
+								);
+							}
+							if ($arr = $this->callHook('addDocumentContentFile', 'add')) {
+								foreach ($arr as $ar)
+									if (is_array($ar)) {
+										$this->formField($ar[0], $ar[1], isset($ar[2]) ? $ar[2] : null);
+									} elseif (is_string($ar)) {
+										echo $ar;
+									}
+							}
+							if (!$nodocumentformfields || !in_array('version_comment', $nodocumentformfields)) {
+								$this->formField(
+									getMLText("comment_for_current_version"),
+									array(
+										'element' => 'textarea',
+										'name' => 'version_comment',
+										'rows' => 4,
+										'cols' => 80
+									)
+								);
+								$this->formField(
+									getMLText("use_comment_of_document"),
+									array(
+										'element' => 'input',
+										'type' => 'checkbox',
+										'name' => 'use_comment',
+										'value' => 1
+									)
+								);
+							}
+							$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_documentcontent, SeedDMS_Core_AttributeDefinition::objtype_all));
+							if ($attrdefs) {
+								foreach ($attrdefs as $attrdef) {
+									$arr = $this->callHook('addDocumentContentAttribute', null, $attrdef);
+									if (is_array($arr)) {
+										$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+									} elseif (is_string($arr)) {
+										echo $arr;
+									} else {
+										$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, '', 'attributes_version'));
+									}
+								}
+							}
 
-					$options = array();
-					foreach ($docAccess["users"] as $usr) {
-						if (!$enablehiddenrevapp && $usr->isHidden())
-							continue;
-						if (!$enableselfrevapp && $usr->getID() == $user->getID())
-							continue;
+							$arrs = $this->callHook('addDocumentContentAttributes', $folder);
+							if (is_array($arrs)) {
+								foreach ($arrs as $arr) {
+									$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+								}
+							} elseif (is_string($arrs)) {
+								echo $arrs;
+							}
 
-						$option = array($usr->getID(), htmlspecialchars($usr->getLogin() . " - " . $usr->getFullName()), null);
-						if (in_array($usr->getId(), $mreviewers['i']))
-							$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('user_is_mandatory_reviewer')));
-						$options[] = $option;
-					}
-					$this->formField(
-						getMLText("individuals"),
-						array(
-							'element' => 'select',
-							'name' => 'indReviewers[]',
-							'class' => 'chzn-select',
-							'attributes' => array(array('data-placeholder', getMLText('select_ind_reviewers'))),
-							'multiple' => true,
-							'options' => $options
-						),
-						array('field_wrap' => array('', ($tmp ? '<div class="mandatories"><span>' . getMLText('mandatory_reviewers') . ':</span> ' . implode(', ', $tmp) . '</div>' : '')))
-					);
+							if ($workflowmode == 'advanced') {
+								$mandatoryworkflows = $user->getMandatoryWorkflows();
+								if ($mandatoryworkflows) {
+									if (count($mandatoryworkflows) == 1) {
+										$this->formField(
+											getMLText("workflow"),
+											htmlspecialchars($mandatoryworkflows[0]->getName()) . '<input type="hidden" name="workflow" value="' . $mandatoryworkflows[0]->getID() . '">'
+										);
+									} else {
+										$options = array();
+										foreach ($mandatoryworkflows as $workflow) {
+											$options[] = array($workflow->getID(), htmlspecialchars($workflow->getName()));
+										}
+										$this->formField(
+											getMLText("workflow"),
+											array(
+												'element' => 'select',
+												'id' => 'workflow',
+												'name' => 'workflow',
+												'class' => 'chzn-select',
+												'attributes' => array(array('data-placeholder', getMLText('select_workflow'))),
+												'options' => $options
+											)
+										);
+									}
+								} else {
+									$options = array();
+									$options[] = array('', '');
+									$workflows = $dms->getAllWorkflows();
+									foreach ($workflows as $workflow) {
+										$options[] = array($workflow->getID(), htmlspecialchars($workflow->getName()));
+									}
+									$this->formField(
+										getMLText("workflow"),
+										array(
+											'element' => 'select',
+											'id' => 'workflow',
+											'name' => 'workflow',
+											'class' => 'chzn-select',
+											'attributes' => array(array('data-allow-clear', 'true'), array('data-placeholder', getMLText('select_workflow'))),
+											'options' => $options
+										)
+									);
+								}
+								if ($settings->_initialDocumentStatus == S_RELEASED)
+									$this->warningMsg(getMLText("add_doc_workflow_warning"));
+								$this->contentContainerEnd();
+							} elseif ($workflowmode == 'traditional' || $workflowmode == 'traditional_only_approval') {
+								$this->contentContainerEnd();
+								if ($workflowmode == 'traditional') {
+									$this->contentSubHeading(getMLText("assign_reviewers"));
+									$this->contentContainerStart();
 
-					/* Check for mandatory reviewer without access */
-					foreach ($mreviewers['ni'] as $r) {
-						$hasAccess = false;
-						foreach ($docAccess["users"] as $usr) {
-							if ($r == $usr->getID())
-								$hasAccess = true;
-						}
-						if (!$hasAccess) {
-							$noAccessUser = $dms->getUser($r);
-							$this->warningMsg(getMLText("mandatory_reviewer_no_access", array('user' => htmlspecialchars($noAccessUser->getFullName() . " (" . $noAccessUser->getLogin() . ")"))));
-						}
-					}
+									// Ensure $docAccess is always a valid array before use in reviewers/approvers section
+									if (!isset($docAccess) || !is_array($docAccess) || !isset($docAccess['users']) || !isset($docAccess['groups'])) {
+										$docAccess = array('users' => array(), 'groups' => array());
+									}
 
-					$options = array();
-					foreach ($docAccess["groups"] as $grp) {
-						$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
-					}
-					$this->formField(
-						getMLText("individuals_in_groups"),
-						array(
-							'element' => 'select',
-							'name' => 'grpIndReviewers[]',
-							'id' => 'GrpIndReviewers',
-							'class' => 'chzn-select',
-							'attributes' => array(array('data-placeholder', getMLText('select_grp_ind_reviewers'))),
-							'multiple' => true,
-							'options' => $options
-						)
-					);
+									$mreviewers = getMandatoryReviewers($folder, null, $user);
 
-					/* List all mandatory groups of reviewers */
-					$tmp = array();
-					foreach ($mreviewers['g'] as $r) {
-						$u = $dms->getGroup($r);
-						$tmp[] = htmlspecialchars($u->getName());
-					}
-					$options = array();
-					foreach ($docAccess["groups"] as $grp) {
-						$option = array($grp->getID(), htmlspecialchars($grp->getName()), null);
-						if (in_array($grp->getId(), $mreviewers['g']))
-							$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('group_is_mandatory_reviewer')));
-						$options[] = $option;
-					}
-					$this->formField(
-						getMLText("groups"),
-						array(
-							'element' => 'select',
-							'name' => 'grpReviewers[]',
-							'class' => 'chzn-select',
-							'attributes' => array(array('data-placeholder', getMLText('select_grp_reviewers'))),
-							'multiple' => true,
-							'options' => $options
-						),
-						array('field_wrap' => array('', ($tmp ? '<div class="mandatories"><span>' . getMLText('mandatory_reviewergroups') . ':</span> ' . implode(', ', $tmp) . '</div>' : '')))
-					);
-					/* Check for mandatory reviewer group without access */
-					foreach ($mreviewers['ng'] as $r) {
-						$hasAccess = false;
-						foreach ($docAccess["groups"] as $grp) {
-							if ($r == $grp->getID())
-								$hasAccess = true;
-						}
-						if (!$hasAccess) {
-							$noAccessGroup = $dms->getGroup($r['reviewerGroupID']);
-							$this->warningMsg(getMLText("mandatory_reviewergroup_no_access", array('group' => htmlspecialchars($noAccessGroup->getName()))));
-						}
-					}
-					$this->contentContainerEnd();
-				}
+									/* List all mandatory reviewers */
+									$tmp = array();
+									foreach ($mreviewers['i'] as $r) {
+										$u = $dms->getUser($r);
+										$tmp[] = htmlspecialchars($u->getFullName() . ' (' . $u->getLogin() . ')');
+									}
 
-				$this->contentSubHeading(getMLText("assign_approvers"));
-				$this->contentContainerStart();
+									$options = array();
+									foreach ($docAccess["users"] as $usr) {
+										if (!$enablehiddenrevapp && $usr->isHidden())
+											continue;
+										if (!$enableselfrevapp && $usr->getID() == $user->getID())
+											continue;
 
-				$mapprovers = getMandatoryApprovers($folder, null, $user);
+										$option = array($usr->getID(), htmlspecialchars($usr->getLogin() . " - " . $usr->getFullName()), null);
+										if (in_array($usr->getId(), $mreviewers['i']))
+											$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('user_is_mandatory_reviewer')));
+										$options[] = $option;
+									}
+									$this->formField(
+										getMLText("individuals"),
+										array(
+											'element' => 'select',
+											'name' => 'indReviewers[]',
+											'class' => 'chzn-select',
+											'attributes' => array(array('data-placeholder', getMLText('select_ind_reviewers'))),
+											'multiple' => true,
+											'options' => $options
+										),
+										array('field_wrap' => array('', ($tmp ? '<div class="mandatories"><span>' . getMLText('mandatory_reviewers') . ':</span> ' . implode(', ', $tmp) . '</div>' : '')))
+									);
 
-				/* List all mandatory approvers */
-				$tmp = array();
-				foreach ($mapprovers['i'] as $r) {
-					$u = $dms->getUser($r);
-					$tmp[] = htmlspecialchars($u->getFullName() . ' (' . $u->getLogin() . ')');
-				}
+									/* Check for mandatory reviewer without access */
+									foreach ($mreviewers['ni'] as $r) {
+										$hasAccess = false;
+										foreach ($docAccess["users"] as $usr) {
+											if ($r == $usr->getID())
+												$hasAccess = true;
+										}
+										if (!$hasAccess) {
+											$noAccessUser = $dms->getUser($r);
+											$this->warningMsg(getMLText("mandatory_reviewer_no_access", array('user' => htmlspecialchars($noAccessUser->getFullName() . " (" . $noAccessUser->getLogin() . ")"))));
+										}
+									}
 
-				$options = array();
-				foreach ($docAccess["users"] as $usr) {
-					if (!$enablehiddenrevapp && $usr->isHidden())
-						continue;
-					if (!$enableselfrevapp && $usr->getID() == $user->getID())
-						continue;
+									$options = array();
+									foreach ($docAccess["groups"] as $grp) {
+										$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
+									}
+									$this->formField(
+										getMLText("individuals_in_groups"),
+										array(
+											'element' => 'select',
+											'name' => 'grpIndReviewers[]',
+											'id' => 'GrpIndReviewers',
+											'class' => 'chzn-select',
+											'attributes' => array(array('data-placeholder', getMLText('select_grp_ind_reviewers'))),
+											'multiple' => true,
+											'options' => $options
+										)
+									);
 
-					$option = array($usr->getID(), htmlspecialchars($usr->getLogin() . " - " . $usr->getFullName()), null);
-					if (in_array($usr->getId(), $mapprovers['i']))
-						$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('user_is_mandatory_approver')));
-					$options[] = $option;
-				}
-				$this->formField(
-					getMLText("individuals"),
-					array(
-						'element' => 'select',
-						'name' => 'indApprovers[]',
-						'class' => 'chzn-select',
-						'attributes' => array(array('data-placeholder', getMLText('select_ind_approvers'))),
-						'multiple' => true,
-						'options' => $options
-					),
-					array('field_wrap' => array('', ($tmp ? '<div class="mandatories"><span>' . getMLText('mandatory_approvers') . ':</span> ' . implode(', ', $tmp) . '</div>' : '')))
-				);
+									/* List all mandatory groups of reviewers */
+									$tmp = array();
+									foreach ($mreviewers['g'] as $r) {
+										$u = $dms->getGroup($r);
+										$tmp[] = htmlspecialchars($u->getName());
+									}
+									$options = array();
+									foreach ($docAccess["groups"] as $grp) {
+										$option = array($grp->getID(), htmlspecialchars($grp->getName()), null);
+										if (in_array($grp->getId(), $mreviewers['g']))
+											$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('group_is_mandatory_reviewer')));
+										$options[] = $option;
+									}
+									$this->formField(
+										getMLText("groups"),
+										array(
+											'element' => 'select',
+											'name' => 'grpReviewers[]',
+											'class' => 'chzn-select',
+											'attributes' => array(array('data-placeholder', getMLText('select_grp_reviewers'))),
+											'multiple' => true,
+											'options' => $options
+										),
+										array('field_wrap' => array('', ($tmp ? '<div class="mandatories"><span>' . getMLText('mandatory_reviewergroups') . ':</span> ' . implode(', ', $tmp) . '</div>' : '')))
+									);
+									/* Check for mandatory reviewer group without access */
+									foreach ($mreviewers['ng'] as $r) {
+										$hasAccess = false;
+										foreach ($docAccess["groups"] as $grp) {
+											if ($r == $grp->getID())
+												$hasAccess = true;
+										}
+										if (!$hasAccess) {
+											$noAccessGroup = $dms->getGroup($r['reviewerGroupID']);
+											$this->warningMsg(getMLText("mandatory_reviewergroup_no_access", array('group' => htmlspecialchars($noAccessGroup->getName()))));
+										}
+									}
+									$this->contentContainerEnd();
+								}
 
-				/* Check for mandatory approvers without access */
-				foreach ($mapprovers['ni'] as $r) {
-					$hasAccess = false;
-					foreach ($docAccess["users"] as $usr) {
-						if ($r == $usr->getID())
-							$hasAccess = true;
-					}
-					if (!$hasAccess) {
-						$noAccessUser = $dms->getUser($r);
-						$this->warningMsg(getMLText("mandatory_approver_no_access", array('user' => htmlspecialchars($noAccessUser->getFullName() . " (" . $noAccessUser->getLogin() . ")"))));
-					}
-				}
+								$this->contentSubHeading(getMLText("assign_approvers"));
+								$this->contentContainerStart();
 
-				$options = array();
-				foreach ($docAccess["groups"] as $grp) {
-					$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
-				}
-				$this->formField(
-					getMLText("individuals_in_groups"),
-					array(
-						'element' => 'select',
-						'name' => 'grpIndApprovers[]',
-						'id' => 'GrpIndApprovers',
-						'class' => 'chzn-select',
-						'attributes' => array(array('data-placeholder', getMLText('select_grp_ind_approvers'))),
-						'multiple' => true,
-						'options' => $options
-					)
-				);
+								$mapprovers = getMandatoryApprovers($folder, null, $user);
 
-				/* List all mandatory groups of approvers */
-				$tmp = array();
-				foreach ($mapprovers['g'] as $r) {
-					$u = $dms->getGroup($r);
-					$tmp[] = htmlspecialchars($u->getName());
-				}
+								/* List all mandatory approvers */
+								$tmp = array();
+								foreach ($mapprovers['i'] as $r) {
+									$u = $dms->getUser($r);
+									$tmp[] = htmlspecialchars($u->getFullName() . ' (' . $u->getLogin() . ')');
+								}
 
-				$options = array();
-				foreach ($docAccess["groups"] as $grp) {
-					$option = array($grp->getID(), htmlspecialchars($grp->getName()), null);
-					if (in_array($grp->getId(), $mapprovers['g']))
-						$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('group_is_mandatory_approver')));
-					$options[] = $option;
-				}
-				$this->formField(
-					getMLText("groups"),
-					array(
-						'element' => 'select',
-						'name' => 'grpApprovers[]',
-						'class' => 'chzn-select',
-						'attributes' => array(array('data-placeholder', getMLText('select_grp_approvers'))),
-						'multiple' => true,
-						'options' => $options
-					),
-					array('field_wrap' => array('', ($tmp ? '<div class="mandatories"><span>' . getMLText('mandatory_approvergroups') . ':</span> ' . implode(', ', $tmp) . '</div>' : '')))
-				);
+								$options = array();
+								foreach ($docAccess["users"] as $usr) {
+									if (!$enablehiddenrevapp && $usr->isHidden())
+										continue;
+									if (!$enableselfrevapp && $usr->getID() == $user->getID())
+										continue;
 
-				/* Check for mandatory approver groups without access */
-				foreach ($mapprovers['ng'] as $r) {
-					$hasAccess = false;
-					foreach ($docAccess["groups"] as $grp) {
-						if ($r == $grp->getID())
-							$hasAccess = true;
-					}
-					if (!$hasAccess) {
-						$noAccessGroup = $dms->getGroup($r);
-						$this->warningMsg(getMLText("mandatory_approvergroup_no_access", array('group' => htmlspecialchars($noAccessGroup->getName()))));
-					}
-				}
-				$this->contentContainerEnd();
-				$this->warningMsg(getMLText("add_doc_reviewer_approver_warning"));
-			} else {
-			}
+									$option = array($usr->getID(), htmlspecialchars($usr->getLogin() . " - " . $usr->getFullName()), null);
+									if (in_array($usr->getId(), $mapprovers['i']))
+										$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('user_is_mandatory_approver')));
+									$options[] = $option;
+								}
+								$this->formField(
+									getMLText("individuals"),
+									array(
+										'element' => 'select',
+										'name' => 'indApprovers[]',
+										'class' => 'chzn-select',
+										'attributes' => array(array('data-placeholder', getMLText('select_ind_approvers'))),
+										'multiple' => true,
+										'options' => $options
+									),
+									array('field_wrap' => array('', ($tmp ? '<div class="mandatories"><span>' . getMLText('mandatory_approvers') . ':</span> ' . implode(', ', $tmp) . '</div>' : '')))
+								);
 
-			if ($enablereceiptworkflow) {
-				$this->contentSubHeading(getMLText("assign_recipients"));
-				$this->contentContainerStart();
-				$options = array();
-				foreach ($docAccess["users"] as $usr) {
-					if (!$enableselfreceipt && $usr->getID() == $user->getID())
-						continue;
-					$options[] = array($usr->getID(), htmlspecialchars($usr->getLogin() . " - " . $usr->getFullName()));
-				}
-				$this->formField(
-					getMLText("individuals"),
-					array(
-						'element' => 'select',
-						'name' => 'indRecipients[]',
-						'id' => 'IndRecipient',
-						'class' => 'chzn-select',
-						'attributes' => array(array('data-placeholder', getMLText('select_ind_recipients')), array('data-no_results_text', getMLText('unknown_owner'))),
-						'multiple' => true,
-						'options' => $options
-					)
-				);
+								/* Check for mandatory approvers without access */
+								foreach ($mapprovers['ni'] as $r) {
+									$hasAccess = false;
+									foreach ($docAccess["users"] as $usr) {
+										if ($r == $usr->getID())
+											$hasAccess = true;
+									}
+									if (!$hasAccess) {
+										$noAccessUser = $dms->getUser($r);
+										$this->warningMsg(getMLText("mandatory_approver_no_access", array('user' => htmlspecialchars($noAccessUser->getFullName() . " (" . $noAccessUser->getLogin() . ")"))));
+									}
+								}
 
-				$options = array();
-				foreach ($docAccess["groups"] as $grp) {
-					$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
-				}
-				$this->formField(
-					getMLText("individuals_in_groups"),
-					array(
-						'element' => 'select',
-						'name' => 'grpIndRecipients[]',
-						'id' => 'GrpIndRecipient',
-						'class' => 'chzn-select',
-						'attributes' => array(array('data-placeholder', getMLText('select_grp_ind_recipients'))),
-						'multiple' => true,
-						'options' => $options
-					)
-				);
+								$options = array();
+								foreach ($docAccess["groups"] as $grp) {
+									$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
+								}
+								$this->formField(
+									getMLText("individuals_in_groups"),
+									array(
+										'element' => 'select',
+										'name' => 'grpIndApprovers[]',
+										'id' => 'GrpIndApprovers',
+										'class' => 'chzn-select',
+										'attributes' => array(array('data-placeholder', getMLText('select_grp_ind_approvers'))),
+										'multiple' => true,
+										'options' => $options
+									)
+								);
 
-				$options = array();
-				foreach ($docAccess["groups"] as $grp) {
-					$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
-				}
-				$this->formField(
-					getMLText("groups"),
-					array(
-						'element' => 'select',
-						'name' => 'grpRecipients[]',
-						'id' => 'GrpRecipient',
-						'class' => 'chzn-select',
-						'attributes' => array(array('data-placeholder', getMLText('select_grp_recipients')), array('data-no_results_text', getMLText('unknown_owner'))),
-						'multiple' => true,
-						'options' => $options
-					)
-				);
+								/* List all mandatory groups of approvers */
+								$tmp = array();
+								foreach ($mapprovers['g'] as $r) {
+									$u = $dms->getGroup($r);
+									$tmp[] = htmlspecialchars($u->getName());
+								}
 
-				$this->contentContainerEnd();
-			}
+								$options = array();
+								foreach ($docAccess["groups"] as $grp) {
+									$option = array($grp->getID(), htmlspecialchars($grp->getName()), null);
+									if (in_array($grp->getId(), $mapprovers['g']))
+										$option[] = array(array('disabled', 'disabled'), array('data-subtitle', getMLText('group_is_mandatory_approver')));
+									$options[] = $option;
+								}
+								$this->formField(
+									getMLText("groups"),
+									array(
+										'element' => 'select',
+										'name' => 'grpApprovers[]',
+										'class' => 'chzn-select',
+										'attributes' => array(array('data-placeholder', getMLText('select_grp_approvers'))),
+										'multiple' => true,
+										'options' => $options
+									),
+									array('field_wrap' => array('', ($tmp ? '<div class="mandatories"><span>' . getMLText('mandatory_approvergroups') . ':</span> ' . implode(', ', $tmp) . '</div>' : '')))
+								);
 
-			$this->columnEnd();
-			$this->rowEnd();
-			$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('add_document'));
-			?>
-		</form>
+								/* Check for mandatory approver groups without access */
+								foreach ($mapprovers['ng'] as $r) {
+									$hasAccess = false;
+									foreach ($docAccess["groups"] as $grp) {
+										if ($r == $grp->getID())
+											$hasAccess = true;
+									}
+									if (!$hasAccess) {
+										$noAccessGroup = $dms->getGroup($r);
+										$this->warningMsg(getMLText("mandatory_approvergroup_no_access", array('group' => htmlspecialchars($noAccessGroup->getName()))));
+									}
+								}
+								$this->contentContainerEnd();
+								$this->warningMsg(getMLText("add_doc_reviewer_approver_warning"));
+							} else {
+							}
+
+							if ($enablereceiptworkflow) {
+								$this->contentSubHeading(getMLText("assign_recipients"));
+								$this->contentContainerStart();
+								$options = array();
+								foreach ($docAccess["users"] as $usr) {
+									if (!$enableselfreceipt && $usr->getID() == $user->getID())
+										continue;
+									$options[] = array($usr->getID(), htmlspecialchars($usr->getLogin() . " - " . $usr->getFullName()));
+								}
+								$this->formField(
+									getMLText("individuals"),
+									array(
+										'element' => 'select',
+										'name' => 'indRecipients[]',
+										'id' => 'IndRecipient',
+										'class' => 'chzn-select',
+										'attributes' => array(array('data-placeholder', getMLText('select_ind_recipients')), array('data-no_results_text', getMLText('unknown_owner'))),
+										'multiple' => true,
+										'options' => $options
+									)
+								);
+
+								$options = array();
+								foreach ($docAccess["groups"] as $grp) {
+									$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
+								}
+								$this->formField(
+									getMLText("individuals_in_groups"),
+									array(
+										'element' => 'select',
+										'name' => 'grpIndRecipients[]',
+										'id' => 'GrpIndRecipient',
+										'class' => 'chzn-select',
+										'attributes' => array(array('data-placeholder', getMLText('select_grp_ind_recipients'))),
+										'multiple' => true,
+										'options' => $options
+									)
+								);
+
+								$options = array();
+								foreach ($docAccess["groups"] as $grp) {
+									$options[] = array($grp->getID(), htmlspecialchars($grp->getName()));
+								}
+								$this->formField(
+									getMLText("groups"),
+									array(
+										'element' => 'select',
+										'name' => 'grpRecipients[]',
+										'id' => 'GrpRecipient',
+										'class' => 'chzn-select',
+										'attributes' => array(array('data-placeholder', getMLText('select_grp_recipients')), array('data-no_results_text', getMLText('unknown_owner'))),
+										'multiple' => true,
+										'options' => $options
+									)
+								);
+
+								$this->contentContainerEnd();
+							}
+
+							$this->columnEnd();
+							$this->rowEnd();
+							$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('add_document'));
+							?>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
 		<?php
 		$txt = $this->callHook('addDocumentPostForm');
 		if (is_string($txt))

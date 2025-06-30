@@ -130,6 +130,7 @@ class SeedDMS_Theme_Style extends SeedDMS_View_Common
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/' . $this->theme . '/select2/css/select2-bootstrap.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/vendors/jqtree/jqtree.css" rel="stylesheet"/>' . "\n";
 		echo '<link href="' . $this->params['settings']->_httpRoot . 'views/' . $this->theme . '/styles/application.css" rel="stylesheet"/>' . "\n";
+		echo '<link href="' . $this->params['settings']->_httpRoot . 'styles/bootstrap/custom-dashboard.css" rel="stylesheet"/>' . "\n";
 		if ($this->extraheader['css'])
 			echo $this->extraheader['css'];
 		if (method_exists($this, 'css'))
@@ -3987,18 +3988,15 @@ HTML_CSS;
 <div class=\"progress\">
 <div class=\"bar bar-success\" style=\"width: " . round($rstat['1'] / $totalreceipts * 100) . "%;\">" . ($rstat['1'] ? $rstat['1'] . "/" . $totalreceipts : '') . ($allcomments['1'] ? " " . $this->printPopupBox('<i class="fa fa-comment"></i>', implode('<br />', formatComment($allcomments['1'])), true) : "") . "</div>
 	<div class=\"bar bar-danger\" style=\"width: " . round($rstat['-1'] / $totalreceipts * 100) . "%;\">" . ($rstat['-1'] ? $rstat['-1'] . "/" . $totalreceipts : '') . ($allcomments['-1'] ? " " . $this->printPopupBox('<i class="fa fa-comment"></i>', implode('<br />', formatComment($allcomments['-1'])), true) : "") . "</div>
+```
 </div>";
 				}
 			}
-			$content .= "</small></td>";
-			//				$content .= "<td>".$version."</td>";
+			$content .= "</td>\n";
+
 			$content .= "<td>";
 			$content .= $this->documentListRowAction($document, $previewer, $skipcont, $version, $extracontent);
-			$content .= "</td>";
-			if (!empty($extracontent['columns_last'])) {
-				foreach ($extracontent['columns_last'] as $col)
-					$content .= '<td>' . $col . '</td>';
-			}
+			$content .= "</td>\n";
 
 			if (!$skipcont)
 				$content .= $this->documentListRowEnd($document);
@@ -4007,562 +4005,285 @@ HTML_CSS;
 	} /* }}} */
 
 	/**
-	 * Start the row for a folder in list of documents and folders
+	 * Return HTML of a single row in the document list table
 	 *
-	 * This method creates the starting tr tag for a new table row containing
-	 * a folder list entry. The tr tag contains various attributes which are
-	 * used for removing the table line and to make drap&drop work.
-	 *
-	 * id=table-row-folder-<id> : used for identifying the row when removing the table
-	 *   row after deletion of the folder by clicking on the delete button in that table
-	 *   row.
-	 * data-droptarget=folder_<id> : identifies the folder represented by this row
-	 *   when it used as a target of the drag&drop operation.
-	 *   If an element (either a file or a dragged item) is dropped on this row, the
-	 *   data-droptarget will be evaluated to identify the underlying dms object.
-	 *   Dropping a file on a folder will upload that file into the folder. Droping
-	 *   an item (which is currently either a document or a folder) from the page will
-	 *   move that item into the folder.
-	 * rel=folder_<id> : This data is put into drag data when a drag starts. When the
-	 *   item is dropped on some other item this data will identify the source object.
-	 *   The attributes data-droptarget and rel are usually equal. At least there is
-	 *   currently no scenario where they are different.
-	 * formtoken=<token> : token made of key 'movefolder'
-	 *   formtoken is also placed in the drag data just like the value of attibute 'rel'.
-	 *   This is always set to a value made of 'movefolder'.
-	 * data-uploadformtoken=<token> : token made of key 'adddocument'
-	 * class=table-row-folder : The class must have a class named 'table-row-folder' in
-	 *   order to be draggable and to extract the drag data from the attributes 'rel' and
-	 *   'formtoken'
-	 *
-	 * @param object $folder
-	 * @return string starting tr tag for a table
+	 * @param object $document
+	 * @param object $previewer
+	 * @param boolean $skipcont set to true if embrasing tr shall be skipped
 	 */
-	function folderListRowStart($folder, $class = '')
-	{ /* {{{ */
-		return "<tr id=\"table-row-folder-" . $folder->getID() . "\" draggable=\"true\" data-droptarget=\"folder_" . $folder->getID() . "\" rel=\"folder_" . $folder->getID() . "\" class=\"folder table-row-folder droptarget" . ($class ? ' ' . $class : '') . "\" data-uploadformtoken=\"" . createFormKey('') . "\" formtoken=\"" . createFormKey('') . "\" data-name=\"" . htmlspecialchars($folder->getName(), ENT_QUOTES) . "\">";
-	} /* }}} */
-
-	function folderListRowEnd($folder)
-	{ /* {{{ */
-		return "</tr>\n";
-	} /* }}} */
-
-	function folderListRowAction($subFolder, $skipcont = false, $extracontent = array())
+	function documentListRow($document, $previewer, $skipcont = false, $version = 0, $extracontent = array())
 	{ /* {{{ */
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
-		//		$folder = $this->params['folder'];
 		$showtree = $this->params['showtree'];
-		$enableRecursiveCount = $this->params['enableRecursiveCount'];
-		$maxRecursiveCount = $this->params['maxRecursiveCount'];
+		$workflowmode = $this->params['workflowmode'];
+		$previewwidth = $this->params['previewWidthList'];
 		$enableClipboard = $this->params['enableclipboard'];
 		$accessop = $this->params['accessobject'];
 		$onepage = $this->params['onepage'];
 
 		$content = '';
-		$content .= "<div class=\"list-action\">";
-		$actions = array();
-		if (!empty($extracontent['begin_action_list']))
-			$content .= $extracontent['begin_action_list'];
-		$subFolderAccessMode = $subFolder->getAccessMode($user);
-		if ($accessop->check_view_access('RemoveFolder')) {
-			if ($subFolderAccessMode >= M_ALL) {
-				$actions['remove_folder'] = $this->printDeleteFolderButton($subFolder, 'splash_rm_folder', true);
-			} else {
-				$actions['remove_folder'] = '<span style="padding: 2px; color: #CCC;"><i class="fa fa-remove"></i></span>';
-			}
-		}
-		if ($accessop->check_view_access('EditFolder')) {
-			if ($subFolderAccessMode >= M_READWRITE) {
-				$actions['edit_folder'] = '<a class_="btn btn-mini" href="' . $this->params['settings']->_httpRoot . 'out/out.EditFolder.php?folderid=' . $subFolder->getID() . '" title="' . getMLText("edit_folder_props") . '"><i class="fa fa-edit"></i></a>';
-			} else {
-				$actions['edit_folder'] = '<span style="padding: 2px; color: #CCC;"><i class="fa fa-edit"></i></span>';
-			}
-		}
-		if ($subFolderAccessMode >= M_READWRITE) {
-			$actions['folder_access'] = $this->printAccessButton($subFolder, true);
-		}
-		if ($enableClipboard) {
-			$actions['add_to_clipboard'] = '<a class="addtoclipboard" rel="F' . $subFolder->getID() . '" msg="' . getMLText('splash_added_to_clipboard') . '" title="' . getMLText("add_to_clipboard") . '"><i class="fa fa-copy"></i></a>';
-		}
-		if ($onepage)
-			$actions['view_folder'] = '<a href="' . $this->params['settings']->_httpRoot . 'out/out.ViewFolder.php?folderid=' . $subFolder->getID() . '" title="' . getMLText("view_folder") . '"><i class="fa fa-eye"></i></a>';
 
-		/* Do not use $this->callHook() because $menuitems must be returned by the the
-		 * first hook and passed to next hook. $this->callHook() will just pass
-		 * the menuitems to each single hook. Hence, the last hook will win.
-		 */
-		$hookObjs = $this->getHookObjects();
-		foreach ($hookObjs as $hookObj) {
-			if (method_exists($hookObj, 'folderRowAction')) {
-				$actions = $hookObj->folderRowAction($this, $folder, $actions);
-			}
-		}
-
-		foreach ($actions as $action) {
-			if (is_string($action))
-				$content .= $action;
-		}
-
-		if (!empty($extracontent['end_action_list']))
-			$content .= $extracontent['end_action_list'];
-		$content .= "</div>";
-		return $content;
-	} /* }}} */
-
-	function folderListRowStatus($subFolder)
-	{ /* {{{ */
-		$dms = $this->params['dms'];
-		$user = $this->params['user'];
-		$showtree = $this->params['showtree'];
-		$enableRecursiveCount = $this->params['enableRecursiveCount'];
-		$maxRecursiveCount = $this->params['maxRecursiveCount'];
-
-		$content = "<div style=\"font-size: 85%;\">";
-		if ($enableRecursiveCount) {
-			if ($user->isAdmin()) {
-				/* No need to check for access rights in countChildren() for
-				 * admin. So pass 0 as the limit.
-				 */
-				$cc = $subFolder->countChildren($user, 0);
-				if ($cc['folder_count'])
-					$content .= '<i class="fa fa-folder" title="' . getMLText("folders") . '"></i> ' . $cc['folder_count'] . "<br />";
-				if ($cc['document_count'])
-					$content .= '<i class="fa fa-file" title="' . getMLText("documents") . '"></i> ' . $cc['document_count'];
-			} else {
-				$cc = $subFolder->countChildren($user, $maxRecursiveCount);
-				if ($maxRecursiveCount > 5000)
-					$rr = 100.0;
-				else
-					$rr = 10.0;
-				if ($cc['folder_count'])
-					$content .= '<i class="fa fa-folder" title="' . getMLText("folders") . '"></i> ' . (!$cc['folder_precise'] ? '~' . (round($cc['folder_count'] / $rr) * $rr) : $cc['folder_count']) . "<br />";
-				if ($cc['document_count'])
-					$content .= '<i class="fa fa-file" title="' . getMLText("documents") . '"></i> ' . (!$cc['document_precise'] ? '~' . (round($cc['document_count'] / $rr) * $rr) : $cc['document_count']);
-			}
-		} else {
-			/* FIXME: the following is very inefficient for just getting the number of
-			 * subfolders and documents. Making it more efficient is difficult, because
-			 * the access rights need to be checked.
-			 */
-			$subsub = $subFolder->getSubFolders();
-			$subsub = SeedDMS_Core_DMS::filterAccess($subsub, $user, M_READ);
-			$subdoc = $subFolder->getDocuments();
-			$subdoc = SeedDMS_Core_DMS::filterAccess($subdoc, $user, M_READ);
-			if (count($subsub))
-				$content .= '<i class="fa fa-folder" title="' . getMLText("folders") . '"></i> ' . count($subsub) . "<br />";
-			if (count($subdoc))
-				$content .= '<i class="fa fa-file" title="' . getMLText("documents") . '"></i> ' . count($subdoc);
-		}
-		$content .= "</div>";
-		return $content;
-	} /* }}} */
-
-	function folderListRow($subFolder, $skipcont = false, $extracontent = array())
-	{ /* {{{ */
-		$dms = $this->params['dms'];
-		$user = $this->params['user'];
-		//		$folder = $this->params['folder'];
-		$showtree = $this->params['showtree'];
-		$enableRecursiveCount = $this->params['enableRecursiveCount'];
-		$maxRecursiveCount = $this->params['maxRecursiveCount'];
-		$enableClipboard = $this->params['enableclipboard'];
-		$accessop = $this->params['accessobject'];
-		$onepage = $this->params['onepage'];
-
-		if (!$subFolder)
-			return '';
-
-		$owner = $subFolder->getOwner();
-		$comment = $subFolder->getComment();
+		$owner = $document->getOwner();
+		$comment = $document->getComment();
 		if (strlen($comment) > 150)
 			$comment = substr($comment, 0, 147) . "...";
+		$docID = $document->getID();
 
-		if ($ec = $this->callHook('folderListRowExtraContent', $subFolder))
-			$extracontent = array_merge($extracontent, $ec);
-
-		$content = '';
-		if (!$skipcont)
-			$content .= $this->folderListRowStart($subFolder);
-		$content .= "<td><a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $subFolder->getID() . "&showtree=" . $showtree . "\"><img draggable=\"false\" src=\"" . $this->getMimeIcon(".folder") . "\" width=\"24\" height=\"24\" border=0></a></td>\n";
-		if ($onepage)
-			$content .= "<td class=\"wordbreak\" style=\"cursor: pointer;\">" . "<b title=\"Id:" . $subFolder->getId() . "\">" . htmlspecialchars($subFolder->getName()) . "</b>";
-		else
-			$content .= "<td class=\"wordbreak\"><a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $subFolder->getID() . "&showtree=" . $showtree . "\">" . htmlspecialchars($subFolder->getName()) . "</a>";
-		if (isset($extracontent['below_title']))
-			$content .= $extracontent['below_title'];
-		$content .= "<br /><span style=\"font-size: 85%; font-style: italic; color: #666;\">" . getMLText('owner') . ": <b>" . htmlspecialchars($owner->getFullName()) . "</b>, " . getMLText('creation_date') . ": <b>" . getReadableDate($subFolder->getDate()) . "</b></span>";
-		if ($comment) {
-			$content .= "<br /><span style=\"font-size: 85%;\">" . htmlspecialchars($comment) . "</span>";
+		if ($version) {
+			$latestContent = $this->callHook('documentContent', $document, $version);
+			if ($latestContent === null)
+				$latestContent = $document->getContentByVersion($version);
+		} else {
+			$latestContent = $this->callHook('documentLatestContent', $document);
+			if ($latestContent === null)
+				$latestContent = $document->getLatestContent();
 		}
-		if (isset($extracontent['bottom_title']))
-			$content .= $extracontent['bottom_title'];
-		$content .= "</td>\n";
-		//		$content .= "<td>".htmlspecialchars($owner->getFullName())."</td>";
-		$content .= "<td colspan=\"1\" nowrap>";
-		$content .= $this->folderListRowStatus($subFolder);
-		$content .= "</td>";
-		$content .= "<td>";
-		$content .= $this->folderListRowAction($subFolder, $skipcont, $extracontent);
-		$content .= "</td>";
-		if (!$skipcont)
-			$content .= $this->folderListRowEnd($subFolder);
+
+		if ($latestContent) {
+			if (!$skipcont)
+				$content .= $this->documentListRowStart($document);
+
+			if ($previewer)
+				$previewer->createPreview($latestContent);
+			$version = $latestContent->getVersion();
+
+			if ($ec = $this->callHook('documentListRowExtraContent', $document, $latestContent))
+				$extracontent = array_merge($extracontent, $ec);
+
+			$content .= "<td>";
+			if (file_exists($dms->contentDir . $latestContent->getPath())) {
+				$previewhtml = $this->callHook('documentListPreview', $previewer, $document, $latestContent);
+				if (is_string($previewhtml))
+					$content .= $previewhtml;
+				else {
+					if ($accessop->check_controller_access('Download', array('action' => 'version')))
+						$content .= "<a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $docID . "&version=" . $version . "\">";
+					if ($previewer && $previewer->hasPreview($latestContent)) {
+						$content .= "<img draggable=\"false\" class=\"mimeicon\" width=\"" . $previewwidth . "\" src=\"" . $this->params['settings']->_httpRoot . "op/op.Preview.php?documentid=" . $document->getID() . "&version=" . $latestContent->getVersion() . "&width=" . $previewwidth . "\" title=\"" . htmlspecialchars($latestContent->getMimeType()) . "\">";
+					} else {
+						$content .= "<img draggable=\"false\" class=\"mimeicon\" width=\"" . $previewwidth . "\" src=\"" . $this->getMimeIcon($latestContent->getFileType()) . "\" " . ($previewwidth ? "width=\"" . $previewwidth . "\"" : "") . "\" title=\"" . htmlspecialchars($latestContent->getMimeType()) . "\">";
+					}
+					if ($accessop->check_controller_access('Download', array('action' => 'version')))
+						$content .= "</a>";
+				}
+			} else
+				$content .= "<img draggable=\"false\" class=\"mimeicon\" width=\"" . $previewwidth . "\" src=\"" . $this->getMimeIcon($latestContent->getFileType()) . "\" title=\"" . htmlspecialchars($latestContent->getMimeType()) . "\">";
+			$content .= "</td>";
+
+			$content .= "<td class=\"wordbreak\"" . ($onepage ? ' style="cursor: pointer;"' : '') . ">";
+			if ($onepage)
+				$content .= "<b" . ($onepage ? ' title="Id:' . $document->getId() . '"' : '') . ">" . htmlspecialchars($document->getName()) . "</b>";
+			else
+				$content .= "<a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewDocument.php?documentid=" . $docID . "&showtree=" . $showtree . "\">" . htmlspecialchars($document->getName()) . "</a>";
+			if (isset($extracontent['below_title']))
+				$content .= $extracontent['below_title'];
+			$content .= "<br />";
+			if ($belowtitle = $this->callHook('documentListRowBelowTitle', $document, $latestContent))
+				$content .= $belowtitle;
+			else
+				$content .= "<span style=\"font-size: 85%; font-style: italic; color: #666; \">" . getMLText('owner') . ": <b>" . htmlspecialchars($owner->getFullName()) . "</b>, " . getMLText('creation_date') . ": <b>" . getReadableDate($document->getDate()) . "</b>, " . getMLText('version') . " <b>" . $version . "</b> - <b>" . getReadableDate($latestContent->getDate()) . "</b>" . ($document->expires() ? ", " . getMLText('expires') . ": <b>" . getReadableDate($document->getExpires()) . "</b>" : "") . "</span>";
+			if ($comment) {
+				$content .= "<br /><span style=\"font-size: 85%;\">" . htmlspecialchars($comment) . "</span>";
+			}
+			if ($categories = $document->getCategories()) {
+				$content .= "<br />";
+				foreach ($categories as $category) {
+					$color = substr(md5($category->getName()), 0, 6);
+					$content .= "<span class=\"badge\" style=\"background-color: #" . $color . "; color: #" . self::getContrastColor($color) . ";\">" . htmlspecialchars($category->getName()) . "</span> ";
+				}
+			}
+			if (!empty($extracontent['bottom_title']))
+				$content .= $extracontent['bottom_title'];
+			$content .= "</td>\n";
+
+			if (!empty($extracontent['columns'])) {
+				foreach ($extracontent['columns'] as $col)
+					$content .= '<td>' . $col . '</td>';
+			}
+
+			$content .= "<td nowrap>";
+			$content .= $this->documentListRowStatus($latestContent);
+			if ($accessop->check_view_access($this, array('action' => 'receptionBar')) /*$owner->getID() == $user->getID()*/ && $receiptStatus = $latestContent->getReceiptStatus()) {
+				$rstat = array('-1' => 0, '0' => 0, '1' => 0, '-2' => 0);
+				$allcomments = array('-1' => array(), '1' => array());
+				foreach ($receiptStatus as $r) {
+					$rstat['' . $r['status']]++;
+					if ($r['comment']) {
+						//						$allcomments[''.$r['status']][] = htmlspecialchars($r['comment']);
+						$m5 = md5(trim($r['comment']));
+						if (isset($allcomments['' . $r['status']][$m5]))
+							$allcomments['' . $r['status']][$m5]['n']++;
+						else
+							$allcomments['' . $r['status']][$m5] = array('n' => 1, 'c' => htmlspecialchars(trim($r['comment'])));
+					}
+				}
+				$totalreceipts = $rstat['-1'] + $rstat['0'] + $rstat['1'];
+				if ($totalreceipts) {
+					$content .= "
+<div class=\"progress\">
+<div class=\"bar bar-success\" style=\"width: " . round($rstat['1'] / $totalreceipts * 100) . "%;\">" . ($rstat['1'] ? $rstat['1'] . "/" . $totalreceipts : '') . ($allcomments['1'] ? " " . $this->printPopupBox('<i class="fa fa-comment"></i>', implode('<br />', formatComment($allcomments['1'])), true) : "") . "</div>
+	<div class=\"bar bar-danger\" style=\"width: " . round($rstat['-1'] / $totalreceipts * 100) . "%;\">" . ($rstat['-1'] ? $rstat['-1'] . "/" . $totalreceipts : '') . ($allcomments['-1'] ? " " . $this->printPopupBox('<i class="fa fa-comment"></i>', implode('<br />', formatComment($allcomments['-1'])), true) : "") . "</div>
+```
+</div>";
+				}
+			}
+			$content .= "</td>\n";
+
+			$content .= "<td>";
+			$content .= $this->documentListRowAction($document, $previewer, $skipcont, $version, $extracontent);
+			$content .= "</td>\n";
+
+			if (!$skipcont)
+				$content .= $this->documentListRowEnd($document);
+		}
 		return $content;
 	} /* }}} */
 
-	function show()
+	/**
+	 * Return HTML of a single row in the document list table
+	 *
+	 * @param object $document
+	 * @param object $previewer
+	 * @param boolean $skipcont set to true if embrasing tr shall be skipped
+	 */
+	function documentListRow($document, $previewer, $skipcont = false, $version = 0, $extracontent = array())
 	{ /* {{{ */
-		parent::show();
-	} /* }}} */
-
-	function error()
-	{ /* {{{ */
-		parent::error();
 		$dms = $this->params['dms'];
 		$user = $this->params['user'];
-		$pagetitle = $this->params['pagetitle'];
-		$errormsg = $this->params['errormsg'];
-		$plain = $this->params['plain'];
-		$noexit = $this->params['noexit'];
-
-		if (!$plain) {
-			$this->htmlStartPage($pagetitle);
-			$this->globalNavigation();
-			$this->contentStart();
-		}
-
-		$html = '';
-		$html .= "<h4>" . getMLText('error') . "!</h4>";
-		$html .= htmlspecialchars($errormsg);
-		$this->errorMsg($html);
-		print "<div><button class=\"btn history-back\">" . getMLText('back') . "</button></div>";
-
-		$this->contentEnd();
-		$this->htmlEndPage();
-
-		add_log_line(" UI::exitError error=" . $errormsg . " pagetitle=" . $pagetitle, PEAR_LOG_ERR);
-
-		if ($noexit)
-			return;
-
-		exit;
-	} /* }}} */
-
-	/**
-	 * Return HTML Template for jumploader
-	 *
-	 * @param string $uploadurl URL where post data is send
-	 * @param integer $folderid id of folder where document is saved
-	 * @param integer $maxfiles maximum number of files allowed to upload
-	 * @param array $fields list of post fields
-	 */
-	function getFineUploaderTemplate()
-	{ /* {{{ */
-		return '
-<script type="text/template" id="qq-template">
-<div class="qq-uploader-selector qq-uploader" qq-drop-area-text="' . getMLText('drop_files_here') . '">
-	<div class="qq-total-progress-bar-container-selector qq-total-progress-bar-container">
-		<div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-total-progress-bar-selector qq-progress-bar qq-total-progress-bar"></div>
-		</div>
-	<div class="input-append">
-	<div class="qq-upload-drop-area-selector qq-upload-drop-area" _qq-hide-dropzone>
-		<span class="qq-upload-drop-area-text-selector"></span>
-	</div>
-	<span class="btn qq-upload-button-selector qq-upload-button">' . getMLText('browse') . '&hellip;</span>
-	</div>
-	<span class="qq-drop-processing-selector qq-drop-processing">
-		<span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
-	</span>
-	<ul class="qq-upload-list-selector qq-upload-list unstyled" aria-live="polite" aria-relevant="additions removals">
-		<li>
-			<div class="progress qq-progress-bar-container-selector">
-				<div class="bar qq-progress-bar-selector qq-progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-			</div>
-			<span class="qq-upload-spinner-selector qq-upload-spinner"></span>
-			<img class="qq-thumbnail-selector" qq-max-size="100" qq-server-scale>
-			<span class="qq-upload-file-selector qq-upload-file"></span>
-			<span class="qq-upload-size-selector qq-upload-size"></span>
-			<button class="btn btn-mini qq-btn qq-upload-cancel-selector qq-upload-cancel">Cancel</button>
-			<span role="status" class="qq-upload-status-text-selector qq-upload-status-text"></span>
-		</li>
-	</ul>
-	<dialog class="qq-alert-dialog-selector">
-		<div class="qq-dialog-message-selector"></div>
-		<div class="qq-dialog-buttons">
-			<button class="btn qq-cancel-button-selector">Cancel</button>
-		</div>
-	</dialog>
-
-	<dialog class="qq-confirm-dialog-selector">
-		<div class="qq-dialog-message-selector"></div>
-		<div class="qq-dialog-buttons">
-			<button class="btn qq-cancel-button-selector">Cancel</button>
-			<button class="btn qq-ok-button-selector">Ok</button>
-		</div>
-	</dialog>
-
-	<dialog class="qq-prompt-dialog-selector">
-		<div class="qq-dialog-message-selector"></div>
-		<input type="text">
-		<div class="qq-dialog-buttons">
-			<button class="btn qq-cancel-button-selector">Cancel</button>
-			<button class="btn qq-ok-button-selector">Ok</button>
-		</div>
-	</dialog>
-</div>
-</script>
-';
-	} /* }}} */
-
-	/**
-	 * Output HTML Code for Fine Uploader
-	 *
-	 * @param string $uploadurl URL where post data is send
-	 * @param integer $folderid id of folder where document is saved
-	 * @param integer $maxfiles maximum number of files allowed to upload
-	 * @param array $fields list of post fields
-	 */
-	function printFineUploaderHtml($prefix = 'userfile')
-	{ /* {{{ */
-		echo self::getFineUploaderHtml($prefix);
-	} /* }}} */
-
-	/**
-	 * Get HTML Code for Fine Uploader
-	 *
-	 * @param string $uploadurl URL where post data is send
-	 * @param integer $folderid id of folder where document is saved
-	 * @param integer $maxfiles maximum number of files allowed to upload
-	 * @param array $fields list of post fields
-	 */
-	function getFineUploaderHtml($prefix = 'userfile')
-	{ /* {{{ */
-		$html = '<div id="' . $prefix . '-fine-uploader"></div>
-		<input type="hidden" ' . ($prefix == 'userfile' ? 'class="do_validate" ' : '') . 'id="' . $prefix . '-fine-uploader-uuids" name="' . $prefix . '-fine-uploader-uuids" value="" />
-		<input type="hidden" id="' . $prefix . '-fine-uploader-names" name="' . $prefix . '-fine-uploader-names" value="" />';
-		return $html;
-	} /* }}} */
-
-	/**
-	 * Output Javascript Code for fine uploader
-	 *
-	 * @param string $uploadurl URL where post data is send
-	 * @param integer $folderid id of folder where document is saved
-	 * @param integer $maxfiles maximum number of files allowed to upload
-	 * @param array $fields list of post fields
-	 */
-	function printFineUploaderJs($uploadurl, $partsize = 0, $maxuploadsize = 0, $multiple = true, $prefix = 'userfile', $formname = 'form1')
-	{ /* {{{ */
-		?>
-		$(document).ready(function() {
-		<?php echo $prefix; ?>uploader = new qq.FineUploader({
-		debug: false,
-		autoUpload: false,
-		multiple: <?php echo ($multiple ? 'true' : 'false'); ?>,
-		element: $('#<?php echo $prefix; ?>-fine-uploader')[0],
-		template: 'qq-template',
-		request: {
-		endpoint: '<?php echo $uploadurl . "?formkey=" . md5($this->params['settings']->_encryptionKey . 'uploadchunks'); ?>'
-		},
-		<?php echo ($maxuploadsize > 0 ? '
-		validation: {
-			sizeLimit: ' . $maxuploadsize . '
-		},
-' : ''); ?>
-		chunking: {
-		enabled: true,
-		<?php echo $partsize ? 'partSize: ' . (int) $partsize . ",\n" : ''; ?>
-		mandatory: true
-		},
-		messages: {
-		sizeError: '{file} is too large, maximum file size is {sizeLimit}.'
-		},
-		callbacks: {
-		onComplete: function(id, name, json, xhr) {
-		},
-		onAllComplete: function(succeeded, failed) {
-		var uuids = Array();
-		var names = Array();
-		for (var i = 0; i < succeeded.length; i++) { uuids.push(this.getUuid(succeeded[i]))
-			names.push(this.getName(succeeded[i])) } $('#<?php echo $prefix; ?>-fine-uploader-uuids').val(uuids.join(';'));
-			$('#<?php echo $prefix; ?>-fine-uploader-names').val(names.join(';'));
-			/* Run upload only if all files could be uploaded */
-			if(succeeded.length > 0 && failed.length == 0)
-			document.getElementById('<?= $formname ?>').submit();
-			},
-			onError: function(id, name, reason, xhr) {
-			noty({
-			text: reason,
-			type: 'error',
-			dismissQueue: true,
-			layout: 'topRight',
-			theme: 'defaultTheme',
-			timeout: 3500,
-			});
-			}
-			}
-			});
-			});
-			<?php
-	} /* }}} */
-
-	/**
-	 * Output a protocol
-	 *
-	 * @param object $attribute attribute
-	 */
-	protected function printProtocol($latestContent, $type = "")
-	{ /* {{{ */
-		$dms = $this->params['dms'];
-		$document = $latestContent->getDocument();
+		$showtree = $this->params['showtree'];
+		$workflowmode = $this->params['workflowmode'];
+		$previewwidth = $this->params['previewWidthList'];
+		$enableClipboard = $this->params['enableclipboard'];
 		$accessop = $this->params['accessobject'];
-		?>
-			<legend><?php printMLText($type . '_log'); ?></legend>
-			<table class="table table-condensed">
-				<tr>
-					<th><?php printMLText('name'); ?></th>
-					<th><?php printMLText('last_update'); ?>, <?php printMLText('comment'); ?></th>
-					<th><?php printMLText('status'); ?></th>
-				</tr>
-				<?php
-				switch ($type) {
-					case "review":
-						$statusList = $latestContent->getReviewStatus(10);
-						break;
-					case "approval":
-						$statusList = $latestContent->getApprovalStatus(10);
-						break;
-					case "revision":
-						$statusList = $latestContent->getRevisionStatus(10);
-						break;
-					case "receipt":
-						$statusList = $latestContent->getReceiptStatus(10);
-						break;
-					default:
-						$statusList = array();
-				}
-				foreach ($statusList as $rec) {
-					echo "<tr>";
-					echo "<td>";
-					switch ($rec["type"]) {
-						case 0: // individual.
-							$required = $dms->getUser($rec["required"]);
-							if (!is_object($required)) {
-								$reqName = getMLText("unknown_user") . " '" . $rec["required"] . "'";
-							} else {
-								$reqName = htmlspecialchars($required->getFullName() . " (" . $required->getLogin() . ")");
-							}
-							break;
-						case 1: // Approver is a group.
-							$required = $dms->getGroup($rec["required"]);
-							if (!is_object($required)) {
-								$reqName = getMLText("unknown_group") . " '" . $rec["required"] . "'";
-							} else {
-								$reqName = "<i>" . htmlspecialchars($required->getName()) . "</i>";
-							}
-							break;
-					}
-					echo $reqName;
-					echo "</td>";
-					echo "<td>";
-					echo "<i style=\"font-size: 80%;\">" . getLongReadableDate($rec['date']) . " - ";
-					$updateuser = $dms->getUser($rec["userID"]);
-					if (!is_object($updateuser))
-						echo getMLText("unknown_user");
-					else
-						echo htmlspecialchars($updateuser->getFullName() . " (" . $updateuser->getLogin() . ")");
-					echo "</i>";
-					if ($rec['comment'])
-						echo "<br />" . htmlspecialchars($rec['comment']);
-					switch ($type) {
-						case "review":
-							if ($accessop->check_controller_access('Download', array('action' => 'review')))
-								if ($rec['file']) {
-									echo "<br />";
-									echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&reviewlogid=" . $rec['reviewLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
-								}
-							break;
-						case "approval":
-							if ($accessop->check_controller_access('Download', array('action' => 'approval')))
-								if ($rec['file']) {
-									echo "<br />";
-									echo "<a href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $document->getID() . "&approvelogid=" . $rec['approveLogID'] . "\" class=\"btn btn-mini\"><i class=\"fa fa-download\"></i> " . getMLText('download') . "</a>";
-								}
-							break;
-					}
-					echo "</td>";
-					echo "<td>";
-					switch ($type) {
-						case "review":
-							echo getReviewStatusText($rec["status"]);
-							break;
-						case "approval":
-							echo getApprovalStatusText($rec["status"]);
-							break;
-						case "revision":
-							echo getRevisionStatusText($rec["status"]);
-							break;
-						case "receipt":
-							echo getReceiptStatusText($rec["status"]);
-							break;
-						default:
-					}
-					echo "</td>";
-					echo "</tr>";
-				}
-				?>
-			</table>
-			<?php
-	} /* }}} */
+		$onepage = $this->params['onepage'];
 
-	protected function printWorkflowLog($wkflogs)
-	{ /* {{{ */
-		echo "<table class=\"table table-condensed table-sm\"><thead>";
-		echo "<th>" . getMLText('workflow') . "</th><th>" . getMLText('date') . "</th><th>" . getMLText('action') . "</th><th>" . getMLText('user') . "</th><th>" . getMLText('comment') . "</th></tr>\n";
-		echo "</thead><tbody>";
-		foreach ($wkflogs as $wkflog) {
-			echo "<tr>";
-			echo "<td>" . htmlspecialchars($wkflog->getWorkflow()->getName()) . "</td>";
-			echo "<td>" . getLongReadableDate($wkflog->getDate()) . "</td>";
-			echo "<td>" . htmlspecialchars(getMLText('action_' . strtolower($wkflog->getTransition()->getAction()->getName()), array(), $wkflog->getTransition()->getAction()->getName())) . "</td>";
-			$loguser = $wkflog->getUser();
-			echo "<td>" . htmlspecialchars($loguser->getFullName()) . "</td>";
-			echo "<td>" . htmlspecialchars($wkflog->getComment()) . "</td>";
-			echo "</tr>";
-		}
-		print "</tbody>\n</table>\n";
-	} /* }}} */
+		$content = '';
 
-	/**
-	 * Show progressbar
-	 *
-	 * @param double $value value
-	 * @param double $max 100% value
-	 */
-	protected function getProgressBar($value, $max = 100.0)
-	{ /* {{{ */
-		if ($max > $value) {
-			$used = (int) ($value / $max * 100.0 + 0.5);
-			$free = 100 - $used;
+		$owner = $document->getOwner();
+		$comment = $document->getComment();
+		if (strlen($comment) > 150)
+			$comment = substr($comment, 0, 147) . "...";
+		$docID = $document->getID();
+
+		if ($version) {
+			$latestContent = $this->callHook('documentContent', $document, $version);
+			if ($latestContent === null)
+				$latestContent = $document->getContentByVersion($version);
 		} else {
-			$free = 0;
-			$used = 100;
+			$latestContent = $this->callHook('documentLatestContent', $document);
+			if ($latestContent === null)
+				$latestContent = $document->getLatestContent();
 		}
-		$html = '
-		<div class="progress">
-			<div class="bar bar-danger" style="width: ' . $used . '%;"></div>
-		  <div class="bar bar-success" style="width: ' . $free . '%;"></div>
-		</div>';
-		return $html;
+
+		if ($latestContent) {
+			if (!$skipcont)
+				$content .= $this->documentListRowStart($document);
+
+			if ($previewer)
+				$previewer->createPreview($latestContent);
+			$version = $latestContent->getVersion();
+
+			if ($ec = $this->callHook('documentListRowExtraContent', $document, $latestContent))
+				$extracontent = array_merge($extracontent, $ec);
+
+			$content .= "<td>";
+			if (file_exists($dms->contentDir . $latestContent->getPath())) {
+				$previewhtml = $this->callHook('documentListPreview', $previewer, $document, $latestContent);
+				if (is_string($previewhtml))
+					$content .= $previewhtml;
+				else {
+					if ($accessop->check_controller_access('Download', array('action' => 'version')))
+						$content .= "<a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "op/op.Download.php?documentid=" . $docID . "&version=" . $version . "\">";
+					if ($previewer && $previewer->hasPreview($latestContent)) {
+						$content .= "<img draggable=\"false\" class=\"mimeicon\" width=\"" . $previewwidth . "\" src=\"" . $this->params['settings']->_httpRoot . "op/op.Preview.php?documentid=" . $document->getID() . "&version=" . $latestContent->getVersion() . "&width=" . $previewwidth . "\" title=\"" . htmlspecialchars($latestContent->getMimeType()) . "\">";
+					} else {
+						$content .= "<img draggable=\"false\" class=\"mimeicon\" width=\"" . $previewwidth . "\" src=\"" . $this->getMimeIcon($latestContent->getFileType()) . "\" " . ($previewwidth ? "width=\"" . $previewwidth . "\"" : "") . "\" title=\"" . htmlspecialchars($latestContent->getMimeType()) . "\">";
+					}
+					if ($accessop->check_controller_access('Download', array('action' => 'version')))
+						$content .= "</a>";
+				}
+			} else
+				$content .= "<img draggable=\"false\" class=\"mimeicon\" width=\"" . $previewwidth . "\" src=\"" . $this->getMimeIcon($latestContent->getFileType()) . "\" title=\"" . htmlspecialchars($latestContent->getMimeType()) . "\">";
+			$content .= "</td>";
+
+			$content .= "<td class=\"wordbreak\"" . ($onepage ? ' style="cursor: pointer;"' : '') . ">";
+			if ($onepage)
+				$content .= "<b" . ($onepage ? ' title="Id:' . $document->getId() . '"' : '') . ">" . htmlspecialchars($document->getName()) . "</b>";
+			else
+				$content .= "<a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewDocument.php?documentid=" . $docID . "&showtree=" . $showtree . "\">" . htmlspecialchars($document->getName()) . "</a>";
+			if (isset($extracontent['below_title']))
+				$content .= $extracontent['below_title'];
+			$content .= "<br />";
+			if ($belowtitle = $this->callHook('documentListRowBelowTitle', $document, $latestContent))
+				$content .= $belowtitle;
+			else
+				$content .= "<span style=\"font-size: 85%; font-style: italic; color: #666; \">" . getMLText('owner') . ": <b>" . htmlspecialchars($owner->getFullName()) . "</b>, " . getMLText('creation_date') . ": <b>" . getReadableDate($document->getDate()) . "</b>, " . getMLText('version') . " <b>" . $version . "</b> - <b>" . getReadableDate($latestContent->getDate()) . "</b>" . ($document->expires() ? ", " . getMLText('expires') . ": <b>" . getReadableDate($document->getExpires()) . "</b>" : "") . "</span>";
+			if ($comment) {
+				$content .= "<br /><span style=\"font-size: 85%;\">" . htmlspecialchars($comment) . "</span>";
+			}
+			if ($categories = $document->getCategories()) {
+				$content .= "<br />";
+				foreach ($categories as $category) {
+					$color = substr(md5($category->getName()), 0, 6);
+					$content .= "<span class=\"badge\" style=\"background-color: #" . $color . "; color: #" . self::getContrastColor($color) . ";\">" . htmlspecialchars($category->getName()) . "</span> ";
+				}
+			}
+			if (!empty($extracontent['bottom_title']))
+				$content .= $extracontent['bottom_title'];
+			$content .= "</td>\n";
+
+			if (!empty($extracontent['columns'])) {
+				foreach ($extracontent['columns'] as $col)
+					$content .= '<td>' . $col . '</td>';
+			}
+
+			$content .= "<td nowrap>";
+			$content .= $this->documentListRowStatus($latestContent);
+			if ($accessop->check_view_access($this, array('action' => 'receptionBar')) /*$owner->getID() == $user->getID()*/ && $receiptStatus = $latestContent->getReceiptStatus()) {
+				$rstat = array('-1' => 0, '0' => 0, '1' => 0, '-2' => 0);
+				$allcomments = array('-1' => array(), '1' => array());
+				foreach ($receiptStatus as $r) {
+					$rstat['' . $r['status']]++;
+					if ($r['comment']) {
+						//						$allcomments[''.$r['status']][] = htmlspecialchars($r['comment']);
+						$m5 = md5(trim($r['comment']));
+						if (isset($allcomments['' . $r['status']][$m5]))
+							$allcomments['' . $r['status']][$m5]['n']++;
+						else
+							$allcomments['' . $r['status']][$m5] = array('n' => 1, 'c' => htmlspecialchars(trim($r['comment'])));
+					}
+				}
+				$totalreceipts = $rstat['-1'] + $rstat['0'] + $rstat['1'];
+				if ($totalreceipts) {
+					$content .= "
+<div class=\"progress\">
+<div class=\"bar bar-success\" style=\"width: " . round($rstat['1'] / $totalreceipts * 100) . "%;\">" . ($rstat['1'] ? $rstat['1'] . "/" . $totalreceipts : '') . ($allcomments['1'] ? " " . $this->printPopupBox('<i class="fa fa-comment"></i>', implode('<br />', formatComment($allcomments['1'])), true) : "") . "</div>
+	<div class=\"bar bar-danger\" style=\"width: " . round($rstat['-1'] / $totalreceipts * 100) . "%;\">" . ($rstat['-1'] ? $rstat['-1'] . "/" . $totalreceipts : '') . ($allcomments['-1'] ? " " . $this->printPopupBox('<i class="fa fa-comment"></i>', implode('<br />', formatComment($allcomments['-1'])), true) : "") . "</div>
+```
+</div>";
+				}
+			}
+			$content .= "</td>\n";
+
+			$content .= "<td>";
+			$content .= $this->documentListRowAction($document, $previewer, $skipcont, $version, $extracontent);
+			$content .= "</td>\n";
+
+			if (!$skipcont)
+				$content .= $this->documentListRowEnd($document);
+		}
+		return $content;
 	} /* }}} */
 
 	/**
-	 * Output a timeline for a document
+	 * Return HTML of a single row in the document list table
 	 *
-	 * @param object $document document
+	 * @param object $document
+	 * @param object $previewer
+	 * @param boolean $skipcont set to true if embrasing tr shall be skipped
 	 */
-	protected function printTimelineJs($timelineurl, $height = 300, $start = '', $end = '', $skip = array(), $onselect = "")
+	function documentListRow($document, $previewer, $skipcont = false, $version = 0, $extracontent = array())
 	{ /* {{{ */
 		if (!$timelineurl)
 			return;

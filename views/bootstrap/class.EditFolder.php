@@ -63,80 +63,89 @@ $(document).ready(function() {
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation($this->getFolderPathHTML($folder, true), "view_folder", $folder);
-		$this->contentHeading(getMLText("edit_folder_props"));
 ?>
-<form class="form-horizontal" action="../op/op.EditFolder.php" id="form1" name="form1" method="post">
-		<?php echo createHiddenFieldWithKey('editfolder'); ?>
-		<input type="hidden" name="folderid" value="<?php print $folder->getID();?>">
-		<input type="hidden" name="showtree" value="<?php echo showtree();?>">
-<?php
-		$this->contentContainerStart();
-		$this->formField(
-			getMLText("name"),
-			array(
-				'element'=>'input',
-				'type'=>'text',
-				'name'=>'name',
-				'value'=>htmlspecialchars($folder->getName()),
-				'required'=>true
-			)
-		);
-		if(!$nofolderformfields || !in_array('comment', $nofolderformfields)) {
-			$this->formField(
-				getMLText("comment"),
-				array(
-					'element'=>'textarea',
-					'name'=>'comment',
-					'rows'=>4,
-					'cols'=>80,
-					'value'=>htmlspecialchars($folder->getComment()),
-					'required'=>$strictformcheck
-				)
-			);
-		} else {
-			$this->formField(
-				null,
-				array(
-					'element'=>'input',
-					'type'=>'hidden',
-					'name'=>'comment',
-					'value'=>htmlspecialchars($folder->getComment()),
-				)
-			);
-		}
-		$parent = ($folder->getID() == $rootfolderid) ? false : $folder->getParent();
-		if(!$nofolderformfields || !in_array('sequence', $nofolderformfields)) {
-			if ($parent && $parent->getAccessMode($user) > M_READ) {
-				$this->formField(getMLText("sequence"), $this->getSequenceChooser($parent, 'f', $folder->getID()).($orderby != 's' ? "<br />".getMLText('order_by_sequence_off') : ''));
-			}
-		}
-		if($attrdefs) {
-			foreach($attrdefs as $attrdef) {
-				$arr = $this->callHook('editFolderAttribute', $folder, $attrdef);
-				if(is_array($arr)) {
-					if($arr) {
-						$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
-					}
-				} elseif(is_string($arr)) {
-					echo $arr;
-				} else {
-					$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, $folder->getAttribute($attrdef)));
-				}
-			}
-		}
-		$arrs = $this->callHook('addFolderAttributes', $folder);
-		if(is_array($arrs)) {
-			foreach($arrs as $arr) {
-				$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
-			}
-		} elseif(is_string($arrs)) {
-			echo $arrs;
-		}
-		$this->contentContainerEnd();
-		$this->formSubmit("<i class=\"fa fa-save\"></i> ".getMLText('save'));
-?>
-</form>
+<div class="dashboard-main-content-wrapper" style="min-height: 80vh;">
+  <div class="dashboard-card-container" style="width: 100%; margin: 0;">
+    <div class="card" style="width: 100%;">
+      <div class="card-body">
+        <?php $this->contentHeading(getMLText("edit_folder_props")); ?>
+        <form class="form-horizontal" action="../op/op.EditFolder.php" id="form1" name="form1" method="post">
+          <?php echo createHiddenFieldWithKey('editfolder'); ?>
+          <input type="hidden" name="folderid" value="<?php print $folder->getID();?>">
+          <input type="hidden" name="showtree" value="<?php echo showtree();?>">
+          <?php
+          $this->contentContainerStart();
+          $this->formField(
+            getMLText("name"),
+            array(
+              'element'=>'input',
+              'type'=>'text',
+              'name'=>'name',
+              'value'=>htmlspecialchars($folder->getName()),
+              'required'=>true
+            )
+          );
+          if(!$nofolderformfields || !in_array('comment', $nofolderformfields)) {
+            $this->formField(
+              getMLText("comment"),
+              array(
+                'element'=>'textarea',
+                'name'=>'comment',
+                'rows'=>4,
+                'cols'=>80,
+                'value'=>htmlspecialchars($folder->getComment()),
+                'required'=>$strictformcheck
+              )
+            );
+          } else {
+            $this->formField(
+              null,
+              array(
+                'element'=>'input',
+                'type'=>'hidden',
+                'name'=>'comment',
+                'value'=>htmlspecialchars($folder->getComment()),
+              )
+            );
+          }
+          $parent = ($folder->getID() == $rootfolderid) ? false : $folder->getParent();
+          if(!$nofolderformfields || !in_array('sequence', $nofolderformfields)) {
+            if ($parent && $parent->getAccessMode($user) > M_READ) {
+              $this->formField(getMLText("sequence"), $this->getSequenceChooser($parent, 'f', $folder->getID()).($orderby != 's' ? "<br />".getMLText('order_by_sequence_off') : ''));
+            }
+          }
+          if($attrdefs) {
+            foreach($attrdefs as $attrdef) {
+              $arr = $this->callHook('editFolderAttribute', $folder, $attrdef);
+              if(is_array($arr)) {
+                if($arr) {
+                  $this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+                }
+              } elseif(is_string($arr)) {
+                echo $arr;
+              } else {
+                $this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, $folder->getAttribute($attrdef)));
+              }
+            }
+          }
+          $arrs = $this->callHook('addFolderAttributes', $folder);
+          if(is_array($arrs)) {
+            foreach($arrs as $arr) {
+              $this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+            }
+          } elseif(is_string($arrs)) {
+            echo $arrs;
+          }
+          $this->contentContainerEnd();
+          $this->formSubmit("<i class=\"fa fa-save\"></i> ".getMLText('save'));
+          ?>
+        </form>
+      </div> <!-- card-body -->
+    </div> <!-- card -->
+  </div> <!-- dashboard-card-container -->
+</div> <!-- dashboard-main-content-wrapper -->
 <?php
 		$this->contentEnd();
 		$this->htmlEndPage();

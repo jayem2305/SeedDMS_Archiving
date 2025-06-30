@@ -64,6 +64,7 @@ class SeedDMS_View_AddSubFolder extends SeedDMS_Theme_Style
 		$this->htmlStartPage(getMLText("folder_title", array("foldername" => htmlspecialchars($folder->getName()))));
 		$this->globalNavigation($folder);
 		$this->contentStart();
+		$this->pageSidebar();
 		$this->pageNavigation($this->getFolderPathHTML($folder, true), "view_folder", $folder);
 		/*
 																						  ?>
@@ -72,93 +73,100 @@ class SeedDMS_View_AddSubFolder extends SeedDMS_Theme_Style
 																								   */
 		$this->contentHeading(getMLText("add_subfolder"));
 		?>
+		<div class="dashboard-main-content-wrapper" style="min-height: 80vh;">
+			<div class="dashboard-card-container" style="width: 100%; margin: 0;">
+				<div class="card" style="width: 100%;">
+					<div class="card-body">
+						<form class="form-horizontal" action="../op/op.AddSubFolder.php" id="form1" name="form1" method="post">
+							<?php echo createHiddenFieldWithKey('addsubfolder'); ?>
+							<input type="hidden" name="folderid" value="<?php print $folder->getId(); ?>">
+							<input type="hidden" name="showtree" value="<?php echo showtree(); ?>">
+							<?php
+							$this->contentContainerStart();
+							$this->formField(
+								getMLText("name"),
+								array(
+									'element' => 'input',
+									'type' => 'text',
+									'id' => 'name',
+									'name' => 'name',
+									'required' => true
+								)
+							);
+							if (!$nofolderformfields || !in_array('comment', $nofolderformfields))
+								$this->formField(
+									getMLText("comment"),
+									array(
+										'element' => 'textarea',
+										'name' => 'comment',
+										'rows' => 4,
+										'cols' => 80,
+										'required' => $strictformcheck
+									)
+								);
+							if (!$nofolderformfields || !in_array('sequence', $nofolderformfields)) {
+								$this->formField(getMLText("sequence"), $this->getSequenceChooser($folder, 'f') . ($orderby != 's' ? "<br />" . getMLText('order_by_sequence_off') : ''));
+							} else {
+								$minmax = $folder->getFoldersMinMax();
+								if ($this->params['defaultposition'] == 'start') {
+									$seq = $minmax['min'] - 1;
+								} else {
+									$seq = $minmax['max'] + 1;
+								}
+								$this->formField(
+									null,
+									array(
+										'element' => 'input',
+										'type' => 'hidden',
+										'name' => 'sequence',
+										'value' => (string) $seq,
+									)
+								);
+							}
 
-		<form class="form-horizontal" action="../op/op.AddSubFolder.php" id="form1" name="form1" method="post">
-			<?php echo createHiddenFieldWithKey('addsubfolder'); ?>
-			<input type="hidden" name="folderid" value="<?php print $folder->getId(); ?>">
-			<input type="hidden" name="showtree" value="<?php echo showtree(); ?>">
-			<?php
-			$this->contentContainerStart();
-			$this->formField(
-				getMLText("name"),
-				array(
-					'element' => 'input',
-					'type' => 'text',
-					'id' => 'name',
-					'name' => 'name',
-					'required' => true
-				)
-			);
-			if (!$nofolderformfields || !in_array('comment', $nofolderformfields))
-				$this->formField(
-					getMLText("comment"),
-					array(
-						'element' => 'textarea',
-						'name' => 'comment',
-						'rows' => 4,
-						'cols' => 80,
-						'required' => $strictformcheck
-					)
-				);
-			if (!$nofolderformfields || !in_array('sequence', $nofolderformfields)) {
-				$this->formField(getMLText("sequence"), $this->getSequenceChooser($folder, 'f') . ($orderby != 's' ? "<br />" . getMLText('order_by_sequence_off') : ''));
-			} else {
-				$minmax = $folder->getFoldersMinMax();
-				if ($this->params['defaultposition'] == 'start') {
-					$seq = $minmax['min'] - 1;
-				} else {
-					$seq = $minmax['max'] + 1;
-				}
-				$this->formField(
-					null,
-					array(
-						'element' => 'input',
-						'type' => 'hidden',
-						'name' => 'sequence',
-						'value' => (string) $seq,
-					)
-				);
-			}
+							$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_folder, SeedDMS_Core_AttributeDefinition::objtype_all));
+							if ($attrdefs) {
+								foreach ($attrdefs as $attrdef) {
+									/* The second parameter is null, to make this function call equal
+									 * to 'editFolderAttribute', which expects the folder as the second
+									 * parameter.
+									 */
+									$arr = $this->callHook('addFolderAttribute', null, $attrdef);
+									if (is_array($arr)) {
+										if ($arr) {
+											$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+										}
+									} elseif (is_string($arr)) {
+										echo $arr;
+									} else {
+										$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, ''));
+									}
+								}
+							}
+							/* The second parameter is null, to make this function call equal
+							 * to 'editFolderAttributes', which expects the folder as the second
+							 * parameter.
+							 */
+							$arrs = $this->callHook('addFolderAttributes', null);
+							if (is_array($arrs)) {
+								foreach ($arrs as $arr) {
+									$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
+								}
+							} elseif (is_string($arrs)) {
+								echo $arrs;
+							}
 
-			$attrdefs = $dms->getAllAttributeDefinitions(array(SeedDMS_Core_AttributeDefinition::objtype_folder, SeedDMS_Core_AttributeDefinition::objtype_all));
-			if ($attrdefs) {
-				foreach ($attrdefs as $attrdef) {
-					/* The second parameter is null, to make this function call equal
-					 * to 'editFolderAttribute', which expects the folder as the second
-					 * parameter.
-					 */
-					$arr = $this->callHook('addFolderAttribute', null, $attrdef);
-					if (is_array($arr)) {
-						if ($arr) {
-							$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
-						}
-					} elseif (is_string($arr)) {
-						echo $arr;
-					} else {
-						$this->formField(htmlspecialchars($attrdef->getName()), $this->getAttributeEditField($attrdef, ''));
-					}
-				}
-			}
-			/* The second parameter is null, to make this function call equal
-			 * to 'editFolderAttributes', which expects the folder as the second
-			 * parameter.
-			 */
-			$arrs = $this->callHook('addFolderAttributes', null);
-			if (is_array($arrs)) {
-				foreach ($arrs as $arr) {
-					$this->formField($arr[0], $arr[1], isset($arr[2]) ? $arr[2] : null);
-				}
-			} elseif (is_string($arrs)) {
-				echo $arrs;
-			}
+							$this->contentContainerEnd();
 
-			$this->contentContainerEnd();
+							/* FIXME: add section for adding notifications like in AddDocument */
 
-			/* FIXME: add section for adding notifications like in AddDocument */
-
-			$this->formSubmit("<i class=\"fa fa-save\"></i> " . getMLText('add_subfolder'));
-			?>
-		</form>
+							$this->formSubmit("<i class=\"fa fa-save\"></i> ".getMLText('add_subfolder'));
+							?>
+						</form>
+					</div> <!-- card-body -->
+				</div> <!-- card -->
+			</div> <!-- dashboard-card-container -->
+		</div> <!-- dashboard-main-content-wrapper -->
 		<?php
 		$this->contentEnd();
 		$this->htmlEndPage();

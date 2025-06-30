@@ -102,7 +102,9 @@ $dashboardChartTypes = [
     'docsperstatus',
     'docsaccumulated',
 	'foldersperuser',
-    'sizeperuser'
+    'sizeperuser',
+    'sizepermonth',
+    'docspermimetype'
 ];
 
 if ($dms && method_exists($dms, 'getStatisticalData')) {
@@ -119,9 +121,19 @@ if ($dms && method_exists($dms, 'getStatisticalData')) {
                 unset($rec); // Unset reference
             }
             $allChartData[$chartType] = $dataForType;
+            
+            // Debug output for docspermimetype
+            if ($chartType == 'docspermimetype') {
+                error_log("Dashboard: docspermimetype data: " . print_r($dataForType, true));
+            }
         } else {
             // If no data, pass an empty array so the chart can display "No data"
             $allChartData[$chartType] = [];
+            
+            // Debug output for docspermimetype
+            if ($chartType == 'docspermimetype') {
+                error_log("Dashboard: docspermimetype returned false or empty");
+            }
         }
     }
 } else {
