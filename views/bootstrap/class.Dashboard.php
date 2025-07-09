@@ -985,10 +985,10 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		</script>
 EOT;
 
-
-		} /* }}} */
+		}
 		// Document Lists Section
-		echo '<div class="dashboard-document-lists-section" style="margin-top: 30px;">';
+		echo '<div class="dashboard-document-lists-section" style="margin-top: 30px; margin-left: 40px; max-width: calc(100% - 40px); overflow-x: hidden;">';
+
 		$this->contentHeading(getMLText("recent_activity", [], "Recent Activity"));
 		$this->rowStart();
 		$this->columnStart(4);
@@ -999,7 +999,7 @@ EOT;
 		echo '<h5 style="margin-bottom:10px;">' . htmlspecialchars(getMLText('updated_documents', [], 'Updated Documents')) . '</h5>';
 		echo '<div class="ajax well well-small" data-view="Dashboard" data-action="updateddocuments" style="min-height: 150px; max-height:300px; overflow-y:auto; padding:10px;"><p class="text-center text-muted" style="padding-top: 50px;">' . htmlspecialchars(getMLText('loading_data', [], 'Loading...')) . '</p></div>';
 		$this->columnEnd();
-		$this->columnStart(4);
+		$this->columnStart(3);
 		echo '<h5 style="margin-bottom:10px;">' . htmlspecialchars(getMLText('status_change', [], 'Status Changes')) . '</h5>';
 		echo '<div class="ajax well well-small" data-view="Dashboard" data-action="status" style="min-height: 150px; max-height:300px; overflow-y:auto; padding:10px;"><p class="text-center text-muted" style="padding-top: 50px;">' . htmlspecialchars(getMLText('loading_data', [], 'Loading...')) . '</p></div>';
 		$this->columnEnd();
@@ -1010,5 +1010,7 @@ EOT;
 
 		$this->contentEnd();
 		$this->htmlEndPage();
+		/* }}} */
+
 	}
 }
