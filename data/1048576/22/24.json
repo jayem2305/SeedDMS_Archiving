@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "487643508637",
+    "project_id": "caffeinateme-766b5",
+    "storage_bucket": "caffeinateme-766b5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487643508637:android:2b32df59738edc03758974",
+        "android_client_info": {
+          "package_name": "com.example.caffeinateme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4UP-cmJEBXn_G2HydPiYmzODXKWY2jnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

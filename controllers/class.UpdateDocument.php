@@ -56,6 +56,28 @@ class SeedDMS_Controller_UpdateDocument extends SeedDMS_Controller_Common {
 		$maxsizeforfulltext = $this->getParam('maxsizeforfulltext');
 		$initialdocumentstatus = $this->getParam('initialdocumentstatus');
 
+        // Helper to decrypt safely
+        function decryptIfEncrypted($base64, $key, $method) {
+            if (!$base64 || !base64_decode($base64, true)) return '';
+            $combined = base64_decode($base64);
+            $iv_length = openssl_cipher_iv_length($method);
+            if (strlen($combined) < $iv_length) return '';
+            $iv = substr($combined, 0, $iv_length);
+            $encrypted = substr($combined, $iv_length);
+            return trim(openssl_decrypt($encrypted, $method, $key, OPENSSL_RAW_DATA, $iv));
+        }
+
+        // Fetch the true old file name BEFORE any update
+        $encryption_method = 'AES-256-CBC';
+        $encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
+        $oldContent = $document->getLatestContent();
+        $oldFileNameEncrypted = $oldContent ? $oldContent->getOriginalFileName() : '';
+        $oldFileNameDecrypted = decryptIfEncrypted($oldFileNameEncrypted, $encryption_key, $encryption_method);
+        // If decryption fails but the original is not empty, use the original (plain text)
+        $oldFileNameForAudit = $oldFileNameDecrypted !== '' ? $oldFileNameDecrypted : $oldFileNameEncrypted;
+        $oldexpires = $document->getExpires();
+
+		// --- Document update logic ---
 		$result = null; // Initialize $result with a default value
 		$content = $this->callHook('updateDocument');
 		if($content === null) {
@@ -109,50 +131,37 @@ class SeedDMS_Controller_UpdateDocument extends SeedDMS_Controller_Common {
 		if(false === $this->callHook('postUpdateDocument', $document, $content)) {
 		}
 
-		// --- Audit log: log document update ---
+        // --- Audit log: log document update ---
         try {
             $db = $dms->getDB();
             $documentId = $document->getId();
             $username = $user->getLogin();
             $now = date('Y-m-d H:i:s');
 
-            // Encryption setup
-            $encryption_method = 'AES-256-CBC';
-            $encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
-
-            // Helper to decrypt safely
-            function decryptIfEncrypted($base64, $key, $method) {
-                if (!$base64 || !base64_decode($base64, true)) return '';
-                $combined = base64_decode($base64);
-                $iv_length = openssl_cipher_iv_length($method);
-                if (strlen($combined) < $iv_length) return '';
-                $iv = substr($combined, 0, $iv_length);
-                $encrypted = substr($combined, $iv_length);
-                return trim(openssl_decrypt($encrypted, $method, $key, OPENSSL_RAW_DATA, $iv));
-            }
+            // Use the old file name fetched BEFORE the update
+            // Fetch the new file name AFTER the update
+            $newContent = $document->getLatestContent();
+            $newFileNameEncrypted = $newContent ? $newContent->getOriginalFileName() : '';
+            $newFileNameDecrypted = decryptIfEncrypted($newFileNameEncrypted, $encryption_key, $encryption_method);
+            $newexpires = $document->getExpires();
 
             $oldValues = [];
             $newValues = [];
 
             // 1. File name change
             if ($userfilename) {
-                $latestContent = $document->getLatestContent();
-                if($latestContent) {
-                    $oldFileName = decryptIfEncrypted($latestContent->getOriginalFileName(), $encryption_key, $encryption_method);
-                    $newFileName = trim((string)$userfilename);
-                    if ($oldFileName !== $newFileName) {
-                        $oldValues[] = "File:\n" . $oldFileName;
-                        $newValues[] = "File:\n" . $newFileName;
-                    }
+                $newFileName = trim((string)$userfilename);
+                if ($oldFileNameForAudit !== $newFileName) {
+                    $oldValues[] = "File:\n" . $oldFileNameForAudit;
+                    $newValues[] = "File:\n" . $newFileName;
                 }
             }
 
             // 2. Expiration change
             if ($this->hasParam('expires')) {
-                $oldExp = $document->getExpires();
                 $newExp = $this->getParam('expires');
-                if ($oldExp != $newExp) {
-                    $oldValues[] = "Expiration:\n" . ($oldExp ? date('Y-m-d', $oldExp) : 'Does not expire');
+                if ($oldexpires != $newExp) {
+                    $oldValues[] = "Expiration:\n" . ($oldexpires ? date('Y-m-d', $oldexpires) : 'Does not expire');
                     $newValues[] = "Expiration:\n" . ($newExp ? date('Y-m-d', $newExp) : 'Does not expire');
                 }
             }
@@ -229,7 +238,6 @@ class SeedDMS_Controller_UpdateDocument extends SeedDMS_Controller_Common {
                 // Insert into audit_logs
                 $query = "INSERT INTO audit_logs (document_id, created_at, user, old_value, new_value) VALUES (" .
                     intval($documentId) . ", $time_esc, $username_esc, $oldValues_esc, $newValues_esc)";
-
                 $result = $db->getResult($query);
                 if (!$result) {
                     error_log('Audit log insert failed (update document): ' . $db->getErrorMsg());
@@ -239,6 +247,7 @@ class SeedDMS_Controller_UpdateDocument extends SeedDMS_Controller_Common {
             error_log('Audit log exception (update document): ' . $e->getMessage());
         }
         // --- End of Audit log ---
+
 
         return true;
     } /* }}} */
