@@ -159,13 +159,13 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 			}
 			$phpDataForType = $allChartDataPHP[$type];
 			$jsFormattedData = $this->getJsDataForChartType($type, $phpDataForType);
-			
+
 			// Debug output for docspermimetype
 			if ($type == 'docspermimetype') {
 				error_log("Dashboard View: docspermimetype PHP data: " . print_r($phpDataForType, true));
 				error_log("Dashboard View: docspermimetype JS formatted data: " . print_r($jsFormattedData, true));
 			}
-			
+
 			$jsChartDataArray[] = [
 				'type' => $type,
 				'data' => $jsFormattedData,
@@ -307,7 +307,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		$totalValue = 0;
 		if (!empty($currentChartDataForTable) && is_array($currentChartDataForTable)) {
 			foreach ($currentChartDataForTable as $item) {
-				$totalValue += isset($item['total']) ? (float)$item['total'] : 0;
+				$totalValue += isset($item['total']) ? (float) $item['total'] : 0;
 			}
 		}
 		// Output the total below the chart
@@ -317,7 +317,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 			if (in_array($chartType, ['sizepermonth'])) {
 				echo SeedDMS_Core_File::format_filesize($totalValue);
 			} else {
-				echo (int)$totalValue;
+				echo (int) $totalValue;
 			}
 			echo "</div>";
 		}
@@ -325,11 +325,11 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		// After rendering the chart and before the data table, build the legend HTML and inject it into the legend container
 		$legendHtml = "<div class='custom-legend' style='font-size:14px;'><b>Legend</b><ul style='list-style:none; padding-left:0;'>";
 		foreach ($currentChartDataForTable as $item) {
-			$grandTotal += isset($item['total']) ? (float)$item['total'] : 0;
+			$grandTotal += isset($item['total']) ? (float) $item['total'] : 0;
 		}
 		foreach ($currentChartDataForTable as $item) {
 			$label = isset($item['key']) ? htmlspecialchars($item['key']) : '';
-			$value = isset($item['total']) ? (float)$item['total'] : 0;
+			$value = isset($item['total']) ? (float) $item['total'] : 0;
 			$percent = ($grandTotal > 0) ? round(($value / $grandTotal) * 100) : 0;
 			if ($isPieChart) {
 				$legendHtml .= "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:#ccc;margin-right:6px;vertical-align:middle;'></span> $label: <b>$value</b> ($percent%)</li>";
@@ -628,7 +628,9 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		var monthNamesForFlot = <?php echo json_encode($monthNamesJs); ?>;
 
 		function pieLabelFormatter(label, series) {
-			return '<div style=\'font-size:10pt; line-height: 16px; text-align:center; padding:4px; color:black; background: white; border-radius: 5px; min-width:80px;\'>' + label + '<br />' + series.data[0][1] + ' (' + Math.round(series.percent) + '%)</div>';
+		return '<div style=\'font-size:10pt; line-height: 16px; text-align:center; padding:4px; color:black; background: white;
+			border-radius: 5px; min-width:80px;\'>' + label + '<br />' + series.data[0][1] + ' (' + Math.round(series.percent) +
+			'%)</div>';
 		}
 
 		var chartsToRender = allChartsDataFromPHP;
@@ -696,105 +698,115 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
 		}
 		});
-		} else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus' || chartInfo.type === 'foldersperuser' || chartInfo.type === 'sizeperuser' || chartInfo.type === 'docspermimetype' || chartInfo.type === 'docspercategory') {
+		} else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus' || chartInfo.type === 'foldersperuser'
+		|| chartInfo.type === 'sizeperuser' || chartInfo.type === 'docspermimetype' || chartInfo.type === 'docspercategory') {
 		flotDataSeries = phpStyleDataForChart;
 		// Check for only one data point
 		let isSingleSlice = false;
 		if (flotDataSeries.length === 1 && flotDataSeries[0].data && flotDataSeries[0].data.length === 1) {
-			isSingleSlice = true;
+		isSingleSlice = true;
 		}
 		if (chartInfo.type === 'docspermimetype') {
-			plotOptions.series = {
-				pie: {
-					show: true,
-					radius: 1,
-					label: {
-						show: false
-					},
-					combine: {
-						threshold: 0,
-						color: null
-					}
-				}
-			};
+		plotOptions.series = {
+		pie: {
+		show: true,
+		radius: 1,
+		label: {
+		show: false
+		},
+		combine: {
+		threshold: 0,
+		color: null
+		}
+		}
+		};
 		} else {
-			plotOptions.series = {
-				pie: {
-					show: true,
-					radius: 1,
-					label: {
-						show: true,
-						radius: 0.7,
-						formatter: function(label, series) {
-							return '<div style="font-size:12px;text-align:center;">' +
-								label + '<br>' +
-								series.data[0][1] + ' (' + Math.round(series.percent) + '%)</div>';
-						},
-						threshold: 0.01
-					},
-					combine: {
-						threshold: 0,
-						color: null
-					}
-				}
-			};
+		plotOptions.series = {
+		pie: {
+		show: true,
+		radius: 1,
+		label: {
+		show: true,
+		radius: 0.7,
+		formatter: function(label, series) {
+		return '<div style="font-size:12px;text-align:center;">' +
+			label + '<br>' +
+			series.data[0][1] + ' (' + Math.round(series.percent) + '%)</div>';
+		},
+		threshold: 0.01
+		},
+		combine: {
+		threshold: 0,
+		color: null
+		}
+		}
+		};
 		}
 		var legendContainer = $('#legend_container_' + chartInfo.type);
-		plotOptions.legend = legendContainer.length ? { show: true, container: legendContainer, labelBoxBorderColor: "none" } : { show: true, noColumns: 2, labelBoxBorderColor: "none" };
+		plotOptions.legend = legendContainer.length ? { show: true, container: legendContainer, labelBoxBorderColor: "none" } :
+		{ show: true, noColumns: 2, labelBoxBorderColor: "none" };
 		$(chartDivSelector).bind("plothover", function(event, pos, item) {
-			$("#chart_tooltip").hide();
-			if (item) {
-				$("#chart_tooltip").html(item.series.label + ": " + item.series.data[0][1] + " (" + Math.round(item.series.percent) + "%").css({ top: pos.pageY - 35, left: pos.pageX + 5 }).fadeIn(200);
-			}
+		$("#chart_tooltip").hide();
+		if (item) {
+		$("#chart_tooltip").html(item.series.label + ": " + item.series.data[0][1] + " (" + Math.round(item.series.percent) +
+		"%").css({ top: pos.pageY - 35, left: pos.pageX + 5 }).fadeIn(200);
+		}
 		});
 		}
 
 		if (flotDataSeries && Array.isArray(flotDataSeries) && flotDataSeries.length > 0) {
-			if (
-				chartInfo.type === 'docsperuser' ||
-				chartInfo.type === 'foldersperuser' ||
-				chartInfo.type === 'sizeperuser' ||
-				chartInfo.type === 'docspermimetype' ||
-				chartInfo.type === 'docspercategory' ||
-				chartInfo.type === 'docsperstatus'
-			) {
-				let hasActualData = flotDataSeries.some(series => series.data && series.data.length > 0 && series.data[0].length > 1 && series.data[0][1] > 0);
-				if (!hasActualData && flotDataSeries.length > 0) {
-					$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
-					return;
-				}
-			}
-			// Debug: Log the data being sent to Flot
-			console.log('Pie chart data for', chartInfo.type, JSON.stringify(flotDataSeries), plotOptions);
-			$.plot($(chartDivSelector), flotDataSeries, plotOptions);
+		if (
+		chartInfo.type === 'docsperuser' ||
+		chartInfo.type === 'foldersperuser' ||
+		chartInfo.type === 'sizeperuser' ||
+		chartInfo.type === 'docspermimetype' ||
+		chartInfo.type === 'docspercategory' ||
+		chartInfo.type === 'docsperstatus'
+		) {
+		let hasActualData = flotDataSeries.some(series => series.data && series.data.length > 0 && series.data[0].length > 1 &&
+		series.data[0][1] > 0);
+		if (!hasActualData && flotDataSeries.length > 0) {
+		$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+		return;
+		}
+		}
+		// Debug: Log the data being sent to Flot
+		console.log('Pie chart data for', chartInfo.type, JSON.stringify(flotDataSeries), plotOptions);
+		$.plot($(chartDivSelector), flotDataSeries, plotOptions);
 
-			// After each $.plot call in renderDashboardCharts, add:
-			if ($(chartDivSelector).length && $(chartDivSelector).data('plot')) {
-				var plot = $(chartDivSelector).data('plot');
-				var legendHtml = "<div class='custom-legend' style='font-size:14px;'><b>Legend</b><ul style='list-style:none; padding-left:0;'>";
+		// After each $.plot call in renderDashboardCharts, add:
+		if ($(chartDivSelector).length && $(chartDivSelector).data('plot')) {
+		var plot = $(chartDivSelector).data('plot');
+		var legendHtml = "<div class='custom-legend' style='font-size:14px;'><b>Legend</b>
+			<ul style='list-style:none; padding-left:0;'>";
 				var total = 0;
 				if (plot.getData) {
-					var data = plot.getData();
-					data.forEach(function(series) {
-						if (series.data && series.data.length > 0) {
-							total += series.data[0][1];
-						}
-					});
-					data.forEach(function(series) {
-						var color = series.color || '#ccc';
-						var label = series.label || '';
-						var value = (series.data && series.data.length > 0) ? series.data[0][1] : 0;
-						var percent = (total > 0) ? Math.round((value / total) * 100) : 0;
-						if (plot.getOptions().series.pie && plot.getOptions().series.pie.show) {
-							legendHtml += "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span> " + label + ": <b>" + value + "</b> (" + percent + "%)</li>";
-						} else {
-							legendHtml += "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span> " + label + ": <b>" + value + "</b></li>";
-						}
-					});
+				var data = plot.getData();
+				data.forEach(function(series) {
+				if (series.data && series.data.length > 0) {
+				total += series.data[0][1];
 				}
-				legendHtml += "</ul></div>";
-				$('#legend_container_' + chartInfo.type).html(legendHtml);
-			}
+				});
+				data.forEach(function(series) {
+				var color = series.color || '#ccc';
+				var label = series.label || '';
+				var value = (series.data && series.data.length > 0) ? series.data[0][1] : 0;
+				var percent = (total > 0) ? Math.round((value / total) * 100) : 0;
+				if (plot.getOptions().series.pie && plot.getOptions().series.pie.show) {
+				legendHtml += "<li style='margin-bottom:4px;'><span
+						style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span>
+					" + label + ": <b>" + value + "</b> (" + percent + "%)</li>";
+				} else {
+				legendHtml += "<li style='margin-bottom:4px;'><span
+						style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span>
+					" + label + ": <b>" + value + "</b></li>";
+				}
+				});
+				}
+				legendHtml += "</ul>
+		</div>";
+		$('#legend_container_' + chartInfo.type).html(legendHtml);
+		}
 		}
 		});
 		}
@@ -1186,9 +1198,10 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		</script>
 EOT;
 
-		echo '</div>'; // End charts-dashboard-container
+			echo '</div>'; // End charts-dashboard-container
+		}
+		echo '<div class="dashboard-document-lists-section" style="margin-top: 30px; margin-left: 25px; ">';
 
-		echo '<div class="dashboard-document-lists-section" style="margin-top: 30px;">';
 		$this->contentHeading(getMLText("recent_activity", [], "Recent Activity"));
 		$this->rowStart();
 		$this->columnStart(4);
@@ -1212,6 +1225,6 @@ EOT;
 		$this->htmlEndPage();
 		/* }}} */
 
+
 	}
-}
 }
