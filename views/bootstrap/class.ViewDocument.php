@@ -625,7 +625,12 @@ class SeedDMS_View_ViewDocument extends SeedDMS_Theme_Style
 								<?php
 								$ct = array();
 								foreach ($cats as $cat)
-									$ct[] = htmlspecialchars($cat->getName());
+									$encrypted_comment = $cat->getName();
+
+								// Decrypt before doing anything else
+								$decrypted = $this->decryptName($encrypted_comment, $encryption_key);
+
+								$ct[] = htmlspecialchars($decrypted);
 								echo implode(', ', $ct);
 								?>
 							</td>

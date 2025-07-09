@@ -620,36 +620,36 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		if (typeof $.plot === 'undefined') {
 		console.error("Flot library ($.plot) is not loaded.");
 		$('.chart').html("<p style='color:red; text-align:center;'>Error: Charting library not loaded.</p>");
-				return;
-			}
+		return;
+		}
 		var allChartsDataFromPHP =
 		<?php echo json_encode($jsChartDataArray, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_NUMERIC_CHECK); ?>;
 		var noDataMessage = <?php echo json_encode($noDataText); ?>;
 		var monthNamesForFlot = <?php echo json_encode($monthNamesJs); ?>;
 
 		function pieLabelFormatter(label, series) {
-				return '<div style=\'font-size:10pt; line-height: 16px; text-align:center; padding:4px; color:black; background: white; border-radius: 5px; min-width:80px;\'>\${label}<br />\${series.data[0][1]} (\${Math.round(series.percent)}%)</div>';
-			}
+			return '<div style=\'font-size:10pt; line-height: 16px; text-align:center; padding:4px; color:black; background: white; border-radius: 5px; min-width:80px;\'>' + label + '<br />' + series.data[0][1] + ' (' + Math.round(series.percent) + '%)</div>';
+		}
 
-			var chartsToRender = allChartsDataFromPHP;
-			if (containerSelector) {
-				// Only render the chart(s) in the given container
-				var id = containerSelector.replace('#', '');
-				chartsToRender = allChartsDataFromPHP.filter(function(chartInfo) {
-					return chartInfo.divId === id || $(containerSelector + ' .chart').length > 0;
-				});
-			}
+		var chartsToRender = allChartsDataFromPHP;
+		if (containerSelector) {
+		// Only render the chart(s) in the given container
+		var id = containerSelector.replace('#', '');
+		chartsToRender = allChartsDataFromPHP.filter(function(chartInfo) {
+		return chartInfo.divId === id || $(containerSelector + ' .chart').length > 0;
+		});
+		}
 
-			if (!chartsToRender || chartsToRender.length === 0) {
-				if (containerSelector) {
-					$(containerSelector + ' .chart').html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+		if (!chartsToRender || chartsToRender.length === 0) {
+		if (containerSelector) {
+		$(containerSelector + ' .chart').html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
 		} else {
-					$('.chart').html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
-				}
-				return;
-			}
+		$('.chart').html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+		}
+		return;
+		}
 
-			chartsToRender.forEach(function(chartInfo) {
+		chartsToRender.forEach(function(chartInfo) {
 		var chartDivSelector = "#" + chartInfo.divId;
 		var phpStyleDataForChart = chartInfo.data;
 
@@ -669,7 +669,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		};
 		var flotDataSeries = [];
 
-				if (["docspermonth", "sizepermonth"].includes(chartInfo.type)) {
+		if (["docspermonth", "sizepermonth"].includes(chartInfo.type)) {
 		flotDataSeries = [phpStyleDataForChart];
 		plotOptions.xaxis = { mode: "categories", tickLength: 0 };
 		plotOptions.series = { bars: { show: true, align: "center", barWidth: 0.8 } };
@@ -696,7 +696,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		top: item.pageY - 35, left: item.pageX + 5 }).fadeIn(200);
 		}
 		});
-		} else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus') {
+		} else if (chartInfo.type === 'docsperuser' || chartInfo.type === 'docsperstatus' || chartInfo.type === 'foldersperuser' || chartInfo.type === 'sizeperuser' || chartInfo.type === 'docspermimetype' || chartInfo.type === 'docspercategory') {
 		flotDataSeries = phpStyleDataForChart;
 		// Check for only one data point
 		let isSingleSlice = false;
@@ -750,50 +750,51 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		}
 
 		if (flotDataSeries && Array.isArray(flotDataSeries) && flotDataSeries.length > 0) {
-					if (
-						chartInfo.type === 'docsperuser' ||
-						chartInfo.type === 'foldersperuser' ||
-						chartInfo.type === 'sizeperuser' ||
-						chartInfo.type === 'docspermimetype' ||
-						chartInfo.type === 'docspercategory' ||
-						chartInfo.type === 'docsperstatus'
-					) {
-						let hasActualData = flotDataSeries.some(series => series.data && series.data.length > 0 && series.data[0].length > 1 && series.data[0][1] > 0);
-		if (!hasActualData && flotDataSeries.length > 0) {
-		$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
-		return;
-		}
-		}
-		// Debug: Log the data being sent to Flot
-		console.log('Pie chart data for', chartInfo.type, JSON.stringify(flotDataSeries), plotOptions);
-		$.plot($(chartDivSelector), flotDataSeries, plotOptions);
-
-		// After each $.plot call in renderDashboardCharts, add:
-		if ($(chartDivSelector).length && $(chartDivSelector).data('plot')) {
-			var plot = $(chartDivSelector).data('plot');
-			var legendHtml = "<div class='custom-legend' style='font-size:14px;'><b>Legend</b><ul style='list-style:none; padding-left:0;'>";
-			var total = 0;
-			if (plot.getData) {
-				var data = plot.getData();
-				data.forEach(function(series) {
-					if (series.data && series.data.length > 0) {
-						total += series.data[0][1];
-					}
-				});
-				data.forEach(function(series) {
-					var color = series.color || '#ccc';
-					var label = series.label || '';
-					var value = (series.data && series.data.length > 0) ? series.data[0][1] : 0;
-					var percent = (total > 0) ? Math.round((value / total) * 100) : 0;
-					if (plot.getOptions().series.pie && plot.getOptions().series.pie.show) {
-						legendHtml += "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span> " + label + ": <b>" + value + "</b> (" + percent + "%)</li>";
-					} else {
-						legendHtml += "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span> " + label + ": <b>" + value + "</b></li>";
-					}
-				});
+			if (
+				chartInfo.type === 'docsperuser' ||
+				chartInfo.type === 'foldersperuser' ||
+				chartInfo.type === 'sizeperuser' ||
+				chartInfo.type === 'docspermimetype' ||
+				chartInfo.type === 'docspercategory' ||
+				chartInfo.type === 'docsperstatus'
+			) {
+				let hasActualData = flotDataSeries.some(series => series.data && series.data.length > 0 && series.data[0].length > 1 && series.data[0][1] > 0);
+				if (!hasActualData && flotDataSeries.length > 0) {
+					$(chartDivSelector).html("<p style='text-align:center; padding-top:50px;'>" + noDataMessage + "</p>");
+					return;
+				}
 			}
-			legendHtml += "</ul></div>";
-			$('#legend_container_' + chartInfo.type).html(legendHtml);
+			// Debug: Log the data being sent to Flot
+			console.log('Pie chart data for', chartInfo.type, JSON.stringify(flotDataSeries), plotOptions);
+			$.plot($(chartDivSelector), flotDataSeries, plotOptions);
+
+			// After each $.plot call in renderDashboardCharts, add:
+			if ($(chartDivSelector).length && $(chartDivSelector).data('plot')) {
+				var plot = $(chartDivSelector).data('plot');
+				var legendHtml = "<div class='custom-legend' style='font-size:14px;'><b>Legend</b><ul style='list-style:none; padding-left:0;'>";
+				var total = 0;
+				if (plot.getData) {
+					var data = plot.getData();
+					data.forEach(function(series) {
+						if (series.data && series.data.length > 0) {
+							total += series.data[0][1];
+						}
+					});
+					data.forEach(function(series) {
+						var color = series.color || '#ccc';
+						var label = series.label || '';
+						var value = (series.data && series.data.length > 0) ? series.data[0][1] : 0;
+						var percent = (total > 0) ? Math.round((value / total) * 100) : 0;
+						if (plot.getOptions().series.pie && plot.getOptions().series.pie.show) {
+							legendHtml += "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span> " + label + ": <b>" + value + "</b> (" + percent + "%)</li>";
+						} else {
+							legendHtml += "<li style='margin-bottom:4px;'><span style='display:inline-block;width:12px;height:12px;background-color:" + color + ";margin-right:6px;vertical-align:middle;'></span> " + label + ": <b>" + value + "</b></li>";
+						}
+					});
+				}
+				legendHtml += "</ul></div>";
+				$('#legend_container_' + chartInfo.type).html(legendHtml);
+			}
 		}
 		});
 		}
@@ -818,7 +819,7 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 		if (is_array($mlMonthNames) && count($mlMonthNames) == 12)
 			$monthNamesJs = array_values($mlMonthNames);
 
-		
+
 		$enableDropUploadOnDashboard = $this->params['enableDropUploadOnDashboard'] ?? false;
 
 		$httpRootForLibs = $this->params['settings']->_httpRoot ?? '../';
@@ -910,27 +911,27 @@ class SeedDMS_View_Dashboard extends SeedDMS_Theme_Style
 			}
 			$colWidth = $numChartsInRow > 0 ? floor(12 / $numChartsInRow) : 12;
 
-		// Output a single container for the chart cards
-		$allChartTypes = $this->_dashboardChartTypes;
-		$jsChartDataArray = $this->prepareJsChartData();
-		$noDataText = getMLText('no_data_available', [], "No data available for this chart");
-		$monthNamesJs = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-		$mlMonthNames = getMLText("datetime_monthname_short");
-		if (is_array($mlMonthNames) && count($mlMonthNames) == 12)
-			$monthNamesJs = array_values($mlMonthNames);
+			// Output a single container for the chart cards
+			$allChartTypes = $this->_dashboardChartTypes;
+			$jsChartDataArray = $this->prepareJsChartData();
+			$noDataText = getMLText('no_data_available', [], "No data available for this chart");
+			$monthNamesJs = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+			$mlMonthNames = getMLText("datetime_monthname_short");
+			if (is_array($mlMonthNames) && count($mlMonthNames) == 12)
+				$monthNamesJs = array_values($mlMonthNames);
 
-		// Output a container for the chart cards
+			// Output a container for the chart cards
 
-		echo '<div class="charts-dashboard-container row" id="dashboard-charts-row"></div>';
+			echo '<div class="charts-dashboard-container row" id="dashboard-charts-row"></div>';
 
-		$jsAllChartTypes = json_encode($allChartTypes);
-		$jsChartData = json_encode($jsChartDataArray, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_NUMERIC_CHECK);
-		$jsNoDataText = json_encode($noDataText);
-		$jsMonthNames = json_encode($monthNamesJs);
-		$jsDashboardChartLayout = json_encode($dashboardChartLayout);
+			$jsAllChartTypes = json_encode($allChartTypes);
+			$jsChartData = json_encode($jsChartDataArray, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_NUMERIC_CHECK);
+			$jsNoDataText = json_encode($noDataText);
+			$jsMonthNames = json_encode($monthNamesJs);
+			$jsDashboardChartLayout = json_encode($dashboardChartLayout);
 
-		// Output the JS for rendering and swapping charts
-		echo <<<EOT
+			// Output the JS for rendering and swapping charts
+			echo <<<EOT
 		<script>
 		(function() {
 			var allChartTypes = $jsAllChartTypes;
@@ -1198,7 +1199,7 @@ EOT;
 		echo '<h5 style="margin-bottom:10px;">' . htmlspecialchars(getMLText('updated_documents', [], 'Updated Documents')) . '</h5>';
 		echo '<div class="ajax well well-small" data-view="Dashboard" data-action="updateddocuments" style="min-height: 150px; max-height:300px; overflow-y:auto; padding:10px;"><p class="text-center text-muted" style="padding-top: 50px;">' . htmlspecialchars(getMLText('loading_data', [], 'Loading...')) . '</p></div>';
 		$this->columnEnd();
-		$this->columnStart(4);
+		$this->columnStart(3);
 		echo '<h5 style="margin-bottom:10px;">' . htmlspecialchars(getMLText('status_change', [], 'Status Changes')) . '</h5>';
 		echo '<div class="ajax well well-small" data-view="Dashboard" data-action="status" style="min-height: 150px; max-height:300px; overflow-y:auto; padding:10px;"><p class="text-center text-muted" style="padding-top: 50px;">' . htmlspecialchars(getMLText('loading_data', [], 'Loading...')) . '</p></div>';
 		$this->columnEnd();
@@ -1209,6 +1210,8 @@ EOT;
 
 		$this->contentEnd();
 		$this->htmlEndPage();
-	} /* }}} */
+		/* }}} */
+
+	}
 }
 }
