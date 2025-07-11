@@ -31,7 +31,17 @@
  */
 class SeedDMS_View_DefaultKeywords extends SeedDMS_Theme_Style
 {
-
+	private function decryptName($encrypted_combined_base64, $key)
+	{
+		$data = base64_decode($encrypted_combined_base64);
+		if ($data === false || strlen($data) < 16) {
+			return '[INVALID NAME]';
+		}
+		$iv = substr($data, 0, 16);
+		$ciphertext = substr($data, 16);
+		$decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+		return $decrypted === false ? '[DECRYPTION FAILED]' : $decrypted;
+	}
 	function js()
 	{ /* {{{ */
 		header('Content-Type: application/javascript; charset=UTF-8');
@@ -159,10 +169,15 @@ class SeedDMS_View_DefaultKeywords extends SeedDMS_Theme_Style
 			?>
 			<?php
 			$lists = $category->getKeywordLists();
+			$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 			if (count($lists) == 0)
 				print getMLText("no_default_keywords");
 			else
 				foreach ($lists as $list) {
+					$decrypted_name = htmlspecialchars($this->decryptName(htmlspecialchars($list["keywords"]), $encryption_key));
+					if ($decrypted_name === '[INVALID NAME]' || $decrypted_name === '[DECRYPTION FAILED]') {
+						$decrypted_name = $list["keywords"];
+					}
 					?>
 					<form class="form-inline form formn mb-3" style="display: inline-block;" method="post"
 						action="../op/op.DefaultKeywords.php">
@@ -170,8 +185,9 @@ class SeedDMS_View_DefaultKeywords extends SeedDMS_Theme_Style
 						<input type="Hidden" name="categoryid" value="<?php echo $category->getID() ?>">
 						<input type="Hidden" name="keywordsid" value="<?php echo $list["id"] ?>">
 						<input type="Hidden" name="action" value="editkeywords">
+
 						<input name="keywords" class="keywords form-control" type="text"
-							value="<?php echo htmlspecialchars($list["keywords"]) ?>">
+							value="<?php echo htmlspecialchars($decrypted_name) ?>">
 						<button class="btn btn-primary btn-mini btn-sm" title="<?php echo getMLText("save") ?>"><i class="fa fa-save"></i>
 							<?php echo getMLText("save") ?></button>
 						<!--	 <input name="action" value="removekeywords" type="Image" src="images/del.gif" title="<?php echo getMLText("delete") ?>" border="0"> &nbsp; -->
@@ -181,7 +197,8 @@ class SeedDMS_View_DefaultKeywords extends SeedDMS_Theme_Style
 						<input type="hidden" name="categoryid" value="<?php echo $category->getID() ?>">
 						<input type="hidden" name="keywordsid" value="<?php echo $list["id"] ?>">
 						<input type="hidden" name="action" value="removekeywords">
-						<button class="btn btn-danger btn-mini btn-sm" title="<?php echo getMLText("delete") ?>"><i class="fa fa-remove"></i>
+						<button class="btn btn-danger btn-mini btn-sm" title="<?php echo getMLText("delete") ?>"><i
+								class="fa fa-remove"></i>
 							<?php echo getMLText("delete") ?></button>
 					</form>
 					<br>
