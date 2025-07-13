@@ -374,7 +374,7 @@ else if ($action == "edituser") {
 		$quota = (int) $_POST["quota"];
 	$name = $_POST["name"];
 	$email = $_POST["email"];
-	$comment = $_POST["comment"];
+	$comment = isset($_POST['comment']) ? trim($_POST['comment']) : '';
 	$theme = $_POST["theme"];
 	$role = $dms->getRole($_POST["role"]);
 	$isHidden = (isset($_POST["ishidden"]) && $_POST["ishidden"] == 1 ? 1 : 0);

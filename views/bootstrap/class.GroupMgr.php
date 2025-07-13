@@ -335,9 +335,9 @@ class SeedDMS_View_GroupMgr extends SeedDMS_Theme_Style
 				$encryption_key = 'b8c75fa53c0c7a18a84adb6ca815bd94';
 
 				foreach ($allUsers as $currUser) {
-					$getName = $this->maybeDecrypt($member->getFullName(), $encryption_key);
-					$getLogin = $this->maybeDecrypt($member->getLogin(), $encryption_key);
-					$getEmail = $this->maybeDecrypt($member->getEmail(), $encryption_key);
+					$getName = $this->maybeDecrypt($currUser->getFullName(), $encryption_key);
+					$getLogin = $this->maybeDecrypt($currUser->getLogin(), $encryption_key);
+					$getEmail = $this->maybeDecrypt($currUser->getEmail(), $encryption_key);
 					if (!$group->isMember($currUser))
 						$options[] = array($currUser->getID(), htmlspecialchars($getLogin . ' - ' . $getName), ($currUser->getID() == $user->getID()), array(array('data-subtitle', htmlspecialchars($getEmail))));
 				}

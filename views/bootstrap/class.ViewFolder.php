@@ -656,135 +656,151 @@ class SeedDMS_View_ViewFolder extends SeedDMS_Theme_Style
 		$this->contentStart();
 		$this->pageSidebar();
 		?>
-		<div class="dashboard-main-content-wrapper">
-			<div class="dashboard-card-container">
-				<div class="card">
-					<div class="card-body">
-						<div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
-						<?php
-						$this->rowStart();
-						$this->columnStart(12);
-						?>
-						<div class="ajax ajax-scroll" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
-						<div class="compiled-statusbar"></div>
-						<p class="num_of_uploads text-end text-secondary fs-4"></p>
-						<br>
-						<script>
-						document.addEventListener("DOMContentLoaded", function () {
-							const ajaxDiv = document.querySelector('.ajax-scroll');
-							const wrapper = document.querySelector('.compiled-statusbar');
-							const numupload = document.querySelector('.num_of_uploads');
-							if (!ajaxDiv || !wrapper || !numupload) return;
-
-							// Watch for new .statusbar elements added by AJAX
-							const observer = new MutationObserver((mutationsList) => {
-								let addedStatusbar = false;
-
-								mutationsList.forEach(mutation => {
-									mutation.addedNodes.forEach(node => {
-										if (node.classList && node.classList.contains('statusbar')) {
-											wrapper.appendChild(node);
-											addedStatusbar = true;
-										}
-									});
-								});
-
-								// Show wrapper and update count
-								if (addedStatusbar && wrapper.children.length > 0) {
-									wrapper.style.display = 'block';
-									numupload.style.display = 'block';
-									numupload.textContent = `Number of Uploaded Files: ${wrapper.querySelectorAll('.statusbar').length}`;
-								}
-							});
-
-							observer.observe(ajaxDiv, {
-								childList: true,
-								subtree: true
-							});
-						});
-						</script>
-						<?php
-						$this->columnEnd();
-						if (!($enableFolderTree || $enableClipboard)) {
-							$LeftColumnSpan = 0;
-							$RightColumnSpan = 12;
-						} else {
-							$LeftColumnSpan = 4;
-							$RightColumnSpan = 8;
-						}
-						if ($LeftColumnSpan > 0) {
-							$this->columnStart($LeftColumnSpan);
-							echo $this->callHook('leftContentPre');
-							if ($enableFolderTree) {
-								if ($showtree == 1) {
-									$this->contentHeading("<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=0\"><i class=\"fa fa-minus-circle\"></i></a>", true);
-									$this->contentContainerStart();
-									$this->printNewTreeNavigationHtml($folderid, M_READ, 0, 'maintree', ($this->params['expandFolderTree'] == 1) ? -1 : 3, $orderby);
-									$this->contentContainerEnd();
-								} else {
-									$this->contentHeading("<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=1\"><i class=\"fa fa-plus-circle\"></i></a>", true);
-								}
-							}
-							echo $this->callHook('leftContent');
-							if ($enableClipboard)
-								$this->printClipboard($this->params['session']->getClipboard(), $previewer);
-							echo $this->callHook('leftContentPost');
-							$this->columnEnd();
-						}
-						$this->columnStart($RightColumnSpan);
-						if ($enableDropUpload) {
+			<div class="dashboard-main-content-wrapper">
+				<div class="dashboard-card-container">
+					<div class="card">
+						<div class="card-body">
+							<div class="ajax" data-view="ViewFolder" data-action="navigation" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
+							<?php
 							$this->rowStart();
 							$this->columnStart(12);
-						}
-						?>
-						<ul class="nav nav-pills mb-3" id="folderinfotab" role="tablist">
-							<li class="nav-item <?php if (!$currenttab || $currenttab == 'folderinfo') echo 'active'; ?>">
-								<a class="nav-link <?php if (!$currenttab || $currenttab == 'folderinfo') echo 'active'; ?>" data-target="#folderinfo" data-toggle="tab" role="button"><?php printMLText('folder_infos'); ?></a>
-							</li>
-							<?php
-							$tabs = $this->callHook('extraTabs', $folder);
-							if (is_array($tabs) || $tabs instanceof Traversable) {
-								foreach ($tabs as $tabid => $tab) {
-									echo '<li class="nav-item ' . ($currenttab == $tabid ? 'active' : '') . '"><a class="nav-link ' . ($currenttab == $tabid ? 'active' : '') . '" data-target="#' . $tabid . '" data-toggle="tab" role="button">' . $tab['title'] . '</a></li>';
+							?>
+							<div class="ajax ajax-scroll" data-view="ViewFolder" data-action="dropUpload" data-no-spinner="true"
+								<?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
+							<style>
+								.compiled-statusbar {
+									max-height: 300px;
+									/* Adjust as needed */
+									overflow-y: auto;
+									/* Optional: to make scroll area more visible */
+									padding: 10px;
 								}
+							</style>
+
+							<div class="compiled-statusbar"></div>
+							<p class="num_of_uploads text-end text-secondary fs-4"></p>
+							<br>
+							<script>
+								document.addEventListener("DOMContentLoaded", function () {
+									const ajaxDiv = document.querySelector('.ajax-scroll');
+									const wrapper = document.querySelector('.compiled-statusbar');
+									const numupload = document.querySelector('.num_of_uploads');
+									if (!ajaxDiv || !wrapper || !numupload) return;
+
+									// Watch for new .statusbar elements added by AJAX
+									const observer = new MutationObserver((mutationsList) => {
+										let addedStatusbar = false;
+
+										mutationsList.forEach(mutation => {
+											mutation.addedNodes.forEach(node => {
+												if (node.classList && node.classList.contains('statusbar')) {
+													wrapper.appendChild(node);
+													addedStatusbar = true;
+												}
+											});
+										});
+
+										// Show wrapper and update count
+										if (addedStatusbar && wrapper.children.length > 0) {
+											wrapper.style.display = 'block';
+											numupload.style.display = 'block';
+											numupload.textContent = `Number of Uploaded Files: ${wrapper.querySelectorAll('.statusbar').length}`;
+										}
+									});
+
+									observer.observe(ajaxDiv, {
+										childList: true,
+										subtree: true
+									});
+								});
+							</script>
+							<?php
+							$this->columnEnd();
+							if (!($enableFolderTree || $enableClipboard)) {
+								$LeftColumnSpan = 0;
+								$RightColumnSpan = 12;
+							} else {
+								$LeftColumnSpan = 4;
+								$RightColumnSpan = 8;
+							}
+							if ($LeftColumnSpan > 0) {
+								$this->columnStart($LeftColumnSpan);
+								echo $this->callHook('leftContentPre');
+								if ($enableFolderTree) {
+									if ($showtree == 1) {
+										$this->contentHeading("<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=0\"><i class=\"fa fa-minus-circle\"></i></a>", true);
+										$this->contentContainerStart();
+										$this->printNewTreeNavigationHtml($folderid, M_READ, 0, 'maintree', ($this->params['expandFolderTree'] == 1) ? -1 : 3, $orderby);
+										$this->contentContainerEnd();
+									} else {
+										$this->contentHeading("<a href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $folderid . "&showtree=1\"><i class=\"fa fa-plus-circle\"></i></a>", true);
+									}
+								}
+								echo $this->callHook('leftContent');
+								if ($enableClipboard)
+									$this->printClipboard($this->params['session']->getClipboard(), $previewer);
+								echo $this->callHook('leftContentPost');
+								$this->columnEnd();
+							}
+							$this->columnStart($RightColumnSpan);
+							if ($enableDropUpload) {
+								$this->rowStart();
+								$this->columnStart(12);
 							}
 							?>
-						</ul>
-						<div class="tab-content">
-							<div class="tab-pane <?php if (!$currenttab || $currenttab == 'folderinfo') echo 'active'; ?>" id="folderinfo" role="tabpanel">
-								<div class="ajax" data-view="ViewFolder" data-action="folderInfos" data-no-spinner="true" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
+							<ul class="nav nav-pills mb-3" id="folderinfotab" role="tablist">
+								<li class="nav-item <?php if (!$currenttab || $currenttab == 'folderinfo')
+									echo 'active'; ?>">
+									<a class="nav-link <?php if (!$currenttab || $currenttab == 'folderinfo')
+										echo 'active'; ?>" data-target="#folderinfo" data-toggle="tab"
+										role="button"><?php printMLText('folder_infos'); ?></a>
+								</li>
+								<?php
+								$tabs = $this->callHook('extraTabs', $folder);
+								if (is_array($tabs) || $tabs instanceof Traversable) {
+									foreach ($tabs as $tabid => $tab) {
+										echo '<li class="nav-item ' . ($currenttab == $tabid ? 'active' : '') . '"><a class="nav-link ' . ($currenttab == $tabid ? 'active' : '') . '" data-target="#' . $tabid . '" data-toggle="tab" role="button">' . $tab['title'] . '</a></li>';
+									}
+								}
+								?>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane <?php if (!$currenttab || $currenttab == 'folderinfo')
+									echo 'active'; ?>" id="folderinfo" role="tabpanel">
+									<div class="ajax" data-view="ViewFolder" data-action="folderInfos" data-no-spinner="true"
+										<?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "\"" : "") ?>></div>
+								</div>
+								<?php
+								if (is_array($tabs) || $tabs instanceof Traversable) {
+									foreach ($tabs as $tabid => $tab) {
+										echo '<div class="tab-pane ' . ($currenttab == $tabid ? 'active' : '') . '" id="' . $tabid . '" role="tabpanel">';
+										echo $tab['content'];
+										echo "</div>\n";
+									}
+								}
+								?>
 							</div>
 							<?php
-							if (is_array($tabs) || $tabs instanceof Traversable) {
-								foreach ($tabs as $tabid => $tab) {
-									echo '<div class="tab-pane ' . ($currenttab == $tabid ? 'active' : '') . '" id="' . $tabid . '" role="tabpanel">';
-									echo $tab['content'];
-									echo "</div>\n";
-								}
+							if ($enableDropUpload) {
+								$this->columnEnd();
+								$this->rowEnd();
 							}
+							echo $this->callHook('rightContentPre');
 							?>
-						</div>
-						<?php
-						if ($enableDropUpload) {
+							<div class="ajax" data-view="ViewFolder" data-action="folderList" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "&orderby=" . $orderby . "\"" : "") ?>></div>
+							<?php
+							echo $this->callHook('rightContentPost');
 							$this->columnEnd();
 							$this->rowEnd();
-						}
-						echo $this->callHook('rightContentPre');
-						?>
-						<div class="ajax" data-view="ViewFolder" data-action="folderList" <?php echo ($folder ? "data-query=\"folderid=" . $folder->getID() . "&orderby=" . $orderby . "\"" : "") ?>></div>
-						<?php
-						echo $this->callHook('rightContentPost');
-						$this->columnEnd();
-						$this->rowEnd();
-						echo $this->callHook('postContent');
-						?>
-					</div> <!-- card-body -->
-				</div> <!-- card -->
-			</div> <!-- dashboard-card-container -->
-		</div> <!-- dashboard-main-content-wrapper -->
-		<?php
-		$this->contentEnd();
-		$this->htmlEndPage();
+							echo $this->callHook('postContent');
+							?>
+						</div> <!-- card-body -->
+					</div> <!-- card -->
+				</div> <!-- dashboard-card-container -->
+			</div> <!-- dashboard-main-content-wrapper -->
+			<?php
+			$this->contentEnd();
+			$this->htmlEndPage();
 	} /* }}} */
 }
 
