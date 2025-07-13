@@ -2810,7 +2810,15 @@ HTML_CSS;
 					$label_sub = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
 						? htmlspecialchars($subfolder->getName())
 						: htmlspecialchars($decrypted);
-					$node = array('label' => $label_sub, 'id' => $subfolder->getID(), 'load_on_demand' => (1 && ($subfolder->hasSubFolders() || ($subfolder->hasDocuments() && $showdocs))) ? true : false, 'is_folder' => true);
+					$node = array(
+						'label' => $label_sub,
+						'name' => $label_sub,
+						'id' => $subfolder->getID(),
+						'load_on_demand' => false,
+						'children' => jqtree($obj, $path, $subfolder, $user, $accessmode, $showdocs, $expandtree, $orderby, $level + 1)
+						,
+						'is_folder' => true
+					);
 					/* if the subfolder is in the path then further unfold the tree. */
 					if (/*$expandtree>=$level ||*/ $path && ($path[0]->getID() == $subfolder->getID())) {
 						$node['children'] = jqtree($obj, $path, $subfolder, $user, $accessmode, $showdocs, $expandtree, $orderby, $level + 1);
@@ -2824,7 +2832,7 @@ HTML_CSS;
 								$label = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
 									? htmlspecialchars($subfolder->getName())
 									: htmlspecialchars($decrypted);
-								$node2 = array('label' => $label, 'id' => $document->getID(), 'load_on_demand' => false, 'is_folder' => false);
+								$node2 = array('label' => $label, 'name' => $label, 'id' => $document->getID(), 'load_on_demand' => false, 'is_folder' => false);
 								$node['children'][] = $node2;
 							}
 						}
@@ -2841,7 +2849,7 @@ HTML_CSS;
 					$label = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
 						? htmlspecialchars($subfolder->getName())
 						: htmlspecialchars($decrypted);
-					$node = array('label' => $label, 'id' => $subfolder->getID(), 'load_on_demand' => ($subfolder->hasSubFolders() || ($subfolder->hasDocuments() && $showdocs)) ? true : false, 'is_folder' => true);
+					$node = array('label' => $label, 'name' => $label, 'id' => $subfolder->getID(), 'load_on_demand' => ($subfolder->hasSubFolders() || ($subfolder->hasDocuments() && $showdocs)) ? true : false, 'is_folder' => true);
 					$children[] = $node;
 				}
 				return $children;
@@ -2874,7 +2882,7 @@ HTML_CSS;
 						$label_docuname = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
 							? htmlspecialchars($document->getName())
 							: htmlspecialchars($decrypted);
-						$node2 = array('label' => $label_docuname, 'id' => $document->getID(), 'load_on_demand' => false, 'is_folder' => false);
+						$node2 = array('label' => $label_docuname, 'name' => $label_docuname, 'id' => $document->getID(), 'load_on_demand' => false, 'is_folder' => false);
 						$node['children'][] = $node2;
 					}
 				}
@@ -2893,6 +2901,7 @@ HTML_CSS;
 				$tree = array();
 		}
 		?>
+
 		var data = <?php echo json_encode($tree); ?>;
 		$(function() {
 		const $tree = $('#jqtree<?php echo $formid ?>');
@@ -4180,10 +4189,14 @@ HTML_CSS;
 		if (!$skipcont)
 			$content .= $this->folderListRowStart($subFolder);
 		$content .= "<td><a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $subFolder->getID() . "&showtree=" . $showtree . "\"><img draggable=\"false\" src=\"" . $this->getMimeIcon(".folder") . "\" width=\"24\" height=\"24\" border=0></a></td>\n";
-		$encrypted_comment = $subFolder->getName();
-		$decrypted = $this->decryptName($encrypted_comment, $encryption_key);
+		$encrypted_name = $subFolder->getName();
+		$decrypted_name = htmlspecialchars($this->decryptName(htmlspecialchars($subFolder->getName()), $encryption_key));
+		if ($decrypted_name === '[INVALID NAME]' || $decrypted_name === '[DECRYPTION FAILED]') {
+			$decrypted_name = $encrypted_name;
+		}
+		//$decrypted = $this->decryptName($encrypted_name, $encryption_key);
 		if ($onepage)
-			$content .= "<td class=\"wordbreak\" style=\"cursor: pointer;\">" . "<b title=\"Id:" . $subFolder->getId() . "\">" . htmlspecialchars($decrypted) . "</b>";
+			$content .= "<td class=\"wordbreak\" style=\"cursor: pointer;\">" . "<b title=\"Id:" . $subFolder->getId() . "\">" . htmlspecialchars($decrypted_name) . "</b>";
 		else
 			$content .= "<td class=\"wordbreak\"><a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $subFolder->getID() . "&showtree=" . $showtree . "\">" . htmlspecialchars($decrypted) . "</a>";
 		if (isset($extracontent['below_title']))
