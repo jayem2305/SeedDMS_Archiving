@@ -2832,7 +2832,15 @@ HTML_CSS;
 								$label = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
 									? htmlspecialchars($subfolder->getName())
 									: htmlspecialchars($decrypted);
-								$node2 = array('label' => $label, 'name' => $label, 'id' => $document->getID(), 'load_on_demand' => false, 'is_folder' => false);
+								$node2 = array(
+									'label' => $label,
+									'name' => $label,
+									'id' => $document->getID(),
+									'load_on_demand' => false,
+									'children' => jqtree($obj, $path, $subfolder, $user, $accessmode, $showdocs, $expandtree, $orderby, $level + 1)
+									,
+									'is_folder' => false
+								);
 								$node['children'][] = $node2;
 							}
 						}
@@ -2849,7 +2857,15 @@ HTML_CSS;
 					$label = ($decrypted === '[DECRYPTION FAILED]' || $decrypted === '[INVALID NAME]')
 						? htmlspecialchars($subfolder->getName())
 						: htmlspecialchars($decrypted);
-					$node = array('label' => $label, 'name' => $label, 'id' => $subfolder->getID(), 'load_on_demand' => ($subfolder->hasSubFolders() || ($subfolder->hasDocuments() && $showdocs)) ? true : false, 'is_folder' => true);
+					$node = array(
+						'label' => $label,
+						'name' => $label,
+						'id' => $subfolder->getID(),
+						'load_on_demand' => false,
+						'children' => jqtree($obj, $path, $subfolder, $user, $accessmode, $showdocs, $expandtree, $orderby, $level + 1)
+						,
+						'is_folder' => true
+					);
 					$children[] = $node;
 				}
 				return $children;
@@ -3697,9 +3713,143 @@ HTML_CSS;
 
 	public function folderListHeader()
 	{ /* {{{ */
-		$content = "<table id=\"viewfolder-table\" class=\"table table-condensed table-sm table-hover\">";
+		$content = <<<HTML
+    <div class="form-group mb-2 d-flex justify-content-between align-items-center">
+        <div>
+            <label for="rowLimit">Show</label>
+            <select id="rowLimit" class="form-control d-inline-block w-auto ml-2" onchange="filterTable(1)">
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="500">500</option>
+            </select>
+            <span>entries</span>
+        </div>
+        <div>
+            <label for="tableSearch" class="mr-2">Search:</label>
+            <input type="text" id="tableSearch" onkeyup="filterTable(1)" class="form-control d-inline-block w-auto" placeholder="Search table...">
+        </div>
+    </div>
+HTML;
+
+		// JavaScript for filtering, limiting, and pagination
+		echo <<<SCRIPT
+<script>
+let currentPage = 1;
+
+function filterTable(page = 1) {
+    // Prevent jumping on pagination click
+    window.scrollTo({ top: window.scrollY, behavior: 'instant' });
+
+    currentPage = page;
+
+    const limit = parseInt(document.getElementById("rowLimit").value);
+    const search = document.getElementById("tableSearch").value.toLowerCase();
+    const table = document.getElementById("viewfolder-table");
+    const tbody = table.getElementsByTagName("tbody")[0];
+    const rows = tbody?.getElementsByTagName("tr");
+
+    if (!rows) return;
+
+    let filteredRows = [];
+    // First hide all rows
+    for (let i = 0; i < rows.length; i++) {
+        rows[i].style.display = "none";
+
+        // Remove previous 'no data' row if exists
+        if (rows[i].id === "no-data-row") {
+            rows[i].remove();
+            i--; // Recheck current index as DOM changes
+        }
+    }
+
+    // Filter matching rows
+    for (let i = 0; i < rows.length; i++) {
+        const rowText = rows[i].innerText.toLowerCase();
+        if (rowText.includes(search)) {
+            filteredRows.push(rows[i]);
+        }
+    }
+
+    if (filteredRows.length === 0) {
+        const colCount = table.querySelector("thead tr").children.length;
+        const noDataRow = document.createElement("tr");
+        noDataRow.id = "no-data-row";
+
+        const td = document.createElement("td");
+        td.colSpan = colCount;
+        td.className = "text-center text-muted";
+        td.textContent = "No records found.";
+
+        noDataRow.appendChild(td);
+        tbody.appendChild(noDataRow);
+
+        renderPagination(0);
+        return;
+    }
+
+    const totalPages = Math.ceil(filteredRows.length / limit);
+    const start = (currentPage - 1) * limit;
+    const end = start + limit;
+
+    for (let i = start; i < end && i < filteredRows.length; i++) {
+        filteredRows[i].style.display = "";
+    }
+
+    renderPagination(totalPages);
+}
+
+
+function renderPagination(totalPages) {
+    const table = document.getElementById("viewfolder-table");
+
+    // Remove old pagination if it exists
+    const oldPagination = document.getElementById("pagination");
+    if (oldPagination) {
+        oldPagination.remove();
+    }
+
+    if (totalPages <= 1) return;
+
+    const div = document.createElement("div");
+    div.id = "pagination";
+    div.className = "mt-3 d-flex justify-content-end";
+
+    let html = '<nav><ul class="pagination pagination-sm mb-0">';
+    if (currentPage > 1) {
+        html += '<li class="page-item"><a class="page-link" href="#" onclick="event.preventDefault(); filterTable(' + (currentPage - 1) + ')">Previous</a></li>';
+    }
+
+    for (let i = 1; i <= totalPages; i++) {
+        html += '<li class="page-item ' + (i === currentPage ? 'active' : '') + '">';
+        html += '<a class="page-link" href="#" onclick="event.preventDefault(); filterTable(' + i + ')">' + i + '</a></li>';
+    }
+
+    if (currentPage < totalPages) {
+        html += '<li class="page-item"><a class="page-link" href="#" onclick="event.preventDefault(); filterTable(' + (currentPage + 1) + ')">Next</a></li>';
+    }
+
+    html += '</ul></nav>';
+    div.innerHTML = html;
+
+    // Insert pagination after the table
+    table.parentNode.insertBefore(div, table.nextSibling);
+}
+
+// Initial filter when page loads
+window.onload = function () {
+    filterTable(1);
+};
+</script>
+SCRIPT;
+
+		// Table header
+		$content .= "<table id=\"viewfolder-table\" class=\"table table-condensed table-sm table-hover\">";
 		$content .= "<thead>\n<tr>\n";
 		$headcols = array();
+		//$headcols['select'] = getMLText("action");//change to button to select all
 		$headcols['image'] = $this->folderListHeaderImage();
 		$headcols['name'] = $this->folderListHeaderName();
 		if ($ec = $this->callHook('folderListHeaderExtraColumns'))
@@ -3709,8 +3859,13 @@ HTML_CSS;
 		foreach ($headcols as $headcol)
 			$content .= "<th>" . $headcol . "</th>\n";
 		$content .= "</tr>\n</thead>\n";
+
 		return $content;
 	} /* }}} */
+
+
+
+
 
 	/**
 	 * Start the row for a folder in list of documents and folders
@@ -3900,7 +4055,7 @@ HTML_CSS;
 
 			if ($ec = $this->callHook('documentListRowExtraContent', $document, $latestContent))
 				$extracontent = array_merge($extracontent, $ec);
-
+			//$content = "<td class='form-check text-center'> <input class='form-check-input-lg' type='checkbox' value='' id='checkChecked'></td>";
 			$content .= "<td>";
 			if (file_exists($dms->contentDir . $latestContent->getPath())) {
 				$previewhtml = $this->callHook('documentListPreview', $previewer, $document, $latestContent);
@@ -4188,6 +4343,7 @@ HTML_CSS;
 		$content = '';
 		if (!$skipcont)
 			$content .= $this->folderListRowStart($subFolder);
+		//$content = "<td class='form-check text-center'> <input class='form-check-input-lg' type='checkbox' value='' id='checkChecked_folder'></td>";
 		$content .= "<td><a draggable=\"false\" href=\"" . $this->params['settings']->_httpRoot . "out/out.ViewFolder.php?folderid=" . $subFolder->getID() . "&showtree=" . $showtree . "\"><img draggable=\"false\" src=\"" . $this->getMimeIcon(".folder") . "\" width=\"24\" height=\"24\" border=0></a></td>\n";
 		$encrypted_name = $subFolder->getName();
 		$decrypted_name = htmlspecialchars($this->decryptName(htmlspecialchars($subFolder->getName()), $encryption_key));
